@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace PhpUpgradePreflight\Tests\Unit\Model;
+namespace PhpUpgradePreflight\Core\Tests\Unit\Model;
 
 use InvalidArgumentException;
 use PhpUpgradePreflight\Core\Model\UpgradeTarget;
@@ -32,9 +32,7 @@ final class UpgradeTargetTest extends TestCase
         UpgradeTarget::fromString($target);
     }
 
-    /**
-     * @return list<array{string}>
-     */
+    /** @return list<array{string}> */
     public function invalidTargetProvider(): array
     {
         return [

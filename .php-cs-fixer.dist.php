@@ -7,7 +7,6 @@ use PhpCsFixer\Finder;
 
 $finder = Finder::create()
     ->in(__DIR__.'/packages')
-    ->in(__DIR__.'/tests/Unit')
     ->name('*.php')
     ->ignoreDotFiles(true)
     ->ignoreVCS(true);

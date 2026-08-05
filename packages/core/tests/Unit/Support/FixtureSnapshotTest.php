@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace PhpUpgradePreflight\Tests\Unit\Support;
+namespace PhpUpgradePreflight\Core\Tests\Unit\Support;
 
 use PhpUpgradePreflight\Tests\Support\FixtureSnapshot;
 use PHPUnit\Framework\AssertionFailedError;

@@ -53,7 +53,10 @@
   },
   "scripts": {
     "test": "phpunit",
-    "analyse": "phpstan analyse",
+    "test:core": "phpunit --testsuite core",
+    "test:cli": "phpunit --testsuite cli",
+    "test:laravel": "phpunit --testsuite laravel",
+    "analyse": "phpstan analyse --memory-limit=512M",
     "lint": "php-cs-fixer fix --dry-run --diff",
     "check": [
       "@test",

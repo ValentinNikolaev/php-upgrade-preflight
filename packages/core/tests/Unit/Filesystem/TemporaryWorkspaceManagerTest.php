@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace PhpUpgradePreflight\Tests\Unit\Filesystem;
+namespace PhpUpgradePreflight\Core\Tests\Unit\Filesystem;
 
 use PhpUpgradePreflight\Core\Filesystem\TemporaryWorkspaceManager;
 use PhpUpgradePreflight\Tests\Support\FixtureSnapshot;
@@ -12,7 +12,7 @@ final class TemporaryWorkspaceManagerTest extends TestCase
 {
     public function testItLeavesEveryOriginalFixtureFileUnchangedWhenTheWorkspaceIsModified(): void
     {
-        $fixturePath = dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'fixtures' . DIRECTORY_SEPARATOR . 'laravel-app';
+        $fixturePath = dirname(__DIR__, 5) . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'fixtures' . DIRECTORY_SEPARATOR . 'laravel-app';
         $snapshot = FixtureSnapshot::capture($fixturePath);
         $workspaces = new TemporaryWorkspaceManager();
         $workspacePath = $workspaces->createFromProject($fixturePath);

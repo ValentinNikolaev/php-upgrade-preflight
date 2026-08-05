@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace PhpUpgradePreflight\Cli;
 
 use PhpUpgradePreflight\Core\Analysis\DefaultUpgradeAnalyzer;
+use PhpUpgradePreflight\Core\Contracts\UpgradeAnalyzer;
 use PhpUpgradePreflight\Core\Model\ReportFormat;
 use PhpUpgradePreflight\Core\Model\UpgradeRequest;
 use PhpUpgradePreflight\Core\Model\UpgradeTarget;
@@ -13,11 +14,28 @@ use PhpUpgradePreflight\Core\Reporting\MarkdownReportWriter;
 
 final class AnalyzeCommand
 {
+    private UpgradeAnalyzer $analyzer;
+    /** @var resource */
+    private $stdout;
+    /** @var resource */
+    private $stderr;
+
+    /**
+     * @param resource|null $stdout
+     * @param resource|null $stderr
+     */
+    public function __construct(?UpgradeAnalyzer $analyzer = null, $stdout = null, $stderr = null)
+    {
+        $this->analyzer = $analyzer ?? new DefaultUpgradeAnalyzer();
+        $this->stdout = $stdout ?? STDOUT;
+        $this->stderr = $stderr ?? STDERR;
+    }
+
     /** @param list<string> $argv */
     public function run(array $argv): int
     {
         if (in_array('--help', $argv, true) || in_array('-h', $argv, true)) {
-            fwrite(STDOUT, $this->usage());
+            fwrite($this->stdout, $this->usage());
 
             return 0;
         }
@@ -37,21 +55,21 @@ final class AnalyzeCommand
                 $options['debug']
             );
 
-            $report = (new DefaultUpgradeAnalyzer())->analyzeUpgrade($request);
+            $report = $this->analyzer->analyzeUpgrade($request);
             $rendered = $request->format === ReportFormat::MARKDOWN
                 ? (new MarkdownReportWriter())->render($report)
                 : (new JsonReportWriter())->render($report);
 
             if ($request->outputPath !== null) {
                 file_put_contents($request->outputPath, $rendered);
-                fwrite(STDOUT, sprintf("Wrote report to %s\n", $request->outputPath));
+                fwrite($this->stdout, sprintf("Wrote report to %s\n", $request->outputPath));
             } else {
-                fwrite(STDOUT, $rendered);
+                fwrite($this->stdout, $rendered);
             }
 
             return 0;
         } catch (\Throwable $exception) {
-            fwrite(STDERR, $exception->getMessage() . PHP_EOL);
+            fwrite($this->stderr, $exception->getMessage() . PHP_EOL);
 
             return 1;
         }

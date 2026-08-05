@@ -24,7 +24,7 @@ Acceptance gate: all manifests validate, dependencies install, every PHP file pa
 - [x] Choose PHPUnit or Pest with versions compatible with PHP 8.0.
 - [x] Add root scripts for tests, static analysis, and coding-style checks.
 - [x] Add fixture helpers that snapshot every original file before analysis and assert byte-for-byte immutability afterward.
-- [ ] Add unit-test structure for core, CLI, and Laravel packages.
+- [x] Add unit-test structure for core, CLI, and Laravel packages.
 - [ ] Add CI covering the supported runtime matrix, initially PHP 8.0 through the current stable PHP release.
 - [ ] Establish deterministic JSON snapshot normalization for paths and temporary directories.
 

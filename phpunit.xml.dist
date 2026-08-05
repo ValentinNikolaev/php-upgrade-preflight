@@ -5,8 +5,14 @@
     cacheResult="false"
 >
     <testsuites>
-        <testsuite name="unit">
-            <directory suffix="Test.php">tests/Unit</directory>
+        <testsuite name="core">
+            <directory suffix="Test.php">packages/core/tests/Unit</directory>
+        </testsuite>
+        <testsuite name="cli">
+            <directory suffix="Test.php">packages/cli/tests/Unit</directory>
+        </testsuite>
+        <testsuite name="laravel">
+            <directory suffix="Test.php">packages/laravel/tests/Unit</directory>
         </testsuite>
     </testsuites>
 </phpunit>
