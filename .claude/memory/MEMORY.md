@@ -4,7 +4,7 @@ description: Durable architecture, constraints, and current-state context for PH
 type: project
 related:
   - ../DEVELOPMENT_PLAN.md
-last_updated: 2026-08-05
+last_updated: 2026-08-06
 ---
 
 # Project Memory
@@ -52,11 +52,10 @@ Evidence classes are `E1` Composer solver, `E2` package metadata, `E3` project s
 
 The initial scaffold exists across all three packages. It includes typed DTO-style models, Composer JSON/lock readers, temporary workspace handling, three update scenarios, lock diffing, basic blocker grouping, regex-based source scanning, report writers, the generic CLI, Laravel detection/rules, and the Artisan command.
 
-The repository now has a verified Docker toolchain using PHP 8.3 and Composer 2. The image builds, all Composer manifests pass strict validation, the root dependency set installs from a committed lockfile, all PHP source files pass syntax checks, package classes autoload, and the generic CLI reaches argument validation. Full analyzer behavior and Laravel application boot remain unverified until fixtures and tests are added.
+The repository has a verified Docker toolchain using PHP 8.3 by default and Composer 2, with working PHP-version overrides from 8.0 through 8.5. The root `composer check` command validates every package manifest, runs PHPUnit, PHPStan, and PHP CS Fixer, and is the same quality gate used by the GitHub Actions runtime matrix. The deterministic analyzer isolation test runs all scenario paths through temporary workspaces and proves the original fixture remains byte-for-byte unchanged.
 
 Known implementation gaps:
 
-- No test suite, fixtures, snapshots, CI, static analysis, or Composer quality scripts.
 - Source scanning currently uses regex despite `nikic/php-parser` being required.
 - Blocker parsing covers only a few broad message patterns and may duplicate the same root cause across scenarios.
 - Missing target normalization, evidence ledger, report assembler, dedicated framework rule engine, and dedicated risk/effort estimator objects.

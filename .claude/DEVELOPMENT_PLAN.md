@@ -1,6 +1,6 @@
 # PHP Upgrade Preflight Development Plan
 
-Last updated: 2026-08-05
+Last updated: 2026-08-06
 
 This is a directional plan, not a rigid contract. Keep milestone order unless repository evidence shows a safer dependency order. Mark completed work with `[x]`, active work with `[~]`, and remaining work with `[ ]`.
 
@@ -20,6 +20,8 @@ v0.1 should analyze a Laravel 7 Composer fixture against Laravel 8/9 and PHP 8.0
 Acceptance gate: all manifests validate, dependencies install, every PHP file parses, and both command entry points can show or return valid usage without fatal errors.
 
 ## Milestone 1: Test and Quality Foundation
+
+Status: complete and verified on 2026-08-06.
 
 - [x] Choose PHPUnit or Pest with versions compatible with PHP 8.0.
 - [x] Add root scripts for tests, static analysis, and coding-style checks.
@@ -182,10 +184,8 @@ Acceptance gate: a fresh user can install and run the analyzer against the docum
 
 ## Recommended Next Work Session
 
-Milestone 0 is complete. Continue with Milestone 1:
+Milestones 0 and 1 are complete. Continue with Milestone 2:
 
-1. Add the PHP 8.0-compatible test framework and root quality scripts.
-2. Implement the temporary-workspace immutability test first.
-3. Add focused tests for request parsing, lock diffing, blocker grouping, and report serialization.
-
-Do not expand Laravel rules before this foundation is green. Those rules depend on a trustworthy evidence ledger, report contract, and fixture harness.
+1. Add `UpgradeTargetSet` validation, normalization, duplicate handling, and deterministic ordering.
+2. Add the evidence ledger and validate all report evidence references.
+3. Extract and test the report-assembly phases before expanding framework rules.

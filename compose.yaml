@@ -13,9 +13,6 @@ services:
     working_dir: /app
     environment:
       COMPOSER_CACHE_DIR: /home/app/.composer/cache
-      GIT_CONFIG_COUNT: 1
-      GIT_CONFIG_KEY_0: safe.directory
-      GIT_CONFIG_VALUE_0: /app
     volumes:
       - .:/app
       - composer-cache:/home/app/.composer/cache

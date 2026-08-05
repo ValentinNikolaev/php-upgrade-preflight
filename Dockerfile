@@ -1,6 +1,6 @@
 ARG PHP_VERSION=8.3
 
-FROM php:${PHP_VERSION}-cli-bookworm
+FROM php:${PHP_VERSION}-cli
 
 ARG USER_ID=1000
 ARG GROUP_ID=1000
@@ -8,11 +8,11 @@ ARG GROUP_ID=1000
 RUN apt-get update \
     && apt-get install --no-install-recommends -y \
         git \
-        libonig-dev \
-        libxml2-dev \
         libzip-dev \
         unzip \
-    && docker-php-ext-install -j"$(nproc)" dom mbstring xml zip \
+    && docker-php-ext-install -j"$(nproc)" zip \
+    && php -r "foreach (['dom', 'mbstring', 'xml', 'zip'] as \$extension) { if (!extension_loaded(\$extension)) { fwrite(STDERR, \"Missing PHP extension: {\$extension}\\n\"); exit(1); } }" \
+    && git config --system --add safe.directory /app \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer

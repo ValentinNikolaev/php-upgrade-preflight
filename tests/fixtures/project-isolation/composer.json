@@ -1,0 +1,10 @@
+{
+  "name": "php-upgrade-preflight/project-isolation-fixture",
+  "description": "Minimal deterministic fixture for analyzer isolation tests.",
+  "type": "project",
+  "license": "MIT",
+  "require": {
+    "php": "^8.0",
+    "fixture/dependency": "1.0.0"
+  }
+}

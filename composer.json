@@ -52,6 +52,12 @@
     }
   },
   "scripts": {
+    "validate:all": [
+      "@composer validate --strict",
+      "@composer validate --strict packages/core/composer.json",
+      "@composer validate --strict packages/cli/composer.json",
+      "@composer validate --strict packages/laravel/composer.json"
+    ],
     "test": "phpunit",
     "test:core": "phpunit --testsuite core",
     "test:cli": "phpunit --testsuite cli",
@@ -59,6 +65,7 @@
     "analyse": "phpstan analyse --memory-limit=512M",
     "lint": "php-cs-fixer fix --dry-run --diff",
     "check": [
+      "@validate:all",
       "@test",
       "@analyse",
       "@lint"

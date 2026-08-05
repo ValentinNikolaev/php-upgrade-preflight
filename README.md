@@ -62,4 +62,4 @@ PHPUnit 9.6 is used because it supports the PHP 8.0 runtime floor. Run the full 
 docker compose run --rm php composer check
 ```
 
-Individual checks are available through `composer test`, `composer analyse`, and `composer lint`. Package unit suites can be run independently with `composer test:core`, `composer test:cli`, or `composer test:laravel`. GitHub Actions runs the same gate for pull requests and pushes to `main` across PHP 8.0 through PHP 8.5, the current stable release.
+The gate validates the root and all package manifests before running tests, static analysis, and coding-style checks. Individual checks are available through `composer test`, `composer analyse`, and `composer lint`. Package unit suites can be run independently with `composer test:core`, `composer test:cli`, or `composer test:laravel`. GitHub Actions runs the same gate for pull requests and pushes to `main` across PHP 8.0 through PHP 8.5, the current stable release.

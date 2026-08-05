@@ -1,0 +1,23 @@
+{
+  "_readme": [
+    "Deterministic test fixture; no dependency installation is performed."
+  ],
+  "content-hash": "fixture-content-hash",
+  "packages": [
+    {
+      "name": "fixture/dependency",
+      "version": "1.0.0"
+    }
+  ],
+  "packages-dev": [],
+  "aliases": [],
+  "minimum-stability": "stable",
+  "stability-flags": [],
+  "prefer-stable": false,
+  "prefer-lowest": false,
+  "platform": {
+    "php": "^8.0"
+  },
+  "platform-dev": [],
+  "plugin-api-version": "2.6.0"
+}
