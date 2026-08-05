@@ -53,3 +53,13 @@ PHP_VERSION=8.0 docker compose run --rm php php -v
 ```
 
 In PowerShell, set `$env:PHP_VERSION = '8.0'` before running the same Docker Compose commands.
+
+## Quality checks
+
+PHPUnit 9.6 is used because it supports the PHP 8.0 runtime floor. Run the full local gate with:
+
+```bash
+docker compose run --rm php composer check
+```
+
+Individual checks are available through `composer test`, `composer analyse`, and `composer lint`. GitHub Actions runs the same gate for pull requests and pushes to `main` on PHP 8.0.

@@ -11,3 +11,4 @@
 /tests/fixtures/laravel-app/storage/logs/*.log
 /tests/fixtures/laravel-app/composer.lock
 /tests/fixtures/laravel-app/bootstrap/cache/*.php
+.php-cs-fixer.cache
