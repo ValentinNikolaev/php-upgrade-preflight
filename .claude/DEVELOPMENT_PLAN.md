@@ -25,8 +25,8 @@ Acceptance gate: all manifests validate, dependencies install, every PHP file pa
 - [x] Add root scripts for tests, static analysis, and coding-style checks.
 - [x] Add fixture helpers that snapshot every original file before analysis and assert byte-for-byte immutability afterward.
 - [x] Add unit-test structure for core, CLI, and Laravel packages.
-- [ ] Add CI covering the supported runtime matrix, initially PHP 8.0 through the current stable PHP release.
-- [ ] Establish deterministic JSON snapshot normalization for paths and temporary directories.
+- [x] Add CI covering the supported runtime matrix, initially PHP 8.0 through the current stable PHP release.
+- [x] Establish deterministic JSON snapshot normalization for paths and temporary directories.
 
 Acceptance gate: one command runs the full local quality suite, CI runs it across supported PHP versions, and an isolation test proves the analyzed project is unchanged.
 
