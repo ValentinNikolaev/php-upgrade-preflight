@@ -1,0 +1,49 @@
+{
+  "name": "php-upgrade-preflight/laravel-app-fixture",
+  "description": "Minimal Laravel application fixture for package smoke tests.",
+  "type": "project",
+  "license": "MIT",
+  "repositories": [
+    {
+      "type": "path",
+      "url": "../../../packages/core",
+      "options": {
+        "symlink": true,
+        "versions": {
+          "php-upgrade-preflight/core": "0.1.x-dev"
+        }
+      }
+    },
+    {
+      "type": "path",
+      "url": "../../../packages/laravel",
+      "options": {
+        "symlink": true,
+        "versions": {
+          "php-upgrade-preflight/laravel": "0.1.x-dev"
+        }
+      }
+    }
+  ],
+  "require": {
+    "php": "^8.1",
+    "laravel/framework": "^10.0",
+    "php-upgrade-preflight/laravel": "0.1.x-dev"
+  },
+  "autoload": {
+    "psr-4": {
+      "App\\": "app/"
+    }
+  },
+  "scripts": {
+    "post-autoload-dump": [
+      "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
+      "@php artisan package:discover --ansi"
+    ]
+  },
+  "config": {
+    "sort-packages": true
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true
+}

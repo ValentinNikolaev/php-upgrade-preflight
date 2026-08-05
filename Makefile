@@ -1,7 +1,7 @@
 DOCKER_COMPOSE ?= docker compose
 PHP := $(DOCKER_COMPOSE) run --rm php
 
-.PHONY: build shell install update validate test analyse check analyze
+.PHONY: build shell install update validate test test-laravel-fixture analyse check analyze
 
 build:
 	$(DOCKER_COMPOSE) build php
@@ -23,6 +23,9 @@ validate:
 
 test:
 	$(PHP) vendor/bin/phpunit
+
+test-laravel-fixture:
+	$(PHP) bash -lc "cd tests/fixtures/laravel-app && composer install && php tests/smoke.php"
 
 analyse:
 	$(PHP) vendor/bin/phpstan analyse
