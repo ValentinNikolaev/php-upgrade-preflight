@@ -46,6 +46,11 @@
     "phpstan/phpstan": "^2.1",
     "phpunit/phpunit": "^9.6"
   },
+  "autoload-dev": {
+    "psr-4": {
+      "PhpUpgradePreflight\\Tests\\Support\\": "tests/Support/"
+    }
+  },
   "scripts": {
     "test": "phpunit",
     "analyse": "phpstan analyse",

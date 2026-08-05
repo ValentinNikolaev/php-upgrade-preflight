@@ -49,7 +49,7 @@ Do not create Symfony or CodeIgniter packages until explicitly requested.
 - Treat failure paths as reportable outcomes, not crashes, when analysis can continue.
 - Keep evidence IDs stable within a report and ensure every meaningful finding references an existing evidence item.
 - Preserve debug workspaces only when debug mode is explicitly enabled.
-- Update `.claude/DEVELOPMENT_PLAN.md` when a milestone or acceptance gate is completed.
+- Update `.claude/DEVELOPMENT_PLAN.md` whenever a milestone checklist item, milestone, or acceptance gate is fully implemented and verified.
 - Update `.claude/memory/MEMORY.md` only for durable decisions or architecture changes, not session logs.
 
 ## Verification Commands
