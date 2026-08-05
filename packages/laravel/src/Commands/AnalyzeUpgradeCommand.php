@@ -50,7 +50,7 @@ final class AnalyzeUpgradeCommand extends Command
             (string) ($this->option('path') ?: base_path()),
             $targets,
             $this->nullableString($this->option('from-php')),
-            $this->targetPhp($targets),
+            null,
             [],
             ['laravel'],
             $format,
@@ -71,18 +71,6 @@ final class AnalyzeUpgradeCommand extends Command
         }
 
         return self::SUCCESS;
-    }
-
-    /** @param list<UpgradeTarget> $targets */
-    private function targetPhp(array $targets): ?string
-    {
-        foreach ($targets as $target) {
-            if ($target->package === 'php') {
-                return $target->constraint;
-            }
-        }
-
-        return null;
     }
 
     /** @param mixed $value */

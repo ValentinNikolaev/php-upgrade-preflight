@@ -47,7 +47,7 @@ final class AnalyzeCommand
                 $options['path'],
                 $targets,
                 $options['from-php'],
-                $this->targetPhp($targets, $options['target-php']),
+                $options['target-php'],
                 $options['source'],
                 $options['framework'],
                 $options['format'],
@@ -84,7 +84,7 @@ Usage:
 Options:
   --path=PATH             Project path to analyze (default: current directory)
   --target=PACKAGE:VALUE  Target package constraint; repeatable and required
-  --target-php=VALUE      Explicit target PHP version or constraint
+  --target-php=VERSION    Explicit target PHP platform version
   --from-php=VALUE        Current project PHP version
   --source=PATH           Additional source path to scan; repeatable
   --framework=NAME        Framework integration to enable; repeatable
@@ -144,19 +144,4 @@ USAGE;
         return $options;
     }
 
-    /** @param list<UpgradeTarget> $targets */
-    private function targetPhp(array $targets, ?string $explicit): ?string
-    {
-        if ($explicit !== null) {
-            return $explicit;
-        }
-
-        foreach ($targets as $target) {
-            if ($target->package === 'php') {
-                return $target->constraint;
-            }
-        }
-
-        return null;
-    }
 }

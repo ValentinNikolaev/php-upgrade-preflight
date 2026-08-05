@@ -69,9 +69,9 @@ final class AnalyzeCommandTest extends TestCase
         self::assertNotNull($this->analyzer->request);
         self::assertSame(['laravel/framework', 'php'], array_map(
             static fn ($target): string => $target->package,
-            $this->analyzer->request->targets
+            $this->analyzer->request->targets->all()
         ));
-        self::assertSame('8.1', $this->analyzer->request->targetPhp);
+        self::assertSame('8.1.0', $this->analyzer->request->targetPhp);
         self::assertSame('7.4', $this->analyzer->request->fromPhp);
         self::assertSame(['app'], $this->analyzer->request->sourcePaths);
         self::assertSame(['laravel'], $this->analyzer->request->frameworks);
