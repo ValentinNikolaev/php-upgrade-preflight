@@ -1,0 +1,24 @@
+{
+  "name": "php-upgrade-preflight/laravel",
+  "description": "Laravel adapter and rules for PHP Upgrade Preflight.",
+  "type": "library",
+  "license": "MIT",
+  "require": {
+    "php": "^8.0",
+    "illuminate/console": "^8.0|^9.0|^10.0|^11.0|^12.0",
+    "illuminate/support": "^8.0|^9.0|^10.0|^11.0|^12.0",
+    "php-upgrade-preflight/core": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "PhpUpgradePreflight\\Laravel\\": "src/"
+    }
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "PhpUpgradePreflight\\Laravel\\UpgradePreflightServiceProvider"
+      ]
+    }
+  }
+}

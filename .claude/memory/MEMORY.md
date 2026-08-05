@@ -1,0 +1,87 @@
+---
+name: php-upgrade-preflight-project
+description: Durable architecture, constraints, and current-state context for PHP Upgrade Preflight development.
+type: project
+related:
+  - ../DEVELOPMENT_PLAN.md
+last_updated: 2026-08-05
+---
+
+# Project Memory
+
+## Product
+
+PHP Upgrade Preflight is a local, read-only analyzer for Composer-based PHP projects. Its semantic operation is:
+
+```php
+UpgradeAnalyzer::analyzeUpgrade(UpgradeRequest $request): UpgradeReport
+```
+
+Inputs are Composer files, requested package/PHP constraints, and optional source paths. Outputs are canonical JSON and derived Markdown. Composer remains authoritative for dependency resolution.
+
+The initial use case is Laravel 7 to Laravel 8/9 and PHP 7.4 to PHP 8.0/8.1. The runtime packages target PHP `^8.0`; older project PHP versions are modeled with Composer `config.platform.php`. Laravel 7 projects still running PHP 7.x should eventually use an external CLI, PHAR, or container rather than forcing the main package to support PHP 7.
+
+## Architecture
+
+The development repository is a private Composer monorepo with path repositories:
+
+- `php-upgrade-preflight/core`
+- `php-upgrade-preflight/cli`
+- `php-upgrade-preflight/laravel`
+
+Core owns deterministic analysis. CLI owns generic command parsing and output. Laravel owns detection, rules, service-provider registration, and Artisan integration. Future framework adapters implement core contracts and must not duplicate the analysis pipeline.
+
+The intended pipeline is:
+
+```text
+UpgradeRequest
+  -> ProjectStateBuilder
+  -> target normalization
+  -> ComposerScenarioRunner
+  -> LockDiffBuilder
+  -> BlockerGrouper
+  -> SourceUsageScanner
+  -> framework rules
+  -> risk and effort estimation
+  -> UpgradeReport
+```
+
+Evidence classes are `E1` Composer solver, `E2` package metadata, `E3` project source, `E4` maintainer documentation, and `E5` heuristic inference. Confidence is high for exact solver/lock/source/metadata evidence, medium for official documentation mapped to detected use, and low for heuristics.
+
+## Current State
+
+The initial scaffold exists across all three packages. It includes typed DTO-style models, Composer JSON/lock readers, temporary workspace handling, three update scenarios, lock diffing, basic blocker grouping, regex-based source scanning, report writers, the generic CLI, Laravel detection/rules, and the Artisan command.
+
+This scaffold has not yet been executed because PHP and Composer were unavailable on `PATH` when it was created. Composer JSON files were parsed successfully as JSON, but syntax, dependency compatibility, autoloading, and behavior remain unverified.
+
+Known implementation gaps:
+
+- No test suite, fixtures, snapshots, CI, static analysis, or Composer quality scripts.
+- Source scanning currently uses regex despite `nikic/php-parser` being required.
+- Blocker parsing covers only a few broad message patterns and may duplicate the same root cause across scenarios.
+- Missing target normalization, evidence ledger, report assembler, dedicated framework rule engine, and dedicated risk/effort estimator objects.
+- Report sections for root constraint changes, staged plan, test guidance, and some requested evidence are placeholders.
+- Scenario coverage lacks baseline validation, platform-only, staged targets, and explicit `why-not`/`prohibits` diagnostics.
+- Laravel rules do not yet cover Passport, Sanctum, Horizon, Telescope, PHPUnit, Mockery, Symfony coupling, old `illuminate/support`, Kernel middleware, or providers/aliases.
+- CLI uses a custom parser and has not been runtime-tested. Laravel integration must be checked against every declared Illuminate major.
+
+## Durable Decisions
+
+- MIT license.
+- Product name: PHP Upgrade Preflight; repository: `php-upgrade-preflight`.
+- Command names: generic `upgrade-intel analyze`; Laravel `upgrade:analyze`.
+- JSON is canonical and Markdown is a projection of the same report.
+- Reports may be incomplete but must expose uncertainty rather than unsupported certainty.
+- Analyzed projects are immutable inputs. Temporary Composer files are disposable analysis artifacts.
+- Effort is a range with assumptions and confidence, never a precise promise.
+- Testing uses four layers: offline unit tests, deterministic Composer integration tests backed by local path repositories, curated Laravel end-to-end fixtures, and opt-in networked smoke tests. Public sample projects must be pinned to commit SHAs and are release checks, not canonical test fixtures.
+
+## Repository Notes
+
+At bootstrap, `.gitignore` was already staged as an empty file and `.idea/` was untracked. These were not part of the implementation and must not be removed or overwritten without user direction.
+
+The original architecture source is:
+
+`I:/Development/Git/ValentinNikolaev/laravel-package-intelligence/ARCHITECTURE_PROMPT.md`
+
+Use `.claude/DEVELOPMENT_PLAN.md` for active sequencing. This file is durable context, not a progress diary.

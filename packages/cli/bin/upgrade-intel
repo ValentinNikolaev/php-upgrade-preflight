@@ -1,0 +1,19 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+$autoloads = [
+    __DIR__ . '/../../../vendor/autoload.php',
+    __DIR__ . '/../vendor/autoload.php',
+];
+
+foreach ($autoloads as $autoload) {
+    if (is_file($autoload)) {
+        require $autoload;
+        exit((new PhpUpgradePreflight\Cli\AnalyzeCommand())->run($argv));
+    }
+}
+
+fwrite(STDERR, "Unable to find Composer autoload.php.\n");
+exit(1);
