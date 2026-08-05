@@ -8,6 +8,6 @@
 /reports/
 
 /tests/fixtures/laravel-app/vendor/
-/tests/fixtures/laravel-app/storage/
+/tests/fixtures/laravel-app/storage/logs/*.log
 /tests/fixtures/laravel-app/composer.lock
 /tests/fixtures/laravel-app/bootstrap/cache/*.php

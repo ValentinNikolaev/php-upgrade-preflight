@@ -16,6 +16,12 @@ final class AnalyzeCommand
     /** @param list<string> $argv */
     public function run(array $argv): int
     {
+        if (in_array('--help', $argv, true) || in_array('-h', $argv, true)) {
+            fwrite(STDOUT, $this->usage());
+
+            return 0;
+        }
+
         try {
             $options = $this->parse($argv);
             $targets = array_map(static fn (string $target): UpgradeTarget => UpgradeTarget::fromString($target), $options['target']);
@@ -49,6 +55,27 @@ final class AnalyzeCommand
 
             return 1;
         }
+    }
+
+    private function usage(): string
+    {
+        return <<<'USAGE'
+Usage:
+  upgrade-intel analyze --target=package:constraint [options]
+
+Options:
+  --path=PATH             Project path to analyze (default: current directory)
+  --target=PACKAGE:VALUE  Target package constraint; repeatable and required
+  --target-php=VALUE      Explicit target PHP version or constraint
+  --from-php=VALUE        Current project PHP version
+  --source=PATH           Additional source path to scan; repeatable
+  --framework=NAME        Framework integration to enable; repeatable
+  --format=json|markdown  Report format (default: json)
+  --output=PATH           Write the report to a file
+  --debug                 Preserve temporary Composer workspaces
+  -h, --help              Show this help
+
+USAGE;
     }
 
     /** @param list<string> $argv @return array<string, mixed> */
