@@ -52,7 +52,7 @@ Evidence classes are `E1` Composer solver, `E2` package metadata, `E3` project s
 
 The initial scaffold exists across all three packages. It includes typed DTO-style models, Composer JSON/lock readers, temporary workspace handling, three update scenarios, lock diffing, basic blocker grouping, regex-based source scanning, report writers, the generic CLI, Laravel detection/rules, and the Artisan command.
 
-This scaffold has not yet been executed because PHP and Composer were unavailable on `PATH` when it was created. Composer JSON files were parsed successfully as JSON, but syntax, dependency compatibility, autoloading, and behavior remain unverified.
+The repository now has a verified Docker toolchain using PHP 8.3 and Composer 2. The image builds, all Composer manifests pass strict validation, the root dependency set installs from a committed lockfile, all PHP source files pass syntax checks, package classes autoload, and the generic CLI reaches argument validation. Full analyzer behavior and Laravel application boot remain unverified until fixtures and tests are added.
 
 Known implementation gaps:
 
@@ -75,6 +75,7 @@ Known implementation gaps:
 - Analyzed projects are immutable inputs. Temporary Composer files are disposable analysis artifacts.
 - Effort is a range with assumptions and confidence, never a precise promise.
 - Testing uses four layers: offline unit tests, deterministic Composer integration tests backed by local path repositories, curated Laravel end-to-end fixtures, and opt-in networked smoke tests. Public sample projects must be pinned to commit SHAs and are release checks, not canonical test fixtures.
+- The default development interpreter is the Compose `php` service on PHP 8.3. The root Composer manifest pins dependency resolution to PHP 8.0.30, while CI will execute the supported runtime matrix including PHP 8.4 and newer supported releases. PHP 8.3 avoids upstream deprecation output from PHP-8.0-compatible Laravel dependencies during ordinary CLI development. The container is a CLI toolchain only; target project PHP versions remain simulated by analysis scenarios.
 
 ## Repository Notes
 

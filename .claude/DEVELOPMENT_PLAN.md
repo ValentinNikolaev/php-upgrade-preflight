@@ -13,7 +13,9 @@ v0.1 should analyze a Laravel 7 Composer fixture against Laravel 8/9 and PHP 8.0
 - [x] Create the private monorepo and three Composer packages.
 - [x] Add core request/report models and `UpgradeAnalyzer` contract.
 - [x] Add initial state readers, isolated scenario runner, lock diff, blockers, source scan, reports, CLI, and Laravel adapter.
-- [ ] Verify PHP syntax, autoloading, dependency constraints, CLI startup, and Laravel provider startup on a machine with PHP and Composer.
+- [x] Verify manifests, dependency installation, PHP syntax, autoloading, and generic CLI startup in Docker.
+- [ ] Verify Laravel provider registration, boot, and Artisan command startup in a Laravel application fixture.
+- [x] Add a Docker-based PHP 8.3 development interpreter with Composer and a PHP 8.0 dependency-resolution platform.
 
 Acceptance gate: all manifests validate, dependencies install, every PHP file parses, and both command entry points can show or return valid usage without fatal errors.
 
@@ -182,7 +184,7 @@ Acceptance gate: a fresh user can install and run the analyzer against the docum
 
 Start with the remaining Milestone 0 gate, then Milestone 1:
 
-1. Make PHP and Composer available in the development shell.
+1. Build the Docker development interpreter and install dependencies.
 2. Run syntax and manifest validation against the scaffold; fix only verified failures.
 3. Add the PHP 8.0-compatible test framework and root quality scripts.
 4. Implement the temporary-workspace immutability test first.

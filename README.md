@@ -34,3 +34,22 @@ php artisan upgrade:analyze \
 ```
 
 The analyzer copies only `composer.json` and `composer.lock` into temporary workspaces for Composer scenarios. It never writes to the analyzed project.
+
+## Development with Docker
+
+The default development interpreter is PHP 8.3 in Docker. Composer dependency resolution is pinned to PHP 8.0.30 in the root manifest so development dependencies remain compatible with the package runtime floor. PHP 8.4 and newer supported runtimes remain part of the CI compatibility matrix.
+
+```bash
+docker compose build php
+docker compose run --rm php composer install
+docker compose run --rm php composer validate --strict
+```
+
+Common shortcuts are also available through `make build`, `make install`, `make validate`, and `make shell`. Override the interpreter when checking another runtime on a POSIX shell:
+
+```bash
+PHP_VERSION=8.0 docker compose build php
+PHP_VERSION=8.0 docker compose run --rm php php -v
+```
+
+In PowerShell, set `$env:PHP_VERSION = '8.0'` before running the same Docker Compose commands.

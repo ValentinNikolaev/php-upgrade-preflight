@@ -1,0 +1,24 @@
+name: php-upgrade-preflight
+
+services:
+  php:
+    build:
+      context: .
+      args:
+        PHP_VERSION: ${PHP_VERSION:-8.3}
+        USER_ID: ${USER_ID:-1000}
+        GROUP_ID: ${GROUP_ID:-1000}
+    image: php-upgrade-preflight-dev:${PHP_VERSION:-8.3}
+    init: true
+    working_dir: /app
+    environment:
+      COMPOSER_CACHE_DIR: /home/app/.composer/cache
+      GIT_CONFIG_COUNT: 1
+      GIT_CONFIG_KEY_0: safe.directory
+      GIT_CONFIG_VALUE_0: /app
+    volumes:
+      - .:/app
+      - composer-cache:/home/app/.composer/cache
+
+volumes:
+  composer-cache:

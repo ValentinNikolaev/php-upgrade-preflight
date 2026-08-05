@@ -5,7 +5,7 @@
   "license": "MIT",
   "require": {
     "php": "^8.0",
-    "php-upgrade-preflight/core": "*"
+    "php-upgrade-preflight/core": "^0.1"
   },
   "autoload": {
     "psr-4": {
