@@ -110,7 +110,7 @@ The first implementation step is the core unit suite plus the local-repository i
 - [x] Add `EvidenceLedger` to allocate unique IDs, validate references, and prevent orphaned findings.
 - [x] Extract target normalization, framework rule execution, risk/effort estimation, and report assembly into independently tested phases.
 - [x] Make DTOs immutable where PHP 8.0 permits and tighten parameter/return types.
-- [x] Define and snapshot the v0.1 JSON schema, including schema/tool version metadata.
+- [x] Define and snapshot the v0.2 JSON schema, including schema/tool version metadata.
 - [x] Populate root constraint changes, staged plan, test guidance, and uncertainty sections.
 
 Acceptance gate: report schema is stable, every finding references existing evidence, and each pipeline phase has focused tests.
@@ -122,7 +122,7 @@ Acceptance gate: report schema is stable, every finding references existing evid
 - [x] Define scenario selection rules so redundant scenarios are skipped deterministically.
 - [x] Capture Composer version, exact command, duration, exit status, stdout/stderr excerpts, and candidate lock evidence.
 - [x] Run `composer prohibits` or `why-not` in the temp workspace after failed target resolution when it adds diagnostic value.
-- [ ] Handle missing Composer, timeout, invalid JSON, missing lockfile, process failure, and cleanup failure as structured outcomes.
+- [x] Handle missing Composer, timeout, invalid JSON, missing lockfile, process failure, and cleanup failure as structured outcomes.
 - [ ] Confirm scripts/plugins are disabled and debug workspaces are the only preserved workspaces.
 
 Acceptance gate: successful and blocked package-only fixtures produce stable scenario results, diagnostics, and no project mutations.
@@ -186,4 +186,4 @@ Acceptance gate: a fresh user can install and run the analyzer against the docum
 
 Milestones 0, 1, and 2 are complete. Continue with Milestone 3:
 
-1. Handle missing Composer, timeout, invalid JSON, missing lockfile, process failure, and cleanup failure as structured outcomes.
+1. Confirm scripts/plugins are disabled and debug workspaces are the only preserved workspaces.

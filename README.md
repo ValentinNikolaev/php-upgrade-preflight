@@ -41,12 +41,12 @@ Scenario selection has a stable priority: baseline validation, exact target, all
 
 ## JSON report contract
 
-JSON reports follow the versioned [v0.1 report schema](packages/core/resources/schema/upgrade-report-v0.1.schema.json). Every report starts with metadata that identifies both the contract and the producing tool:
+JSON reports follow the versioned [v0.2 report schema](packages/core/resources/schema/upgrade-report-v0.2.schema.json). Every report starts with metadata that identifies both the contract and the producing tool:
 
 ```json
 {
   "metadata": {
-    "schema_version": "0.1",
+    "schema_version": "0.2",
     "tool": {
       "name": "php-upgrade-preflight",
       "version": "0.1.0"
@@ -55,9 +55,11 @@ JSON reports follow the versioned [v0.1 report schema](packages/core/resources/s
 }
 ```
 
-Consumers should select a parser by `schema_version`. Patch releases of the tool may change findings or fix analysis behavior while retaining the `0.1` report shape. The committed canonical report snapshot is at `packages/core/tests/Snapshots/upgrade-report-v0.1.json`.
+Consumers should select a parser by `schema_version`. Patch releases of the tool may change findings or fix analysis behavior while retaining the `0.2` report shape. The committed canonical report snapshot is at `packages/core/tests/Snapshots/upgrade-report-v0.2.json`.
 
 Each Composer scenario records the resolved Composer version, exact command argv, elapsed milliseconds, exit code, bounded stdout/stderr excerpts, and a fingerprint of any readable candidate lock. Candidate-lock fingerprints include the file SHA-256, Composer `content-hash` when present, and the total locked package count; they retain traceable evidence after disposable workspaces are removed.
+
+Scenario outcomes are machine-readable. In addition to successful resolution and solver or validation failures, reports distinguish a missing Composer executable, timeout, invalid JSON, missing candidate lockfile, process failure, workspace failure, and cleanup failure without requiring consumers to parse diagnostic text.
 
 After a target-resolution solver failure, the analyzer runs bounded `composer prohibits --tree --locked` diagnostics in the same isolated workspace for requested targets that are not already satisfied by the baseline lock. Identical probes are reused within one analysis. The locked diagnostic requires Composer 2.4 or newer; older versions receive a structured unsupported diagnostic without replacing the primary solver outcome.
 

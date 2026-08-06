@@ -16,6 +16,7 @@ use PhpUpgradePreflight\Core\Model\RiskSummary;
 use PhpUpgradePreflight\Core\Model\UpgradeReport;
 use PhpUpgradePreflight\Core\Model\UpgradeRequest;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Filesystem\Filesystem;
 
 final class AnalyzeCommandTest extends TestCase
 {
@@ -132,6 +133,35 @@ final class AnalyzeCommandTest extends TestCase
         self::assertSame(1, $exitCode);
         self::assertSame($before, file_get_contents($composerPath));
         self::assertStringContainsString('outside the analyzed project', $this->streamContents($this->stderr));
+    }
+
+    public function testDefaultAnalyzerRendersMissingLockfileAsStructuredJson(): void
+    {
+        $projectPath = rtrim(sys_get_temp_dir(), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'php-upgrade-preflight-cli-input-' . bin2hex(random_bytes(8));
+        mkdir($projectPath, 0700, true);
+        file_put_contents($projectPath . DIRECTORY_SEPARATOR . 'composer.json', json_encode([
+            'require' => ['fixture/dependency' => '^1.0'],
+        ], JSON_THROW_ON_ERROR));
+        $command = new AnalyzeCommand(null, $this->stdout, $this->stderr);
+
+        try {
+            $exitCode = $command->run([
+                'upgrade-intel',
+                'analyze',
+                '--path=' . $projectPath,
+                '--target=fixture/dependency:^2.0',
+            ]);
+            /** @var array<string, mixed> $report */
+            $report = json_decode($this->streamContents($this->stdout), true, 512, JSON_THROW_ON_ERROR);
+
+            self::assertSame(0, $exitCode);
+            self::assertSame('', $this->streamContents($this->stderr));
+            self::assertSame('0.2', $report['metadata']['schema_version']);
+            self::assertSame('unknown', $report['resolution']['status']);
+            self::assertSame('lockfile_missing', $report['resolution']['scenarios'][0]['outcome']);
+        } finally {
+            (new Filesystem())->remove($projectPath);
+        }
     }
 
     /** @param resource $stream */
