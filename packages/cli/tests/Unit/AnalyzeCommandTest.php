@@ -156,7 +156,7 @@ final class AnalyzeCommandTest extends TestCase
 
             self::assertSame(0, $exitCode);
             self::assertSame('', $this->streamContents($this->stderr));
-            self::assertSame('0.2', $report['metadata']['schema_version']);
+            self::assertSame('0.3', $report['metadata']['schema_version']);
             self::assertSame('unknown', $report['resolution']['status']);
             self::assertSame('lockfile_missing', $report['resolution']['scenarios'][0]['outcome']);
         } finally {

@@ -2,7 +2,7 @@
   "name": "php-upgrade-preflight/laravel",
   "description": "Laravel adapter and rules for PHP Upgrade Preflight.",
   "type": "library",
-  "license": "MIT",
+  "license": "proprietary",
   "require": {
     "php": "^8.0",
     "illuminate/console": "^8.0|^9.0|^10.0|^11.0|^12.0",

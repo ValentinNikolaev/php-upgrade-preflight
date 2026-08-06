@@ -2,7 +2,7 @@
   "name": "php-upgrade-preflight/monorepo",
   "description": "Development monorepo for PHP Upgrade Preflight.",
   "type": "project",
-  "license": "MIT",
+  "license": "proprietary",
   "repositories": [
     {
       "type": "path",

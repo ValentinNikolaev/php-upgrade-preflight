@@ -688,7 +688,7 @@
             "dist": {
                 "type": "path",
                 "url": "packages/cli",
-                "reference": "8eb4051939387754dc51752ca881b980305c6b1b"
+                "reference": "681c223491650b595a8af2f87a6deccaee268616"
             },
             "require": {
                 "php": "^8.0",
@@ -709,7 +709,7 @@
                 }
             },
             "license": [
-                "MIT"
+                "proprietary"
             ],
             "description": "Generic CLI for PHP Upgrade Preflight.",
             "transport-options": {
@@ -723,7 +723,7 @@
             "dist": {
                 "type": "path",
                 "url": "packages/core",
-                "reference": "72e99e11fcb29f2207d4cf015cf020710fb9f044"
+                "reference": "9cd13ee6ac79ac840841122f4b82e59a69ac6b69"
             },
             "require": {
                 "composer/semver": "^3.4",
@@ -745,7 +745,7 @@
                 }
             },
             "license": [
-                "MIT"
+                "proprietary"
             ],
             "description": "Deterministic Composer/PHP upgrade analysis core.",
             "transport-options": {
@@ -759,7 +759,7 @@
             "dist": {
                 "type": "path",
                 "url": "packages/laravel",
-                "reference": "e08a8f24f77e39ac5dfffc65841c6f22f58b9264"
+                "reference": "dfb661f69844f8f684ed8091a997dd4504d8a5f9"
             },
             "require": {
                 "illuminate/console": "^8.0|^9.0|^10.0|^11.0|^12.0",
@@ -786,7 +786,7 @@
                 }
             },
             "license": [
-                "MIT"
+                "proprietary"
             ],
             "description": "Laravel adapter and rules for PHP Upgrade Preflight.",
             "transport-options": {

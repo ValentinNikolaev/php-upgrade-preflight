@@ -41,12 +41,12 @@ Scenario selection has a stable priority: baseline validation, exact target, all
 
 ## JSON report contract
 
-JSON reports follow the versioned [v0.2 report schema](packages/core/resources/schema/upgrade-report-v0.2.schema.json). Every report starts with metadata that identifies both the contract and the producing tool:
+JSON reports follow the versioned [v0.3 report schema](packages/core/resources/schema/upgrade-report-v0.3.schema.json). The previous [v0.2 schema](packages/core/resources/schema/upgrade-report-v0.2.schema.json) remains available for consumers of earlier reports. Every report starts with metadata that identifies both the contract and the producing tool:
 
 ```json
 {
   "metadata": {
-    "schema_version": "0.2",
+    "schema_version": "0.3",
     "tool": {
       "name": "php-upgrade-preflight",
       "version": "0.1.0"
@@ -55,7 +55,7 @@ JSON reports follow the versioned [v0.2 report schema](packages/core/resources/s
 }
 ```
 
-Consumers should select a parser by `schema_version`. Patch releases of the tool may change findings or fix analysis behavior while retaining the `0.2` report shape. The committed canonical report snapshot is at `packages/core/tests/Snapshots/upgrade-report-v0.2.json`.
+Consumers should select a parser by `schema_version`. Patch releases of the tool may change findings or fix analysis behavior while retaining the `0.3` report shape. The committed canonical report snapshot is at `packages/core/tests/Snapshots/upgrade-report-v0.3.json`.
 
 Each Composer scenario records the resolved Composer version, exact command argv, elapsed milliseconds, exit code, bounded stdout/stderr excerpts, and a fingerprint of any readable candidate lock. Candidate-lock fingerprints include the file SHA-256, Composer `content-hash` when present, and the total locked package count; they retain traceable evidence after disposable workspaces are removed.
 
@@ -93,3 +93,7 @@ docker compose run --rm php composer check
 ```
 
 The gate validates the root and all package manifests before running tests, static analysis, and coding-style checks. Individual checks are available through `composer test`, `composer analyse`, and `composer lint`. Package unit suites can be run independently with `composer test:core`, `composer test:cli`, or `composer test:laravel`. GitHub Actions runs the same gate for pull requests and pushes to `main` across PHP 8.0 through PHP 8.5, the current stable release.
+
+## License
+
+Copyright 2026 Valentin Nikolaev. Free noncommercial use is available under the [PolyForm Noncommercial License 1.0.0](LICENSE). Commercial use requires a separate commercial license from the copyright holder.
