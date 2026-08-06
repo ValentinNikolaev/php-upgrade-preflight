@@ -1,5 +1,8 @@
 # PHP Upgrade Preflight
 
+> [!IMPORTANT]
+> **Work in progress:** PHP Upgrade Preflight is under active development and has not been released yet. The first release is coming soon, and behavior or report formats may change before then.
+
 PHP Upgrade Preflight is a local, read-only analyzer for Composer-based PHP projects. It runs isolated Composer scenarios, compares lockfile states, groups dependency blockers, scans source usage, and produces evidence-backed JSON and Markdown reports before you modify your project.
 
 Framework-specific rule packs can add deeper checks for Laravel, Symfony, CodeIgniter, and other ecosystems. Laravel is the first adapter, not the project identity.
@@ -41,12 +44,12 @@ Scenario selection has a stable priority: baseline validation, exact target, all
 
 ## JSON report contract
 
-JSON reports follow the versioned [v0.4 report schema](packages/core/resources/schema/upgrade-report-v0.4.schema.json). The previous [v0.3](packages/core/resources/schema/upgrade-report-v0.3.schema.json) and [v0.2](packages/core/resources/schema/upgrade-report-v0.2.schema.json) schemas remain available for consumers of earlier reports. Every report starts with metadata that identifies both the contract and the producing tool:
+JSON reports follow the versioned [v0.5 report schema](packages/core/resources/schema/upgrade-report-v0.5.schema.json). The previous [v0.4](packages/core/resources/schema/upgrade-report-v0.4.schema.json), [v0.3](packages/core/resources/schema/upgrade-report-v0.3.schema.json), and [v0.2](packages/core/resources/schema/upgrade-report-v0.2.schema.json) schemas remain available for consumers of earlier reports. Every report starts with metadata that identifies both the contract and the producing tool:
 
 ```json
 {
   "metadata": {
-    "schema_version": "0.4",
+    "schema_version": "0.5",
     "tool": {
       "name": "php-upgrade-preflight",
       "version": "0.1.0"
@@ -55,7 +58,9 @@ JSON reports follow the versioned [v0.4 report schema](packages/core/resources/s
 }
 ```
 
-Consumers should select a parser by `schema_version`. Patch releases of the tool may change findings or fix analysis behavior while retaining the `0.4` report shape. The committed canonical report snapshot is at `packages/core/tests/Snapshots/upgrade-report-v0.4.json`.
+Consumers should select a parser by `schema_version`. Patch releases of the tool may change findings or fix analysis behavior while retaining the `0.5` report shape. The committed canonical report snapshot is at `packages/core/tests/Snapshots/upgrade-report-v0.5.json`.
+
+Package changes may include opaque `package_families` labels supplied by active integrations. The Laravel adapter identifies changed `laravel/*`, `illuminate/*`, and `symfony/*` packages as the `laravel`, `illuminate`, and `symfony` families. Core only coordinates generic classifiers and does not encode those framework package names.
 
 Each Composer scenario records the resolved Composer version, exact command argv, elapsed milliseconds, exit code, bounded stdout/stderr excerpts, and a fingerprint of any readable candidate lock. Candidate-lock fingerprints include the file SHA-256, Composer `content-hash` when present, and the total locked package count; they retain traceable evidence after disposable workspaces are removed.
 

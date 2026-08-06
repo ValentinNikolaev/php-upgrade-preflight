@@ -28,6 +28,17 @@ final class LaravelFrameworkIntegrationTest extends TestCase
         self::assertSame('v8.83.27', $detection->version());
         self::assertCount(6, iterator_to_array($integration->rules()));
         self::assertSame(['app', 'bootstrap', 'config', 'database', 'routes', 'tests'], $integration->defaultSourcePaths($project));
+        self::assertSame(['laravel'], $integration->packageFamilies('laravel/framework'));
+    }
+
+    public function testItClassifiesLaravelIlluminateAndSymfonyPackageFamilies(): void
+    {
+        $integration = new LaravelFrameworkIntegration();
+
+        self::assertSame(['laravel'], $integration->packageFamilies('LARAVEL/Passport'));
+        self::assertSame(['illuminate'], $integration->packageFamilies('illuminate/support'));
+        self::assertSame(['symfony'], $integration->packageFamilies('symfony/http-foundation'));
+        self::assertSame([], $integration->packageFamilies('vendor/package'));
     }
 
     public function testItReportsLaravelAsAbsentWithoutComposerMetadata(): void

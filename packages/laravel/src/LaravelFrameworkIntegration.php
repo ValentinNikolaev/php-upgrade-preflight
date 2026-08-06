@@ -6,11 +6,19 @@ namespace PhpUpgradePreflight\Laravel;
 
 use PhpUpgradePreflight\Core\Framework\FrameworkDetection;
 use PhpUpgradePreflight\Core\Framework\FrameworkIntegration;
+use PhpUpgradePreflight\Core\Framework\PackageFamilyClassifier;
 use PhpUpgradePreflight\Core\Model\ProjectState;
 use PhpUpgradePreflight\Laravel\Rules\LegacyLaravelPackageRule;
 
-final class LaravelFrameworkIntegration implements FrameworkIntegration
+final class LaravelFrameworkIntegration implements FrameworkIntegration, PackageFamilyClassifier
 {
+    private LaravelPackageFamilyClassifier $packageFamilyClassifier;
+
+    public function __construct(?LaravelPackageFamilyClassifier $packageFamilyClassifier = null)
+    {
+        $this->packageFamilyClassifier = $packageFamilyClassifier ?? new LaravelPackageFamilyClassifier();
+    }
+
     public function name(): string
     {
         return 'laravel';
@@ -37,5 +45,10 @@ final class LaravelFrameworkIntegration implements FrameworkIntegration
     public function defaultSourcePaths(ProjectState $project): array
     {
         return ['app', 'bootstrap', 'config', 'database', 'routes', 'tests'];
+    }
+
+    public function packageFamilies(string $packageName): array
+    {
+        return $this->packageFamilyClassifier->packageFamilies($packageName);
     }
 }
