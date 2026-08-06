@@ -24,8 +24,8 @@ final class LaravelFrameworkIntegrationTest extends TestCase
         $detection = $integration->detect($project);
 
         self::assertSame('laravel', $integration->name());
-        self::assertTrue($detection->detected);
-        self::assertSame('v8.83.27', $detection->version);
+        self::assertTrue($detection->isDetected());
+        self::assertSame('v8.83.27', $detection->version());
         self::assertCount(6, iterator_to_array($integration->rules()));
         self::assertSame(['app', 'bootstrap', 'config', 'database', 'routes', 'tests'], $integration->defaultSourcePaths($project));
     }
@@ -36,7 +36,7 @@ final class LaravelFrameworkIntegrationTest extends TestCase
 
         $detection = (new LaravelFrameworkIntegration())->detect($project);
 
-        self::assertFalse($detection->detected);
-        self::assertNull($detection->version);
+        self::assertFalse($detection->isDetected());
+        self::assertNull($detection->version());
     }
 }

@@ -18,10 +18,10 @@ final class LaravelFrameworkIntegration implements FrameworkIntegration
 
     public function detect(ProjectState $project): FrameworkDetection
     {
-        $package = $project->composerLock->package('laravel/framework');
-        $rootConstraint = $project->composerJson->rootRequirements()['laravel/framework'] ?? null;
+        $package = $project->composerLock()->package('laravel/framework');
+        $rootConstraint = $project->composerJson()->rootRequirements()['laravel/framework'] ?? null;
 
-        return new FrameworkDetection('laravel', $package !== null || $rootConstraint !== null, $package ? $package->version : $rootConstraint);
+        return new FrameworkDetection('laravel', $package !== null || $rootConstraint !== null, $package ? $package->version() : $rootConstraint);
     }
 
     public function rules(): iterable

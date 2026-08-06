@@ -26,8 +26,8 @@ final class LegacyLaravelPackageRule implements CompatibilityRule
 
     public function evaluate(ProjectState $project, UpgradeRequest $request, EvidenceLedger $evidence): ?CompatibilityFinding
     {
-        $locked = $project->composerLock->package($this->package);
-        $constraint = $project->composerJson->rootRequirements()[$this->package] ?? null;
+        $locked = $project->composerLock()->package($this->package);
+        $constraint = $project->composerJson()->rootRequirements()[$this->package] ?? null;
 
         if ($locked === null && $constraint === null) {
             return null;
@@ -40,9 +40,9 @@ final class LegacyLaravelPackageRule implements CompatibilityRule
 
         $id = $evidence->add('package-' . $evidenceNamespace, Evidence::E2_PACKAGE_METADATA, sprintf('%s is present in Composer metadata.', $this->package), 'high', [
             'package' => $this->package,
-            'locked_version' => $locked ? $locked->version : null,
+            'locked_version' => $locked ? $locked->version() : null,
             'root_constraint' => $constraint,
-        ])->id;
+        ])->id();
 
         return new CompatibilityFinding('laravel', $this->severity, $this->summary, [$id]);
     }

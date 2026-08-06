@@ -29,14 +29,14 @@ final class LegacyLaravelPackageRuleTest extends TestCase
         $finding = $rule->evaluate($project, $this->request(), $evidence);
 
         self::assertNotNull($finding);
-        self::assertSame('laravel', $finding->framework);
-        self::assertSame('medium', $finding->severity);
-        self::assertSame('Review Ignition.', $finding->summary);
-        self::assertSame(['package-facade_ignition-1'], $finding->evidence);
+        self::assertSame('laravel', $finding->framework());
+        self::assertSame('medium', $finding->severity());
+        self::assertSame('Review Ignition.', $finding->summary());
+        self::assertSame(['package-facade_ignition-1'], $finding->evidence());
         self::assertCount(1, $evidence->all());
-        self::assertSame(Evidence::E2_PACKAGE_METADATA, $evidence->all()[0]->class);
-        self::assertSame('2.17.7', $evidence->all()[0]->context['locked_version']);
-        self::assertSame('^2.0', $evidence->all()[0]->context['root_constraint']);
+        self::assertSame(Evidence::E2_PACKAGE_METADATA, $evidence->all()[0]->evidenceClass());
+        self::assertSame('2.17.7', $evidence->all()[0]->context()['locked_version']);
+        self::assertSame('^2.0', $evidence->all()[0]->context()['root_constraint']);
     }
 
     public function testItDoesNothingWhenThePackageIsAbsent(): void

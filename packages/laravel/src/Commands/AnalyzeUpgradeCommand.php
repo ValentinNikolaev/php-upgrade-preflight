@@ -66,8 +66,8 @@ final class AnalyzeUpgradeCommand extends Command
             ? (new MarkdownReportWriter())->render($report)
             : (new JsonReportWriter())->render($report);
 
-        if ($request->outputPath !== null) {
-            $writtenPath = $this->reportFileWriter->write($request->projectPath, $request->outputPath, $rendered);
+        if ($request->outputPath() !== null) {
+            $writtenPath = $this->reportFileWriter->write($request->projectPath(), $request->outputPath(), $rendered);
             $this->info(sprintf('Wrote report to %s', $writtenPath));
         } else {
             $this->line($rendered);
@@ -77,7 +77,7 @@ final class AnalyzeUpgradeCommand extends Command
     }
 
     /** @param mixed $value */
-    private function nullableString($value): ?string
+    private function nullableString(mixed $value): ?string
     {
         return is_string($value) && $value !== '' ? $value : null;
     }

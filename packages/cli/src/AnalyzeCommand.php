@@ -26,7 +26,7 @@ final class AnalyzeCommand
      * @param resource|null $stdout
      * @param resource|null $stderr
      */
-    public function __construct(?UpgradeAnalyzer $analyzer = null, $stdout = null, $stderr = null, ?ReportFileWriter $reportFileWriter = null)
+    public function __construct(?UpgradeAnalyzer $analyzer = null, mixed $stdout = null, mixed $stderr = null, ?ReportFileWriter $reportFileWriter = null)
     {
         $this->analyzer = $analyzer ?? new DefaultUpgradeAnalyzer((new FrameworkIntegrationRegistry())->installed());
         $this->stdout = $stdout ?? STDOUT;
@@ -59,12 +59,12 @@ final class AnalyzeCommand
             );
 
             $report = $this->analyzer->analyzeUpgrade($request);
-            $rendered = $request->format === ReportFormat::MARKDOWN
+            $rendered = $request->format() === ReportFormat::MARKDOWN
                 ? (new MarkdownReportWriter())->render($report)
                 : (new JsonReportWriter())->render($report);
 
-            if ($request->outputPath !== null) {
-                $writtenPath = $this->reportFileWriter->write($request->projectPath, $request->outputPath, $rendered);
+            if ($request->outputPath() !== null) {
+                $writtenPath = $this->reportFileWriter->write($request->projectPath(), $request->outputPath(), $rendered);
                 fwrite($this->stdout, sprintf("Wrote report to %s\n", $writtenPath));
             } else {
                 fwrite($this->stdout, $rendered);

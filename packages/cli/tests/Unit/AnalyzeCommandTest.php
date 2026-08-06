@@ -68,15 +68,15 @@ final class AnalyzeCommandTest extends TestCase
         self::assertSame(0, $exitCode);
         self::assertNotNull($this->analyzer->request);
         self::assertSame(['laravel/framework', 'php'], array_map(
-            static fn ($target): string => $target->package,
-            $this->analyzer->request->targets->all()
+            static fn ($target): string => $target->package(),
+            $this->analyzer->request->targets()->all()
         ));
-        self::assertSame('8.1.0', $this->analyzer->request->targetPhp);
-        self::assertSame('7.4', $this->analyzer->request->fromPhp);
-        self::assertSame(['app'], $this->analyzer->request->sourcePaths);
-        self::assertSame(['laravel'], $this->analyzer->request->frameworks);
-        self::assertSame(ReportFormat::MARKDOWN, $this->analyzer->request->format);
-        self::assertTrue($this->analyzer->request->debug);
+        self::assertSame('8.1.0', $this->analyzer->request->targetPhp());
+        self::assertSame('7.4', $this->analyzer->request->fromPhp());
+        self::assertSame(['app'], $this->analyzer->request->sourcePaths());
+        self::assertSame(['laravel'], $this->analyzer->request->frameworks());
+        self::assertSame(ReportFormat::MARKDOWN, $this->analyzer->request->format());
+        self::assertTrue($this->analyzer->request->debug());
         self::assertStringStartsWith('# PHP Upgrade Preflight', $this->streamContents($this->stdout));
         self::assertSame('', $this->streamContents($this->stderr));
     }
@@ -140,7 +140,7 @@ final class FakeUpgradeAnalyzer implements UpgradeAnalyzer
 
         return new UpgradeReport(
             $request,
-            new ProjectState($request->projectPath, new ComposerJson([]), new ComposerLock([])),
+            new ProjectState($request->projectPath(), new ComposerJson([]), new ComposerLock([])),
             [],
             new LockDiff([]),
             [],
