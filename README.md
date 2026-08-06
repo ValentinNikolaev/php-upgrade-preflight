@@ -35,6 +35,8 @@ php artisan upgrade:analyze \
 
 The analyzer copies only `composer.json` and `composer.lock` into temporary workspaces for Composer scenarios. It never writes to the analyzed project.
 
+When package and PHP targets are requested together, the report includes a `target-platform-only` probe that checks the requested PHP against current package constraints. It also runs `staged-targets` against the current PHP when that version is supplied with `--from-php` or configured through Composer's `config.platform.php`; otherwise, the staged probe is skipped and the report records the uncertainty. These probes help identify a safer ordering, but only full-target scenarios determine whether the combined upgrade is feasible.
+
 ## JSON report contract
 
 JSON reports follow the versioned [v0.1 report schema](packages/core/resources/schema/upgrade-report-v0.1.schema.json). Every report starts with metadata that identifies both the contract and the producing tool:
