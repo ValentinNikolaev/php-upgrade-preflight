@@ -57,6 +57,8 @@ JSON reports follow the versioned [v0.1 report schema](packages/core/resources/s
 
 Consumers should select a parser by `schema_version`. Patch releases of the tool may change findings or fix analysis behavior while retaining the `0.1` report shape. The committed canonical report snapshot is at `packages/core/tests/Snapshots/upgrade-report-v0.1.json`.
 
+Each Composer scenario records the resolved Composer version, exact command argv, elapsed milliseconds, exit code, bounded stdout/stderr excerpts, and a fingerprint of any readable candidate lock. Candidate-lock fingerprints include the file SHA-256, Composer `content-hash` when present, and the total locked package count; they retain traceable evidence after disposable workspaces are removed.
+
 The transition section compares requested targets with root requirements, while the plan, tests, and uncertainties sections provide evidence-linked staged actions, project-aware validation guidance, and explicit limits on what dependency resolution proves. Markdown reports project these same canonical sections.
 
 ## Development with Docker
