@@ -1,0 +1,10 @@
+{
+  "name": "fixture/dependency",
+  "description": "Local package used by the relative path repository integration fixture.",
+  "version": "1.0.0",
+  "type": "library",
+  "license": "MIT",
+  "require": {
+    "php": "^8.0"
+  }
+}

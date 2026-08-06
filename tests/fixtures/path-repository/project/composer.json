@@ -1,0 +1,19 @@
+{
+  "name": "php-upgrade-preflight/path-repository-project",
+  "description": "Offline fixture proving relative Composer path repositories survive workspace isolation.",
+  "type": "project",
+  "license": "MIT",
+  "repositories": [
+    {
+      "packagist.org": false
+    },
+    {
+      "type": "path",
+      "url": "../repository/fixture-dependency"
+    }
+  ],
+  "require": {
+    "php": "^8.0",
+    "fixture/dependency": "^1.0"
+  }
+}

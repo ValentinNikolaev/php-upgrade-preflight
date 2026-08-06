@@ -99,6 +99,25 @@ final class AnalyzeCommandTest extends TestCase
         self::assertStringStartsWith('Usage:', $this->streamContents($this->stdout));
     }
 
+    public function testItRejectsAnOutputPathInsideTheAnalyzedProject(): void
+    {
+        $projectPath = dirname(__DIR__, 4);
+        $composerPath = $projectPath . DIRECTORY_SEPARATOR . 'composer.json';
+        $before = file_get_contents($composerPath);
+
+        $exitCode = $this->command->run([
+            'upgrade-intel',
+            'analyze',
+            '--path=' . $projectPath,
+            '--target=fixture/dependency:^2.0',
+            '--output=' . $composerPath,
+        ]);
+
+        self::assertSame(1, $exitCode);
+        self::assertSame($before, file_get_contents($composerPath));
+        self::assertStringContainsString('outside the analyzed project', $this->streamContents($this->stderr));
+    }
+
     /** @param resource $stream */
     private function streamContents($stream): string
     {

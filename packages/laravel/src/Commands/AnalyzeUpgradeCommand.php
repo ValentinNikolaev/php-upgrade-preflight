@@ -11,6 +11,7 @@ use PhpUpgradePreflight\Core\Model\UpgradeRequest;
 use PhpUpgradePreflight\Core\Model\UpgradeTarget;
 use PhpUpgradePreflight\Core\Reporting\JsonReportWriter;
 use PhpUpgradePreflight\Core\Reporting\MarkdownReportWriter;
+use PhpUpgradePreflight\Core\Reporting\ReportFileWriter;
 
 final class AnalyzeUpgradeCommand extends Command
 {
@@ -25,11 +26,13 @@ final class AnalyzeUpgradeCommand extends Command
     protected $description = 'Analyze Composer and PHP upgrade readiness without mutating the project.';
 
     private UpgradeAnalyzer $analyzer;
+    private ReportFileWriter $reportFileWriter;
 
-    public function __construct(UpgradeAnalyzer $analyzer)
+    public function __construct(UpgradeAnalyzer $analyzer, ?ReportFileWriter $reportFileWriter = null)
     {
         parent::__construct();
         $this->analyzer = $analyzer;
+        $this->reportFileWriter = $reportFileWriter ?? new ReportFileWriter();
     }
 
     public function handle(): int
@@ -64,8 +67,8 @@ final class AnalyzeUpgradeCommand extends Command
             : (new JsonReportWriter())->render($report);
 
         if ($request->outputPath !== null) {
-            file_put_contents($request->outputPath, $rendered);
-            $this->info(sprintf('Wrote report to %s', $request->outputPath));
+            $writtenPath = $this->reportFileWriter->write($request->projectPath, $request->outputPath, $rendered);
+            $this->info(sprintf('Wrote report to %s', $writtenPath));
         } else {
             $this->line($rendered);
         }

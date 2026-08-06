@@ -11,6 +11,7 @@ use PhpUpgradePreflight\Core\Model\UpgradeRequest;
 use PhpUpgradePreflight\Core\Model\UpgradeTarget;
 use PhpUpgradePreflight\Core\Reporting\JsonReportWriter;
 use PhpUpgradePreflight\Core\Reporting\MarkdownReportWriter;
+use PhpUpgradePreflight\Core\Reporting\ReportFileWriter;
 
 final class AnalyzeCommand
 {
@@ -19,16 +20,18 @@ final class AnalyzeCommand
     private $stdout;
     /** @var resource */
     private $stderr;
+    private ReportFileWriter $reportFileWriter;
 
     /**
      * @param resource|null $stdout
      * @param resource|null $stderr
      */
-    public function __construct(?UpgradeAnalyzer $analyzer = null, $stdout = null, $stderr = null)
+    public function __construct(?UpgradeAnalyzer $analyzer = null, $stdout = null, $stderr = null, ?ReportFileWriter $reportFileWriter = null)
     {
-        $this->analyzer = $analyzer ?? new DefaultUpgradeAnalyzer();
+        $this->analyzer = $analyzer ?? new DefaultUpgradeAnalyzer((new FrameworkIntegrationRegistry())->installed());
         $this->stdout = $stdout ?? STDOUT;
         $this->stderr = $stderr ?? STDERR;
+        $this->reportFileWriter = $reportFileWriter ?? new ReportFileWriter();
     }
 
     /** @param list<string> $argv */
@@ -61,8 +64,8 @@ final class AnalyzeCommand
                 : (new JsonReportWriter())->render($report);
 
             if ($request->outputPath !== null) {
-                file_put_contents($request->outputPath, $rendered);
-                fwrite($this->stdout, sprintf("Wrote report to %s\n", $request->outputPath));
+                $writtenPath = $this->reportFileWriter->write($request->projectPath, $request->outputPath, $rendered);
+                fwrite($this->stdout, sprintf("Wrote report to %s\n", $writtenPath));
             } else {
                 fwrite($this->stdout, $rendered);
             }
