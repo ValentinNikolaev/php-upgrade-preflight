@@ -107,7 +107,7 @@ The first implementation step is the core unit suite plus the local-repository i
 ## Milestone 2: Core Domain and Report Contract
 
 - [x] Add `UpgradeTargetSet` with validation, duplicate handling, PHP-target normalization, and deterministic ordering.
-- [ ] Add `EvidenceLedger` to allocate unique IDs, validate references, and prevent orphaned findings.
+- [x] Add `EvidenceLedger` to allocate unique IDs, validate references, and prevent orphaned findings.
 - [ ] Extract target normalization, framework rule execution, risk/effort estimation, and report assembly into independently tested phases.
 - [ ] Make DTOs immutable where PHP 8.0 permits and tighten parameter/return types.
 - [ ] Define and snapshot the v0.1 JSON schema, including schema/tool version metadata.
@@ -186,6 +186,6 @@ Acceptance gate: a fresh user can install and run the analyzer against the docum
 
 Milestones 0 and 1 are complete. Milestone 2 target normalization is complete. Continue with:
 
-1. Add the evidence ledger and validate all report evidence references.
-2. Extract and test the report-assembly phases before expanding framework rules.
-3. Tighten DTO immutability and types before freezing the v0.1 report schema.
+1. Extract and test the report-assembly phases before expanding framework rules.
+2. Tighten DTO immutability and types before freezing the v0.1 report schema.
+3. Define and snapshot the v0.1 JSON schema before populating its remaining sections.

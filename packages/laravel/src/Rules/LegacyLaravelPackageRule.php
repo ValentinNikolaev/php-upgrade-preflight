@@ -7,6 +7,7 @@ namespace PhpUpgradePreflight\Laravel\Rules;
 use PhpUpgradePreflight\Core\Framework\CompatibilityRule;
 use PhpUpgradePreflight\Core\Model\CompatibilityFinding;
 use PhpUpgradePreflight\Core\Model\Evidence;
+use PhpUpgradePreflight\Core\Model\EvidenceLedger;
 use PhpUpgradePreflight\Core\Model\ProjectState;
 use PhpUpgradePreflight\Core\Model\UpgradeRequest;
 
@@ -23,7 +24,7 @@ final class LegacyLaravelPackageRule implements CompatibilityRule
         $this->severity = $severity;
     }
 
-    public function evaluate(ProjectState $project, UpgradeRequest $request, array &$evidence): ?CompatibilityFinding
+    public function evaluate(ProjectState $project, UpgradeRequest $request, EvidenceLedger $evidence): ?CompatibilityFinding
     {
         $locked = $project->composerLock->package($this->package);
         $constraint = $project->composerJson->rootRequirements()[$this->package] ?? null;
@@ -32,12 +33,16 @@ final class LegacyLaravelPackageRule implements CompatibilityRule
             return null;
         }
 
-        $id = 'package-' . str_replace(['/', '-'], '_', $this->package);
-        $evidence[] = new Evidence($id, Evidence::E2_PACKAGE_METADATA, sprintf('%s is present in Composer metadata.', $this->package), 'high', [
+        $evidenceNamespace = preg_replace('/[^a-z0-9_-]+/', '_', str_replace(['/', '-'], '_', $this->package));
+        if ($evidenceNamespace === null) {
+            throw new \LogicException('Unable to create an evidence namespace for the package.');
+        }
+
+        $id = $evidence->add('package-' . $evidenceNamespace, Evidence::E2_PACKAGE_METADATA, sprintf('%s is present in Composer metadata.', $this->package), 'high', [
             'package' => $this->package,
             'locked_version' => $locked ? $locked->version : null,
             'root_constraint' => $constraint,
-        ]);
+        ])->id;
 
         return new CompatibilityFinding('laravel', $this->severity, $this->summary, [$id]);
     }
