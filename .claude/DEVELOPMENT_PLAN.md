@@ -117,7 +117,7 @@ Acceptance gate: report schema is stable, every finding references existing evid
 
 ## Milestone 3: Composer Scenario Engine
 
-- [ ] Add baseline validation before target scenarios.
+- [x] Add baseline validation before target scenarios.
 - [ ] Add target-platform-only and staged-target scenarios where applicable.
 - [ ] Define scenario selection rules so redundant scenarios are skipped deterministically.
 - [ ] Capture Composer version, exact command, duration, exit status, stdout/stderr excerpts, and candidate lock evidence.
