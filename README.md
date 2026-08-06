@@ -35,6 +35,24 @@ php artisan upgrade:analyze \
 
 The analyzer copies only `composer.json` and `composer.lock` into temporary workspaces for Composer scenarios. It never writes to the analyzed project.
 
+## JSON report contract
+
+JSON reports follow the versioned [v0.1 report schema](packages/core/resources/schema/upgrade-report-v0.1.schema.json). Every report starts with metadata that identifies both the contract and the producing tool:
+
+```json
+{
+  "metadata": {
+    "schema_version": "0.1",
+    "tool": {
+      "name": "php-upgrade-preflight",
+      "version": "0.1.0"
+    }
+  }
+}
+```
+
+Consumers should select a parser by `schema_version`. Patch releases of the tool may change findings or fix analysis behavior while retaining the `0.1` report shape. The committed canonical report snapshot is at `packages/core/tests/Snapshots/upgrade-report-v0.1.json`.
+
 ## Development with Docker
 
 The default development interpreter is PHP 8.3 in Docker. Composer dependency resolution is pinned to PHP 8.0.30 in the root manifest so development dependencies remain compatible with the package runtime floor. PHP 8.4 and newer supported runtimes remain part of the CI compatibility matrix.

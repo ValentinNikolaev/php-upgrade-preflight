@@ -110,7 +110,7 @@ The first implementation step is the core unit suite plus the local-repository i
 - [x] Add `EvidenceLedger` to allocate unique IDs, validate references, and prevent orphaned findings.
 - [x] Extract target normalization, framework rule execution, risk/effort estimation, and report assembly into independently tested phases.
 - [x] Make DTOs immutable where PHP 8.0 permits and tighten parameter/return types.
-- [ ] Define and snapshot the v0.1 JSON schema, including schema/tool version metadata.
+- [x] Define and snapshot the v0.1 JSON schema, including schema/tool version metadata.
 - [ ] Populate root constraint changes, staged plan, test guidance, and uncertainty sections.
 
 Acceptance gate: report schema is stable, every finding references existing evidence, and each pipeline phase has focused tests.
@@ -186,5 +186,4 @@ Acceptance gate: a fresh user can install and run the analyzer against the docum
 
 Milestones 0 and 1 are complete. Milestone 2 target normalization, evidence ledger, pipeline phase extraction, and DTO immutability are complete. Continue with:
 
-1. Define and snapshot the v0.1 JSON schema before populating its remaining sections.
-2. Populate root constraint changes, staged actions, test guidance, and uncertainty output.
+1. Populate root constraint changes, staged actions, test guidance, and uncertainty output.

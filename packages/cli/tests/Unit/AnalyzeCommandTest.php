@@ -90,6 +90,22 @@ final class AnalyzeCommandTest extends TestCase
         self::assertStringContainsString('At least one --target', $this->streamContents($this->stderr));
     }
 
+    public function testItCanonicalizesRepeatedFrameworkOptionsInTheReportRequest(): void
+    {
+        $exitCode = $this->command->run([
+            'upgrade-intel',
+            'analyze',
+            '--path=' . dirname(__DIR__, 4),
+            '--target=fixture/dependency:^2.0',
+            '--framework=Laravel',
+            '--framework=laravel',
+        ]);
+
+        self::assertSame(0, $exitCode);
+        self::assertNotNull($this->analyzer->request);
+        self::assertSame(['laravel'], $this->analyzer->request->frameworks());
+    }
+
     public function testItPrintsHelpWithoutCallingTheAnalyzer(): void
     {
         $exitCode = $this->command->run(['upgrade-intel', '--help']);
