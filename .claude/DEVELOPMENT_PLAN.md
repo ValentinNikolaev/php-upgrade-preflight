@@ -121,7 +121,7 @@ Acceptance gate: report schema is stable, every finding references existing evid
 - [x] Add target-platform-only and staged-target scenarios where applicable.
 - [x] Define scenario selection rules so redundant scenarios are skipped deterministically.
 - [x] Capture Composer version, exact command, duration, exit status, stdout/stderr excerpts, and candidate lock evidence.
-- [ ] Run `composer prohibits` or `why-not` in the temp workspace after failed target resolution when it adds diagnostic value.
+- [x] Run `composer prohibits` or `why-not` in the temp workspace after failed target resolution when it adds diagnostic value.
 - [ ] Handle missing Composer, timeout, invalid JSON, missing lockfile, process failure, and cleanup failure as structured outcomes.
 - [ ] Confirm scripts/plugins are disabled and debug workspaces are the only preserved workspaces.
 
@@ -186,4 +186,4 @@ Acceptance gate: a fresh user can install and run the analyzer against the docum
 
 Milestones 0, 1, and 2 are complete. Continue with Milestone 3:
 
-1. Run `composer prohibits` or `why-not` in the temp workspace after failed target resolution when it adds diagnostic value.
+1. Handle missing Composer, timeout, invalid JSON, missing lockfile, process failure, and cleanup failure as structured outcomes.

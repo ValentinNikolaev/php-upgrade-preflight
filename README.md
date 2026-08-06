@@ -59,6 +59,8 @@ Consumers should select a parser by `schema_version`. Patch releases of the tool
 
 Each Composer scenario records the resolved Composer version, exact command argv, elapsed milliseconds, exit code, bounded stdout/stderr excerpts, and a fingerprint of any readable candidate lock. Candidate-lock fingerprints include the file SHA-256, Composer `content-hash` when present, and the total locked package count; they retain traceable evidence after disposable workspaces are removed.
 
+After a target-resolution solver failure, the analyzer runs bounded `composer prohibits --tree --locked` diagnostics in the same isolated workspace for requested targets that are not already satisfied by the baseline lock. Identical probes are reused within one analysis. The locked diagnostic requires Composer 2.4 or newer; older versions receive a structured unsupported diagnostic without replacing the primary solver outcome.
+
 The transition section compares requested targets with root requirements, while the plan, tests, and uncertainties sections provide evidence-linked staged actions, project-aware validation guidance, and explicit limits on what dependency resolution proves. Markdown reports project these same canonical sections.
 
 ## Development with Docker
