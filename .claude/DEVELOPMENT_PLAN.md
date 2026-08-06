@@ -108,7 +108,7 @@ The first implementation step is the core unit suite plus the local-repository i
 
 - [x] Add `UpgradeTargetSet` with validation, duplicate handling, PHP-target normalization, and deterministic ordering.
 - [x] Add `EvidenceLedger` to allocate unique IDs, validate references, and prevent orphaned findings.
-- [ ] Extract target normalization, framework rule execution, risk/effort estimation, and report assembly into independently tested phases.
+- [x] Extract target normalization, framework rule execution, risk/effort estimation, and report assembly into independently tested phases.
 - [ ] Make DTOs immutable where PHP 8.0 permits and tighten parameter/return types.
 - [ ] Define and snapshot the v0.1 JSON schema, including schema/tool version metadata.
 - [ ] Populate root constraint changes, staged plan, test guidance, and uncertainty sections.
@@ -184,8 +184,8 @@ Acceptance gate: a fresh user can install and run the analyzer against the docum
 
 ## Recommended Next Work Session
 
-Milestones 0 and 1 are complete. Milestone 2 target normalization is complete. Continue with:
+Milestones 0 and 1 are complete. Milestone 2 target normalization, evidence ledger, and pipeline phase extraction are complete. Continue with:
 
-1. Extract and test the report-assembly phases before expanding framework rules.
-2. Tighten DTO immutability and types before freezing the v0.1 report schema.
-3. Define and snapshot the v0.1 JSON schema before populating its remaining sections.
+1. Tighten DTO immutability and types before freezing the v0.1 report schema.
+2. Define and snapshot the v0.1 JSON schema before populating its remaining sections.
+3. Populate root constraint changes, staged actions, test guidance, and uncertainty output.
