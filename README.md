@@ -41,12 +41,12 @@ Scenario selection has a stable priority: baseline validation, exact target, all
 
 ## JSON report contract
 
-JSON reports follow the versioned [v0.3 report schema](packages/core/resources/schema/upgrade-report-v0.3.schema.json). The previous [v0.2 schema](packages/core/resources/schema/upgrade-report-v0.2.schema.json) remains available for consumers of earlier reports. Every report starts with metadata that identifies both the contract and the producing tool:
+JSON reports follow the versioned [v0.4 report schema](packages/core/resources/schema/upgrade-report-v0.4.schema.json). The previous [v0.3](packages/core/resources/schema/upgrade-report-v0.3.schema.json) and [v0.2](packages/core/resources/schema/upgrade-report-v0.2.schema.json) schemas remain available for consumers of earlier reports. Every report starts with metadata that identifies both the contract and the producing tool:
 
 ```json
 {
   "metadata": {
-    "schema_version": "0.3",
+    "schema_version": "0.4",
     "tool": {
       "name": "php-upgrade-preflight",
       "version": "0.1.0"
@@ -55,7 +55,7 @@ JSON reports follow the versioned [v0.3 report schema](packages/core/resources/s
 }
 ```
 
-Consumers should select a parser by `schema_version`. Patch releases of the tool may change findings or fix analysis behavior while retaining the `0.3` report shape. The committed canonical report snapshot is at `packages/core/tests/Snapshots/upgrade-report-v0.3.json`.
+Consumers should select a parser by `schema_version`. Patch releases of the tool may change findings or fix analysis behavior while retaining the `0.4` report shape. The committed canonical report snapshot is at `packages/core/tests/Snapshots/upgrade-report-v0.4.json`.
 
 Each Composer scenario records the resolved Composer version, exact command argv, elapsed milliseconds, exit code, bounded stdout/stderr excerpts, and a fingerprint of any readable candidate lock. Candidate-lock fingerprints include the file SHA-256, Composer `content-hash` when present, and the total locked package count; they retain traceable evidence after disposable workspaces are removed.
 

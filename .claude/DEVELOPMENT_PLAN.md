@@ -132,7 +132,7 @@ Acceptance gate: successful and blocked package-only fixtures produce stable sce
 ## Milestone 4: Lock Diff and Blocker Intelligence
 
 - [x] Test added, removed, upgraded, downgraded, source-ref, and dist-ref changes.
-- [ ] Identify direct versus transitive packages and major-version jumps.
+- [x] Identify direct versus transitive packages and major-version jumps.
 - [ ] Track Laravel/Illuminate and Symfony component families without putting framework concepts into core.
 - [ ] Parse all specified blocker types into structured fields: subject, requested constraint, blocker, locked version, conflict, dependency path, options, confidence, and evidence.
 - [ ] Deduplicate one root conflict reported by multiple scenarios while retaining scenario evidence.
@@ -188,4 +188,4 @@ Acceptance gate: a fresh user can install and run the analyzer against the docum
 
 Milestones 0 through 3 are complete. Continue with Milestone 4:
 
-1. Test added, removed, upgraded, downgraded, source-ref, and dist-ref changes.
+1. Track Laravel/Illuminate and Symfony component families without putting framework concepts into core.
