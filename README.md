@@ -60,7 +60,7 @@ JSON reports follow the versioned [v0.6 report schema](packages/core/resources/s
 
 Consumers should select a parser by `schema_version`. Patch releases of the tool may change findings or fix analysis behavior while retaining the `0.6` report shape. The committed canonical report snapshot is at `packages/core/tests/Snapshots/upgrade-report-v0.6.json`.
 
-Blockers expose both a stable type and actionable structure: the subject and requested constraint, blocking package and locked version when known, the conflicting constraint, dependency path, possible resolution options, confidence, and evidence references. Composer `prohibits --tree` diagnostics are preferred for dependency paths; bounded solver output is used as a fallback.
+Blockers expose both a stable type and actionable structure: the subject and requested constraint, blocking package and locked version when known, the conflicting constraint, dependency path, possible resolution options, confidence, and evidence references. Composer `prohibits --tree` diagnostics are preferred for dependency paths; bounded solver output is used as a fallback. Equivalent root constraint conflicts from multiple scenarios are reported once with every scenario's evidence reference retained.
 
 Package changes may include opaque `package_families` labels supplied by active integrations. The Laravel adapter identifies changed `laravel/*`, `illuminate/*`, and `symfony/*` packages as the `laravel`, `illuminate`, and `symfony` families. Core only coordinates generic classifiers and does not encode those framework package names.
 

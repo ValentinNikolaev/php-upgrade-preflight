@@ -135,7 +135,7 @@ Acceptance gate: successful and blocked package-only fixtures produce stable sce
 - [x] Identify direct versus transitive packages and major-version jumps.
 - [x] Track Laravel/Illuminate and Symfony component families without putting framework concepts into core.
 - [x] Parse all specified blocker types into structured fields: subject, requested constraint, blocker, locked version, conflict, dependency path, options, confidence, and evidence.
-- [ ] Deduplicate one root conflict reported by multiple scenarios while retaining scenario evidence.
+- [x] Deduplicate one root conflict reported by multiple scenarios while retaining scenario evidence.
 - [ ] Detect abandoned packages from lock metadata.
 
 Acceptance gate: fixture outputs identify the actionable root cause and package transition without relying on raw Composer prose alone.
@@ -188,4 +188,4 @@ Acceptance gate: a fresh user can install and run the analyzer against the docum
 
 Milestones 0 through 3 are complete. Continue with Milestone 4:
 
-1. Deduplicate one root conflict reported by multiple scenarios while retaining scenario evidence.
+1. Detect abandoned packages from lock metadata.
