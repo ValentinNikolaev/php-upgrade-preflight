@@ -33,7 +33,7 @@ php artisan upgrade:analyze \
   --format=markdown
 ```
 
-The analyzer copies only `composer.json` and `composer.lock` into temporary workspaces for Composer scenarios. It never writes to the analyzed project.
+The analyzer copies only `composer.json` and `composer.lock` into temporary workspaces for Composer scenarios. It never writes to the analyzed project. Every Composer scenario and diagnostic disables scripts and plugins. Temporary workspaces are removed after both successful and failed scenarios unless `--debug` explicitly preserves them. If cleanup itself fails, the scenario is reported as a cleanup failure and includes the leaked path so it can be inspected and removed manually.
 
 When package and PHP targets are requested together, the report includes a `target-platform-only` probe that checks the requested PHP against current package constraints. It also runs `staged-targets` against the current PHP when that version is supplied with `--from-php` or configured through Composer's `config.platform.php`; otherwise, the staged probe is skipped and the report records the uncertainty. These probes help identify a safer ordering, but only full-target scenarios determine whether the combined upgrade is feasible.
 
