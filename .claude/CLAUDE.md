@@ -15,13 +15,7 @@ Before editing:
 3. Read `.claude/memory/MEMORY.md` for durable architecture and decisions.
 4. Run `git status --short` and preserve unrelated user changes.
 
-Unless the user requests different work, continue the first unchecked item in the earliest incomplete milestone. Milestones 0 and 1 and the target-set work in Milestone 2 are complete. For the rest of Milestone 2, keep this dependency order unless repository evidence requires a safer one:
-
-1. `EvidenceLedger` allocation and reference validation.
-2. Independently tested pipeline phases and report assembly.
-3. Immutable PHP-8.0-compatible DTOs and tighter types.
-4. Versioned v0.1 JSON schema and deterministic snapshots.
-5. Root constraint changes, staged actions, test guidance, and uncertainty output.
+Unless the user requests different work, continue the first unchecked item in the earliest incomplete milestone. Milestones 0, 1, and 2 are complete; continue with Milestone 3 in the order recorded in the development plan unless repository evidence requires a safer sequence.
 
 The original architecture brief is at `I:/Development/Git/ValentinNikolaev/laravel-package-intelligence/ARCHITECTURE_PROMPT.md`. Re-read it before changing product scope or package boundaries.
 

@@ -53,6 +53,8 @@ JSON reports follow the versioned [v0.1 report schema](packages/core/resources/s
 
 Consumers should select a parser by `schema_version`. Patch releases of the tool may change findings or fix analysis behavior while retaining the `0.1` report shape. The committed canonical report snapshot is at `packages/core/tests/Snapshots/upgrade-report-v0.1.json`.
 
+The transition section compares requested targets with root requirements, while the plan, tests, and uncertainties sections provide evidence-linked staged actions, project-aware validation guidance, and explicit limits on what dependency resolution proves. Markdown reports project these same canonical sections.
+
 ## Development with Docker
 
 The default development interpreter is PHP 8.3 in Docker. Composer dependency resolution is pinned to PHP 8.0.30 in the root manifest so development dependencies remain compatible with the package runtime floor. PHP 8.4 and newer supported runtimes remain part of the CI compatibility matrix.
