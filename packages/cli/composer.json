@@ -12,6 +12,11 @@
       "PhpUpgradePreflight\\Cli\\": "src/"
     }
   },
+  "autoload-dev": {
+    "psr-4": {
+      "PhpUpgradePreflight\\Cli\\Tests\\": "tests/"
+    }
+  },
   "bin": [
     "bin/upgrade-intel"
   ]

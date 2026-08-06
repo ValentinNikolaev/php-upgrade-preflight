@@ -48,6 +48,9 @@
   },
   "autoload-dev": {
     "psr-4": {
+      "PhpUpgradePreflight\\Cli\\Tests\\": "packages/cli/tests/",
+      "PhpUpgradePreflight\\Core\\Tests\\": "packages/core/tests/",
+      "PhpUpgradePreflight\\Laravel\\Tests\\": "packages/laravel/tests/",
       "PhpUpgradePreflight\\Tests\\Support\\": "tests/Support/"
     }
   },
