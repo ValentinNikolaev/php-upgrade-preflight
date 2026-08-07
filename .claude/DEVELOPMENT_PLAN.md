@@ -1,6 +1,6 @@
 # PHP Upgrade Preflight Development Plan
 
-Last updated: 2026-08-06
+Last updated: 2026-08-07
 
 This is a directional plan, not a rigid contract. Keep milestone order unless repository evidence shows a safer dependency order. Mark completed work with `[x]`, active work with `[~]`, and remaining work with `[ ]`.
 
@@ -131,12 +131,14 @@ Acceptance gate: successful and blocked package-only fixtures produce stable sce
 
 ## Milestone 4: Lock Diff and Blocker Intelligence
 
+Status: complete and verified on 2026-08-07.
+
 - [x] Test added, removed, upgraded, downgraded, source-ref, and dist-ref changes.
 - [x] Identify direct versus transitive packages and major-version jumps.
 - [x] Track Laravel/Illuminate and Symfony component families without putting framework concepts into core.
 - [x] Parse all specified blocker types into structured fields: subject, requested constraint, blocker, locked version, conflict, dependency path, options, confidence, and evidence.
 - [x] Deduplicate one root conflict reported by multiple scenarios while retaining scenario evidence.
-- [ ] Detect abandoned packages from lock metadata.
+- [x] Detect abandoned packages from lock metadata.
 
 Acceptance gate: fixture outputs identify the actionable root cause and package transition without relying on raw Composer prose alone.
 
@@ -186,6 +188,6 @@ Acceptance gate: a fresh user can install and run the analyzer against the docum
 
 ## Recommended Next Work Session
 
-Milestones 0 through 3 are complete. Continue with Milestone 4:
+Milestones 0 through 4 are complete. Continue with Milestone 5:
 
-1. Detect abandoned packages from lock metadata.
+1. Replace regex source extraction with complete `nikic/php-parser` coverage while keeping parse failures non-fatal and evidenced.
