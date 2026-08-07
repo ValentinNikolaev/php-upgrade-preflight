@@ -148,7 +148,7 @@ Acceptance gate: fixture outputs identify the actionable root cause and package 
 - [x] Detect imports, fully qualified names, inheritance, interfaces, traits, attributes, static calls, function calls, and instantiated classes.
 - [x] Add deterministic inspection for config references, service providers, middleware, console commands, and test doubles/mocks.
 - [x] Exclude `vendor/` and generated/cache paths by default; support explicit source paths safely.
-- [ ] Aggregate duplicate usages without losing file/line evidence.
+- [x] Aggregate duplicate usages without losing file/line evidence.
 
 Acceptance gate: source fixtures cover every supported usage type, syntax errors become uncertainties, and findings include precise file and line evidence.
 
@@ -188,6 +188,6 @@ Acceptance gate: a fresh user can install and run the analyzer against the docum
 
 ## Recommended Next Work Session
 
-Milestones 0 through 4 are complete. Continue with Milestone 5:
+Milestones 0 through 5 are complete. Continue with Milestone 6:
 
-1. Replace regex source extraction with complete `nikic/php-parser` coverage while keeping parse failures non-fatal and evidenced.
+1. Strengthen Laravel and Illuminate detection using root constraints plus lock data.
