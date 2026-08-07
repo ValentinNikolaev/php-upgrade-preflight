@@ -146,7 +146,7 @@ Acceptance gate: fixture outputs identify the actionable root cause and package 
 
 - [x] Replace regex extraction with `nikic/php-parser` while keeping parse failures non-fatal and evidenced.
 - [x] Detect imports, fully qualified names, inheritance, interfaces, traits, attributes, static calls, function calls, and instantiated classes.
-- [ ] Add deterministic inspection for config references, service providers, middleware, console commands, and test doubles/mocks.
+- [x] Add deterministic inspection for config references, service providers, middleware, console commands, and test doubles/mocks.
 - [x] Exclude `vendor/` and generated/cache paths by default; support explicit source paths safely.
 - [ ] Aggregate duplicate usages without losing file/line evidence.
 
