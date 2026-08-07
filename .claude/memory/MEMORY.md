@@ -56,6 +56,8 @@ Abandoned packages are detected from the selected candidate lock, or the baselin
 
 The repository has a verified Docker toolchain using PHP 8.3 by default and Composer 2, with working PHP-version overrides from 8.0 through 8.5. The root `composer check` command validates every package manifest, runs PHPUnit, PHPStan, and PHP CS Fixer, and is the same quality gate used by the GitHub Actions runtime matrix. The deterministic analyzer isolation test runs all scenario paths through temporary workspaces and proves the original fixture remains byte-for-byte unchanged.
 
+Source inspection uses streaming `nikic/php-parser` visitors after namespace resolution. It classifies imports, explicit fully qualified names, inheritance, interfaces, traits, attributes, static access, named function calls, and instantiations with file/line evidence; malformed files produce linked uncertainties without stopping the scan. Recursive default scans prune dependency and common generated/cache directories, while a directly requested excluded directory remains scannable.
+
 Known implementation gaps:
 
 - Laravel rules do not yet cover Passport, Sanctum, Horizon, Telescope, PHPUnit, Mockery, Symfony coupling, old `illuminate/support`, Kernel middleware, or providers/aliases.

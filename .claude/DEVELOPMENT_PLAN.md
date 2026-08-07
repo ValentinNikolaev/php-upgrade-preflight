@@ -144,10 +144,10 @@ Acceptance gate: fixture outputs identify the actionable root cause and package 
 
 ## Milestone 5: Parser-Based Source Impact
 
-- [ ] Replace regex extraction with `nikic/php-parser` while keeping parse failures non-fatal and evidenced.
-- [ ] Detect imports, fully qualified names, inheritance, interfaces, traits, attributes, static calls, function calls, and instantiated classes.
+- [x] Replace regex extraction with `nikic/php-parser` while keeping parse failures non-fatal and evidenced.
+- [x] Detect imports, fully qualified names, inheritance, interfaces, traits, attributes, static calls, function calls, and instantiated classes.
 - [ ] Add deterministic inspection for config references, service providers, middleware, console commands, and test doubles/mocks.
-- [ ] Exclude `vendor/` and generated/cache paths by default; support explicit source paths safely.
+- [x] Exclude `vendor/` and generated/cache paths by default; support explicit source paths safely.
 - [ ] Aggregate duplicate usages without losing file/line evidence.
 
 Acceptance gate: source fixtures cover every supported usage type, syntax errors become uncertainties, and findings include precise file and line evidence.
