@@ -1,0 +1,25 @@
+{
+  "name": "fixture/laravel-package-matrix",
+  "require": {
+    "php": "^7.4",
+    "laravel/framework": "^7.0",
+    "laravel/passport": "^8.0",
+    "laravel/sanctum": "^1.0",
+    "laravel/horizon": "^4.0",
+    "laravel/telescope": "^3.0",
+    "facade/ignition": "^2.0",
+    "fideloper/proxy": "^4.0",
+    "fruitcake/laravel-cors": "^2.0",
+    "symfony/http-foundation": "^4.4"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^8.0",
+    "mockery/mockery": "^1.3",
+    "nunomaduro/collision": "^4.0",
+    "laravel/ui": "^2.0",
+    "orchestra/testbench": "^5.0"
+  },
+  "extra": {
+    "php-upgrade-preflight-fixture": "laravel-package-matrix"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "content-hash": "ignition-legacy-skeleton",
+  "packages": [
+    {
+      "name": "laravel/framework",
+      "version": "v7.30.7"
+    },
+    {
+      "name": "facade/ignition",
+      "version": "1.16.4"
+    }
+  ],
+  "packages-dev": []
+}

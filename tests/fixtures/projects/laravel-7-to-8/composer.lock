@@ -1,0 +1,10 @@
+{
+  "content-hash": "laravel-7-to-8",
+  "packages": [
+    {
+      "name": "laravel/framework",
+      "version": "v7.30.7"
+    }
+  ],
+  "packages-dev": []
+}

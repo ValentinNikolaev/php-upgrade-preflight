@@ -14,6 +14,7 @@
         </testsuite>
         <testsuite name="laravel">
             <directory suffix="Test.php">packages/laravel/tests/Unit</directory>
+            <directory suffix="Test.php">packages/laravel/tests/Integration</directory>
         </testsuite>
     </testsuites>
 </phpunit>

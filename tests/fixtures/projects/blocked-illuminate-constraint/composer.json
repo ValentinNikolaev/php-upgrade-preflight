@@ -1,0 +1,11 @@
+{
+  "name": "fixture/blocked-illuminate-constraint",
+  "require": {
+    "php": "^7.4 || ^8.0",
+    "laravel/framework": "^7.0",
+    "fixture/illuminate-consumer": "1.0.0"
+  },
+  "extra": {
+    "php-upgrade-preflight-fixture": "blocked-illuminate-constraint"
+  }
+}

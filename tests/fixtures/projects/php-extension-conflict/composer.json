@@ -1,0 +1,11 @@
+{
+  "name": "fixture/php-extension-conflict",
+  "require": {
+    "php": "^7.4",
+    "laravel/framework": "^7.0",
+    "fixture/runtime-guard": "1.0.0"
+  },
+  "extra": {
+    "php-upgrade-preflight-fixture": "php-extension-conflict"
+  }
+}

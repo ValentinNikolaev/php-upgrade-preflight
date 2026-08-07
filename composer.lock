@@ -759,9 +759,10 @@
             "dist": {
                 "type": "path",
                 "url": "packages/laravel",
-                "reference": "dfb661f69844f8f684ed8091a997dd4504d8a5f9"
+                "reference": "9d64bbd25d8fbdb63ad8302a3b686dd581340556"
             },
             "require": {
+                "composer/semver": "^3.4",
                 "illuminate/console": "^8.0|^9.0|^10.0|^11.0|^12.0",
                 "illuminate/support": "^8.0|^9.0|^10.0|^11.0|^12.0",
                 "php": "^8.0",

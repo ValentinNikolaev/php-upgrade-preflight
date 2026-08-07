@@ -154,12 +154,14 @@ Acceptance gate: source fixtures cover every supported usage type, syntax errors
 
 ## Milestone 6: Laravel 7 to 8/9 Rules
 
+Status: complete and verified on 2026-08-07 with six deterministic Laravel fixture classes.
+
 - [x] Strengthen Laravel and Illuminate detection using root constraints plus lock data.
-- [ ] Add conservative rules for framework/PHP constraints, Passport, Sanctum, Horizon, Telescope, PHPUnit, Mockery, Symfony components, old `illuminate/support`, and the existing legacy packages.
-- [ ] Inspect `app/Http/Kernel.php`, `config/app.php` providers/aliases, and Laravel skeleton indicators through detected source usage.
-- [ ] Map rules to target Laravel/PHP ranges using `composer/semver`.
-- [ ] Distinguish exact metadata/source evidence from heuristic migration guidance.
-- [ ] Test Laravel 7 to 8, Laravel 7 to 9, blocked Illuminate constraints, Ignition, and PHP/extension conflict fixtures.
+- [x] Add conservative rules for framework/PHP constraints, Passport, Sanctum, Horizon, Telescope, PHPUnit, Mockery, Symfony components, old `illuminate/support`, and the existing legacy packages.
+- [x] Inspect `app/Http/Kernel.php`, `config/app.php` providers/aliases, and Laravel skeleton indicators through detected source usage.
+- [x] Map rules to target Laravel/PHP ranges using `composer/semver`.
+- [x] Distinguish exact metadata/source evidence from heuristic migration guidance.
+- [x] Test Laravel 7 to 8, Laravel 7 to 9, blocked Illuminate constraints, Ignition, and PHP/extension conflict fixtures.
 
 Acceptance gate: the six required Laravel fixture classes produce conservative, evidence-linked findings with no claims outside encoded rules.
 
@@ -188,6 +190,6 @@ Acceptance gate: a fresh user can install and run the analyzer against the docum
 
 ## Recommended Next Work Session
 
-Milestones 0 through 5 are complete. Continue with Milestone 6:
+Milestones 0 through 6 are complete. Continue with Milestone 7:
 
-1. Add conservative rules for framework/PHP constraints, Passport, Sanctum, Horizon, Telescope, PHPUnit, Mockery, Symfony components, old `illuminate/support`, and the existing legacy packages.
+1. Complete CLI, Artisan, and canonical-reporting end-to-end behavior, including predictable validation and exit-code policy.

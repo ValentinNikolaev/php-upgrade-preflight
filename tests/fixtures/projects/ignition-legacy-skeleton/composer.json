@@ -1,0 +1,11 @@
+{
+  "name": "fixture/ignition-legacy-skeleton",
+  "require": {
+    "php": "^7.4",
+    "laravel/framework": "^7.0",
+    "facade/ignition": "^1.0"
+  },
+  "extra": {
+    "php-upgrade-preflight-fixture": "ignition-legacy-skeleton"
+  }
+}

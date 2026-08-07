@@ -24,8 +24,12 @@ final class LegacyLaravelPackageRule implements CompatibilityRule
         $this->severity = $severity;
     }
 
-    public function evaluate(ProjectState $project, UpgradeRequest $request, EvidenceLedger $evidence): ?CompatibilityFinding
-    {
+    public function evaluate(
+        ProjectState $project,
+        UpgradeRequest $request,
+        EvidenceLedger $evidence,
+        array $sourceUsages = []
+    ): ?CompatibilityFinding {
         $locked = $project->composerLock()->package($this->package);
         $constraint = $project->composerJson()->rootRequirements()[$this->package] ?? null;
 

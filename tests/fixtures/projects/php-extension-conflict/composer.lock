@@ -1,0 +1,18 @@
+{
+  "content-hash": "php-extension-conflict",
+  "packages": [
+    {
+      "name": "laravel/framework",
+      "version": "v7.30.7"
+    },
+    {
+      "name": "fixture/runtime-guard",
+      "version": "1.0.0",
+      "require": {
+        "php": "^7.4",
+        "ext-preflight_fixture": "*"
+      }
+    }
+  ],
+  "packages-dev": []
+}

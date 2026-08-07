@@ -1,0 +1,17 @@
+{
+  "content-hash": "blocked-illuminate-constraint",
+  "packages": [
+    {
+      "name": "laravel/framework",
+      "version": "v7.30.7"
+    },
+    {
+      "name": "fixture/illuminate-consumer",
+      "version": "1.0.0",
+      "require": {
+        "illuminate/support": "^7.0"
+      }
+    }
+  ],
+  "packages-dev": []
+}
