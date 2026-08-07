@@ -26,10 +26,39 @@ final class LaravelFrameworkIntegration implements FrameworkIntegration, Package
 
     public function detect(ProjectState $project): FrameworkDetection
     {
-        $package = $project->composerLock()->package('laravel/framework');
-        $rootConstraint = $project->composerJson()->rootRequirements()['laravel/framework'] ?? null;
+        $rootRequirements = $project->composerJson()->rootRequirements();
+        $lockedFramework = $project->composerLock()->package('laravel/framework');
+        $frameworkConstraint = $rootRequirements['laravel/framework'] ?? null;
 
-        return new FrameworkDetection('laravel', $package !== null || $rootConstraint !== null, $package ? $package->version() : $rootConstraint);
+        if ($lockedFramework !== null || $frameworkConstraint !== null) {
+            return new FrameworkDetection(
+                'laravel',
+                true,
+                $lockedFramework === null ? $frameworkConstraint : $lockedFramework->version()
+            );
+        }
+
+        $illuminateConstraints = [];
+        foreach ($rootRequirements as $package => $constraint) {
+            if (str_starts_with($package, 'illuminate/')) {
+                $illuminateConstraints[$package] = $constraint;
+            }
+        }
+
+        if ($illuminateConstraints === []) {
+            return new FrameworkDetection('laravel', false);
+        }
+
+        ksort($illuminateConstraints);
+        $versions = [];
+        foreach ($illuminateConstraints as $package => $constraint) {
+            $locked = $project->composerLock()->package($package);
+            $versions[] = $locked === null ? $constraint : $locked->version();
+        }
+
+        $versions = array_values(array_unique($versions));
+
+        return new FrameworkDetection('laravel', true, count($versions) === 1 ? $versions[0] : null);
     }
 
     public function rules(): iterable
@@ -44,7 +73,7 @@ final class LaravelFrameworkIntegration implements FrameworkIntegration, Package
 
     public function defaultSourcePaths(ProjectState $project): array
     {
-        return ['app', 'bootstrap', 'config', 'database', 'routes', 'tests'];
+        return ['src', 'app', 'bootstrap', 'config', 'database', 'routes', 'tests'];
     }
 
     public function packageFamilies(string $packageName): array
