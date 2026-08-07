@@ -26,6 +26,20 @@ upgrade-intel analyze \
   --format=json
 ```
 
+`--target` may be repeated, and `--target-php=8.1` may be used instead of `--target=php:8.1`. Supplying both forms is allowed only when they normalize to the same exact PHP version. Explicit `--source` paths must exist inside the analyzed project. Report files must be written outside the analyzed project so the input tree remains read-only.
+
+The generic CLI discovers every installed framework adapter. An adapter is activated when its framework is detected from Composer metadata or explicitly selected with a repeatable `--framework=NAME` option. For Laravel rules in generic CLI mode, install `php-upgrade-preflight/laravel`; requesting an adapter that is not installed is an invalid invocation.
+
+The CLI uses a deliberately small, directly tested parser instead of adding `symfony/console` and its transitive string, service-contract, and polyfill dependencies to the standalone CLI package. The supported syntax is intentionally explicit: `upgrade-intel analyze`, `--name=value` options, repeatable targets/sources/frameworks, and the valueless `--debug` flag.
+
+### Exit codes and output
+
+- `0`: help or a completed analysis. A valid analysis that reports blocked or unknown resolution still returns `0`; consumers should read `resolution.status` from the canonical report.
+- `1`: an unexpected internal failure prevented report production.
+- `2`: invalid command usage, path, target, PHP version combination, format, framework selection, source path, or output destination.
+
+Reports are written to stdout unless `--output` is supplied. Diagnostics are written to stderr. Output destinations are validated before analysis begins.
+
 ## Laravel
 
 ```bash
@@ -35,6 +49,8 @@ php artisan upgrade:analyze \
   --from-php=7.4 \
   --format=markdown
 ```
+
+The Artisan command uses the same validation and exit policy, defaults `--path` to the Laravel application's base path, always enables the installed Laravel integration, and supports `--target-php`, repeatable `--source`, `--format`, and external `--output` destinations.
 
 The analyzer copies only `composer.json` and `composer.lock` into temporary workspaces for Composer scenarios. It never writes to the analyzed project. Every Composer scenario and diagnostic disables scripts and plugins. Temporary workspaces are removed after both successful and failed scenarios unless `--debug` explicitly preserves them. If cleanup itself fails, the scenario is reported as a cleanup failure and includes the leaked path so it can be inspected and removed manually.
 

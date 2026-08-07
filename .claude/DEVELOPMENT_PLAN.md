@@ -167,12 +167,12 @@ Acceptance gate: the six required Laravel fixture classes produce conservative, 
 
 ## Milestone 7: CLI, Artisan, and Reporting UX
 
-- [ ] Validate paths, targets, formats, output destinations, and conflicting PHP options with clear exit codes.
-- [ ] Decide whether to retain the small custom CLI parser or adopt a PHP 8.0-compatible console component based on dependency cost and testability.
-- [ ] Ensure framework integrations are registered in generic CLI mode when requested or detected.
-- [ ] Ensure the Laravel command defaults to the current project and delegates to the same analyzer operation.
+- [x] Validate paths, targets, formats, output destinations, and conflicting PHP options with clear exit codes.
+- [x] Decide whether to retain the small custom CLI parser or adopt a PHP 8.0-compatible console component based on dependency cost and testability.
+- [x] Ensure framework integrations are registered in generic CLI mode when requested or detected.
+- [x] Ensure the Laravel command defaults to the current project and delegates to the same analyzer operation.
 - [ ] Render Markdown entirely from the canonical report without dropping evidence or uncertainty.
-- [ ] Use stdout for reports, stderr for diagnostics, and nonzero exits for invalid invocation or internal failure; document the policy for a valid but blocked analysis.
+- [x] Use stdout for reports, stderr for diagnostics, and nonzero exits for invalid invocation or internal failure; document the policy for a valid but blocked analysis.
 
 Acceptance gate: CLI and Artisan end-to-end tests produce equivalent canonical data and predictable files/exit codes.
 

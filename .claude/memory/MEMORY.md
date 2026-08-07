@@ -62,16 +62,19 @@ Laravel detection prefers the exact locked `laravel/framework` version and falls
 
 Laravel 7 to 8/9 rules derive one unambiguous target major from requested `laravel/framework` or `illuminate/*` constraints with `composer/semver`; ambiguous cross-major targets produce no range claim. Laravel 7 status is established conservatively across all rooted Illuminate components, so modular projects do not require `illuminate/support` specifically. Rules cover framework and PHP constraints, Passport, Sanctum, Horizon, Telescope, PHPUnit, Mockery, direct Symfony component constraints, packages pinned to old `illuminate/support`, Ignition, Collision, CORS, trusted proxies, UI, and Testbench. First-party package checks prefer exact locked `require` metadata over fallback documented version ranges and retain exact requested constraints rather than widening them to the whole target major. Fallback E4 sources are selected per Laravel target major. Framework rules receive parser-derived source usages, allowing `app/Http/Kernel.php` middleware and `config/app.php` provider/facade-alias registrations to reuse exact E3 evidence. Skeleton comparison guidance is separately labeled E5 with low confidence and explicitly identifies review locations rather than confirmed incompatibilities. Six offline application-shaped fixtures cover Laravel 7 to 8, Laravel 7 to 9, an old Illuminate consumer, Ignition with legacy skeleton entries, combined PHP/extension solver conflicts, and the first-party/test package matrix. Their integration tests assert an explicit finding allowlist, evidence-reference integrity, structured blockers, source evidence classes, and byte-for-byte fixture immutability.
 
+The generic CLI retains a dedicated custom parser rather than depending directly on `symfony/console`. The command has one subcommand and a small fixed option surface, so a console dependency would add string, service-contract, and polyfill packages without improving current testability; parsing is isolated in `CommandLineParser` with direct unit coverage. CLI and Artisan validate project/source paths, exact current and target PHP versions, target conflicts, formats, requested framework adapters, and report destinations before analysis. Invalid invocation exits 2, unexpected failures after validation exit 1 regardless of exception type, and every completed canonical report exits 0 even when `resolution.status` is `blocked` or `unknown`. Reports use stdout and diagnostics use stderr when the console exposes separate streams. Explicit source paths must exist inside the analyzed project, while report output must remain outside it. Generic CLI construction registers all installed adapters so core detection can activate them; explicit `--framework` requests are rejected early when their adapter package is unavailable. Artisan defaults to the Laravel application's base path rather than the process working directory.
+
 Known implementation gaps:
 
 - The opt-in live package/runtime matrix is not complete.
-- CLI uses a custom parser and has not been runtime-tested. Laravel integration must be checked against every declared Illuminate major.
+- Laravel integration must be checked against every declared Illuminate major.
 
 ## Durable Decisions
 
 - PolyForm Noncommercial 1.0.0 for free noncommercial use; commercial use requires a separate paid license from Valentin Nikolaev.
 - Product name: PHP Upgrade Preflight; repository: `php-upgrade-preflight`.
 - Command names: generic `upgrade-intel analyze`; Laravel `upgrade:analyze`.
+- CLI parsing remains dependency-light and custom until the command surface grows enough to justify a console component.
 - JSON is canonical and Markdown is a projection of the same report.
 - Reports may be incomplete but must expose uncertainty rather than unsupported certainty.
 - Analyzed projects are immutable inputs. Temporary Composer files are disposable analysis artifacts.

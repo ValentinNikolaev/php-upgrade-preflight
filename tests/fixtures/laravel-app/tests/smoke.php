@@ -38,13 +38,13 @@ assertTrue(
 $status = $kernel->call('upgrade:analyze', []);
 
 assertSame(
-    1,
+    2,
     $status,
     'Artisan command starts and returns validation failure when no target is supplied'
 );
 
 assertContains(
-    'At least one --target=package:constraint option is required.',
+    'At least one --target=package:constraint or --target-php=VERSION option is required.',
     $kernel->output(),
     'Artisan command emits its startup validation message'
 );

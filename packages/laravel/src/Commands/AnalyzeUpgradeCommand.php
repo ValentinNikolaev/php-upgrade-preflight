@@ -12,13 +12,17 @@ use PhpUpgradePreflight\Core\Model\UpgradeTarget;
 use PhpUpgradePreflight\Core\Reporting\JsonReportWriter;
 use PhpUpgradePreflight\Core\Reporting\MarkdownReportWriter;
 use PhpUpgradePreflight\Core\Reporting\ReportFileWriter;
+use Symfony\Component\Console\Output\ConsoleOutputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 
 final class AnalyzeUpgradeCommand extends Command
 {
     protected $signature = 'upgrade:analyze
         {--path= : Project path to analyze}
         {--target=* : Target constraint using package:constraint syntax}
+        {--target-php= : Explicit target PHP platform version}
         {--from-php= : Current project PHP version}
+        {--source=* : Additional source path to scan}
         {--format=json : json or markdown}
         {--output= : Report output path}
         {--debug : Preserve temporary Composer workspaces}';
@@ -37,48 +41,102 @@ final class AnalyzeUpgradeCommand extends Command
 
     public function handle(): int
     {
-        $targets = array_map(
-            static fn (string $target): UpgradeTarget => UpgradeTarget::fromString($target),
-            array_values((array) $this->option('target'))
-        );
+        try {
+            $targets = array_map(
+                static fn (string $target): UpgradeTarget => UpgradeTarget::fromString($target),
+                array_values((array) $this->option('target'))
+            );
+            $targetPhp = $this->optionalString('target-php');
 
-        if ($targets === []) {
-            $this->error('At least one --target=package:constraint option is required.');
+            if ($targets === [] && $targetPhp === null) {
+                throw new \InvalidArgumentException('At least one --target=package:constraint or --target-php=VERSION option is required.');
+            }
+
+            $format = ReportFormat::normalize((string) $this->option('format'));
+            $request = new UpgradeRequest(
+                $this->projectPath(),
+                $targets,
+                $this->optionalString('from-php'),
+                $targetPhp,
+                array_values((array) $this->option('source')),
+                ['laravel'],
+                $format,
+                $this->optionalString('output'),
+                (bool) $this->option('debug')
+            );
+
+            if ($request->outputPath() !== null) {
+                $this->reportFileWriter->validateDestination($request->projectPath(), $request->outputPath());
+            }
+        } catch (\InvalidArgumentException $exception) {
+            $this->diagnostic('Invalid invocation: ' . $exception->getMessage());
+
+            return self::INVALID;
+        } catch (\Throwable $exception) {
+            $this->diagnostic('Analysis failed: ' . $exception->getMessage());
 
             return self::FAILURE;
         }
 
-        $format = ReportFormat::normalize((string) $this->option('format'));
-        $request = new UpgradeRequest(
-            (string) ($this->option('path') ?: base_path()),
-            $targets,
-            $this->nullableString($this->option('from-php')),
-            null,
-            [],
-            ['laravel'],
-            $format,
-            $this->nullableString($this->option('output')),
-            (bool) $this->option('debug')
-        );
+        try {
+            $report = $this->analyzer->analyzeUpgrade($request);
+            $rendered = $format === ReportFormat::MARKDOWN
+                ? (new MarkdownReportWriter())->render($report)
+                : (new JsonReportWriter())->render($report);
 
-        $report = $this->analyzer->analyzeUpgrade($request);
-        $rendered = $format === ReportFormat::MARKDOWN
-            ? (new MarkdownReportWriter())->render($report)
-            : (new JsonReportWriter())->render($report);
+            if ($request->outputPath() !== null) {
+                $writtenPath = $this->reportFileWriter->write($request->projectPath(), $request->outputPath(), $rendered);
+                $this->info(sprintf('Wrote report to %s', $writtenPath));
+            } else {
+                $this->line($rendered);
+            }
 
-        if ($request->outputPath() !== null) {
-            $writtenPath = $this->reportFileWriter->write($request->projectPath(), $request->outputPath(), $rendered);
-            $this->info(sprintf('Wrote report to %s', $writtenPath));
-        } else {
-            $this->line($rendered);
+            return self::SUCCESS;
+        } catch (\Throwable $exception) {
+            $this->diagnostic('Analysis failed: ' . $exception->getMessage());
+
+            return self::FAILURE;
         }
-
-        return self::SUCCESS;
     }
 
-    /** @param mixed $value */
-    private function nullableString(mixed $value): ?string
+    private function projectPath(): string
     {
-        return is_string($value) && $value !== '' ? $value : null;
+        $path = $this->option('path');
+
+        if ($path !== null) {
+            return is_string($path) ? $path : '';
+        }
+
+        $basePath = $this->laravel->basePath();
+        if (!is_string($basePath) || trim($basePath) === '') {
+            throw new \RuntimeException('Unable to determine the Laravel application base path.');
+        }
+
+        return $basePath;
+    }
+
+    private function optionalString(string $name): ?string
+    {
+        $value = $this->option($name);
+
+        if ($value === null) {
+            return null;
+        }
+
+        if (!is_string($value)) {
+            throw new \InvalidArgumentException(sprintf('Option "--%s" must be a string.', $name));
+        }
+
+        return $value;
+    }
+
+    private function diagnostic(string $message): void
+    {
+        $output = $this->output->getOutput();
+        $diagnosticOutput = $output instanceof ConsoleOutputInterface
+            ? $output->getErrorOutput()
+            : $output;
+
+        $diagnosticOutput->writeln($message, OutputInterface::OUTPUT_RAW);
     }
 }

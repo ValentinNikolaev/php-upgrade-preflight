@@ -20,4 +20,19 @@ final class FrameworkIntegrationRegistryTest extends TestCase
     {
         self::assertSame([], (new FrameworkIntegrationRegistry(['Missing\\Framework\\Integration']))->installed());
     }
+
+    public function testItAcceptsARequestedInstalledIntegrationCaseInsensitively(): void
+    {
+        (new FrameworkIntegrationRegistry())->assertAvailable(['Laravel']);
+
+        self::addToAssertionCount(1);
+    }
+
+    public function testItRejectsARequestedIntegrationWhoseAdapterIsNotInstalled(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Requested framework integration is unavailable: laravel.');
+
+        (new FrameworkIntegrationRegistry([]))->assertAvailable(['laravel']);
+    }
 }
