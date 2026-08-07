@@ -131,7 +131,7 @@ Acceptance gate: successful and blocked package-only fixtures produce stable sce
 
 ## Milestone 4: Lock Diff and Blocker Intelligence
 
-Status: complete and verified on 2026-08-07.
+Status: complete and verified on 2026-08-07 with Composer-backed successful and blocked package fixture reports.
 
 - [x] Test added, removed, upgraded, downgraded, source-ref, and dist-ref changes.
 - [x] Identify direct versus transitive packages and major-version jumps.

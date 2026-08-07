@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7126a8dad9abbb8d0d23eedcc57eb443",
+    "content-hash": "b301be6dee05cda0a1a6087081f8abfd",
     "packages": [
         {
             "name": "fixture/dependency",

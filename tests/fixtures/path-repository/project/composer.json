@@ -9,7 +9,7 @@
     },
     {
       "type": "path",
-      "url": "../repository/fixture-dependency"
+      "url": "../repository/*"
     }
   ],
   "require": {
