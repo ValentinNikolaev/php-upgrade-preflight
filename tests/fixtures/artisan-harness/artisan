@@ -1,0 +1,31 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+use Illuminate\Console\Application as Artisan;
+use PhpUpgradePreflight\Laravel\UpgradePreflightServiceProvider;
+use PhpUpgradePreflight\Tests\Support\NullEventDispatcher;
+use PhpUpgradePreflight\Tests\Support\TestLaravelApplication;
+use Symfony\Component\Console\Input\ArgvInput;
+use Symfony\Component\Console\Output\ConsoleOutput;
+
+require dirname(__DIR__, 3) . '/vendor/autoload.php';
+
+$projectPath = getenv('PHP_UPGRADE_PREFLIGHT_TEST_PROJECT_PATH');
+if (!is_string($projectPath) || $projectPath === '') {
+    fwrite(STDERR, "PHP_UPGRADE_PREFLIGHT_TEST_PROJECT_PATH is required.\n");
+    exit(1);
+}
+
+Artisan::forgetBootstrappers();
+$application = new TestLaravelApplication($projectPath);
+$application->register(UpgradePreflightServiceProvider::class);
+$application->boot();
+
+$artisan = new Artisan($application, new NullEventDispatcher(), $application->version());
+$status = $artisan->run(new ArgvInput(), new ConsoleOutput());
+$application->terminate();
+Artisan::forgetBootstrappers();
+
+exit($status);
