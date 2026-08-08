@@ -77,13 +77,22 @@ final class ReleaseWorkflowTest extends TestCase
         }
     }
 
-    public function testQualityGateLintsWorkflowFiles(): void
+    public function testQualityGateLintsWorkflowFilesAndAvoidsRepeatedStaticChecks(): void
     {
         $workflow = $this->readRootFile('.github/workflows/quality.yml');
 
         self::assertStringContainsString('rhysd/actionlint@sha256:', $workflow);
-        self::assertStringContainsString('::add-mask::$value', $workflow);
+        self::assertStringContainsString('static-analysis:', $workflow);
+        self::assertStringContainsString('php tools/mask-secret-canaries.php', $workflow);
         self::assertStringContainsString('extensions: zip', $workflow);
+        self::assertStringContainsString('composer validate:all', $workflow);
+        self::assertStringContainsString('composer analyse', $workflow);
+        self::assertStringContainsString('composer lint', $workflow);
+        self::assertStringContainsString("if: runner.os == 'Windows'", $workflow);
+        self::assertStringContainsString("if: runner.os != 'Windows'", $workflow);
+        self::assertStringContainsString('composer install --prefer-dist --no-interaction --no-progress', $workflow);
+        self::assertStringContainsString('run: composer test', $workflow);
+        self::assertStringNotContainsString('composer check', $workflow);
     }
 
     public function testReleaseArchivesAreVersionedVerifiedInstalledAndScannedBeforePublication(): void
@@ -97,15 +106,30 @@ final class ReleaseWorkflowTest extends TestCase
         self::assertStringContainsString('php-upgrade-preflight/cli:${RELEASE_VERSION}', $workflow);
         self::assertStringContainsString('php-upgrade-preflight/laravel:${RELEASE_VERSION}', $workflow);
         self::assertStringContainsString(
-            "php-version: '8.0'\n          coverage: none\n          extensions: zip\n\n      - name: Mask synthetic secret canaries",
+            "php-version: '8.0'\n          coverage: none\n          extensions: zip\n\n      - name: Mask synthetic secret canaries\n        run: php tools/mask-secret-canaries.php",
             $workflow
         );
         self::assertStringContainsString('vendor/bin/upgrade-intel --help', $workflow);
         self::assertStringContainsString('--format=json', $workflow);
         self::assertStringContainsString('php tests/smoke.php', $workflow);
         self::assertStringContainsString('php tools/verify-secret-leaks.php dist', $workflow);
-        self::assertStringContainsString('::add-mask::$value', $workflow);
+        self::assertStringContainsString('php tools/mask-secret-canaries.php', $workflow);
+        self::assertStringContainsString('php tools/render-markdown-report.php', $workflow);
         self::assertStringContainsString("needs:\n      - artifact-consumer", $workflow);
+    }
+
+    public function testFreshCloneAuditDoesNotRepeatTheFullQualityOrSolverWork(): void
+    {
+        $workflow = $this->readRootFile('.github/workflows/release.yml');
+        $freshClone = strstr($workflow, "\n  fresh-clone-audit:");
+        self::assertIsString($freshClone);
+        $freshClone = strstr($freshClone, "\n  package:", true);
+        self::assertIsString($freshClone);
+
+        self::assertStringContainsString('composer validate:all', $freshClone);
+        self::assertStringNotContainsString('composer check', $freshClone);
+        self::assertSame(1, substr_count($freshClone, "'analyze',"));
+        self::assertStringContainsString('php tools/render-markdown-report.php', $freshClone);
     }
 
     public function testLaravelCompatibilityBootsTheDiscoveredProviderAndCommandHarness(): void

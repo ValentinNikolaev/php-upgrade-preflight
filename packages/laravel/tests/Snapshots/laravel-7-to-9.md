@@ -34,7 +34,7 @@ Resolution: **feasible_with_changes** | Schema: `0.6` | Tool: `php-upgrade-prefl
   - candidate lock: SHA-256 `c69e486f887c9f57ee9199802d06393946ed7728c13c2e5c2476308e4703ef2e`, content hash `laravel-7-to-9`, packages `1`
   - diagnostics: none
 - `exact-target`: succeeded (outcome `success`, Composer `unknown`, duration `1 ms`, exit `0`, failure type `none`)
-  - command argv: `["composer","update","laravel/framework","--no-scripts","--no-plugins","--no-install","--no-interaction"]`
+  - command argv: `["composer","update","laravel/framework","--no-scripts","--no-plugins","--no-install","--no-audit","--no-progress","--no-interaction"]`
   - temporary workspace: `not preserved`
   - stdout excerpt:
     ```text
@@ -44,7 +44,7 @@ Resolution: **feasible_with_changes** | Schema: `0.6` | Tool: `php-upgrade-prefl
   - candidate lock: SHA-256 `4cdd1b9c664657c4cc43ab2762565e387270b3dde4d1f4de7ba19c93a29c3495`, content hash `candidate-v9.52.16`, packages `1`
   - diagnostics: none
 - `target-with-all-dependencies`: succeeded (outcome `success`, Composer `unknown`, duration `1 ms`, exit `0`, failure type `none`)
-  - command argv: `["composer","update","laravel/framework","--with-all-dependencies","--no-scripts","--no-plugins","--no-install","--no-interaction"]`
+  - command argv: `["composer","update","laravel/framework","--with-all-dependencies","--no-scripts","--no-plugins","--no-install","--no-audit","--no-progress","--no-interaction"]`
   - temporary workspace: `not preserved`
   - stdout excerpt:
     ```text
@@ -54,7 +54,7 @@ Resolution: **feasible_with_changes** | Schema: `0.6` | Tool: `php-upgrade-prefl
   - candidate lock: SHA-256 `4cdd1b9c664657c4cc43ab2762565e387270b3dde4d1f4de7ba19c93a29c3495`, content hash `candidate-v9.52.16`, packages `1`
   - diagnostics: none
 - `minimal-changes`: succeeded (outcome `success`, Composer `unknown`, duration `1 ms`, exit `0`, failure type `none`)
-  - command argv: `["composer","update","laravel/framework","--with-all-dependencies","--minimal-changes","--no-scripts","--no-plugins","--no-install","--no-interaction"]`
+  - command argv: `["composer","update","laravel/framework","--with-all-dependencies","--minimal-changes","--no-scripts","--no-plugins","--no-install","--no-audit","--no-progress","--no-interaction"]`
   - temporary workspace: `not preserved`
   - stdout excerpt:
     ```text
@@ -64,7 +64,7 @@ Resolution: **feasible_with_changes** | Schema: `0.6` | Tool: `php-upgrade-prefl
   - candidate lock: SHA-256 `4cdd1b9c664657c4cc43ab2762565e387270b3dde4d1f4de7ba19c93a29c3495`, content hash `candidate-v9.52.16`, packages `1`
   - diagnostics: none
 - `target-platform-only`: succeeded (outcome `success`, Composer `unknown`, duration `1 ms`, exit `0`, failure type `none`)
-  - command argv: `["composer","update","--no-scripts","--no-plugins","--no-install","--no-interaction"]`
+  - command argv: `["composer","update","--no-scripts","--no-plugins","--no-install","--no-audit","--no-progress","--no-interaction"]`
   - temporary workspace: `not preserved`
   - stdout excerpt:
     ```text
@@ -74,7 +74,7 @@ Resolution: **feasible_with_changes** | Schema: `0.6` | Tool: `php-upgrade-prefl
   - candidate lock: SHA-256 `c69e486f887c9f57ee9199802d06393946ed7728c13c2e5c2476308e4703ef2e`, content hash `laravel-7-to-9`, packages `1`
   - diagnostics: none
 - `staged-targets`: succeeded (outcome `success`, Composer `unknown`, duration `1 ms`, exit `0`, failure type `none`)
-  - command argv: `["composer","update","laravel/framework","--with-all-dependencies","--no-scripts","--no-plugins","--no-install","--no-interaction"]`
+  - command argv: `["composer","update","laravel/framework","--with-all-dependencies","--no-scripts","--no-plugins","--no-install","--no-audit","--no-progress","--no-interaction"]`
   - temporary workspace: `not preserved`
   - stdout excerpt:
     ```text

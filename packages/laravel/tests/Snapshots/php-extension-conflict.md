@@ -35,7 +35,7 @@ Resolution: **blocked** | Schema: `0.6` | Tool: `php-upgrade-preflight 0.1.0`
   - candidate lock: SHA-256 `3401d4adcfc3dd15766b4963616eedd2b3c05d764f233bfe16986229e3eb2775`, content hash `php-extension-conflict`, packages `2`
   - diagnostics: none
 - `exact-target`: failed (outcome `solver_failure`, Composer `unknown`, duration `1 ms`, exit `2`, failure type `solver`)
-  - command argv: `["composer","update","laravel/framework","--no-scripts","--no-plugins","--no-install","--no-interaction"]`
+  - command argv: `["composer","update","laravel/framework","--no-scripts","--no-plugins","--no-install","--no-audit","--no-progress","--no-interaction"]`
   - temporary workspace: `not preserved`
   - stdout excerpt: *(empty)*
   - stderr excerpt:
@@ -60,7 +60,7 @@ Resolution: **blocked** | Schema: `0.6` | Tool: `php-upgrade-preflight 0.1.0`
       No additional fixture diagnostic.
       ```
 - `target-with-all-dependencies`: failed (outcome `solver_failure`, Composer `unknown`, duration `1 ms`, exit `2`, failure type `solver`)
-  - command argv: `["composer","update","laravel/framework","--with-all-dependencies","--no-scripts","--no-plugins","--no-install","--no-interaction"]`
+  - command argv: `["composer","update","laravel/framework","--with-all-dependencies","--no-scripts","--no-plugins","--no-install","--no-audit","--no-progress","--no-interaction"]`
   - temporary workspace: `not preserved`
   - stdout excerpt: *(empty)*
   - stderr excerpt:
@@ -85,7 +85,7 @@ Resolution: **blocked** | Schema: `0.6` | Tool: `php-upgrade-preflight 0.1.0`
       No additional fixture diagnostic.
       ```
 - `minimal-changes`: failed (outcome `solver_failure`, Composer `unknown`, duration `1 ms`, exit `2`, failure type `solver`)
-  - command argv: `["composer","update","laravel/framework","--with-all-dependencies","--minimal-changes","--no-scripts","--no-plugins","--no-install","--no-interaction"]`
+  - command argv: `["composer","update","laravel/framework","--with-all-dependencies","--minimal-changes","--no-scripts","--no-plugins","--no-install","--no-audit","--no-progress","--no-interaction"]`
   - temporary workspace: `not preserved`
   - stdout excerpt: *(empty)*
   - stderr excerpt:
@@ -110,7 +110,7 @@ Resolution: **blocked** | Schema: `0.6` | Tool: `php-upgrade-preflight 0.1.0`
       No additional fixture diagnostic.
       ```
 - `target-platform-only`: failed (outcome `solver_failure`, Composer `unknown`, duration `1 ms`, exit `2`, failure type `solver`)
-  - command argv: `["composer","update","--no-scripts","--no-plugins","--no-install","--no-interaction"]`
+  - command argv: `["composer","update","--no-scripts","--no-plugins","--no-install","--no-audit","--no-progress","--no-interaction"]`
   - temporary workspace: `not preserved`
   - stdout excerpt: *(empty)*
   - stderr excerpt:
@@ -129,7 +129,7 @@ Resolution: **blocked** | Schema: `0.6` | Tool: `php-upgrade-preflight 0.1.0`
       No additional fixture diagnostic.
       ```
 - `staged-targets`: failed (outcome `solver_failure`, Composer `unknown`, duration `1 ms`, exit `2`, failure type `solver`)
-  - command argv: `["composer","update","laravel/framework","--with-all-dependencies","--no-scripts","--no-plugins","--no-install","--no-interaction"]`
+  - command argv: `["composer","update","laravel/framework","--with-all-dependencies","--no-scripts","--no-plugins","--no-install","--no-audit","--no-progress","--no-interaction"]`
   - temporary workspace: `not preserved`
   - stdout excerpt: *(empty)*
   - stderr excerpt:

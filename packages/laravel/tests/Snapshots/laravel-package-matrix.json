@@ -87,6 +87,8 @@
                     "--no-scripts",
                     "--no-plugins",
                     "--no-install",
+                    "--no-audit",
+                    "--no-progress",
                     "--no-interaction"
                 ],
                 "duration_ms": 1,
@@ -148,6 +150,8 @@
                     "--no-scripts",
                     "--no-plugins",
                     "--no-install",
+                    "--no-audit",
+                    "--no-progress",
                     "--no-interaction"
                 ],
                 "duration_ms": 1,
@@ -210,6 +214,8 @@
                     "--no-scripts",
                     "--no-plugins",
                     "--no-install",
+                    "--no-audit",
+                    "--no-progress",
                     "--no-interaction"
                 ],
                 "duration_ms": 1,
@@ -269,6 +275,8 @@
                     "--no-scripts",
                     "--no-plugins",
                     "--no-install",
+                    "--no-audit",
+                    "--no-progress",
                     "--no-interaction"
                 ],
                 "duration_ms": 1,
@@ -312,6 +320,8 @@
                     "--no-scripts",
                     "--no-plugins",
                     "--no-install",
+                    "--no-audit",
+                    "--no-progress",
                     "--no-interaction"
                 ],
                 "duration_ms": 1,

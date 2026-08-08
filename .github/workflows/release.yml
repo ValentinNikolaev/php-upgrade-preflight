@@ -113,16 +113,7 @@ jobs:
           extensions: zip
 
       - name: Mask synthetic secret canaries
-        shell: pwsh
-        run: |
-          $fixture = Get-Content -LiteralPath 'tests/fixtures/security/composer-output-with-secrets.json' -Raw | ConvertFrom-Json
-          foreach ($canary in $fixture.canaries.PSObject.Properties) {
-            $value = [string] $canary.Value
-            if ([string]::IsNullOrEmpty($value)) {
-              throw "Synthetic secret canary $($canary.Name) is empty."
-            }
-            Write-Output "::add-mask::$value"
-          }
+        run: php tools/mask-secret-canaries.php
 
       - name: Clone into a clean path
         shell: pwsh
@@ -131,12 +122,12 @@ jobs:
           git clone --no-local $env:GITHUB_WORKSPACE $freshClone
           "FRESH_CLONE=$freshClone" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
-      - name: Clean install and deterministic checks
+      - name: Clean install and manifest validation
         shell: pwsh
         run: |
           Set-Location -LiteralPath $env:FRESH_CLONE
           composer install --prefer-dist --no-interaction --no-progress
-          composer check
+          composer validate:all
 
       - name: Audit read-only analysis with spaced output paths
         shell: pwsh
@@ -176,9 +167,7 @@ jobs:
           php @arguments
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
-          $arguments[-2] = '--format=markdown'
-          $arguments[-1] = "--output=$markdownReport"
-          php @arguments
+          php tools/render-markdown-report.php $jsonReport $markdownReport
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
           $after = Get-FixtureDigest $fixture

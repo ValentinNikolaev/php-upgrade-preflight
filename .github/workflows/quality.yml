@@ -26,6 +26,34 @@ jobs:
             --workdir /repo \
             rhysd/actionlint@sha256:b1934ee5f1c509618f2508e6eb47ee0d3520686341fec936f3b79331f9315667
 
+  static-analysis:
+    name: Static analysis / PHP 8.0
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Set up PHP 8.0
+        uses: shivammathur/setup-php@b604ade2a87db23f8871b7182e69ec5e75effb45 # v2
+        with:
+          php-version: '8.0'
+          coverage: none
+
+      - name: Mask synthetic secret canaries
+        run: php tools/mask-secret-canaries.php
+
+      - name: Cache Composer dependencies
+        uses: ramsey/composer-install@a8d0d959dab41457692a5e2041bd9b757a119e3f # v3
+        with:
+          composer-options: --prefer-dist --no-progress
+
+      - name: Validate manifests and run static checks
+        shell: bash
+        run: |
+          composer validate:all
+          composer analyse
+          composer lint
+
   quality:
     name: ${{ matrix.os }} / PHP ${{ matrix.php }}
     runs-on: ${{ matrix.os }}
@@ -59,21 +87,17 @@ jobs:
           extensions: zip
 
       - name: Mask synthetic secret canaries
-        shell: pwsh
-        run: |
-          $fixture = Get-Content -LiteralPath 'tests/fixtures/security/composer-output-with-secrets.json' -Raw | ConvertFrom-Json
-          foreach ($canary in $fixture.canaries.PSObject.Properties) {
-            $value = [string] $canary.Value
-            if ([string]::IsNullOrEmpty($value)) {
-              throw "Synthetic secret canary $($canary.Name) is empty."
-            }
-            Write-Output "::add-mask::$value"
-          }
+        run: php tools/mask-secret-canaries.php
 
       - name: Cache Composer dependencies
+        if: runner.os != 'Windows'
         uses: ramsey/composer-install@a8d0d959dab41457692a5e2041bd9b757a119e3f # v3
         with:
           composer-options: --prefer-dist --no-progress
 
-      - name: Run full quality suite
-        run: composer check
+      - name: Install Composer dependencies on Windows
+        if: runner.os == 'Windows'
+        run: composer install --prefer-dist --no-interaction --no-progress
+
+      - name: Run test suite
+        run: composer test
