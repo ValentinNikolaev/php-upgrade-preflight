@@ -71,6 +71,7 @@ jobs:
           PACKAGE: ${{ matrix.case.package }}
           FRAMEWORK: ${{ matrix.case.framework }}
           RESOLUTION: ${{ matrix.resolution }}
+          SMOKE: ${{ matrix.case.smoke }}
         run: |
           set -euo pipefail
           install_dir="${RUNNER_TEMP}/consumer install"
@@ -89,6 +90,31 @@ jobs:
           composer config repositories.cli path "${GITHUB_WORKSPACE}/packages/cli"
           composer config repositories.laravel path "${GITHUB_WORKSPACE}/packages/laravel"
 
+          if [[ "${SMOKE}" == 'laravel' ]]; then
+            cp -R "${GITHUB_WORKSPACE}/tests/fixtures/laravel-app/app" .
+            cp -R "${GITHUB_WORKSPACE}/tests/fixtures/laravel-app/bootstrap" .
+            cp -R "${GITHUB_WORKSPACE}/tests/fixtures/laravel-app/config" .
+            cp -R "${GITHUB_WORKSPACE}/tests/fixtures/laravel-app/tests" .
+            cp "${GITHUB_WORKSPACE}/tests/fixtures/laravel-app/artisan" .
+            mkdir -p storage/logs bootstrap/cache
+
+            # PHP variables are intentionally single-quoted from Bash.
+            # shellcheck disable=SC2016
+            php -r '
+              $manifest = json_decode(file_get_contents("composer.json"), true, 512, JSON_THROW_ON_ERROR);
+              $fixture = json_decode(file_get_contents($argv[1]), true, 512, JSON_THROW_ON_ERROR);
+              if (($manifest["require"] ?? null) === []) {
+                  unset($manifest["require"]);
+              }
+              $manifest["autoload"] = $fixture["autoload"];
+              $manifest["scripts"] = $fixture["scripts"];
+              file_put_contents(
+                  "composer.json",
+                  json_encode($manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR) . "\n"
+              );
+            ' "${GITHUB_WORKSPACE}/tests/fixtures/laravel-app/composer.json"
+          fi
+
           resolution_options=()
           if [[ "${RESOLUTION}" == 'lowest' ]]; then
             resolution_options+=(--prefer-lowest)
@@ -102,6 +128,7 @@ jobs:
           composer require \
             --no-interaction \
             --no-progress \
+            --no-security-blocking \
             "${resolution_options[@]}" \
             "${requirements[@]}"
           composer check-platform-reqs --no-dev
@@ -122,6 +149,6 @@ jobs:
               vendor/bin/upgrade-intel --help
               ;;
             laravel)
-              php -r "require 'vendor/autoload.php'; exit(class_exists(PhpUpgradePreflight\\Laravel\\UpgradePreflightServiceProvider::class) ? 0 : 1);"
+              php tests/smoke.php
               ;;
           esac

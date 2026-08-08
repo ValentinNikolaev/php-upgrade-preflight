@@ -15,7 +15,7 @@ Before editing:
 3. Read `.claude/memory/MEMORY.md` for durable architecture and decisions.
 4. Run `git status --short` and preserve unrelated user changes.
 
-Unless the user requests different work, continue the first unchecked item in the earliest incomplete milestone. Milestones 0, 1, and 2 are complete; continue with Milestone 3 in the order recorded in the development plan unless repository evidence requires a safer sequence.
+Unless the user requests different work, continue the first unchecked item in the earliest incomplete milestone of the active development plan. Treat `.claude/DEVELOPMENT_PLAN_0.1.0.md` as a historical record; do not use its completed checklist to sequence current work.
 
 The original architecture brief is at `I:/Development/Git/ValentinNikolaev/laravel-package-intelligence/ARCHITECTURE_PROMPT.md`. Re-read it before changing product scope or package boundaries.
 
@@ -104,6 +104,7 @@ CI runs `composer check` on PHP 8.0 through 8.5. Changes must pass on the PHP 8.
 - Do not create a release-notes file, move changelog entries into a dated release, or change tool/package version metadata for every ordinary change.
 - Keep completed work under `CHANGELOG.md`'s `[Unreleased]` section until the user explicitly asks to prepare a new release or the active milestone specifically requires one.
 - When a new release is intentionally prepared, update its release notes, changelog heading, `ReportMetadata::TOOL_VERSION`, branch aliases, internal package constraints, and matching tag plan together, then run the release verification workflow. Publish only from an annotated, GitHub-verified signed tag whose commit is on `main`.
+- Release automation is temporarily locked to the `0.1.x` series. Increment only the patch version until the v0.2.0 release candidate and its coordinated unlock are explicitly approved.
 
 ## v0.1 Completion Standard
 

@@ -54,6 +54,8 @@ The analyzer returns `0` after producing a valid report, including reports whose
 
 The analyzer treats the target project as immutable input. Composer runs only in disposable workspaces, with scripts and plugins disabled. Report destinations supplied through `--output` must sit outside the analyzed project. Tests snapshot every fixture file before analysis and verify the original bytes afterward.
 
+Composer stdout, stderr, diagnostics, and command failure messages pass through a deterministic secret boundary before they can reach reports or console diagnostics. Credential-bearing URLs, authorization values, common token forms, and named credential fields are replaced with stable redaction markers; release CI also scans generated reports and archives with synthetic canaries.
+
 `--debug` preserves temporary workspaces for investigation. A debug run therefore leaves copied Composer files on disk and reports each path.
 
 ## Reports

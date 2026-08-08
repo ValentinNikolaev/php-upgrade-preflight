@@ -244,6 +244,37 @@ final class AnalyzeCommandTest extends TestCase
         self::assertStringNotContainsString('Invalid invocation:', $this->streamContents($this->stderr));
     }
 
+    public function testItRedactsSensitiveValuesFromDiagnosticOutput(): void
+    {
+        $fixturePath = dirname(__DIR__, 4) . '/tests/fixtures/security/composer-output-with-secrets.json';
+        $contents = file_get_contents($fixturePath);
+        self::assertNotFalse($contents);
+        $fixture = json_decode($contents, true, 512, JSON_THROW_ON_ERROR);
+        self::assertIsArray($fixture);
+        self::assertIsArray($fixture['canaries'] ?? null);
+        self::assertIsString($fixture['stderr'] ?? null);
+
+        $command = new AnalyzeCommand(
+            new MessageThrowingUpgradeAnalyzer($fixture['stderr']),
+            $this->stdout,
+            $this->stderr
+        );
+        $exitCode = $command->run([
+            'upgrade-intel',
+            'analyze',
+            '--path=' . dirname(__DIR__, 4),
+            '--target-php=8.2',
+        ]);
+        $diagnostic = $this->streamContents($this->stderr);
+
+        self::assertSame(AnalyzeCommand::FAILURE, $exitCode);
+        foreach ($fixture['canaries'] as $label => $canary) {
+            if (str_contains($diagnostic, $canary)) {
+                self::fail(sprintf('Sensitive canary %s reached CLI diagnostics.', $label));
+            }
+        }
+    }
+
     public function testGenericCliPassesInstalledIntegrationsThroughAutomaticDetection(): void
     {
         $factory = new DetectingAnalyzerFactory();
@@ -365,6 +396,21 @@ final class InvalidArgumentThrowingUpgradeAnalyzer implements UpgradeAnalyzer
     public function analyzeUpgrade(UpgradeRequest $request): UpgradeReport
     {
         throw new \InvalidArgumentException('internal invariant failed');
+    }
+}
+
+final class MessageThrowingUpgradeAnalyzer implements UpgradeAnalyzer
+{
+    private string $message;
+
+    public function __construct(string $message)
+    {
+        $this->message = $message;
+    }
+
+    public function analyzeUpgrade(UpgradeRequest $request): UpgradeReport
+    {
+        throw new \RuntimeException($this->message);
     }
 }
 

@@ -57,6 +57,18 @@ jobs:
           php-version: ${{ matrix.php }}
           coverage: none
 
+      - name: Mask synthetic secret canaries
+        shell: pwsh
+        run: |
+          $fixture = Get-Content -LiteralPath 'tests/fixtures/security/composer-output-with-secrets.json' -Raw | ConvertFrom-Json
+          foreach ($canary in $fixture.canaries.PSObject.Properties) {
+            $value = [string] $canary.Value
+            if ([string]::IsNullOrEmpty($value)) {
+              throw "Synthetic secret canary $($canary.Name) is empty."
+            }
+            Write-Output "::add-mask::$value"
+          }
+
       - name: Cache Composer dependencies
         uses: ramsey/composer-install@v3
         with:

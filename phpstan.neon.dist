@@ -7,3 +7,4 @@ parameters:
         - packages
         - tests/Release
         - tools/ReleaseVerifier.php
+        - tools/SecretLeakVerifier.php

@@ -6,6 +6,8 @@ namespace PhpUpgradePreflight\Tools;
 
 final class ReleaseVerifier
 {
+    private const ACTIVE_RELEASE_SERIES = '0.1';
+
     /** @var array<string, string> */
     private const PACKAGE_NAMES = [
         'core' => 'php-upgrade-preflight/core',
@@ -36,6 +38,14 @@ final class ReleaseVerifier
 
         $errors = [];
         $series = $matches[1] . '.' . $matches[2];
+        if ($series !== self::ACTIVE_RELEASE_SERIES) {
+            return [sprintf(
+                'Release series %s.x is locked; only %s.x patch releases are allowed until v0.2.0 is explicitly approved',
+                $series,
+                self::ACTIVE_RELEASE_SERIES
+            )];
+        }
+
         $developmentVersion = $series . '.x-dev';
         $internalConstraint = '^' . $series;
         $rootManifest = $this->readJson($this->root . '/composer.json', $errors);

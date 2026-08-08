@@ -12,6 +12,12 @@ The project will keep major version `0` while its public PHP API, CLI contract, 
 
 This follows the practical meaning of SemVer's initial-development rule: compatibility is not promised across `0.MINOR` lines. Composer constraints therefore keep project-package dependencies on the same minor line, for example `^0.1`.
 
+## Temporary patch-only release lock
+
+Release automation is currently locked to the `0.1.x` line. Until the v0.2.0 release candidate is explicitly approved, every maintenance release must increment only the patch component; `0.2.0`, `1.0.0`, and any other release series fail the release metadata gate even if their files are otherwise internally consistent.
+
+This lock does not cancel the v0.2.0 roadmap. Unlocking `0.2.0` is an intentional release-policy change made together with its approved contract, version metadata, changelog, release notes, package constraints, and tag plan.
+
 ## When to release `1.0`
 
 Version `1.0.0` is an explicit stability commitment, not a calendar milestone. It is appropriate when the public PHP API, CLI behavior, package split, and supported schema policy are mature enough that future breaking changes can wait for a new major release.

@@ -2,201 +2,210 @@
 
 Last updated: 2026-08-08
 
-This is a directional plan, not a rigid contract. Keep milestone order unless repository evidence shows a safer dependency order. Mark completed work with `[x]`, active work with `[~]`, and remaining work with `[ ]`.
+This roadmap supersedes the [v0.1.0 implementation plan](DEVELOPMENT_PLAN_0.1.0.md). It covers the remaining v0.1.0 release work, a short v0.1.x stabilization line, and the v0.2.0 feature line.
 
-## Release Target
+## How to Use This Plan
 
-v0.1 should analyze a Laravel 7 Composer fixture against Laravel 8/9 and PHP 8.0/8.1 targets, leave the fixture unchanged, and produce deterministic JSON plus equivalent Markdown with resolution status, package changes, blockers, source impact, Laravel findings, staged actions, risk, effort, uncertainty, and evidence.
+- Continue the first unchecked item in the earliest incomplete milestone unless repository evidence requires a safer order.
+- Mark work `[~]` only while someone is implementing it. Mark it `[x]` only after the acceptance evidence passes.
+- Keep fixes and release hardening compatible with `0.1.x`. Put new report fields, public behavior, and broader framework intelligence in `0.2.0`.
+- Keep release automation locked to `0.1.x` patch increments until the v0.2.0 release candidate is explicitly approved. Do not use an interim minor version while executing this roadmap.
+- Recheck external release state before acting. Local Git state cannot prove whether a distribution repository or Packagist changed later.
+- Update public documentation in the same change as behavior, commands, report semantics, supported versions, or release policy.
 
-## Milestone 0: Architecture Scaffold
+## Current Baseline
 
-- [x] Create the private monorepo and three Composer packages.
-- [x] Add core request/report models and `UpgradeAnalyzer` contract.
-- [x] Add initial state readers, isolated scenario runner, lock diff, blockers, source scan, reports, CLI, and Laravel adapter.
-- [x] Verify manifests, dependency installation, PHP syntax, autoloading, and generic CLI startup in Docker.
-- [x] Verify Laravel provider registration, boot, and Artisan command startup in a Laravel application fixture.
-- [x] Add a Docker-based PHP 8.3 development interpreter with Composer and a PHP 8.0 dependency-resolution platform.
+Repository state recorded on 2026-08-08:
 
-Acceptance gate: all manifests validate, dependencies install, every PHP file parses, and both command entry points can show or return valid usage without fatal errors.
+- The v0.1.0 implementation and release automation exist, but distribution is incomplete. Local `main` is one commit ahead of `origin/main`, and the repository has no local release tag.
+- `docker compose run --rm php composer check` passes 307 tests with 1,944 assertions, PHPStan, and PHP CS Fixer.
+- Tool version `0.1.0` emits canonical JSON schema `0.6`; Markdown projects the same report.
+- Core handles generic Composer and PHP targets. The Laravel rule pack handles Laravel 7 projects targeting Laravel 8 or 9.
+- The Laravel adapter can coexist with Laravel 8 through 12, but installability does not mean that later upgrade paths have rules.
+- Upstream now publishes upgrade guides through [Laravel 13](https://laravel.com/docs/13.x/upgrade). The v0.2 scope must make an explicit decision about Laravel 13 instead of silently treating Laravel 12 as current.
 
-## Milestone 1: Test and Quality Foundation
+The strongest gaps found in the repository determine the milestone order:
 
-Status: complete and verified on 2026-08-06.
+| Gap                                                            | Repository evidence                                                                        | Roadmap response   |
+|----------------------------------------------------------------|--------------------------------------------------------------------------------------------|--------------------|
+| v0.1.0 has no completed distribution                           | Archived plan and `docs/release-checklist.md` retain unsigned-tag and Packagist work       | Milestone 0        |
+| Release archives are built but never installed in CI           | `.github/workflows/release.yml` creates and publishes ZIPs without a consumer job          | Milestone 0        |
+| Laravel compatibility smoke only checks `class_exists`         | `.github/workflows/compatibility.yml` does not boot the fixture application                | Milestones 0 and 6 |
+| Reports can retain sensitive Composer output and host paths    | `OutputExcerpt` bounds bytes but does not redact them                                      | Milestone 2        |
+| Extension results depend on the analyzer host                  | `ComposerScenarioRunner` simulates PHP but not an explicit extension set                   | Milestone 2        |
+| Source impact is an unranked AST inventory                     | `SourceUsageScanner` emits every usage and `RiskAndEffortEstimator` counts them directly   | Milestone 3        |
+| Laravel source and target versions are hard-coded to 7 and 8/9 | `LaravelTarget::isLaravel7Project()` and `singleSupportedMajor()` encode the current range | Milestones 4 and 5 |
+| Generic CLI adapter discovery names Laravel directly           | `FrameworkIntegrationRegistry` cannot discover a third-party adapter                       | Milestone 7        |
 
-- [x] Choose PHPUnit or Pest with versions compatible with PHP 8.0.
-- [x] Add root scripts for tests, static analysis, and coding-style checks.
-- [x] Add fixture helpers that snapshot every original file before analysis and assert byte-for-byte immutability afterward.
-- [x] Add unit-test structure for core, CLI, and Laravel packages.
-- [x] Add CI covering the supported runtime matrix, initially PHP 8.0 through the current stable PHP release.
-- [x] Establish deterministic JSON snapshot normalization for paths and temporary directories.
+## Release Targets
 
-Acceptance gate: one command runs the full local quality suite, CI runs it across supported PHP versions, and an isolation test proves the analyzed project is unchanged.
+### v0.1.0 completion
 
-## Test Architecture
+Publish the already implemented read-only Laravel 7 to 8/9 analyzer only after the release archives, installed packages, command entry points, and target-project immutability pass from release artifacts.
 
-Use four layers. Do not collect arbitrary public `composer.json` files: they are incomplete without matching lockfiles and source context, and live dependency metadata makes failures hard to reproduce.
+### v0.1.x stabilization
 
-### 1. Unit tests: fast and offline
+Use patch releases for security fixes, blocker-parser corrections, fixture regressions, documentation fixes, dependency maintenance, and release-process repairs. Do not add report fields or claim new Laravel transition support in this line.
 
-Run on every change. Test one class or phase with hand-built DTOs and small JSON/PHP fixtures.
+### v0.2.0
 
-- `packages/core/tests/Unit`: target parsing, state readers, lock diff classification, blocker parsing, evidence ledger, risk/effort ranges, report serialization, and PHP AST extraction.
-- `packages/cli/tests/Unit`: argument parsing, validation, output selection, and exit-code policy using a fake analyzer.
-- `packages/laravel/tests/Unit`: detection and each compatibility rule using minimal project states and source-usage records.
-- Introduce process-runner and filesystem/workspace interfaces where needed so unit tests do not launch Composer or touch production paths.
+v0.2.0 should improve trust before adding breadth. It should:
 
-### 2. Integration tests: deterministic Composer behavior
+- model target-platform assumptions explicitly and produce reports safe enough to share for review;
+- correlate source usage with packages and framework changes so risk and effort use actionable impact rather than raw symbol counts;
+- generalize Laravel source/target modeling and add evidence-backed adjacent upgrade paths beyond Laravel 7;
+- compose supported adjacent rule packs into staged guidance for multi-major requests without confusing that guidance with Composer's direct-target feasibility result;
+- preserve the PHP `^8.0` runtime floor for core, CLI, and the broad Laravel adapter unless a separately approved package strategy changes it.
 
-Run in CI without Packagist. Build tiny fake packages under `tests/fixtures/repository/` and expose them through Composer `path` repositories. Commit fixture `composer.json` and `composer.lock` files.
+The recommended adjacent Laravel matrix is 8 to 9, 9 to 10, 10 to 11, and 11 to 12 while retaining the v0.1 paths. Milestone 1 must decide whether 12 to 13 ships in v0.2.0 after verifying its package and PHP requirements. A multi-major request is fully supported only when every adjacent hop has an approved rule pack; otherwise the report must label the missing hop as uncertainty.
 
-Required fixture projects:
+## Inherited Product and Test Rules
 
-- `package-upgrade-success`: direct and transitive packages both move.
-- `package-upgrade-blocked`: a transitive constraint prevents the target.
-- `php-platform-too-low`: target package requires a newer PHP platform.
-- `php-platform-too-high`: legacy package rejects the target PHP platform.
-- `extension-missing`: package requires a deliberately unavailable fixture extension or use a captured solver-output parser fixture when platform variance would make execution unstable.
-- `abandoned-package`: lock metadata marks a package abandoned.
-- `invalid-composer-json` and `missing-lock`: structured input failures.
-- `source-usage`: PHP files covering every supported AST usage type plus one syntax error.
+- Composer remains the dependency solver. Do not infer a successful resolution without running it.
+- Treat the analyzed project as immutable input. Run every mutation in an analyzer-owned temporary workspace.
+- Keep core framework-neutral. Add no Symfony or CodeIgniter package in this roadmap.
+- Keep JSON canonical, Markdown derived, evidence references deterministic, and unsupported claims explicit as uncertainty.
+- Keep source inspection static and parser-based. Do not execute the target application as part of deterministic analysis.
 
-Each scenario copies a fixture to a fresh test temp directory, hashes the original tree before and after, runs the analyzer, and removes only the test-owned temp copy.
+Maintain four test layers:
 
-### 3. Framework end-to-end fixtures
+1. Offline unit tests for one phase or rule.
+2. Deterministic Composer integration tests backed by committed local `path` repositories.
+3. Curated application-shaped fixtures with immutability and JSON-first approval assertions.
+4. Networked installation and live-application smoke tests that run separately from the deterministic gate.
 
-Store minimal application-shaped fixtures under `tests/fixtures/projects/`; these are curated inputs, not full framework installations. Include only Composer files and source/config files needed by the rule under test.
+## Milestone 0: Finish and Prove v0.1.0 Distribution
 
-- Laravel 7/PHP 7.4 to Laravel 8 success.
-- Laravel 7/PHP 7.4 to Laravel 9 success with dependency changes.
-- Laravel 7 blocked by an old `illuminate/support` consumer.
-- Laravel 7 with `facade/ignition` and legacy skeleton files.
-- Laravel 7 with incompatible PHP or extension requirements.
-- Laravel package matrix covering Passport, Sanctum, Horizon, Telescope, Collision, PHPUnit, Mockery, and Testbench.
+Priority: P0. Do this before changing package development versions to `0.2.x-dev`.
 
-Assert the canonical JSON first. Assert Markdown only for projection and key sections; avoid duplicating every JSON assertion in prose snapshots.
+- [~] Add a release-artifact consumer job that verifies `SHA256SUMS`, installs all three generated ZIP packages in clean projects, runs `upgrade-intel --help`, performs one JSON analysis, and boots Laravel package discovery.
+- [~] Replace the Laravel compatibility `class_exists` smoke with an application boot that verifies provider discovery, analyzer binding, command registration, and one harmless command invocation for each supported host line.
+- [~] Add a synthetic Composer-output fixture containing credentials, tokens, and private repository URLs. Block publication if any secret reaches JSON, Markdown, CI logs, or release artifacts.
+- [ ] Run the manual `Release` workflow for `0.1.0` and review the deterministic matrix, compatibility matrix, fresh-clone audits, generated archives, and checksums.
+- [ ] Push the approved release commit to `main`.
+- [ ] Create matching annotated, verified signed `v0.1.0` tags in the monorepo and all three distribution repositories.
+- [ ] Publish or synchronize `core`, `cli`, and `laravel` on Packagist. Do not publish the monorepo root package.
+- [ ] Install `php-upgrade-preflight/cli:^0.1` and `php-upgrade-preflight/laravel:^0.1` from Packagist in an empty tools directory and reproduce the README quick start.
+- [ ] Confirm the published analysis leaves the target fixture byte-for-byte unchanged, then record the release URL and CI evidence in the release notes or checklist.
 
-### 4. Live smoke and package compatibility tests
+Acceptance gate: users can install the three published package artifacts, execute both entry points, produce valid schema `0.6` reports, and verify target-project immutability. Every repository carries the same signed `v0.1.0` tag.
 
-Run separately from the deterministic suite, nightly or before release, because these tests use networked Composer metadata.
+## Milestone 1: Lock the v0.2 Contract
 
-- Install each package independently from its own `composer.json`.
-- Test normal and `--prefer-lowest` dependency resolution on PHP 8.0, 8.1, 8.2, 8.3, 8.4, and newer supported releases.
-- Smoke-test the root monorepo path repositories and executable wiring.
-- Create temporary Laravel skeletons for a small declared matrix and install the Laravel adapter to verify service-provider discovery and Artisan registration.
-- Analyze one or two pinned, intentionally selected public sample applications only as a release confidence check. Record repository commit SHAs; never depend on moving default branches.
-- Cache Composer downloads in CI, but never cache generated fixture lockfiles as test truth.
+- [ ] Preserve a v0.1 compatibility fixture that snapshots the public PHP operation, CLI arguments, exit policy, schema `0.6`, and all six approved Laravel reports.
+- [ ] Approve the exact adjacent Laravel transition matrix. Review the official [Laravel 10](https://laravel.com/docs/10.x/upgrade), [Laravel 11](https://laravel.com/docs/11.x/upgrade), [Laravel 12](https://laravel.com/docs/12.x/upgrade), and [Laravel 13](https://laravel.com/docs/13.x/upgrade) guides plus exact package manifests before encoding a range.
+- [ ] Define `supported`, `partially_supported`, and `unsupported` transition semantics. Ambiguous source majors and missing adjacent rule packs must produce uncertainty, not a best guess.
+- [ ] Define how direct Composer feasibility, adjacent upgrade hops, package changes, and framework guidance appear together without contradicting one another.
+- [ ] Plan schema `0.7` for platform provenance and actionable source-impact fields. Preserve every historical schema file and document the consumer migration from `0.6`.
+- [ ] Define the development-version policy after the v0.1.0 tag so reports from `main` do not continue identifying unreleased v0.2 behavior as tool `0.1.0`.
+- [ ] Make `docs/release-checklist.md` version-neutral or generate its version-specific values through the existing release verifier.
+- [ ] Set report-size, runtime, memory, redaction, and deterministic-ordering budgets for the representative fixture corpus.
 
-Live smoke failures should be reported separately from deterministic test failures so ecosystem drift is visible without disguising product regressions.
+Acceptance gate: the repository contains one approved v0.2 scope and transition matrix, a schema migration decision, measurable budgets, and compatibility tests that fail on accidental v0.1 contract drift.
 
-### Test command contract
+## Milestone 2: Platform Determinism and Report Privacy
 
-The eventual root commands should make scope obvious:
+- [ ] Introduce a typed target-platform model that distinguishes analyzer runtime, current project PHP, target PHP, host extensions, and explicitly simulated extension assumptions.
+- [ ] Define CLI and Artisan input for extension presence, absence, and version assumptions without allowing contradictory duplicate values.
+- [ ] Apply platform assumptions only in temporary Composer workspaces and record their provenance in the canonical report.
+- [ ] Record uncertainty when an extension result depends on unmodeled host state. Do not present a host-dependent result as reproducible target evidence.
+- [ ] Redact URL user information, authorization values, common token formats, and credential-bearing Composer diagnostics before storing evidence or rendering reports.
+- [ ] Define a path-exposure policy for project, output, repository, and debug-workspace paths. Default shareable reports must not expose analyzer-owned temporary roots or credentials.
+- [ ] Add deterministic fixtures for required, missing, disabled, and version-constrained extensions plus credential-bearing repository failures.
+- [ ] Verify redaction in JSON, Markdown, exception messages, debug output, and CI logs.
 
-```bash
-composer test              # unit + deterministic integration
-composer test:unit
-composer test:integration
-composer test:smoke        # networked; opt-in locally
-composer test:all          # deterministic suite + smoke
-composer analyse
-composer check             # validate + style + analyse + deterministic tests
-```
+Acceptance gate: equivalent explicit platform inputs produce equivalent normalized results across hosts, every assumption has provenance, and a seeded secret never appears in any persisted or logged output.
 
-The first implementation step is the core unit suite plus the local-repository integration harness. Real Laravel skeleton smoke tests come after the deterministic Laravel rules are implemented.
+## Milestone 3: Actionable Source Impact
 
-## Milestone 2: Core Domain and Report Contract
+- [ ] Retain root and locked-package `autoload` and `autoload-dev` metadata needed for symbol ownership. Handle unsupported classmaps or dynamic loaders as uncertainty.
+- [ ] Build a deterministic ownership index for supported PSR-4, PSR-0, classmap, and files mappings without loading target code.
+- [ ] Separate raw source usages from actionable impact findings. Keep raw scanner output internal or expose it under an explicitly named inventory section.
+- [ ] Correlate usages with removed, upgraded, downgraded, or major-jump packages and with active framework rules.
+- [ ] Add affected package, relevance, reason, severity, and evidence references to actionable source-impact findings in schema `0.7`.
+- [ ] Deduplicate repeated usages while preserving every exact file and line evidence record.
+- [ ] Change risk and effort estimation to use weighted actionable findings. Unrelated imports must not raise the estimate.
+- [ ] Add fixtures for owned symbols, ambiguous namespace ownership, classmap-only packages, removed packages, unchanged packages, and large unrelated application namespaces.
 
-- [x] Add `UpgradeTargetSet` with validation, duplicate handling, PHP-target normalization, and deterministic ordering.
-- [x] Add `EvidenceLedger` to allocate unique IDs, validate references, and prevent orphaned findings.
-- [x] Extract target normalization, framework rule execution, risk/effort estimation, and report assembly into independently tested phases.
-- [x] Make DTOs immutable where PHP 8.0 permits and tighten parameter/return types.
-- [x] Define and snapshot the v0.2 JSON schema, including schema/tool version metadata.
-- [x] Populate root constraint changes, staged plan, test guidance, and uncertainty sections.
+Acceptance gate: each reported actionable source finding explains why the target upgrade affects it, unrelated source inventory does not inflate risk or effort, and ownership uncertainty remains visible.
 
-Acceptance gate: report schema is stable, every finding references existing evidence, and each pipeline phase has focused tests.
+## Milestone 4: Generalize Laravel Transition Modeling
 
-## Milestone 3: Composer Scenario Engine
+- [ ] Replace the Laravel-7-only predicate with a typed source detection that conservatively resolves one current major from locked framework or rooted Illuminate packages.
+- [ ] Generalize target parsing beyond majors 8 and 9 while rejecting cross-major target constraints that do not identify one target major.
+- [ ] Model a Laravel transition as source major, target major, adjacent hops, and support status.
+- [ ] Preserve modular Illuminate detection and report inconsistent rooted component versions as uncertainty.
+- [ ] Move PHP requirements, package guidance, official sources, skeleton patterns, and rule applicability into a versioned Laravel rule catalog.
+- [ ] Validate the catalog at test time for duplicate keys, missing evidence sources, invalid SemVer constraints, unsupported gaps, and contradictory package advice.
+- [ ] Keep rule execution and source matching in typed rule classes. Do not turn the catalog into unvalidated prose or move Laravel concepts into core.
+- [ ] Prove that v0.1 Laravel 7 to 8/9 fixtures retain their approved findings unless a documented correction requires a snapshot change.
 
-Status: complete and verified on 2026-08-06.
+Acceptance gate: the adapter identifies supported source and target majors without a Laravel-7 special case, constructs deterministic adjacent hops, and refuses ambiguous transitions with evidence-backed uncertainty.
 
-- [x] Add baseline validation before target scenarios.
-- [x] Add target-platform-only and staged-target scenarios where applicable.
-- [x] Define scenario selection rules so redundant scenarios are skipped deterministically.
-- [x] Capture Composer version, exact command, duration, exit status, stdout/stderr excerpts, and candidate lock evidence.
-- [x] Run `composer prohibits` or `why-not` in the temp workspace after failed target resolution when it adds diagnostic value.
-- [x] Handle missing Composer, timeout, invalid JSON, missing lockfile, process failure, and cleanup failure as structured outcomes.
-- [x] Confirm scripts/plugins are disabled and debug workspaces are the only preserved workspaces.
+## Milestone 5: Later Laravel Upgrade Intelligence
 
-Acceptance gate: successful and blocked package-only fixtures produce stable scenario results, diagnostics, and no project mutations.
+Implement the matrix approved in Milestone 1. The recommended baseline is:
 
-## Milestone 4: Lock Diff and Blocker Intelligence
+- [ ] Retain and regression-test Laravel 7 to 8/9 behavior.
+- [ ] Add Laravel 8 to 9 rules and fixtures.
+- [ ] Add Laravel 9 to 10 rules and fixtures, including PHP, Composer dependency, test-tool, and high-signal source checks from the official guide.
+- [ ] Add Laravel 10 to 11 rules and fixtures, including PHP and extension requirements, first-party package migrations, and the distinction between optional new skeleton structure and required upgrade work.
+- [ ] Add Laravel 11 to 12 rules and fixtures, including testing dependencies and Carbon compatibility.
+- [ ] Decide and record whether Laravel 12 to 13 belongs in v0.2.0. If approved, add Laravel 13 host installability and a 12 to 13 rule/fixture slice; otherwise name it as the first v0.3 candidate.
+- [ ] Cover first-party packages, common test tools, direct Symfony constraints, replaced or removed packages, and source patterns only where exact metadata, source, or maintainer guidance supports the claim.
+- [ ] Compose adjacent rule packs for supported multi-major requests and deduplicate repeated findings without hiding hop-specific evidence.
+- [ ] Add blocked, feasible, modular Illuminate, ambiguous source, ambiguous target, missing-hop, and multi-major fixture cases.
+- [ ] Keep CLI and Artisan canonical JSON parity for every new transition fixture.
 
-Status: complete and verified on 2026-08-07 with Composer-backed successful and blocked package fixture reports.
+Acceptance gate: each approved adjacent path has one feasible and one blocked or advisory-heavy deterministic fixture, multi-major plans preserve hop order, and every finding links to exact project, package, solver, or maintainer evidence.
 
-- [x] Test added, removed, upgraded, downgraded, source-ref, and dist-ref changes.
-- [x] Identify direct versus transitive packages and major-version jumps.
-- [x] Track Laravel/Illuminate and Symfony component families without putting framework concepts into core.
-- [x] Parse all specified blocker types into structured fields: subject, requested constraint, blocker, locked version, conflict, dependency path, options, confidence, and evidence.
-- [x] Deduplicate one root conflict reported by multiple scenarios while retaining scenario evidence.
-- [x] Detect abandoned packages from lock metadata.
+## Milestone 6: Test, Quality, and Supply-Chain Hardening
 
-Acceptance gate: fixture outputs identify the actionable root cause and package transition without relying on raw Composer prose alone.
+- [ ] Add the documented `test:unit`, `test:integration`, `test:smoke`, and `test:all` Composer commands. Keep `composer check` offline and deterministic.
+- [ ] Add one coverage job, record the current baseline, and ratchet critical-module and changed-code coverage without selecting an arbitrary initial percentage.
+- [ ] Raise PHPStan in measured steps, starting with production code. Expand analysis and CS Fixer scope to all first-party support and release-tool code.
+- [ ] Add transcript fixtures for supported Composer versions so parser changes fail against known solver and `prohibits` output.
+- [ ] Run real temporary Laravel application boot tests for every supported host line and keep networked failures separate from deterministic regressions.
+- [ ] Add `composer audit` to scheduled and release-blocking workflows, configure dependency update automation, and pin third-party GitHub Actions by commit SHA.
+- [ ] Add table-driven tests for every release-verifier branch and parse workflow YAML in policy tests instead of relying only on substring assertions.
+- [ ] Add selective mutation tests for scenario selection, blocker parsing, schema validation, risk/effort logic, Laravel transition selection, and release verification after coverage measurement.
+- [ ] Enforce the runtime, memory, and report-size budgets set in Milestone 1 on representative fixtures.
 
-## Milestone 5: Parser-Based Source Impact
+Acceptance gate: developers can choose deterministic or networked scope explicitly, quality metrics ratchet instead of regress, release policy tests cover every enforced rule, and dependency or workflow integrity failures block publication.
 
-- [x] Replace regex extraction with `nikic/php-parser` while keeping parse failures non-fatal and evidenced.
-- [x] Detect imports, fully qualified names, inheritance, interfaces, traits, attributes, static calls, function calls, and instantiated classes.
-- [x] Add deterministic inspection for config references, service providers, middleware, console commands, and test doubles/mocks.
-- [x] Exclude `vendor/` and generated/cache paths by default; support explicit source paths safely.
-- [x] Aggregate duplicate usages without losing file/line evidence.
+## Milestone 7: Adapter Extensibility and External Execution
 
-Acceptance gate: source fixtures cover every supported usage type, syntax errors become uncertainties, and findings include precise file and line evidence.
+- [ ] Replace the Laravel-specific CLI registry probe with a documented adapter registration or Composer-metadata discovery mechanism.
+- [ ] Add a test-only adapter package that proves third-party detection, default source paths, rules, and package-family classification work without editing CLI source.
+- [ ] Define collisions, ordering, duplicate adapter names, missing packages, and explicit `--framework` failure behavior.
+- [ ] Keep Laravel auto-detection behavior and CLI/Artisan parity unchanged while generalizing registration.
+- [ ] Decide whether v0.2 ships a signed PHAR, a versioned container image, or only the existing external Composer installation. Prefer one supported external path over several partially maintained paths.
+- [ ] If a new delivery format is approved, build it reproducibly, attach checksums and provenance, and analyze a PHP 7.4 fixture without installing anything into that target project.
 
-## Milestone 6: Laravel 7 to 8/9 Rules
+Acceptance gate: a third-party adapter can register through the public mechanism, the deterministic core remains framework-neutral, and every advertised external delivery path has an automated installation and read-only analysis test.
 
-Status: complete and verified on 2026-08-07 with six deterministic Laravel fixture classes.
+## Milestone 8: v0.2.0 Documentation, Hardening, and Release
 
-- [x] Strengthen Laravel and Illuminate detection using root constraints plus lock data.
-- [x] Add conservative rules for framework/PHP constraints, Passport, Sanctum, Horizon, Telescope, PHPUnit, Mockery, Symfony components, old `illuminate/support`, and the existing legacy packages.
-- [x] Inspect `app/Http/Kernel.php`, `config/app.php` providers/aliases, and Laravel skeleton indicators through detected source usage.
-- [x] Map rules to target Laravel/PHP ranges using `composer/semver`.
-- [x] Distinguish exact metadata/source evidence from heuristic migration guidance.
-- [x] Test Laravel 7 to 8, Laravel 7 to 9, blocked Illuminate constraints, Ignition, and PHP/extension conflict fixtures.
+- [ ] Update README, installation, external-analysis, CLI, Artisan, schema, limitations, troubleshooting, versioning, contribution, security, and release documentation for the approved v0.2 behavior.
+- [ ] Document schema `0.6` to `0.7` migration, source-impact semantics, platform provenance, redaction boundaries, supported Laravel transitions, and unsupported hops.
+- [ ] Update tool version, branch aliases, root path versions, internal package constraints, changelog, release notes, and release-verifier expectations together.
+- [ ] Run the deterministic gate across every supported PHP runtime and Windows coverage required by CI.
+- [ ] Run normal and lowest-dependency consumer installs for every advertised Laravel host line, including Laravel 13 only if Milestone 5 approved it.
+- [ ] Run fresh-clone and release-artifact consumer audits on Windows and Linux.
+- [ ] Produce an SBOM or equivalent dependency inventory and artifact provenance for release archives.
+- [ ] Create matching verified signed tags, publish all three distribution repositories, synchronize Packagist, and verify the published quick start.
 
-Acceptance gate: the six required Laravel fixture classes produce conservative, evidence-linked findings with no claims outside encoded rules.
+Acceptance gate: v0.2.0 installs from published packages, validates against the documented schema, produces deterministic and redacted reports, supports the approved transition matrix, and preserves every read-only guarantee.
 
-## Milestone 7: CLI, Artisan, and Reporting UX
+## Deferred Until After v0.2.0
 
-Status: complete and verified on 2026-08-08 with automated CLI/Artisan canonical-report parity coverage.
-
-- [x] Validate paths, targets, formats, output destinations, and conflicting PHP options with clear exit codes.
-- [x] Decide whether to retain the small custom CLI parser or adopt a PHP 8.0-compatible console component based on dependency cost and testability.
-- [x] Ensure framework integrations are registered in generic CLI mode when requested or detected.
-- [x] Ensure the Laravel command defaults to the current project and delegates to the same analyzer operation.
-- [x] m7  entirely from the canonical report without dropping evidence or uncertainty.
-- [x] Use stdout for reports, stderr for diagnostics, and nonzero exits for invalid invocation or internal failure; document the policy for a valid but blocked analysis.
-
-Acceptance gate: CLI and Artisan end-to-end tests produce equivalent canonical data and predictable files/exit codes.
-
-## Milestone 8: v0.1 Hardening and Release
-
-Status: release candidate hardening and automation implemented on 2026-08-08; external distribution tagging and Packagist publication remain.
-
-- [x] Run all six required fixture scenarios and approve JSON/Markdown snapshots.
-- [x] Test Windows and Unix path/process behavior.
-- [x] Add installation, external-analysis, CLI, Artisan, schema, limitations, and troubleshooting documentation.
-- [x] Add changelog, contribution guidance, security policy, release checklist, and package metadata needed for Packagist.
-- [x] Review dependency floors against PHP 8.0 and Laravel 8/9/10 installability.
-- [x] Add repeatable clean-install smoke tests and a read-only audit from a fresh clone.
-- [x] Verify package-version consistency and prepare the gated v0.1 GitHub release workflow.
-- [ ] Create matching signed tags in the monorepo and distribution repositories, then publish to Packagist.
-
-Acceptance gate: a fresh user can install and run the analyzer against the documented fixtures, reproduce reports, and verify that target projects remain untouched.
+- Symfony and CodeIgniter adapters.
+- Automatic edits to application source or Composer files.
+- Pull-request creation, hosted uploads, dashboards, or SaaS storage.
+- AI-generated compatibility claims or migration instructions.
+- Executing or booting the analyzed application during deterministic analysis.
+- Raising the shared runtime floor above PHP 8.0 without a separate package or major-version decision.
 
 ## Recommended Next Work Session
 
-Milestones 0 through 7 and the v0.1 release-candidate automation are complete. Continue with the external Milestone 8 distribution steps:
-
-1. Run the manual `Release` workflow for `0.1.0` and review every gate and generated archive.
-2. Split and sign-tag the three distribution repositories at the approved monorepo commit.
-3. Push the monorepo `v0.1.0` tag, verify the GitHub release, and synchronize Packagist.
+Start with the first three local Milestone 0 gates: consume the generated release archives, boot real Laravel applications in the compatibility matrix, and prove credential redaction. Run the full release workflow after those checks pass, then complete the signed-tag and Packagist steps with maintainer credentials.

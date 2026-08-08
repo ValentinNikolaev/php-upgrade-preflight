@@ -79,6 +79,7 @@ The separate compatibility workflow now performs clean normal and lowest-depende
 - Testing uses four layers: offline unit tests, deterministic Composer integration tests backed by local path repositories, curated Laravel end-to-end fixtures, and opt-in networked smoke tests. Public sample projects must be pinned to commit SHAs and are release checks, not canonical test fixtures.
 - The default development interpreter is the Compose `php` service on PHP 8.3. The root Composer manifest pins dependency resolution to PHP 8.0.30, while CI will execute the supported runtime matrix including PHP 8.4 and newer supported releases. PHP 8.3 avoids upstream deprecation output from PHP-8.0-compatible Laravel dependencies during ordinary CLI development. The container is a CLI toolchain only; target project PHP versions remain simulated by analysis scenarios.
 - All three packages release in lockstep. During initial development, fixes and maintenance use patch releases, while features and intentional breaking changes use a new `0.MINOR` line with prominent migration notes. Major remains `0` until the project deliberately commits to a stable public API; a future PHP 9 floor is a possible input to that decision, not an automatic `1.0` trigger.
+- The release gate is temporarily locked to `0.1.x`: ongoing stabilization may increment only the patch component while the roadmap converges on v0.2.0. Unlocking the `0.2` series requires an explicit coordinated policy and metadata change.
 
 ## Repository Notes
 

@@ -11,6 +11,7 @@ use PhpUpgradePreflight\Core\Model\UpgradeTarget;
 use PhpUpgradePreflight\Core\Reporting\JsonReportWriter;
 use PhpUpgradePreflight\Core\Reporting\MarkdownReportWriter;
 use PhpUpgradePreflight\Core\Reporting\ReportFileWriter;
+use PhpUpgradePreflight\Core\Support\SensitiveOutputRedactor;
 
 final class AnalyzeCommand
 {
@@ -79,11 +80,11 @@ final class AnalyzeCommand
                 $this->reportFileWriter->validateDestination($request->projectPath(), $request->outputPath());
             }
         } catch (\InvalidArgumentException $exception) {
-            fwrite($this->stderr, 'Invalid invocation: ' . $exception->getMessage() . PHP_EOL);
+            $this->diagnostic('Invalid invocation: ' . $exception->getMessage());
 
             return self::INVALID;
         } catch (\Throwable $exception) {
-            fwrite($this->stderr, 'Analysis failed: ' . $exception->getMessage() . PHP_EOL);
+            $this->diagnostic('Analysis failed: ' . $exception->getMessage());
 
             return self::FAILURE;
         }
@@ -104,7 +105,7 @@ final class AnalyzeCommand
 
             return self::SUCCESS;
         } catch (\Throwable $exception) {
-            fwrite($this->stderr, 'Analysis failed: ' . $exception->getMessage() . PHP_EOL);
+            $this->diagnostic('Analysis failed: ' . $exception->getMessage());
 
             return self::FAILURE;
         }
@@ -129,5 +130,10 @@ Options:
   -h, --help              Show this help
 
 USAGE;
+    }
+
+    private function diagnostic(string $message): void
+    {
+        fwrite($this->stderr, SensitiveOutputRedactor::redact($message) . PHP_EOL);
     }
 }

@@ -17,6 +17,9 @@ This project follows [Semantic Versioning](https://semver.org/). Report schema v
 - External-analysis, schema, limitation, troubleshooting, contribution, security, and release documentation.
 - Normal and lowest-dependency consumer install gates for PHP 8.0 and Laravel 8/9/10, plus declared Laravel 11/12 host integrations.
 - Fresh-clone read-only audits on Windows and Linux, tested release metadata verification, reproducible package archives, and signed-tag-gated GitHub release publication.
+- Constructor-level Composer output redaction plus synthetic credential, token, private-URL, report, log, and release-archive leak gates.
+- Checksum-verified release-archive consumers that install all three ZIPs, run the CLI, analyze an immutable fixture, and boot Laravel package discovery before publication.
+- Composer-installed CLI entry-point discovery for both generated proxy and standard `vendor/` package layouts.
 
 [Unreleased]: https://github.com/ValentinNikolaev/php-upgrade-preflight/compare/v0.1.0...HEAD
 [0.1.0]: https://github.com/ValentinNikolaev/php-upgrade-preflight/releases/tag/v0.1.0

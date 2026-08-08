@@ -35,6 +35,8 @@ A report-shape change requires a new schema version and a new schema file. Exist
 
 Markdown has no independent contract. It projects the canonical report for human review and may change its presentation in a patch release.
 
+Composer `stdout_excerpt` and `stderr_excerpt` values are bounded and redacted before they enter the canonical model. Stable markers such as `[REDACTED]`, `[REDACTED_TOKEN]`, and `[REDACTED_URL]` replace sensitive values without changing the schema shape.
+
 ## Validate a report
 
 Use any Draft 2020-12 validator. The development suite validates reports with `opis/json-schema`:

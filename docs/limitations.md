@@ -8,7 +8,7 @@ PHP Upgrade Preflight predicts dependency and source impact. It does not perform
 - Scripts and plugins stay disabled. A project that depends on plugin behavior may resolve differently in its normal environment.
 - A successful candidate lock proves that Composer found one dependency solution. It does not prove runtime compatibility.
 - Partial platform and staged probes provide ordering evidence. Only full-target scenarios determine combined feasibility.
-- Composer output changes can reduce blocker parsing confidence. The report retains bounded raw excerpts and uncertainty.
+- Composer output changes can reduce blocker parsing confidence. The report retains bounded, redacted excerpts and uncertainty. Redaction deliberately removes whole URLs and known credential forms, so diagnostic text may be less specific.
 
 ## Source inspection
 
@@ -33,3 +33,5 @@ Debug mode preserves temporary copies. Cleanup failures report the leaked worksp
 ## Untrusted projects
 
 The tool reads Composer metadata and PHP source from the target. Composer scripts and plugins stay disabled, but Composer may contact declared repositories and use host credentials. Analyze untrusted repositories inside a disposable container or restricted account with scoped credentials and network access.
+
+Secret redaction is deterministic and covered by synthetic canaries, but no pattern-based filter can recognize every future credential format. Use least-privilege credentials, review reports before sharing them, and report an unredacted form through the private security channel.

@@ -82,4 +82,4 @@ Before tagging, run:
 composer release:verify -- 0.1.0
 ```
 
-See [Versioning](docs/versioning.md) for the `0.x` patch/minor policy and [the release checklist](docs/release-checklist.md) for distribution-repository and Packagist steps.
+See [Versioning](docs/versioning.md) for the `0.x` policy and current `0.1.x` patch-only release lock, and [the release checklist](docs/release-checklist.md) for distribution-repository and Packagist steps.

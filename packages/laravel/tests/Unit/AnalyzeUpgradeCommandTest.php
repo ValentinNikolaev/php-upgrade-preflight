@@ -118,6 +118,31 @@ final class AnalyzeUpgradeCommandTest extends TestCase
         self::assertStringNotContainsString('Invalid invocation:', $tester->getErrorOutput());
     }
 
+    public function testItRedactsSensitiveValuesFromDiagnosticOutput(): void
+    {
+        $fixturePath = dirname(__DIR__, 4) . '/tests/fixtures/security/composer-output-with-secrets.json';
+        $contents = file_get_contents($fixturePath);
+        self::assertNotFalse($contents);
+        $fixture = json_decode($contents, true, 512, JSON_THROW_ON_ERROR);
+        self::assertIsArray($fixture);
+        self::assertIsArray($fixture['canaries'] ?? null);
+        self::assertIsString($fixture['stderr'] ?? null);
+
+        $tester = $this->commandTester(new MessageFailingUpgradeAnalyzer($fixture['stderr']));
+        $exitCode = $tester->execute([
+            '--path' => dirname(__DIR__, 4),
+            '--target-php' => '8.2',
+        ], ['capture_stderr_separately' => true]);
+        $diagnostic = $tester->getErrorOutput();
+
+        self::assertSame(Command::FAILURE, $exitCode);
+        foreach ($fixture['canaries'] as $label => $canary) {
+            if (str_contains($diagnostic, $canary)) {
+                self::fail(sprintf('Sensitive canary %s reached Artisan diagnostics.', $label));
+            }
+        }
+    }
+
     private function commandTester(UpgradeAnalyzer $analyzer, ?string $basePath = null): CommandTester
     {
         $basePath = $basePath ?? dirname(__DIR__, 4);
@@ -177,5 +202,20 @@ final class InvalidArgumentFailingUpgradeAnalyzer implements UpgradeAnalyzer
     public function analyzeUpgrade(UpgradeRequest $request): UpgradeReport
     {
         throw new \InvalidArgumentException('internal invariant failed');
+    }
+}
+
+final class MessageFailingUpgradeAnalyzer implements UpgradeAnalyzer
+{
+    private string $message;
+
+    public function __construct(string $message)
+    {
+        $this->message = $message;
+    }
+
+    public function analyzeUpgrade(UpgradeRequest $request): UpgradeReport
+    {
+        throw new \RuntimeException($this->message);
     }
 }

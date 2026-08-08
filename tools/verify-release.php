@@ -9,7 +9,7 @@ $version = $argv[1] ?? '';
 try {
     $errors = (new PhpUpgradePreflight\Tools\ReleaseVerifier(dirname(__DIR__)))->verify($version);
 } catch (InvalidArgumentException) {
-    fwrite(STDERR, "Usage: php tools/verify-release.php MAJOR.MINOR.PATCH\n");
+    fwrite(STDERR, "Usage: php tools/verify-release.php 0.1.PATCH\n");
     exit(2);
 }
 

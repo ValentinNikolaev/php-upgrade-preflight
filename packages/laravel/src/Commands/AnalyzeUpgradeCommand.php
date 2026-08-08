@@ -12,6 +12,7 @@ use PhpUpgradePreflight\Core\Model\UpgradeTarget;
 use PhpUpgradePreflight\Core\Reporting\JsonReportWriter;
 use PhpUpgradePreflight\Core\Reporting\MarkdownReportWriter;
 use PhpUpgradePreflight\Core\Reporting\ReportFileWriter;
+use PhpUpgradePreflight\Core\Support\SensitiveOutputRedactor;
 use Symfony\Component\Console\Output\ConsoleOutputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -137,6 +138,6 @@ final class AnalyzeUpgradeCommand extends Command
             ? $output->getErrorOutput()
             : $output;
 
-        $diagnosticOutput->writeln($message, OutputInterface::OUTPUT_RAW);
+        $diagnosticOutput->writeln(SensitiveOutputRedactor::redact($message), OutputInterface::OUTPUT_RAW);
     }
 }

@@ -32,7 +32,9 @@ The analyzer rewrites ordinary relative `path` repository URLs against the targe
 
 ## Private packages cannot be downloaded
 
-Composer uses the analyzer process's normal global authentication and environment. Configure scoped credentials in that environment. Avoid copying project secrets into the target repository or report.
+Composer uses the analyzer process's normal global authentication and environment. Configure scoped credentials in that environment. Captured output redacts repository URLs, authorization values, common tokens, and named credential fields, but you should still use short-lived, read-only credentials and inspect a report before sharing it.
+
+If a credential form is not redacted, stop sharing the report, revoke or rotate the credential, and use the private vulnerability-reporting channel. Include only a synthetic reproduction.
 
 ## A scenario times out
 

@@ -3,10 +3,16 @@
 
 declare(strict_types=1);
 
-$autoloads = [
+$autoloads = [];
+if (isset($GLOBALS['_composer_autoload_path']) && is_string($GLOBALS['_composer_autoload_path'])) {
+    $autoloads[] = $GLOBALS['_composer_autoload_path'];
+}
+
+$autoloads = array_merge($autoloads, [
     __DIR__ . '/../../../vendor/autoload.php',
+    __DIR__ . '/../../../autoload.php',
     __DIR__ . '/../vendor/autoload.php',
-];
+]);
 
 foreach ($autoloads as $autoload) {
     if (is_file($autoload)) {

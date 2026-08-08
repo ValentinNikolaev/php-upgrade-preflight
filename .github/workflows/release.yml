@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: Version to verify and package without publishing
+        description: 0.1.x patch version to verify and package without publishing
         required: true
         default: 0.1.0
         type: string
@@ -110,6 +110,18 @@ jobs:
           php-version: '8.0'
           coverage: none
 
+      - name: Mask synthetic secret canaries
+        shell: pwsh
+        run: |
+          $fixture = Get-Content -LiteralPath 'tests/fixtures/security/composer-output-with-secrets.json' -Raw | ConvertFrom-Json
+          foreach ($canary in $fixture.canaries.PSObject.Properties) {
+            $value = [string] $canary.Value
+            if ([string]::IsNullOrEmpty($value)) {
+              throw "Synthetic secret canary $($canary.Name) is empty."
+            }
+            Write-Output "::add-mask::$value"
+          }
+
       - name: Clone into a clean path
         shell: pwsh
         run: |
@@ -211,6 +223,7 @@ jobs:
         with:
           php-version: '8.0'
           coverage: none
+          extensions: zip
 
       - name: Validate and archive packages
         shell: bash
@@ -226,6 +239,7 @@ jobs:
             cp -R docs "${staging}/docs"
 
             composer validate --strict "${staging}/composer.json"
+            composer config --working-dir="${staging}" version "${RELEASE_VERSION}"
             composer archive \
               --working-dir="${staging}" \
               --format=zip \
@@ -235,6 +249,9 @@ jobs:
           cd dist
           sha256sum ./*.zip > SHA256SUMS
 
+      - name: Scan release archives for synthetic secrets
+        run: php tools/verify-secret-leaks.php dist
+
       - name: Upload release archives
         uses: actions/upload-artifact@v4
         with:
@@ -242,11 +259,216 @@ jobs:
           path: dist/*
           if-no-files-found: error
 
+  artifact-consumer:
+    name: Install and exercise release archives
+    needs:
+      - package
+    runs-on: ubuntu-latest
+    env:
+      RELEASE_VERSION: ${{ github.ref_type == 'tag' && github.ref_name || inputs.version }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Normalize tag version
+        if: github.ref_type == 'tag'
+        shell: bash
+        run: echo "RELEASE_VERSION=${RELEASE_VERSION#v}" >> "${GITHUB_ENV}"
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          coverage: none
+          extensions: zip
+
+      - name: Download release archives
+        uses: actions/download-artifact@v4
+        with:
+          name: release-archives
+          path: dist
+
+      - name: Verify archive set, checksums, and secret boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          for package in core cli laravel; do
+            test -f "dist/php-upgrade-preflight-${package}-v${RELEASE_VERSION}.zip"
+          done
+          test -f dist/SHA256SUMS
+          test "$(find dist -maxdepth 1 -type f -name '*.zip' | wc -l)" -eq 3
+          test "$(wc -l < dist/SHA256SUMS)" -eq 3
+          (cd dist && sha256sum --check --strict SHA256SUMS)
+          php tools/verify-secret-leaks.php dist
+
+      - name: Install all archives in clean consumers
+        shell: bash
+        run: |
+          set -euo pipefail
+          export COMPOSER_ROOT_VERSION=1.0.0
+          artifact_repository="{\"type\":\"artifact\",\"url\":\"${GITHUB_WORKSPACE}/dist\",\"canonical\":true}"
+
+          configure_consumer() {
+            local directory="$1"
+            local slug="$2"
+            mkdir -p "${directory}"
+            cd "${directory}"
+            composer init \
+              --no-interaction \
+              --name="php-upgrade-preflight/archive-${slug}" \
+              --description='Ephemeral release archive consumer' \
+              --license=proprietary
+            composer config minimum-stability stable
+            composer config prefer-stable true
+            composer repo add release "${artifact_repository}"
+          }
+
+          assert_archive_source() {
+            local directory="$1"
+            local package_name="$2"
+            local archive_name="$3"
+            # PHP variables are intentionally single-quoted from Bash.
+            # shellcheck disable=SC2016
+            php -r '
+              $lock = json_decode(file_get_contents($argv[1] . "/composer.lock"), true, 512, JSON_THROW_ON_ERROR);
+              foreach ($lock["packages"] as $package) {
+                  if (($package["name"] ?? null) !== $argv[2]) {
+                      continue;
+                  }
+                  $url = str_replace("\\\\", "/", (string) ($package["dist"]["url"] ?? ""));
+                  exit(basename($url) === $argv[3] ? 0 : 1);
+              }
+              exit(1);
+            ' "${directory}" "${package_name}" "${archive_name}"
+          }
+
+          core_consumer="${RUNNER_TEMP}/core archive consumer"
+          configure_consumer "${core_consumer}" core
+          composer require \
+            --prefer-dist \
+            --update-no-dev \
+            --no-interaction \
+            --no-progress \
+            "php-upgrade-preflight/core:${RELEASE_VERSION}"
+          composer check-platform-reqs --no-dev
+          assert_archive_source \
+            "${core_consumer}" \
+            php-upgrade-preflight/core \
+            "php-upgrade-preflight-core-v${RELEASE_VERSION}.zip"
+
+          cli_consumer="${RUNNER_TEMP}/cli archive consumer"
+          configure_consumer "${cli_consumer}" cli
+          composer require \
+            --prefer-dist \
+            --update-no-dev \
+            --no-interaction \
+            --no-progress \
+            "php-upgrade-preflight/cli:${RELEASE_VERSION}"
+          composer check-platform-reqs --no-dev
+          assert_archive_source \
+            "${cli_consumer}" \
+            php-upgrade-preflight/cli \
+            "php-upgrade-preflight-cli-v${RELEASE_VERSION}.zip"
+          vendor/bin/upgrade-intel --help
+          echo "CLI_CONSUMER=${cli_consumer}" >> "${GITHUB_ENV}"
+
+          laravel_consumer="${RUNNER_TEMP}/laravel archive consumer"
+          configure_consumer "${laravel_consumer}" laravel
+          cp -R "${GITHUB_WORKSPACE}/tests/fixtures/laravel-app/app" .
+          cp -R "${GITHUB_WORKSPACE}/tests/fixtures/laravel-app/bootstrap" .
+          cp -R "${GITHUB_WORKSPACE}/tests/fixtures/laravel-app/config" .
+          cp -R "${GITHUB_WORKSPACE}/tests/fixtures/laravel-app/tests" .
+          cp "${GITHUB_WORKSPACE}/tests/fixtures/laravel-app/artisan" .
+          mkdir -p storage/logs bootstrap/cache
+          # PHP variables are intentionally single-quoted from Bash.
+          # shellcheck disable=SC2016
+          php -r '
+            $manifest = json_decode(file_get_contents("composer.json"), true, 512, JSON_THROW_ON_ERROR);
+            $fixture = json_decode(file_get_contents($argv[1]), true, 512, JSON_THROW_ON_ERROR);
+            if (($manifest["require"] ?? null) === []) {
+                unset($manifest["require"]);
+            }
+            $manifest["autoload"] = $fixture["autoload"];
+            $manifest["scripts"] = $fixture["scripts"];
+            file_put_contents(
+                "composer.json",
+                json_encode($manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR) . "\n"
+            );
+          ' "${GITHUB_WORKSPACE}/tests/fixtures/laravel-app/composer.json"
+          composer require \
+            --prefer-dist \
+            --update-no-dev \
+            --no-interaction \
+            --no-progress \
+            --no-security-blocking \
+            'laravel/framework:^10.0' \
+            "php-upgrade-preflight/laravel:${RELEASE_VERSION}"
+          composer check-platform-reqs --no-dev
+          assert_archive_source \
+            "${laravel_consumer}" \
+            php-upgrade-preflight/laravel \
+            "php-upgrade-preflight-laravel-v${RELEASE_VERSION}.zip"
+          php tests/smoke.php
+
+      - name: Run an installed JSON analysis and prove target immutability
+        shell: bash
+        run: |
+          set -euo pipefail
+          target="${RUNNER_TEMP}/artifact analysis target"
+          reports="${RUNNER_TEMP}/artifact analysis reports"
+          cp -R "${GITHUB_WORKSPACE}/tests/fixtures/projects/laravel-7-to-9" "${target}"
+          mkdir -p "${reports}"
+
+          fixture_digest() {
+            (
+              cd "$1"
+              find . -type f -print0 | LC_ALL=C sort -z | xargs -0 sha256sum
+            ) | sha256sum | cut -d ' ' -f 1
+          }
+
+          before="$(fixture_digest "${target}")"
+          report="${reports}/release artifact analysis.json"
+          log="${reports}/release artifact analysis.log"
+          set +e
+          "${CLI_CONSUMER}/vendor/bin/upgrade-intel" analyze \
+            "--path=${target}" \
+            --from-php=7.4 \
+            '--target=laravel/framework:^9.0' \
+            --target-php=8.1 \
+            --format=json \
+            "--output=${report}" \
+            >"${log}" 2>&1
+          analysis_status=$?
+          set -e
+
+          php tools/verify-secret-leaks.php "${log}" "${report}"
+          if [[ ${analysis_status} -ne 0 ]]; then
+            echo 'Installed release archive analysis failed; captured output was withheld after leak scanning.' >&2
+            exit "${analysis_status}"
+          fi
+
+          # PHP variables are intentionally single-quoted from Bash.
+          # shellcheck disable=SC2016
+          php -r '
+            $report = json_decode(file_get_contents($argv[1]), true, 512, JSON_THROW_ON_ERROR);
+            if (($report["metadata"]["tool"]["version"] ?? null) !== $argv[2]) {
+                throw new RuntimeException("Unexpected tool version in archive-installed report.");
+            }
+            if (($report["metadata"]["schema_version"] ?? null) !== "0.6") {
+                throw new RuntimeException("Unexpected schema version in archive-installed report.");
+            }
+          ' "${report}" "${RELEASE_VERSION}"
+
+          after="$(fixture_digest "${target}")"
+          test "${before}" = "${after}"
+          echo "Fixture SHA-256 before: ${before}"
+          echo "Fixture SHA-256 after:  ${after}"
+
   publish:
     name: Publish GitHub release
     if: github.ref_type == 'tag'
     needs:
-      - package
+      - artifact-consumer
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -262,6 +484,16 @@ jobs:
         with:
           name: release-archives
           path: dist
+
+      - name: Set up PHP for final artifact scan
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.0'
+          coverage: none
+          extensions: zip
+
+      - name: Re-scan downloaded release archives
+        run: php tools/verify-secret-leaks.php dist
 
       - name: Create GitHub release
         shell: bash
