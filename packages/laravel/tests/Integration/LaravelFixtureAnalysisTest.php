@@ -396,7 +396,7 @@ final class LaravelFixtureAnalysisTest extends TestCase
         unset($package);
         $lock['content-hash'] = 'candidate-' . $targetVersion;
 
-        $encoded = json_encode($lock, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR) . PHP_EOL;
+        $encoded = json_encode($lock, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR) . "\n";
         if (file_put_contents($lockPath, $encoded) === false) {
             throw new \RuntimeException('Unable to write fixture candidate lockfile.');
         }
