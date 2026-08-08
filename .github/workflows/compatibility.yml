@@ -1,0 +1,127 @@
+name: Compatibility smoke
+
+on:
+  workflow_call:
+  workflow_dispatch:
+  schedule:
+    - cron: '23 4 * * 1'
+
+permissions:
+  contents: read
+
+jobs:
+  installability:
+    name: ${{ matrix.case.name }} / ${{ matrix.resolution }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        resolution:
+          - normal
+          - lowest
+        case:
+          - name: core / PHP 8.0
+            php: '8.0'
+            package: php-upgrade-preflight/core:@dev
+            framework: ''
+            smoke: core
+          - name: CLI / PHP 8.0
+            php: '8.0'
+            package: php-upgrade-preflight/cli:@dev
+            framework: ''
+            smoke: cli
+          - name: Laravel 8 / PHP 8.0
+            php: '8.0'
+            package: php-upgrade-preflight/laravel:@dev
+            framework: laravel/framework:^8.0
+            smoke: laravel
+          - name: Laravel 9 / PHP 8.0
+            php: '8.0'
+            package: php-upgrade-preflight/laravel:@dev
+            framework: laravel/framework:^9.0
+            smoke: laravel
+          - name: Laravel 10 / PHP 8.1
+            php: '8.1'
+            package: php-upgrade-preflight/laravel:@dev
+            framework: laravel/framework:^10.0
+            smoke: laravel
+          - name: Laravel 11 / PHP 8.2
+            php: '8.2'
+            package: php-upgrade-preflight/laravel:@dev
+            framework: laravel/framework:^11.0
+            smoke: laravel
+          - name: Laravel 12 / PHP 8.2
+            php: '8.2'
+            package: php-upgrade-preflight/laravel:@dev
+            framework: laravel/framework:^12.0
+            smoke: laravel
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.case.php }}
+          coverage: none
+
+      - name: Resolve a clean consumer install
+        shell: bash
+        env:
+          PACKAGE: ${{ matrix.case.package }}
+          FRAMEWORK: ${{ matrix.case.framework }}
+          RESOLUTION: ${{ matrix.resolution }}
+        run: |
+          set -euo pipefail
+          install_dir="${RUNNER_TEMP}/consumer install"
+          mkdir -p "${install_dir}"
+          cd "${install_dir}"
+
+          export COMPOSER_ROOT_VERSION=1.0.0
+          composer init \
+            --no-interaction \
+            --name=php-upgrade-preflight/compatibility-smoke \
+            --description='Ephemeral compatibility smoke test' \
+            --license=proprietary
+          composer config minimum-stability dev
+          composer config prefer-stable true
+          composer config repositories.core path "${GITHUB_WORKSPACE}/packages/core"
+          composer config repositories.cli path "${GITHUB_WORKSPACE}/packages/cli"
+          composer config repositories.laravel path "${GITHUB_WORKSPACE}/packages/laravel"
+
+          resolution_options=()
+          if [[ "${RESOLUTION}" == 'lowest' ]]; then
+            resolution_options+=(--prefer-lowest)
+          fi
+
+          requirements=("${PACKAGE}")
+          if [[ -n "${FRAMEWORK}" ]]; then
+            requirements+=("${FRAMEWORK}")
+          fi
+
+          composer require \
+            --no-interaction \
+            --no-progress \
+            "${resolution_options[@]}" \
+            "${requirements[@]}"
+          composer check-platform-reqs --no-dev
+
+      - name: Smoke-test installed package
+        shell: bash
+        env:
+          SMOKE: ${{ matrix.case.smoke }}
+        run: |
+          set -euo pipefail
+          cd "${RUNNER_TEMP}/consumer install"
+
+          case "${SMOKE}" in
+            core)
+              php -r "require 'vendor/autoload.php'; exit(interface_exists(PhpUpgradePreflight\\Core\\Contracts\\UpgradeAnalyzer::class) ? 0 : 1);"
+              ;;
+            cli)
+              vendor/bin/upgrade-intel --help
+              ;;
+            laravel)
+              php -r "require 'vendor/autoload.php'; exit(class_exists(PhpUpgradePreflight\\Laravel\\UpgradePreflightServiceProvider::class) ? 0 : 1);"
+              ;;
+          esac

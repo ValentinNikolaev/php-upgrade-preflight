@@ -4,7 +4,7 @@ description: Durable architecture, constraints, and current-state context for PH
 type: project
 related:
   - ../DEVELOPMENT_PLAN.md
-last_updated: 2026-08-07
+last_updated: 2026-08-08
 ---
 
 # Project Memory
@@ -64,10 +64,7 @@ Laravel 7 to 8/9 rules derive one unambiguous target major from requested `larav
 
 The generic CLI retains a dedicated custom parser rather than depending directly on `symfony/console`. The command has one subcommand and a small fixed option surface, so a console dependency would add string, service-contract, and polyfill packages without improving current testability; parsing is isolated in `CommandLineParser` with direct unit coverage. CLI and Artisan validate project/source paths, exact current and target PHP versions, target conflicts, formats, requested framework adapters, and report destinations before analysis. Invalid invocation exits 2, unexpected failures after validation exit 1 regardless of exception type, and every completed canonical report exits 0 even when `resolution.status` is `blocked` or `unknown`. Reports use stdout and diagnostics use stderr when the console exposes separate streams. Explicit source paths must exist inside the analyzed project, while report output must remain outside it. Generic CLI construction registers all installed adapters so core detection can activate them; explicit `--framework` requests are rejected early when their adapter package is unavailable. Artisan defaults to the Laravel application's base path rather than the process working directory.
 
-Known implementation gaps:
-
-- The opt-in live package/runtime matrix is not complete.
-- Laravel integration must be checked against every declared Illuminate major.
+The separate compatibility workflow now performs clean normal and lowest-dependency consumer installs for core and CLI on PHP 8.0, Laravel 8/9 on PHP 8.0, Laravel 10 on PHP 8.1, and the declared Laravel 11/12 host integrations on PHP 8.2. The release workflow runs version-consistency checks, the deterministic gate, that compatibility workflow, and fresh-clone read-only audits on Windows and Linux before building checksummed Composer archives. Tag-triggered runs require an annotated, GitHub-verified signature and a commit on `main` before publishing the GitHub release; distribution-repository splits, signed tags, and Packagist synchronization remain maintainer operations.
 
 ## Durable Decisions
 
@@ -81,6 +78,7 @@ Known implementation gaps:
 - Effort is a range with assumptions and confidence, never a precise promise.
 - Testing uses four layers: offline unit tests, deterministic Composer integration tests backed by local path repositories, curated Laravel end-to-end fixtures, and opt-in networked smoke tests. Public sample projects must be pinned to commit SHAs and are release checks, not canonical test fixtures.
 - The default development interpreter is the Compose `php` service on PHP 8.3. The root Composer manifest pins dependency resolution to PHP 8.0.30, while CI will execute the supported runtime matrix including PHP 8.4 and newer supported releases. PHP 8.3 avoids upstream deprecation output from PHP-8.0-compatible Laravel dependencies during ordinary CLI development. The container is a CLI toolchain only; target project PHP versions remain simulated by analysis scenarios.
+- All three packages release in lockstep. During initial development, fixes and maintenance use patch releases, while features and intentional breaking changes use a new `0.MINOR` line with prominent migration notes. Major remains `0` until the project deliberately commits to a stable public API; a future PHP 9 floor is a possible input to that decision, not an automatic `1.0` trigger.
 
 ## Repository Notes
 

@@ -1,0 +1,282 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Version to verify and package without publishing
+        required: true
+        default: 0.1.0
+        type: string
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    name: Release metadata gate
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      RELEASE_VERSION: ${{ github.ref_type == 'tag' && github.ref_name || inputs.version }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Normalize tag version
+        if: github.ref_type == 'tag'
+        shell: bash
+        run: echo "RELEASE_VERSION=${RELEASE_VERSION#v}" >> "${GITHUB_ENV}"
+
+      - name: Verify signed release tag from main
+        if: github.ref_type == 'tag'
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          tag_ref_endpoint="repos/${GITHUB_REPOSITORY}/git/ref/tags/${GITHUB_REF_NAME}"
+          tag_object_type="$(gh api "${tag_ref_endpoint}" --jq '.object.type')"
+          if [[ "${tag_object_type}" != 'tag' ]]; then
+            echo "Release tag ${GITHUB_REF_NAME} must be an annotated, signed tag." >&2
+            exit 1
+          fi
+
+          tag_object_sha="$(gh api "${tag_ref_endpoint}" --jq '.object.sha')"
+          verification="$(gh api "repos/${GITHUB_REPOSITORY}/git/tags/${tag_object_sha}" --jq '.verification.verified')"
+          verification_reason="$(gh api "repos/${GITHUB_REPOSITORY}/git/tags/${tag_object_sha}" --jq '.verification.reason')"
+          if [[ "${verification}" != 'true' ]]; then
+            echo "Release tag ${GITHUB_REF_NAME} does not have a verified signature (${verification_reason})." >&2
+            exit 1
+          fi
+
+          git fetch --no-tags origin '+refs/heads/main:refs/remotes/origin/main'
+          tag_commit="$(git rev-parse "${GITHUB_REF_NAME}^{commit}")"
+          if ! git merge-base --is-ancestor "${tag_commit}" refs/remotes/origin/main; then
+            echo "Release tag ${GITHUB_REF_NAME} is not on the main branch." >&2
+            exit 1
+          fi
+
+      - name: Set up PHP 8.0
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.0'
+          coverage: none
+
+      - name: Install locked dependencies
+        uses: ramsey/composer-install@v3
+        with:
+          composer-options: --prefer-dist --no-progress
+
+      - name: Verify release metadata
+        run: php tools/verify-release.php "$RELEASE_VERSION"
+
+  runtime-quality:
+    name: Supported runtime quality
+    uses: ./.github/workflows/quality.yml
+
+  compatibility:
+    name: Dependency compatibility
+    uses: ./.github/workflows/compatibility.yml
+
+  fresh-clone-audit:
+    name: Fresh clone / ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    env:
+      RELEASE_VERSION: ${{ github.ref_type == 'tag' && github.ref_name || inputs.version }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+    steps:
+      - name: Check out release candidate
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Set up PHP 8.0
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.0'
+          coverage: none
+
+      - name: Clone into a clean path
+        shell: pwsh
+        run: |
+          $freshClone = Join-Path $env:RUNNER_TEMP 'fresh clone'
+          git clone --no-local $env:GITHUB_WORKSPACE $freshClone
+          "FRESH_CLONE=$freshClone" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      - name: Clean install and deterministic checks
+        shell: pwsh
+        run: |
+          Set-Location -LiteralPath $env:FRESH_CLONE
+          composer install --prefer-dist --no-interaction --no-progress
+          composer check
+
+      - name: Audit read-only analysis with spaced output paths
+        shell: pwsh
+        run: |
+          Set-Location -LiteralPath $env:FRESH_CLONE
+          $fixture = Join-Path $env:FRESH_CLONE 'tests/fixtures/projects/laravel-7-to-9'
+          $reportDirectory = Join-Path $env:RUNNER_TEMP 'release reports'
+          New-Item -ItemType Directory -Path $reportDirectory -Force | Out-Null
+
+          function Get-FixtureDigest([string] $Path) {
+            $records = Get-ChildItem -LiteralPath $Path -File -Recurse |
+              Sort-Object FullName |
+              ForEach-Object {
+                $relative = [IO.Path]::GetRelativePath($Path, $_.FullName).Replace('\\', '/')
+                $hash = (Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash
+                "$relative`0$hash"
+              }
+            $payload = [Text.Encoding]::UTF8.GetBytes(($records -join "`n"))
+            [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData($payload))
+          }
+
+          $before = Get-FixtureDigest $fixture
+          $jsonReport = Join-Path $reportDirectory 'laravel 7 to 9.json'
+          $markdownReport = Join-Path $reportDirectory 'laravel 7 to 9.md'
+
+          $arguments = @(
+            'packages/cli/bin/upgrade-intel',
+            'analyze',
+            "--path=$fixture",
+            '--from-php=7.4',
+            '--target=laravel/framework:^9.0',
+            '--target-php=8.1',
+            '--framework=laravel',
+            '--format=json',
+            "--output=$jsonReport"
+          )
+          php @arguments
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+          $arguments[-2] = '--format=markdown'
+          $arguments[-1] = "--output=$markdownReport"
+          php @arguments
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+          $after = Get-FixtureDigest $fixture
+          if ($before -ne $after) {
+            throw 'The analyzed fixture changed.'
+          }
+
+          $json = Get-Content -LiteralPath $jsonReport -Raw | ConvertFrom-Json
+          $expectedVersion = $env:RELEASE_VERSION.TrimStart('v')
+          if ($json.metadata.tool.version -ne $expectedVersion) {
+            throw "Unexpected report tool version: $($json.metadata.tool.version)"
+          }
+          if ((Get-Item -LiteralPath $markdownReport).Length -eq 0) {
+            throw 'The Markdown report is empty.'
+          }
+
+          git diff --exit-code -- tests/fixtures/projects/laravel-7-to-9
+          $fixtureStatus = git status --porcelain=v1 --untracked-files=all -- tests/fixtures/projects/laravel-7-to-9
+          if ($fixtureStatus) {
+            throw "The fixture worktree is dirty:`n$fixtureStatus"
+          }
+
+  package:
+    name: Build release archives
+    needs:
+      - quality
+      - runtime-quality
+      - compatibility
+      - fresh-clone-audit
+    runs-on: ubuntu-latest
+    env:
+      RELEASE_VERSION: ${{ github.ref_type == 'tag' && github.ref_name || inputs.version }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Normalize tag version
+        if: github.ref_type == 'tag'
+        shell: bash
+        run: echo "RELEASE_VERSION=${RELEASE_VERSION#v}" >> "${GITHUB_ENV}"
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.0'
+          coverage: none
+
+      - name: Validate and archive packages
+        shell: bash
+        run: |
+          set -euo pipefail
+          export COMPOSER_ROOT_VERSION="${RELEASE_VERSION}"
+          mkdir -p build dist
+          for package in core cli laravel; do
+            staging="build/${package}"
+            mkdir -p "${staging}"
+            cp -R "packages/${package}/." "${staging}/"
+            cp LICENSE README.md CHANGELOG.md SECURITY.md "${staging}/"
+            cp -R docs "${staging}/docs"
+
+            composer validate --strict "${staging}/composer.json"
+            composer archive \
+              --working-dir="${staging}" \
+              --format=zip \
+              --dir="${GITHUB_WORKSPACE}/dist" \
+              --file="php-upgrade-preflight-${package}-v${RELEASE_VERSION}"
+          done
+          cd dist
+          sha256sum ./*.zip > SHA256SUMS
+
+      - name: Upload release archives
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-archives
+          path: dist/*
+          if-no-files-found: error
+
+  publish:
+    name: Publish GitHub release
+    if: github.ref_type == 'tag'
+    needs:
+      - package
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      RELEASE_VERSION: ${{ github.ref_name }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Download release archives
+        uses: actions/download-artifact@v4
+        with:
+          name: release-archives
+          path: dist
+
+      - name: Create GitHub release
+        shell: bash
+        run: |
+          set -euo pipefail
+          version="${RELEASE_VERSION#v}"
+          if gh release view "${RELEASE_VERSION}" >/dev/null 2>&1; then
+            gh release upload "${RELEASE_VERSION}" dist/* --clobber
+            gh release edit "${RELEASE_VERSION}" \
+              --title="PHP Upgrade Preflight ${RELEASE_VERSION}" \
+              --notes-file="docs/releases/v${version}.md"
+          else
+            gh release create "${RELEASE_VERSION}" \
+              dist/* \
+              --verify-tag \
+              --title="PHP Upgrade Preflight ${RELEASE_VERSION}" \
+              --notes-file="docs/releases/v${version}.md"
+          fi

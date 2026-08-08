@@ -180,22 +180,23 @@ Acceptance gate: CLI and Artisan end-to-end tests produce equivalent canonical d
 
 ## Milestone 8: v0.1 Hardening and Release
 
-Status: release hardening implemented on 2026-08-08; distribution smoke tests and tagging remain.
+Status: release candidate hardening and automation implemented on 2026-08-08; external distribution tagging and Packagist publication remain.
 
 - [x] Run all six required fixture scenarios and approve JSON/Markdown snapshots.
 - [x] Test Windows and Unix path/process behavior.
 - [x] Add installation, external-analysis, CLI, Artisan, schema, limitations, and troubleshooting documentation.
 - [x] Add changelog, contribution guidance, security policy, release checklist, and package metadata needed for Packagist.
-- [ ] Review dependency floors against PHP 8.0 and Laravel 8/9/10 installability.
-- [ ] Perform a clean-install smoke test and read-only audit from a fresh clone.
-- [ ] Tag package versions consistently and prepare the v0.1 release.
+- [x] Review dependency floors against PHP 8.0 and Laravel 8/9/10 installability.
+- [x] Add repeatable clean-install smoke tests and a read-only audit from a fresh clone.
+- [x] Verify package-version consistency and prepare the gated v0.1 GitHub release workflow.
+- [ ] Create matching signed tags in the monorepo and distribution repositories, then publish to Packagist.
 
 Acceptance gate: a fresh user can install and run the analyzer against the documented fixtures, reproduce reports, and verify that target projects remain untouched.
 
 ## Recommended Next Work Session
 
-Milestones 0 through 7 and the release-hardening work are complete. Continue with Milestone 8 distribution checks:
+Milestones 0 through 7 and the v0.1 release-candidate automation are complete. Continue with the external Milestone 8 distribution steps:
 
-1. Review dependency floors against PHP 8.0 and Laravel 8/9/10 installability.
-2. Perform the clean-install and fresh-clone checks in `docs/release-checklist.md`.
-3. Split and tag the three distribution packages after every release gate passes.
+1. Run the manual `Release` workflow for `0.1.0` and review every gate and generated archive.
+2. Split and sign-tag the three distribution repositories at the approved monorepo commit.
+3. Push the monorepo `v0.1.0` tag, verify the GitHub release, and synchronize Packagist.

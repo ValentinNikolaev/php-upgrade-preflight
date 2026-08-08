@@ -99,6 +99,12 @@ CI runs `composer check` on PHP 8.0 through 8.5. Changes must pass on the PHP 8.
 - Update `.claude/memory/MEMORY.md` only for durable architecture, constraints, or decisions. Do not record session logs, temporary failures, or facts cheaply derived from code.
 - Keep the plan directional. Preserve milestone order unless concrete dependencies justify a change, and document that reason.
 
+## Release Notes and Versions
+
+- Do not create a release-notes file, move changelog entries into a dated release, or change tool/package version metadata for every ordinary change.
+- Keep completed work under `CHANGELOG.md`'s `[Unreleased]` section until the user explicitly asks to prepare a new release or the active milestone specifically requires one.
+- When a new release is intentionally prepared, update its release notes, changelog heading, `ReportMetadata::TOOL_VERSION`, branch aliases, internal package constraints, and matching tag plan together, then run the release verification workflow. Publish only from an annotated, GitHub-verified signed tag whose commit is on `main`.
+
 ## v0.1 Completion Standard
 
 Given a Laravel 7 fixture and Laravel/PHP targets, the tool must deterministically report whether resolution succeeds, actionable blockers, root and transitive package changes, suspicious legacy packages, source files requiring review, staged actions, risks, effort ranges, uncertainties, and traceable evidence. JSON and Markdown must agree, and the original fixture must remain byte-for-byte unchanged.

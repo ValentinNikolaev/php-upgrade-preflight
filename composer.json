@@ -78,6 +78,7 @@
     "test:cli": "phpunit --testsuite cli",
     "test:laravel": "phpunit --testsuite laravel",
     "test:fixtures": "phpunit --filter LaravelFixtureAnalysisTest",
+    "release:verify": "php tools/verify-release.php",
     "analyse": "phpstan analyse --memory-limit=512M",
     "lint": "php-cs-fixer fix --dry-run --diff",
     "check": [

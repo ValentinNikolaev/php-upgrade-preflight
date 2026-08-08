@@ -10,6 +10,8 @@ Run this checklist from a clean release candidate commit. Record command output 
 - [ ] Move any remaining changelog entries under `0.1.0` and confirm the release date.
 - [ ] Validate links in README, package support metadata, schema docs, security policy, and changelog.
 
+Run `composer release:verify -- 0.1.0` to enforce the version, branch-alias, internal-constraint, changelog, and release-notes checks above. Composer package versions come from tags; do not add `version` fields to package manifests.
+
 ## Deterministic quality gate
 
 - [ ] Run `composer check` on PHP 8.0 through PHP 8.5.
@@ -28,6 +30,8 @@ Run this checklist from a clean release candidate commit. Record command output 
 - [ ] Hash or snapshot the fixture before and after, then confirm byte-for-byte equality.
 - [ ] Test an output path containing spaces on Windows and Unix.
 
+The `Release` workflow performs the clean install, deterministic gate, JSON and Markdown analysis, fixture digest comparison, and spaced-output-path audit from a second clone on both Windows and Linux.
+
 ## Package distribution
 
 This repository is a monorepo. Packagist reads a package manifest from the root of each distribution repository, so publish the `core`, `cli`, and `laravel` subtrees to their corresponding package repositories before submission.
@@ -42,9 +46,13 @@ This repository is a monorepo. Packagist reads a package manifest from the root 
 
 Do not submit the monorepo root package to Packagist. Its path repositories support development and cannot resolve as dependency repositories for consumers.
 
+The release workflow stages each package with its license and shared README, changelog, security, and documentation files, then produces validated Composer archives and SHA-256 checksums. The distribution-repository split, signed tags, and Packagist synchronization remain explicit maintainer actions because they require access to separate repositories.
+
 ## Publish
 
 - [ ] Create the GitHub release from the signed `v0.1.0` tag and attach release notes derived from the changelog.
 - [ ] Confirm Packagist shows the license, authors, keywords, homepage, support links, and `0.1.0` for each package.
 - [ ] Run the README quick start using only published packages.
 - [ ] Announce any known limitations and link to the schema compatibility policy.
+
+A manual `Release` workflow run verifies and packages a version without publishing. Pushing a matching annotated tag publishes the GitHub release only after GitHub verifies its signature, its commit is confirmed on `main`, and the deterministic suite, dependency matrix, and fresh-clone audits pass.

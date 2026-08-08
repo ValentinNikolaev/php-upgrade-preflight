@@ -15,6 +15,8 @@ This project follows [Semantic Versioning](https://semver.org/). Report schema v
 - Canonical JSON schema v0.6, Markdown reports, generic CLI, and Laravel Artisan command.
 - Six approved fixture reports in JSON and Markdown, with Windows and Unix CI coverage.
 - External-analysis, schema, limitation, troubleshooting, contribution, security, and release documentation.
+- Normal and lowest-dependency consumer install gates for PHP 8.0 and Laravel 8/9/10, plus declared Laravel 11/12 host integrations.
+- Fresh-clone read-only audits on Windows and Linux, tested release metadata verification, reproducible package archives, and signed-tag-gated GitHub release publication.
 
 [Unreleased]: https://github.com/ValentinNikolaev/php-upgrade-preflight/compare/v0.1.0...HEAD
 [0.1.0]: https://github.com/ValentinNikolaev/php-upgrade-preflight/releases/tag/v0.1.0

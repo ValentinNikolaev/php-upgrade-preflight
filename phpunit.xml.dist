@@ -16,5 +16,8 @@
             <directory suffix="Test.php">packages/laravel/tests/Unit</directory>
             <directory suffix="Test.php">packages/laravel/tests/Integration</directory>
         </testsuite>
+        <testsuite name="release">
+            <directory suffix="Test.php">tests/Release</directory>
+        </testsuite>
     </testsuites>
 </phpunit>

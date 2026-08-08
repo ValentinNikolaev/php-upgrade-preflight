@@ -1,6 +1,7 @@
 name: Quality
 
 on:
+  workflow_call:
   pull_request:
   push:
     branches:
@@ -10,6 +11,21 @@ permissions:
   contents: read
 
 jobs:
+  workflow-lint:
+    name: GitHub Actions syntax
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Run actionlint
+        shell: bash
+        run: |
+          docker run --rm \
+            --volume "${GITHUB_WORKSPACE}:/repo:ro" \
+            --workdir /repo \
+            rhysd/actionlint@sha256:b1934ee5f1c509618f2508e6eb47ee0d3520686341fec936f3b79331f9315667
+
   quality:
     name: ${{ matrix.os }} / PHP ${{ matrix.php }}
     runs-on: ${{ matrix.os }}

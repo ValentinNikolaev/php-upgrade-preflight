@@ -2,7 +2,9 @@
 
 PHP Upgrade Preflight analyzes Composer-based PHP upgrades before you change the target project. It copies `composer.json` and `composer.lock` into temporary workspaces, runs isolated Composer scenarios, scans source files, and produces a canonical JSON report or a Markdown projection.
 
-The v0.1 package line supports PHP 8.0 and later. Its first framework adapter covers Laravel 7 projects targeting Laravel 8 or 9, including PHP platform changes and common Laravel package constraints.
+The v0.1 package line supports PHP `^8.0` (PHP 8.0 through PHP 8.x). Its first framework adapter covers Laravel 7 projects targeting Laravel 8 or 9, including PHP platform changes and common Laravel package constraints.
+
+The Laravel adapter can be installed alongside Laravel 8 and 9 on PHP 8.0, Laravel 10 on PHP 8.1, and the additionally declared Laravel 11/12 host integrations on PHP 8.2. These host-installability ranges do not expand the v0.1 upgrade-rule scope beyond Laravel 8/9 targets.
 
 ## Install
 
@@ -82,6 +84,7 @@ Six application-shaped Laravel fixtures have approved JSON and Markdown snapshot
 - [Contributing](CONTRIBUTING.md)
 - [Security policy](SECURITY.md)
 - [Changelog](CHANGELOG.md)
+- [Versioning policy](docs/versioning.md)
 
 ## Development
 
