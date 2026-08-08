@@ -1,6 +1,6 @@
 # PHP Upgrade Preflight Development Plan
 
-Last updated: 2026-08-07
+Last updated: 2026-08-08
 
 This is a directional plan, not a rigid contract. Keep milestone order unless repository evidence shows a safer dependency order. Mark completed work with `[x]`, active work with `[~]`, and remaining work with `[ ]`.
 
@@ -167,11 +167,13 @@ Acceptance gate: the six required Laravel fixture classes produce conservative, 
 
 ## Milestone 7: CLI, Artisan, and Reporting UX
 
+Status: complete and verified on 2026-08-08.
+
 - [x] Validate paths, targets, formats, output destinations, and conflicting PHP options with clear exit codes.
 - [x] Decide whether to retain the small custom CLI parser or adopt a PHP 8.0-compatible console component based on dependency cost and testability.
 - [x] Ensure framework integrations are registered in generic CLI mode when requested or detected.
 - [x] Ensure the Laravel command defaults to the current project and delegates to the same analyzer operation.
-- [ ] Render Markdown entirely from the canonical report without dropping evidence or uncertainty.
+- [x] Render Markdown entirely from the canonical report without dropping evidence or uncertainty.
 - [x] Use stdout for reports, stderr for diagnostics, and nonzero exits for invalid invocation or internal failure; document the policy for a valid but blocked analysis.
 
 Acceptance gate: CLI and Artisan end-to-end tests produce equivalent canonical data and predictable files/exit codes.

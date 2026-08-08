@@ -88,7 +88,7 @@ final class AnalyzeUpgradeCommand extends Command
                 $writtenPath = $this->reportFileWriter->write($request->projectPath(), $request->outputPath(), $rendered);
                 $this->info(sprintf('Wrote report to %s', $writtenPath));
             } else {
-                $this->line($rendered);
+                $this->output->getOutput()->writeln($rendered, OutputInterface::OUTPUT_RAW);
             }
 
             return self::SUCCESS;

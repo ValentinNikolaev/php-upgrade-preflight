@@ -85,6 +85,10 @@ final class AnalyzeCommandTest extends TestCase
         self::assertSame(ReportFormat::MARKDOWN, $this->analyzer->request->format());
         self::assertTrue($this->analyzer->request->debug());
         self::assertStringStartsWith('# PHP Upgrade Preflight', $this->streamContents($this->stdout));
+        self::assertStringContainsString(
+            'Literal <info>canonical text</info> remains unchanged.',
+            $this->streamContents($this->stdout)
+        );
         self::assertSame('', $this->streamContents($this->stderr));
     }
 
@@ -342,7 +346,7 @@ final class FakeUpgradeAnalyzer implements UpgradeAnalyzer
             [],
             new RiskSummary('low', []),
             new EffortEstimate([0, 0], 'high', [], []),
-            [],
+            ['Literal <info>canonical text</info> remains unchanged.'],
             []
         );
     }

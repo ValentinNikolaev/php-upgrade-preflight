@@ -46,6 +46,7 @@ final class AnalyzeUpgradeCommandTest extends TestCase
         self::assertSame(['laravel'], $analyzer->request->frameworks());
         self::assertSame(ReportFormat::MARKDOWN, $analyzer->request->format());
         self::assertStringStartsWith('# PHP Upgrade Preflight', $tester->getDisplay());
+        self::assertStringContainsString('Literal <info>canonical text</info> remains unchanged.', $tester->getDisplay());
         self::assertSame('', $tester->getErrorOutput());
     }
 
@@ -157,7 +158,7 @@ final class RecordingUpgradeAnalyzer implements UpgradeAnalyzer
             [],
             new RiskSummary('low', []),
             new EffortEstimate([0, 0], 'high', [], []),
-            [],
+            ['Literal <info>canonical text</info> remains unchanged.'],
             []
         );
     }
