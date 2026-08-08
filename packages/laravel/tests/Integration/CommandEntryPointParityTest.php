@@ -22,7 +22,7 @@ final class CommandEntryPointParityTest extends TestCase
 
         $this->temporaryDirectory = rtrim(sys_get_temp_dir(), DIRECTORY_SEPARATOR)
             . DIRECTORY_SEPARATOR
-            . 'php-upgrade-preflight-command-parity-'
+            . 'php upgrade preflight command parity '
             . bin2hex(random_bytes(8));
         $this->fixturePath = $this->temporaryDirectory . DIRECTORY_SEPARATOR . 'path-repository';
         $this->projectPath = $this->fixturePath . DIRECTORY_SEPARATOR . 'project';

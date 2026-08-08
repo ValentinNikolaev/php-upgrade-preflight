@@ -120,17 +120,19 @@ final class JsonSnapshotNormalizer
      * @param list<array{path: string, placeholder: string}> $replacements
      * @return mixed
      */
-    private static function normalizeValue($value, array $replacements)
+    private static function normalizeValue($value, array $replacements, ?string $key = null)
     {
         if (is_string($value)) {
-            return self::normalizeString($value, $replacements);
+            $value = self::normalizeString($value, $replacements);
+
+            return self::isPathKey($key) ? str_replace('\\', '/', $value) : $value;
         }
 
         if (is_object($value)) {
             $normalized = new \stdClass();
 
-            foreach (get_object_vars($value) as $key => $item) {
-                $normalized->{$key} = self::normalizeValue($item, $replacements);
+            foreach (get_object_vars($value) as $itemKey => $item) {
+                $normalized->{$itemKey} = self::normalizeValue($item, $replacements, $itemKey);
             }
 
             return $normalized;
@@ -142,11 +144,23 @@ final class JsonSnapshotNormalizer
 
         $normalized = [];
 
-        foreach ($value as $key => $item) {
-            $normalized[$key] = self::normalizeValue($item, $replacements);
+        foreach ($value as $itemKey => $item) {
+            $normalized[$itemKey] = self::normalizeValue($item, $replacements, is_string($itemKey) ? $itemKey : $key);
         }
 
         return $normalized;
+    }
+
+    private static function isPathKey(?string $key): bool
+    {
+        return $key !== null && in_array($key, [
+            'file',
+            'output_path',
+            'path',
+            'project_path',
+            'source_paths',
+            'temp_path',
+        ], true);
     }
 
     /** @param list<array{path: string, placeholder: string}> $replacements */

@@ -1,130 +1,100 @@
 # PHP Upgrade Preflight
 
-> [!IMPORTANT]
-> **Work in progress:** PHP Upgrade Preflight is under active development and has not been released yet. The first release is coming soon, and behavior or report formats may change before then.
+PHP Upgrade Preflight analyzes Composer-based PHP upgrades before you change the target project. It copies `composer.json` and `composer.lock` into temporary workspaces, runs isolated Composer scenarios, scans source files, and produces a canonical JSON report or a Markdown projection.
 
-PHP Upgrade Preflight is a local, read-only analyzer for Composer-based PHP projects. It runs isolated Composer scenarios, compares lockfile states, groups dependency blockers, scans source usage, and produces evidence-backed JSON and Markdown reports before you modify your project.
+The v0.1 package line supports PHP 8.0 and later. Its first framework adapter covers Laravel 7 projects targeting Laravel 8 or 9, including PHP platform changes and common Laravel package constraints.
 
-Framework-specific rule packs can add deeper checks for Laravel, Symfony, CodeIgniter, and other ecosystems. Laravel is the first adapter, not the project identity.
+## Install
 
-## Packages
-
-- `php-upgrade-preflight/core`: deterministic analysis logic, report models, Composer scenario execution, lock diffing, source scanning, and framework integration contracts.
-- `php-upgrade-preflight/cli`: generic `upgrade-intel analyze` command.
-- `php-upgrade-preflight/laravel`: thin Laravel service provider, Artisan command, detection, and initial Laravel rules.
-
-The first package line targets PHP `^8.0` so it can be installed in many Laravel 8/9/10 projects while still analyzing older PHP platform constraints through Composer platform simulation.
-
-## CLI
+Install the CLI and Laravel adapter in a separate tools directory when the target project still runs PHP 7 or must remain byte-for-byte unchanged:
 
 ```bash
-upgrade-intel analyze \
-  --path=/projects/legacy-app \
-  --from-php=7.4 \
-  --target=php:8.1 \
-  --target=laravel/framework:^9 \
-  --format=json
+mkdir php-upgrade-tools
+cd php-upgrade-tools
+composer require php-upgrade-preflight/cli php-upgrade-preflight/laravel
 ```
 
-`--target` may be repeated, and `--target-php=8.1` may be used instead of `--target=php:8.1`. Supplying both forms is allowed only when they normalize to the same exact PHP version. Explicit `--source` paths must exist inside the analyzed project. Report files must be written outside the analyzed project so the input tree remains read-only.
+You can install both packages as development dependencies in a project that already runs PHP 8.0 or later:
 
-The generic CLI discovers every installed framework adapter. An adapter is activated when its framework is detected from Composer metadata or explicitly selected with a repeatable `--framework=NAME` option. For Laravel rules in generic CLI mode, install `php-upgrade-preflight/laravel`; requesting an adapter that is not installed is an invalid invocation.
+```bash
+composer require --dev php-upgrade-preflight/cli php-upgrade-preflight/laravel
+```
 
-The CLI uses a deliberately small, directly tested parser instead of adding `symfony/console` and its transitive string, service-contract, and polyfill dependencies to the standalone CLI package. The supported syntax is intentionally explicit: `upgrade-intel analyze`, `--name=value` options, repeatable targets/sources/frameworks, and the valueless `--debug` flag.
+See [Installation](docs/installation.md) and [External analysis](docs/external-analysis.md) for package choices, Windows commands, and the PHP 7.4 workflow.
 
-### Exit codes and output
+## Run an analysis
 
-- `0`: help or a completed analysis. A valid analysis that reports blocked or unknown resolution still returns `0`; consumers should read `resolution.status` from the canonical report.
-- `1`: an unexpected internal failure prevented report production.
-- `2`: invalid command usage, path, target, PHP version combination, format, framework selection, source path, or output destination.
+```bash
+vendor/bin/upgrade-intel analyze \
+  --path=/projects/legacy-app \
+  --from-php=7.4 \
+  --target=laravel/framework:^9.0 \
+  --target-php=8.1 \
+  --framework=laravel \
+  --format=json \
+  --output=/projects/reports/legacy-app.json
+```
 
-Reports are written to stdout unless `--output` is supplied. Diagnostics are written to stderr. Output destinations are validated before analysis begins.
-
-## Laravel
+Laravel applications with the adapter installed also expose an Artisan command:
 
 ```bash
 php artisan upgrade:analyze \
-  --target=laravel/framework:^8 \
-  --target=php:8.0 \
   --from-php=7.4 \
-  --format=markdown
+  --target=laravel/framework:^9.0 \
+  --target-php=8.1 \
+  --format=markdown \
+  --output=/projects/reports/legacy-app.md
 ```
 
-The Artisan command uses the same validation and exit policy, defaults `--path` to the Laravel application's base path, always enables the installed Laravel integration, and supports `--target-php`, repeatable `--source`, `--format`, and external `--output` destinations.
+The analyzer returns `0` after producing a valid report, including reports whose `resolution.status` is `blocked` or `unknown`. Automation should read that field instead of treating the process exit code as upgrade feasibility.
 
-The analyzer copies only `composer.json` and `composer.lock` into temporary workspaces for Composer scenarios. It never writes to the analyzed project. Every Composer scenario and diagnostic disables scripts and plugins. Temporary workspaces are removed after both successful and failed scenarios unless `--debug` explicitly preserves them. If cleanup itself fails, the scenario is reported as a cleanup failure and includes the leaked path so it can be inspected and removed manually.
+## Read-only analysis
 
-When package and PHP targets are requested together, the report includes a `target-platform-only` probe that checks the requested PHP against current package constraints. It also runs `staged-targets` against the current PHP when that version is supplied with `--from-php` or configured through Composer's `config.platform.php`; otherwise, the staged probe is skipped and the report records the uncertainty. These probes help identify a safer ordering, but only full-target scenarios determine whether the combined upgrade is feasible.
+The analyzer treats the target project as immutable input. Composer runs only in disposable workspaces, with scripts and plugins disabled. Report destinations supplied through `--output` must sit outside the analyzed project. Tests snapshot every fixture file before analysis and verify the original bytes afterward.
 
-Scenario selection has a stable priority: baseline validation, exact target, all-dependencies, minimal changes, platform-only, then staged targets. A later candidate is omitted when its normalized targets and effective Composer update options match an earlier candidate. PHP-only requests therefore skip the ineffective all-dependencies variant, and mixed requests skip `staged-targets` when the known current PHP already equals the requested target PHP. Intentional redundancy skips do not create uncertainty; missing current-PHP evidence still does.
+`--debug` preserves temporary workspaces for investigation. A debug run therefore leaves copied Composer files on disk and reports each path.
 
-## JSON report contract
+## Reports
 
-JSON reports follow the versioned [v0.6 report schema](packages/core/resources/schema/upgrade-report-v0.6.schema.json). The previous [v0.5](packages/core/resources/schema/upgrade-report-v0.5.schema.json), [v0.4](packages/core/resources/schema/upgrade-report-v0.4.schema.json), [v0.3](packages/core/resources/schema/upgrade-report-v0.3.schema.json), and [v0.2](packages/core/resources/schema/upgrade-report-v0.2.schema.json) schemas remain available for consumers of earlier reports. Every report starts with metadata that identifies both the contract and the producing tool:
+JSON is the canonical report. The current contract uses schema version `0.6`, independent of the tool version. Reports contain:
 
-```json
-{
-  "metadata": {
-    "schema_version": "0.6",
-    "tool": {
-      "name": "php-upgrade-preflight",
-      "version": "0.1.0"
-    }
-  }
-}
-```
+- scenario commands, solver outcomes, diagnostics, and candidate-lock fingerprints;
+- package changes, structured blockers, source usage, and framework findings;
+- staged actions, test guidance, risk, effort, uncertainty, and linked evidence.
 
-Consumers should select a parser by `schema_version`. Patch releases of the tool may change findings or fix analysis behavior while retaining the `0.6` report shape. The committed canonical report snapshot is at `packages/core/tests/Snapshots/upgrade-report-v0.6.json`.
+Six application-shaped Laravel fixtures have approved JSON and Markdown snapshots in [`packages/laravel/tests/Snapshots`](packages/laravel/tests/Snapshots). CI runs the same suite on Ubuntu and Windows.
 
-Blockers expose both a stable type and actionable structure: the subject and requested constraint, blocking package and locked version when known, the conflicting constraint, dependency path, possible resolution options, confidence, and evidence references. Composer `prohibits --tree` diagnostics are preferred for dependency paths; bounded solver output is used as a fallback. Equivalent blockers from multiple scenarios are reported once with every scenario's evidence reference retained.
+## Packages
 
-Abandoned packages are detected from Composer lock metadata instead of depending on warning text. The analyzer inspects the selected candidate lock after a successful resolution, or the baseline lock when no candidate exists. Composer's boolean marker and package-or-URL alternative form produce a high-confidence metadata advisory with the locked version and actionable guidance; URL alternatives are preserved exactly. An advisory does not turn a successful Composer resolution into a blocked result, while matching Composer warning prose still contributes solver evidence to the same finding.
+- `php-upgrade-preflight/core` contains the analysis pipeline and report contract.
+- `php-upgrade-preflight/cli` provides `upgrade-intel analyze`.
+- `php-upgrade-preflight/laravel` provides Laravel detection, rules, and `upgrade:analyze`.
 
-Package changes may include opaque `package_families` labels supplied by active integrations. The Laravel adapter identifies changed `laravel/*`, `illuminate/*`, and `symfony/*` packages as the `laravel`, `illuminate`, and `symfony` families. Core only coordinates generic classifiers and does not encode those framework package names.
+## Documentation
 
-PHP source impact is extracted from a `nikic/php-parser` AST, so comments, unrelated strings, and closure captures are not mistaken for symbol usages. Parser-derived usage types distinguish imports, explicit fully qualified names, inheritance, interfaces, traits, attributes, static method/property/constant access, named function calls, and instantiated classes. Context-aware inspection also identifies literal config keys, service-provider definitions and registrations, middleware class references, console-command definitions and registrations, and explicit test-double/mock targets. Repeated uses of the same symbol and usage type within one file are grouped into one finding while retaining an E3 evidence reference with the precise file and line for every occurrence. Dynamic names are left unreported instead of being guessed. Recursive scans skip dependency and common generated/cache directories; a directly requested path remains scannable. A syntax error skips only the malformed file: the report retains an E3 evidence record with its file, line, parser error, and a linked uncertainty while scanning continues.
+- [Installation](docs/installation.md)
+- [External analysis](docs/external-analysis.md)
+- [CLI reference](docs/cli.md)
+- [Artisan reference](docs/artisan.md)
+- [JSON schema and compatibility](docs/schema.md)
+- [Limitations and trust boundaries](docs/limitations.md)
+- [Troubleshooting](docs/troubleshooting.md)
+- [Contributing](CONTRIBUTING.md)
+- [Security policy](SECURITY.md)
+- [Changelog](CHANGELOG.md)
 
-The Laravel rule pack maps unambiguous Laravel 8/9 targets with `composer/semver` and checks framework/PHP constraints, first-party packages, PHPUnit, Mockery, Symfony components, old `illuminate/support` consumers, and common Laravel 7 legacy packages. Full Laravel applications and modular projects rooted in any Illuminate 7 component follow the same conservative rule path, and exact requested constraints are retained for package checks. Exact Composer metadata and parser-derived source locations remain high-confidence E2/E3 evidence; fallback E4 guidance links to sources selected for the target Laravel major. Manual skeleton comparison for `app/Http/Kernel.php` middleware and `config/app.php` providers or facade aliases is emitted separately as low-confidence E5 guidance and is never described as confirmed incompatibility.
+## Development
 
-Six deterministic application-shaped fixtures under `tests/fixtures/projects/` exercise Laravel 7 to 8, Laravel 7 to 9, an old Illuminate consumer, Ignition with legacy skeleton entries, PHP/extension solver conflicts, and the supported package matrix. Their offline integration tests allowlist every framework claim, validate all evidence references and documentation links, and prove the input fixture trees remain byte-for-byte unchanged.
-
-Each Composer scenario records the resolved Composer version, exact command argv, elapsed milliseconds, exit code, bounded stdout/stderr excerpts, and a fingerprint of any readable candidate lock. Candidate-lock fingerprints include the file SHA-256, Composer `content-hash` when present, and the total locked package count; they retain traceable evidence after disposable workspaces are removed.
-
-Scenario outcomes are machine-readable. In addition to successful resolution and solver or validation failures, reports distinguish a missing Composer executable, timeout, invalid JSON, missing candidate lockfile, process failure, workspace failure, and cleanup failure without requiring consumers to parse diagnostic text.
-
-After a target-resolution solver failure, the analyzer runs bounded `composer prohibits --tree --locked` diagnostics in the same isolated workspace for requested targets that are not already satisfied by the baseline lock. Identical probes are reused within one analysis. The locked diagnostic requires Composer 2.4 or newer; older versions receive a structured unsupported diagnostic without replacing the primary solver outcome.
-
-The transition section compares requested targets with root requirements, while the plan, tests, and uncertainties sections provide evidence-linked staged actions, project-aware validation guidance, and explicit limits on what dependency resolution proves. Markdown reports project these same canonical sections.
-
-## Development with Docker
-
-The default development interpreter is PHP 8.3 in Docker. Composer dependency resolution is pinned to PHP 8.0.30 in the root manifest so development dependencies remain compatible with the package runtime floor. PHP 8.4 and newer supported runtimes remain part of the CI compatibility matrix.
+The Docker environment uses PHP 8.3 while Composer resolves development dependencies against PHP 8.0.30, the runtime floor.
 
 ```bash
 docker compose build php
 docker compose run --rm php composer install
-docker compose run --rm php composer validate --strict
-```
-
-Common shortcuts are also available through `make build`, `make install`, `make validate`, and `make shell`. Override the interpreter when checking another runtime on a POSIX shell:
-
-```bash
-PHP_VERSION=8.0 docker compose build php
-PHP_VERSION=8.0 docker compose run --rm php php -v
-```
-
-In PowerShell, set `$env:PHP_VERSION = '8.0'` before running the same Docker Compose commands.
-
-## Quality checks
-
-PHPUnit 9.6 is used because it supports the PHP 8.0 runtime floor. Run the full local gate with:
-
-```bash
 docker compose run --rm php composer check
 ```
 
-The gate validates the root and all package manifests before running tests, static analysis, and coding-style checks. Individual checks are available through `composer test`, `composer analyse`, and `composer lint`. Package unit suites can be run independently with `composer test:core`, `composer test:cli`, or `composer test:laravel`. GitHub Actions runs the same gate for pull requests and pushes to `main` across PHP 8.0 through PHP 8.5, the current stable release.
+`composer check` validates every package manifest, runs PHPUnit, performs static analysis, and checks formatting. See [CONTRIBUTING.md](CONTRIBUTING.md) for focused test commands and snapshot updates.
 
 ## License
 
-Copyright 2026 Valentin Nikolaev. Free noncommercial use is available under the [PolyForm Noncommercial License 1.0.0](LICENSE). Commercial use requires a separate commercial license from the copyright holder.
+Copyright 2026 Valentin Nikolaev. The [PolyForm Noncommercial License 1.0.0](LICENSE) permits noncommercial use. Commercial use requires a separate license from the copyright holder.

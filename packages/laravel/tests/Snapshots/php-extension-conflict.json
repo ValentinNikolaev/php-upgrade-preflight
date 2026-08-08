@@ -1,0 +1,871 @@
+{
+    "metadata": {
+        "schema_version": "0.6",
+        "tool": {
+            "name": "php-upgrade-preflight",
+            "version": "0.1.0"
+        }
+    },
+    "request_summary": {
+        "project_path": "<PROJECT_PATH>",
+        "targets": [
+            {
+                "package": "laravel/framework",
+                "constraint": "^9.0"
+            },
+            {
+                "package": "php",
+                "constraint": "8.1.0"
+            }
+        ],
+        "from_php": "7.4",
+        "target_php": "8.1.0",
+        "source_paths": [],
+        "frameworks": [],
+        "format": "json",
+        "output_path": null
+    },
+    "project_state": {
+        "path": "<PROJECT_PATH>",
+        "platform_php": null,
+        "root_requirements": {
+            "php": "^7.4",
+            "laravel/framework": "^7.0",
+            "fixture/runtime-guard": "1.0.0"
+        },
+        "locked_packages": 2
+    },
+    "resolution": {
+        "status": "blocked",
+        "scenarios": [
+            {
+                "name": "baseline-validation",
+                "composer_version": null,
+                "command": [
+                    "composer",
+                    "validate",
+                    "--check-lock",
+                    "--no-check-publish",
+                    "--no-scripts",
+                    "--no-plugins",
+                    "--no-interaction"
+                ],
+                "duration_ms": 1,
+                "exit_code": 0,
+                "succeeded": true,
+                "outcome": "success",
+                "failure_type": null,
+                "stdout_excerpt": "Fixture baseline is valid.",
+                "stderr_excerpt": "",
+                "candidate_lock": {
+                    "sha256": "3401d4adcfc3dd15766b4963616eedd2b3c05d764f233bfe16986229e3eb2775",
+                    "content_hash": "php-extension-conflict",
+                    "package_count": 2
+                },
+                "diagnostics": [],
+                "temp_path": null
+            },
+            {
+                "name": "exact-target",
+                "composer_version": null,
+                "command": [
+                    "composer",
+                    "update",
+                    "laravel/framework",
+                    "--no-scripts",
+                    "--no-plugins",
+                    "--no-install",
+                    "--no-interaction"
+                ],
+                "duration_ms": 1,
+                "exit_code": 2,
+                "succeeded": false,
+                "outcome": "solver_failure",
+                "failure_type": "solver",
+                "stdout_excerpt": "",
+                "stderr_excerpt": "Your requirements could not be resolved to an installable set of packages.\nProblem 1\n- fixture/runtime-guard 1.0.0 requires php ^7.4 -> your php version (8.1.0) does not satisfy that requirement.\nProblem 2\n- fixture/runtime-guard 1.0.0 requires ext-preflight_fixture * -> it is missing from your system.",
+                "candidate_lock": null,
+                "diagnostics": [
+                    {
+                        "package": "laravel/framework",
+                        "constraint": "^9.0",
+                        "command": [
+                            "composer",
+                            "prohibits",
+                            "laravel/framework",
+                            "^9.0",
+                            "--tree",
+                            "--locked",
+                            "--no-scripts",
+                            "--no-plugins",
+                            "--no-interaction"
+                        ],
+                        "exit_code": 1,
+                        "stdout_excerpt": "",
+                        "stderr_excerpt": "No additional fixture diagnostic."
+                    },
+                    {
+                        "package": "php",
+                        "constraint": "8.1.0",
+                        "command": [
+                            "composer",
+                            "prohibits",
+                            "php",
+                            "8.1.0",
+                            "--tree",
+                            "--locked",
+                            "--no-scripts",
+                            "--no-plugins",
+                            "--no-interaction"
+                        ],
+                        "exit_code": 1,
+                        "stdout_excerpt": "",
+                        "stderr_excerpt": "No additional fixture diagnostic."
+                    }
+                ],
+                "temp_path": null
+            },
+            {
+                "name": "target-with-all-dependencies",
+                "composer_version": null,
+                "command": [
+                    "composer",
+                    "update",
+                    "laravel/framework",
+                    "--with-all-dependencies",
+                    "--no-scripts",
+                    "--no-plugins",
+                    "--no-install",
+                    "--no-interaction"
+                ],
+                "duration_ms": 1,
+                "exit_code": 2,
+                "succeeded": false,
+                "outcome": "solver_failure",
+                "failure_type": "solver",
+                "stdout_excerpt": "",
+                "stderr_excerpt": "Your requirements could not be resolved to an installable set of packages.\nProblem 1\n- fixture/runtime-guard 1.0.0 requires php ^7.4 -> your php version (8.1.0) does not satisfy that requirement.\nProblem 2\n- fixture/runtime-guard 1.0.0 requires ext-preflight_fixture * -> it is missing from your system.",
+                "candidate_lock": null,
+                "diagnostics": [
+                    {
+                        "package": "laravel/framework",
+                        "constraint": "^9.0",
+                        "command": [
+                            "composer",
+                            "prohibits",
+                            "laravel/framework",
+                            "^9.0",
+                            "--tree",
+                            "--locked",
+                            "--no-scripts",
+                            "--no-plugins",
+                            "--no-interaction"
+                        ],
+                        "exit_code": 1,
+                        "stdout_excerpt": "",
+                        "stderr_excerpt": "No additional fixture diagnostic."
+                    },
+                    {
+                        "package": "php",
+                        "constraint": "8.1.0",
+                        "command": [
+                            "composer",
+                            "prohibits",
+                            "php",
+                            "8.1.0",
+                            "--tree",
+                            "--locked",
+                            "--no-scripts",
+                            "--no-plugins",
+                            "--no-interaction"
+                        ],
+                        "exit_code": 1,
+                        "stdout_excerpt": "",
+                        "stderr_excerpt": "No additional fixture diagnostic."
+                    }
+                ],
+                "temp_path": null
+            },
+            {
+                "name": "minimal-changes",
+                "composer_version": null,
+                "command": [
+                    "composer",
+                    "update",
+                    "laravel/framework",
+                    "--with-all-dependencies",
+                    "--minimal-changes",
+                    "--no-scripts",
+                    "--no-plugins",
+                    "--no-install",
+                    "--no-interaction"
+                ],
+                "duration_ms": 1,
+                "exit_code": 2,
+                "succeeded": false,
+                "outcome": "solver_failure",
+                "failure_type": "solver",
+                "stdout_excerpt": "",
+                "stderr_excerpt": "Your requirements could not be resolved to an installable set of packages.\nProblem 1\n- fixture/runtime-guard 1.0.0 requires php ^7.4 -> your php version (8.1.0) does not satisfy that requirement.\nProblem 2\n- fixture/runtime-guard 1.0.0 requires ext-preflight_fixture * -> it is missing from your system.",
+                "candidate_lock": null,
+                "diagnostics": [
+                    {
+                        "package": "laravel/framework",
+                        "constraint": "^9.0",
+                        "command": [
+                            "composer",
+                            "prohibits",
+                            "laravel/framework",
+                            "^9.0",
+                            "--tree",
+                            "--locked",
+                            "--no-scripts",
+                            "--no-plugins",
+                            "--no-interaction"
+                        ],
+                        "exit_code": 1,
+                        "stdout_excerpt": "",
+                        "stderr_excerpt": "No additional fixture diagnostic."
+                    },
+                    {
+                        "package": "php",
+                        "constraint": "8.1.0",
+                        "command": [
+                            "composer",
+                            "prohibits",
+                            "php",
+                            "8.1.0",
+                            "--tree",
+                            "--locked",
+                            "--no-scripts",
+                            "--no-plugins",
+                            "--no-interaction"
+                        ],
+                        "exit_code": 1,
+                        "stdout_excerpt": "",
+                        "stderr_excerpt": "No additional fixture diagnostic."
+                    }
+                ],
+                "temp_path": null
+            },
+            {
+                "name": "target-platform-only",
+                "composer_version": null,
+                "command": [
+                    "composer",
+                    "update",
+                    "--no-scripts",
+                    "--no-plugins",
+                    "--no-install",
+                    "--no-interaction"
+                ],
+                "duration_ms": 1,
+                "exit_code": 2,
+                "succeeded": false,
+                "outcome": "solver_failure",
+                "failure_type": "solver",
+                "stdout_excerpt": "",
+                "stderr_excerpt": "Your requirements could not be resolved to an installable set of packages.\nProblem 1\n- fixture/runtime-guard 1.0.0 requires php ^7.4 -> your php version (8.1.0) does not satisfy that requirement.\nProblem 2\n- fixture/runtime-guard 1.0.0 requires ext-preflight_fixture * -> it is missing from your system.",
+                "candidate_lock": null,
+                "diagnostics": [
+                    {
+                        "package": "php",
+                        "constraint": "8.1.0",
+                        "command": [
+                            "composer",
+                            "prohibits",
+                            "php",
+                            "8.1.0",
+                            "--tree",
+                            "--locked",
+                            "--no-scripts",
+                            "--no-plugins",
+                            "--no-interaction"
+                        ],
+                        "exit_code": 1,
+                        "stdout_excerpt": "",
+                        "stderr_excerpt": "No additional fixture diagnostic."
+                    }
+                ],
+                "temp_path": null
+            },
+            {
+                "name": "staged-targets",
+                "composer_version": null,
+                "command": [
+                    "composer",
+                    "update",
+                    "laravel/framework",
+                    "--with-all-dependencies",
+                    "--no-scripts",
+                    "--no-plugins",
+                    "--no-install",
+                    "--no-interaction"
+                ],
+                "duration_ms": 1,
+                "exit_code": 2,
+                "succeeded": false,
+                "outcome": "solver_failure",
+                "failure_type": "solver",
+                "stdout_excerpt": "",
+                "stderr_excerpt": "Your requirements could not be resolved to an installable set of packages.\nProblem 1\n- fixture/runtime-guard 1.0.0 requires php ^7.4 -> your php version (8.1.0) does not satisfy that requirement.\nProblem 2\n- fixture/runtime-guard 1.0.0 requires ext-preflight_fixture * -> it is missing from your system.",
+                "candidate_lock": null,
+                "diagnostics": [
+                    {
+                        "package": "laravel/framework",
+                        "constraint": "^9.0",
+                        "command": [
+                            "composer",
+                            "prohibits",
+                            "laravel/framework",
+                            "^9.0",
+                            "--tree",
+                            "--locked",
+                            "--no-scripts",
+                            "--no-plugins",
+                            "--no-interaction"
+                        ],
+                        "exit_code": 1,
+                        "stdout_excerpt": "",
+                        "stderr_excerpt": "No additional fixture diagnostic."
+                    }
+                ],
+                "temp_path": null
+            }
+        ]
+    },
+    "transition": {
+        "package_changes": [],
+        "root_constraint_changes": [
+            {
+                "package": "laravel/framework",
+                "change_type": "updated",
+                "from_constraint": "^7.0",
+                "to_constraint": "^9.0",
+                "reason": "The declared root constraint differs from the requested target.",
+                "evidence": [
+                    "root-constraint-1"
+                ]
+            }
+        ]
+    },
+    "blockers": [
+        {
+            "type": "php-platform-too-high",
+            "subject": "php",
+            "requested_constraint": "8.1.0",
+            "blocker": "fixture/runtime-guard",
+            "locked_version": "1.0.0",
+            "conflict": "^7.4",
+            "dependency_path": [
+                "fixture/runtime-guard",
+                "php"
+            ],
+            "options": [
+                "Upgrade or replace `fixture/runtime-guard` with a version that supports the target PHP.",
+                "Select a supported PHP target."
+            ],
+            "summary": "The requested PHP platform is higher than a package supports.",
+            "confidence": "high",
+            "evidence": [
+                "solver-1",
+                "solver-2",
+                "solver-3",
+                "solver-4"
+            ]
+        },
+        {
+            "type": "extension-missing",
+            "subject": "ext-preflight_fixture",
+            "requested_constraint": null,
+            "blocker": "fixture/runtime-guard",
+            "locked_version": "1.0.0",
+            "conflict": "*",
+            "dependency_path": [
+                "fixture/runtime-guard",
+                "ext-preflight_fixture"
+            ],
+            "options": [
+                "Install and enable `ext-preflight_fixture` for the target runtime.",
+                "Choose package versions that do not require `ext-preflight_fixture`."
+            ],
+            "summary": "A required PHP extension is unavailable.",
+            "confidence": "high",
+            "evidence": [
+                "solver-1",
+                "solver-2",
+                "solver-3",
+                "solver-4",
+                "solver-5"
+            ]
+        },
+        {
+            "type": "php-platform-too-low",
+            "subject": "php",
+            "requested_constraint": "7.4.0",
+            "blocker": "fixture/runtime-guard",
+            "locked_version": "1.0.0",
+            "conflict": "^7.4",
+            "dependency_path": [
+                "fixture/runtime-guard",
+                "php"
+            ],
+            "options": [
+                "Raise the target PHP version.",
+                "Select a version of `fixture/runtime-guard` compatible with the target PHP."
+            ],
+            "summary": "The requested PHP platform is lower than a package requirement.",
+            "confidence": "high",
+            "evidence": [
+                "solver-5"
+            ]
+        }
+    ],
+    "source_impact": [],
+    "framework_findings": [
+        {
+            "framework": "laravel",
+            "severity": "high",
+            "summary": "Update the root laravel/framework constraint from `^7.0` to a constraint compatible with Laravel 9.",
+            "evidence": [
+                "laravel-framework-constraint-1"
+            ]
+        },
+        {
+            "framework": "laravel",
+            "severity": "high",
+            "summary": "The root PHP constraint `^7.4` excludes target PHP `8.1.0`; update it for the Laravel 9 upgrade.",
+            "evidence": [
+                "laravel-php-constraint-1"
+            ]
+        }
+    ],
+    "plan": {
+        "stages": [
+            {
+                "name": "constraints",
+                "summary": "Prepare the requested root constraint changes before dependency resolution.",
+                "actions": [
+                    "Update the `laravel/framework` root constraint to `^9.0`.",
+                    "Select a root PHP constraint that includes target platform PHP 8.1.0 without pinning an exact patch version."
+                ],
+                "evidence": [
+                    "plan-1",
+                    "root-constraint-1"
+                ]
+            },
+            {
+                "name": "dependencies",
+                "summary": "Resolve dependency blockers and review the resulting lockfile transition.",
+                "actions": [
+                    "Resolve the `php-platform-too-high` blocker affecting `php`.",
+                    "Resolve the `extension-missing` blocker affecting `ext-preflight_fixture`.",
+                    "Resolve the `php-platform-too-low` blocker affecting `php`.",
+                    "Rerun the isolated Composer scenarios after resolving the reported blockers."
+                ],
+                "evidence": [
+                    "plan-1",
+                    "solver-1",
+                    "solver-2",
+                    "solver-3",
+                    "solver-4",
+                    "solver-5"
+                ]
+            },
+            {
+                "name": "application",
+                "summary": "Apply source and framework migration work after dependency resolution is stable.",
+                "actions": [
+                    "Address framework compatibility findings before runtime validation."
+                ],
+                "evidence": [
+                    "plan-1",
+                    "laravel-framework-constraint-1",
+                    "laravel-php-constraint-1"
+                ]
+            },
+            {
+                "name": "validation",
+                "summary": "Validate the upgraded project on the target runtime before release.",
+                "actions": [
+                    "Validate the Composer manifest and installed platform requirements.",
+                    "Run the project test suite and focused regression tests."
+                ],
+                "evidence": [
+                    "plan-1"
+                ]
+            }
+        ]
+    },
+    "risk": {
+        "level": "high",
+        "drivers": [
+            "Composer resolution is blocked.",
+            "Framework compatibility findings require review."
+        ]
+    },
+    "effort": {
+        "range_hours": [
+            6,
+            20
+        ],
+        "confidence": "low",
+        "components": {
+            "dependency_resolution": [
+                3,
+                8
+            ],
+            "source_changes": [
+                1,
+                4
+            ],
+            "tests_and_debugging": [
+                2,
+                8
+            ]
+        },
+        "assumptions": [
+            "Estimate is heuristic until project-specific tests and Composer solver output are reviewed."
+        ]
+    },
+    "tests": [
+        {
+            "name": "composer-validation",
+            "purpose": "Validate the edited Composer manifest before dependency installation.",
+            "command": "composer validate --strict",
+            "priority": "required"
+        },
+        {
+            "name": "project-test-suite",
+            "purpose": "Identify and run the project test suite; no Composer test script was detected.",
+            "command": null,
+            "priority": "required"
+        },
+        {
+            "name": "platform-requirements",
+            "purpose": "Confirm the installed dependencies satisfy PHP 8.1.0 and the deployment extensions.",
+            "command": "composer check-platform-reqs",
+            "priority": "required"
+        },
+        {
+            "name": "focused-regressions",
+            "purpose": "Add or run focused regression coverage for the reported source and framework findings.",
+            "command": null,
+            "priority": "recommended"
+        }
+    ],
+    "uncertainties": [
+        "No PHP source files were scanned.",
+        "Dependency resolution does not prove application runtime compatibility; the project test suite must run on the target runtime.",
+        "Root PHP constraint \"^7.4\" does not include target platform PHP 8.1.0; select an appropriate Composer constraint instead of using the exact simulated platform version.",
+        "No Composer \"test\" script was found, so the project's canonical test command is unknown."
+    ],
+    "evidence": [
+        {
+            "id": "solver-1",
+            "class": "E1",
+            "summary": "Composer scenario \"exact-target\" failed.",
+            "confidence": "high",
+            "context": {
+                "scenario": "exact-target",
+                "targets": [
+                    {
+                        "package": "laravel/framework",
+                        "constraint": "^9.0"
+                    },
+                    {
+                        "package": "php",
+                        "constraint": "8.1.0"
+                    }
+                ],
+                "exit_code": 2,
+                "output_excerpt": "Your requirements could not be resolved to an installable set of packages.\nProblem 1\n- fixture/runtime-guard 1.0.0 requires php ^7.4 -> your php version (8.1.0) does not satisfy that requirement.\nProblem 2\n- fixture/runtime-guard 1.0.0 requires ext-preflight_fixture * -> it is missing from your system.",
+                "diagnostics": [
+                    {
+                        "package": "laravel/framework",
+                        "constraint": "^9.0",
+                        "command": [
+                            "composer",
+                            "prohibits",
+                            "laravel/framework",
+                            "^9.0",
+                            "--tree",
+                            "--locked",
+                            "--no-scripts",
+                            "--no-plugins",
+                            "--no-interaction"
+                        ],
+                        "exit_code": 1,
+                        "stdout_excerpt": "",
+                        "stderr_excerpt": "No additional fixture diagnostic."
+                    },
+                    {
+                        "package": "php",
+                        "constraint": "8.1.0",
+                        "command": [
+                            "composer",
+                            "prohibits",
+                            "php",
+                            "8.1.0",
+                            "--tree",
+                            "--locked",
+                            "--no-scripts",
+                            "--no-plugins",
+                            "--no-interaction"
+                        ],
+                        "exit_code": 1,
+                        "stdout_excerpt": "",
+                        "stderr_excerpt": "No additional fixture diagnostic."
+                    }
+                ]
+            }
+        },
+        {
+            "id": "solver-2",
+            "class": "E1",
+            "summary": "Composer scenario \"target-with-all-dependencies\" failed.",
+            "confidence": "high",
+            "context": {
+                "scenario": "target-with-all-dependencies",
+                "targets": [
+                    {
+                        "package": "laravel/framework",
+                        "constraint": "^9.0"
+                    },
+                    {
+                        "package": "php",
+                        "constraint": "8.1.0"
+                    }
+                ],
+                "exit_code": 2,
+                "output_excerpt": "Your requirements could not be resolved to an installable set of packages.\nProblem 1\n- fixture/runtime-guard 1.0.0 requires php ^7.4 -> your php version (8.1.0) does not satisfy that requirement.\nProblem 2\n- fixture/runtime-guard 1.0.0 requires ext-preflight_fixture * -> it is missing from your system.",
+                "diagnostics": [
+                    {
+                        "package": "laravel/framework",
+                        "constraint": "^9.0",
+                        "command": [
+                            "composer",
+                            "prohibits",
+                            "laravel/framework",
+                            "^9.0",
+                            "--tree",
+                            "--locked",
+                            "--no-scripts",
+                            "--no-plugins",
+                            "--no-interaction"
+                        ],
+                        "exit_code": 1,
+                        "stdout_excerpt": "",
+                        "stderr_excerpt": "No additional fixture diagnostic."
+                    },
+                    {
+                        "package": "php",
+                        "constraint": "8.1.0",
+                        "command": [
+                            "composer",
+                            "prohibits",
+                            "php",
+                            "8.1.0",
+                            "--tree",
+                            "--locked",
+                            "--no-scripts",
+                            "--no-plugins",
+                            "--no-interaction"
+                        ],
+                        "exit_code": 1,
+                        "stdout_excerpt": "",
+                        "stderr_excerpt": "No additional fixture diagnostic."
+                    }
+                ]
+            }
+        },
+        {
+            "id": "solver-3",
+            "class": "E1",
+            "summary": "Composer scenario \"minimal-changes\" failed.",
+            "confidence": "high",
+            "context": {
+                "scenario": "minimal-changes",
+                "targets": [
+                    {
+                        "package": "laravel/framework",
+                        "constraint": "^9.0"
+                    },
+                    {
+                        "package": "php",
+                        "constraint": "8.1.0"
+                    }
+                ],
+                "exit_code": 2,
+                "output_excerpt": "Your requirements could not be resolved to an installable set of packages.\nProblem 1\n- fixture/runtime-guard 1.0.0 requires php ^7.4 -> your php version (8.1.0) does not satisfy that requirement.\nProblem 2\n- fixture/runtime-guard 1.0.0 requires ext-preflight_fixture * -> it is missing from your system.",
+                "diagnostics": [
+                    {
+                        "package": "laravel/framework",
+                        "constraint": "^9.0",
+                        "command": [
+                            "composer",
+                            "prohibits",
+                            "laravel/framework",
+                            "^9.0",
+                            "--tree",
+                            "--locked",
+                            "--no-scripts",
+                            "--no-plugins",
+                            "--no-interaction"
+                        ],
+                        "exit_code": 1,
+                        "stdout_excerpt": "",
+                        "stderr_excerpt": "No additional fixture diagnostic."
+                    },
+                    {
+                        "package": "php",
+                        "constraint": "8.1.0",
+                        "command": [
+                            "composer",
+                            "prohibits",
+                            "php",
+                            "8.1.0",
+                            "--tree",
+                            "--locked",
+                            "--no-scripts",
+                            "--no-plugins",
+                            "--no-interaction"
+                        ],
+                        "exit_code": 1,
+                        "stdout_excerpt": "",
+                        "stderr_excerpt": "No additional fixture diagnostic."
+                    }
+                ]
+            }
+        },
+        {
+            "id": "solver-4",
+            "class": "E1",
+            "summary": "Composer scenario \"target-platform-only\" failed.",
+            "confidence": "high",
+            "context": {
+                "scenario": "target-platform-only",
+                "targets": [
+                    {
+                        "package": "php",
+                        "constraint": "8.1.0"
+                    }
+                ],
+                "exit_code": 2,
+                "output_excerpt": "Your requirements could not be resolved to an installable set of packages.\nProblem 1\n- fixture/runtime-guard 1.0.0 requires php ^7.4 -> your php version (8.1.0) does not satisfy that requirement.\nProblem 2\n- fixture/runtime-guard 1.0.0 requires ext-preflight_fixture * -> it is missing from your system.",
+                "diagnostics": [
+                    {
+                        "package": "php",
+                        "constraint": "8.1.0",
+                        "command": [
+                            "composer",
+                            "prohibits",
+                            "php",
+                            "8.1.0",
+                            "--tree",
+                            "--locked",
+                            "--no-scripts",
+                            "--no-plugins",
+                            "--no-interaction"
+                        ],
+                        "exit_code": 1,
+                        "stdout_excerpt": "",
+                        "stderr_excerpt": "No additional fixture diagnostic."
+                    }
+                ]
+            }
+        },
+        {
+            "id": "solver-5",
+            "class": "E1",
+            "summary": "Composer scenario \"staged-targets\" failed.",
+            "confidence": "high",
+            "context": {
+                "scenario": "staged-targets",
+                "targets": [
+                    {
+                        "package": "laravel/framework",
+                        "constraint": "^9.0"
+                    },
+                    {
+                        "package": "php",
+                        "constraint": "7.4.0"
+                    }
+                ],
+                "exit_code": 2,
+                "output_excerpt": "Your requirements could not be resolved to an installable set of packages.\nProblem 1\n- fixture/runtime-guard 1.0.0 requires php ^7.4 -> your php version (8.1.0) does not satisfy that requirement.\nProblem 2\n- fixture/runtime-guard 1.0.0 requires ext-preflight_fixture * -> it is missing from your system.",
+                "diagnostics": [
+                    {
+                        "package": "laravel/framework",
+                        "constraint": "^9.0",
+                        "command": [
+                            "composer",
+                            "prohibits",
+                            "laravel/framework",
+                            "^9.0",
+                            "--tree",
+                            "--locked",
+                            "--no-scripts",
+                            "--no-plugins",
+                            "--no-interaction"
+                        ],
+                        "exit_code": 1,
+                        "stdout_excerpt": "",
+                        "stderr_excerpt": "No additional fixture diagnostic."
+                    }
+                ]
+            }
+        },
+        {
+            "id": "laravel-framework-constraint-1",
+            "class": "E2",
+            "summary": "The root Laravel framework constraint does not include the requested target major.",
+            "confidence": "high",
+            "context": {
+                "package": "laravel/framework",
+                "root_constraint": "^7.0",
+                "target_constraint": "^9.0",
+                "target_laravel_major": 9
+            }
+        },
+        {
+            "id": "laravel-php-constraint-1",
+            "class": "E2",
+            "summary": "The detected PHP target or root constraint does not satisfy the Laravel target PHP range.",
+            "confidence": "high",
+            "context": {
+                "observation": "target_php",
+                "observed_php": "8.1.0",
+                "root_php_constraint": "^7.4",
+                "required_php": "^8.0.2",
+                "target_laravel_major": 9,
+                "laravel_range_satisfied": true,
+                "root_constraint_satisfied": false
+            }
+        },
+        {
+            "id": "root-constraint-1",
+            "class": "E2",
+            "summary": "Compared the root requirement for laravel/framework with the requested target.",
+            "confidence": "high",
+            "context": {
+                "package": "laravel/framework",
+                "from_constraint": "^7.0",
+                "to_constraint": "^9.0"
+            }
+        },
+        {
+            "id": "plan-1",
+            "class": "E5",
+            "summary": "Generated conservative staged actions from the requested targets and detected findings.",
+            "confidence": "low",
+            "context": {
+                "target_count": 2,
+                "root_constraint_change_count": 1,
+                "blocker_count": 3,
+                "source_finding_count": 0,
+                "framework_finding_count": 2
+            }
+        }
+    ]
+}

@@ -44,6 +44,7 @@ The core package must not depend on Laravel or another framework package. Keep f
 
 - Make the smallest coherent change that completes an active checklist item or a well-defined slice of it.
 - Add or update tests with every behavior change. Test failure paths as structured outcomes when analysis can continue.
+- Update every affected public document in the same change whenever behavior, commands, options, installation, compatibility, report schemas or semantics, limitations, troubleshooting, package metadata, or the release process changes. Review `README.md`, `docs/`, `CHANGELOG.md`, and contributor or security guidance as applicable before declaring the work complete.
 - Prefer typed value objects and phase-specific interfaces internally. Use arrays primarily at serialization and integration boundaries.
 - Make DTOs immutable where PHP 8.0 permits, and use explicit parameter and return types.
 - Normalize paths, target ordering, package ordering, evidence ordering, and temporary-directory values before snapshots or report serialization.

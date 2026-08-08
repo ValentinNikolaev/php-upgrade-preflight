@@ -7,11 +7,15 @@ namespace PhpUpgradePreflight\Laravel\Tests\Integration;
 use PhpUpgradePreflight\Core\Analysis\DefaultUpgradeAnalyzer;
 use PhpUpgradePreflight\Core\Composer\ComposerScenarioRunner;
 use PhpUpgradePreflight\Core\Model\Evidence;
+use PhpUpgradePreflight\Core\Model\ReportFormat;
 use PhpUpgradePreflight\Core\Model\UpgradeReport;
 use PhpUpgradePreflight\Core\Model\UpgradeRequest;
 use PhpUpgradePreflight\Core\Model\UpgradeTarget;
+use PhpUpgradePreflight\Core\Reporting\JsonReportWriter;
+use PhpUpgradePreflight\Core\Reporting\MarkdownReportWriter;
 use PhpUpgradePreflight\Laravel\LaravelFrameworkIntegration;
 use PhpUpgradePreflight\Tests\Support\FixtureSnapshot;
+use PhpUpgradePreflight\Tests\Support\JsonSnapshotNormalizer;
 use PHPUnit\Framework\TestCase;
 
 final class LaravelFixtureAnalysisTest extends TestCase
@@ -123,7 +127,43 @@ final class LaravelFixtureAnalysisTest extends TestCase
     {
         $projectPath = $this->fixturePath($fixture);
         $snapshot = FixtureSnapshot::capture($projectPath);
-        $runner = new ComposerScenarioRunner(null, null, static function (array $command, string $workingDirectory): array {
+
+        $jsonReport = $this->analyzeFixture($projectPath, $laravelTarget, $phpTarget, ReportFormat::JSON);
+        $markdownReport = $this->analyzeFixture($projectPath, $laravelTarget, $phpTarget, ReportFormat::MARKDOWN);
+
+        $snapshot->assertUnchanged($this);
+        $this->assertAllReferencesExist($jsonReport);
+        $this->assertAllReferencesExist($markdownReport);
+        $this->assertFormatParity($jsonReport, $markdownReport);
+        $this->assertApprovedSnapshots($fixture, $projectPath, $jsonReport, $markdownReport);
+
+        return $jsonReport;
+    }
+
+    private function analyzeFixture(
+        string $projectPath,
+        string $laravelTarget,
+        string $phpTarget,
+        string $format
+    ): UpgradeReport {
+        return (new DefaultUpgradeAnalyzer(
+            [new LaravelFrameworkIntegration()],
+            null,
+            $this->fixtureRunner()
+        ))->analyzeUpgrade(new UpgradeRequest(
+            $projectPath,
+            [new UpgradeTarget('laravel/framework', $laravelTarget)],
+            '7.4',
+            $phpTarget,
+            [],
+            [],
+            $format
+        ));
+    }
+
+    private function fixtureRunner(): ComposerScenarioRunner
+    {
+        return new ComposerScenarioRunner(null, null, static function (array $command, string $workingDirectory): array {
             $manifestContents = file_get_contents($workingDirectory . DIRECTORY_SEPARATOR . 'composer.json');
             if ($manifestContents === false) {
                 throw new \RuntimeException('Unable to read fixture manifest.');
@@ -187,23 +227,99 @@ final class LaravelFixtureAnalysisTest extends TestCase
             }
 
             throw new \RuntimeException('Unexpected Laravel fixture process invocation.');
+        }, null, static function (): float {
+            static $milliseconds = 0;
+
+            return $milliseconds++ / 1000;
         });
+    }
 
-        $report = (new DefaultUpgradeAnalyzer(
-            [new LaravelFrameworkIntegration()],
-            null,
-            $runner
-        ))->analyzeUpgrade(new UpgradeRequest(
+    private function assertApprovedSnapshots(
+        string $fixture,
+        string $projectPath,
+        UpgradeReport $jsonReport,
+        UpgradeReport $markdownReport
+    ): void {
+        $json = JsonSnapshotNormalizer::normalize(
+            (new JsonReportWriter())->render($jsonReport),
+            $projectPath
+        );
+        $markdown = $this->normalizeMarkdownSnapshot(
+            (new MarkdownReportWriter())->render($markdownReport),
             $projectPath,
-            [new UpgradeTarget('laravel/framework', $laravelTarget)],
-            '7.4',
-            $phpTarget
+            $markdownReport
+        );
+
+        $this->assertApprovedSnapshot($fixture . '.json', $json);
+        $this->assertApprovedSnapshot($fixture . '.md', $markdown);
+    }
+
+    private function assertApprovedSnapshot(string $name, string $actual): void
+    {
+        $path = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'Snapshots' . DIRECTORY_SEPARATOR . $name;
+
+        if (getenv('PHP_UPGRADE_PREFLIGHT_UPDATE_SNAPSHOTS') === '1') {
+            if (!is_dir(dirname($path)) && !mkdir(dirname($path), 0777, true) && !is_dir(dirname($path))) {
+                throw new \RuntimeException(sprintf('Unable to create snapshot directory "%s".', dirname($path)));
+            }
+            if (file_put_contents($path, $actual) === false) {
+                throw new \RuntimeException(sprintf('Unable to write snapshot "%s".', $path));
+            }
+        }
+
+        $expected = file_get_contents($path);
+        self::assertIsString($expected, sprintf(
+            'Missing approved snapshot %s. Set PHP_UPGRADE_PREFLIGHT_UPDATE_SNAPSHOTS=1 to create it.',
+            $name
         ));
+        self::assertSame($expected, $actual, sprintf('Fixture snapshot %s has changed.', $name));
+    }
 
-        $snapshot->assertUnchanged($this);
-        $this->assertAllReferencesExist($report);
+    private function assertFormatParity(UpgradeReport $jsonReport, UpgradeReport $markdownReport): void
+    {
+        $jsonCanonical = $jsonReport->toArray();
+        $markdownCanonical = $markdownReport->toArray();
 
-        return $report;
+        self::assertSame(ReportFormat::JSON, $jsonCanonical['request_summary']['format']);
+        self::assertSame(ReportFormat::MARKDOWN, $markdownCanonical['request_summary']['format']);
+
+        $jsonCanonical['request_summary']['format'] = '<FORMAT>';
+        $markdownCanonical['request_summary']['format'] = '<FORMAT>';
+
+        self::assertSame($jsonCanonical, $markdownCanonical);
+    }
+
+    private function normalizeMarkdownSnapshot(
+        string $markdown,
+        string $projectPath,
+        UpgradeReport $report
+    ): string {
+        $replacements = [];
+        foreach ([$projectPath, str_replace('\\', '/', $projectPath), str_replace('/', '\\', $projectPath)] as $path) {
+            $replacements[$path] = JsonSnapshotNormalizer::PROJECT_PATH;
+        }
+
+        foreach ($report->sourceImpact() as $usage) {
+            $replacements[$usage->file()] = str_replace('\\', '/', $usage->file());
+        }
+        foreach ($report->evidence() as $evidence) {
+            $file = $evidence->context()['file'] ?? null;
+            if (is_string($file)) {
+                $replacements[$file] = str_replace('\\', '/', $file);
+            }
+        }
+
+        uksort($replacements, static fn (string $left, string $right): int => strlen($right) <=> strlen($left));
+        foreach ($replacements as $from => $to) {
+            $markdown = str_replace([$from, json_encode($from, JSON_THROW_ON_ERROR)], [$to, json_encode($to, JSON_THROW_ON_ERROR)], $markdown);
+        }
+
+        $normalized = preg_replace('/duration `\d+ ms`/', 'duration `1 ms`', $markdown);
+        if ($normalized === null) {
+            throw new \RuntimeException('Unable to normalize Markdown scenario durations.');
+        }
+
+        return str_replace(["\r\n", "\r"], "\n", $normalized);
     }
 
     /** @param list<string> $expectedFindings */

@@ -2,7 +2,24 @@
   "name": "php-upgrade-preflight/cli",
   "description": "Generic CLI for PHP Upgrade Preflight.",
   "type": "library",
-  "license": "proprietary",
+  "license": "PolyForm-Noncommercial-1.0.0",
+  "keywords": [
+    "cli",
+    "composer",
+    "dependency-analysis",
+    "php",
+    "upgrade"
+  ],
+  "homepage": "https://github.com/ValentinNikolaev/php-upgrade-preflight",
+  "authors": [
+    {
+      "name": "Valentin Nikolaev"
+    }
+  ],
+  "support": {
+    "issues": "https://github.com/ValentinNikolaev/php-upgrade-preflight/issues",
+    "source": "https://github.com/ValentinNikolaev/php-upgrade-preflight/tree/main/packages/cli"
+  },
   "require": {
     "php": "^8.0",
     "php-upgrade-preflight/core": "^0.1"
@@ -22,5 +39,10 @@
   },
   "bin": [
     "bin/upgrade-intel"
-  ]
+  ],
+  "extra": {
+    "branch-alias": {
+      "dev-main": "0.1.x-dev"
+    }
+  }
 }

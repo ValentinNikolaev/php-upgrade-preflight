@@ -2,7 +2,17 @@
   "name": "php-upgrade-preflight/monorepo",
   "description": "Development monorepo for PHP Upgrade Preflight.",
   "type": "project",
-  "license": "proprietary",
+  "license": "PolyForm-Noncommercial-1.0.0",
+  "authors": [
+    {
+      "name": "Valentin Nikolaev"
+    }
+  ],
+  "homepage": "https://github.com/ValentinNikolaev/php-upgrade-preflight",
+  "support": {
+    "issues": "https://github.com/ValentinNikolaev/php-upgrade-preflight/issues",
+    "source": "https://github.com/ValentinNikolaev/php-upgrade-preflight"
+  },
   "repositories": [
     {
       "type": "path",
@@ -67,6 +77,7 @@
     "test:core": "phpunit --testsuite core",
     "test:cli": "phpunit --testsuite cli",
     "test:laravel": "phpunit --testsuite laravel",
+    "test:fixtures": "phpunit --filter LaravelFixtureAnalysisTest",
     "analyse": "phpstan analyse --memory-limit=512M",
     "lint": "php-cs-fixer fix --dry-run --diff",
     "check": [

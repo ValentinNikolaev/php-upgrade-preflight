@@ -2,7 +2,24 @@
   "name": "php-upgrade-preflight/laravel",
   "description": "Laravel adapter and rules for PHP Upgrade Preflight.",
   "type": "library",
-  "license": "proprietary",
+  "license": "PolyForm-Noncommercial-1.0.0",
+  "keywords": [
+    "composer",
+    "dependency-analysis",
+    "laravel",
+    "php",
+    "upgrade"
+  ],
+  "homepage": "https://github.com/ValentinNikolaev/php-upgrade-preflight",
+  "authors": [
+    {
+      "name": "Valentin Nikolaev"
+    }
+  ],
+  "support": {
+    "issues": "https://github.com/ValentinNikolaev/php-upgrade-preflight/issues",
+    "source": "https://github.com/ValentinNikolaev/php-upgrade-preflight/tree/main/packages/laravel"
+  },
   "require": {
     "php": "^8.0",
     "composer/semver": "^3.4",
@@ -21,6 +38,9 @@
     }
   },
   "extra": {
+    "branch-alias": {
+      "dev-main": "0.1.x-dev"
+    },
     "laravel": {
       "providers": [
         "PhpUpgradePreflight\\Laravel\\UpgradePreflightServiceProvider"

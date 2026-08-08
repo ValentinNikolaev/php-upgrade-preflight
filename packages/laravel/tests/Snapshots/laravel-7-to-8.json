@@ -1,0 +1,396 @@
+{
+    "metadata": {
+        "schema_version": "0.6",
+        "tool": {
+            "name": "php-upgrade-preflight",
+            "version": "0.1.0"
+        }
+    },
+    "request_summary": {
+        "project_path": "<PROJECT_PATH>",
+        "targets": [
+            {
+                "package": "laravel/framework",
+                "constraint": "^8.0"
+            },
+            {
+                "package": "php",
+                "constraint": "8.0.0"
+            }
+        ],
+        "from_php": "7.4",
+        "target_php": "8.0.0",
+        "source_paths": [],
+        "frameworks": [],
+        "format": "json",
+        "output_path": null
+    },
+    "project_state": {
+        "path": "<PROJECT_PATH>",
+        "platform_php": "7.4.33",
+        "root_requirements": {
+            "php": "^7.4 || ^8.0",
+            "laravel/framework": "^7.0"
+        },
+        "locked_packages": 1
+    },
+    "resolution": {
+        "status": "feasible_with_changes",
+        "scenarios": [
+            {
+                "name": "baseline-validation",
+                "composer_version": null,
+                "command": [
+                    "composer",
+                    "validate",
+                    "--check-lock",
+                    "--no-check-publish",
+                    "--no-scripts",
+                    "--no-plugins",
+                    "--no-interaction"
+                ],
+                "duration_ms": 1,
+                "exit_code": 0,
+                "succeeded": true,
+                "outcome": "success",
+                "failure_type": null,
+                "stdout_excerpt": "Fixture baseline is valid.",
+                "stderr_excerpt": "",
+                "candidate_lock": {
+                    "sha256": "f5c68267ae8dd17ac99cb55577fe45208367c358e8be650d2b908d6c2207ca18",
+                    "content_hash": "laravel-7-to-8",
+                    "package_count": 1
+                },
+                "diagnostics": [],
+                "temp_path": null
+            },
+            {
+                "name": "exact-target",
+                "composer_version": null,
+                "command": [
+                    "composer",
+                    "update",
+                    "laravel/framework",
+                    "--no-scripts",
+                    "--no-plugins",
+                    "--no-install",
+                    "--no-interaction"
+                ],
+                "duration_ms": 1,
+                "exit_code": 0,
+                "succeeded": true,
+                "outcome": "success",
+                "failure_type": null,
+                "stdout_excerpt": "Fixture target resolved.",
+                "stderr_excerpt": "",
+                "candidate_lock": {
+                    "sha256": "8ae5491363cf02faf31066502efc71434bfea78b873276b1cabb7962f9f8371a",
+                    "content_hash": "candidate-v8.83.27",
+                    "package_count": 1
+                },
+                "diagnostics": [],
+                "temp_path": null
+            },
+            {
+                "name": "target-with-all-dependencies",
+                "composer_version": null,
+                "command": [
+                    "composer",
+                    "update",
+                    "laravel/framework",
+                    "--with-all-dependencies",
+                    "--no-scripts",
+                    "--no-plugins",
+                    "--no-install",
+                    "--no-interaction"
+                ],
+                "duration_ms": 1,
+                "exit_code": 0,
+                "succeeded": true,
+                "outcome": "success",
+                "failure_type": null,
+                "stdout_excerpt": "Fixture target resolved.",
+                "stderr_excerpt": "",
+                "candidate_lock": {
+                    "sha256": "8ae5491363cf02faf31066502efc71434bfea78b873276b1cabb7962f9f8371a",
+                    "content_hash": "candidate-v8.83.27",
+                    "package_count": 1
+                },
+                "diagnostics": [],
+                "temp_path": null
+            },
+            {
+                "name": "minimal-changes",
+                "composer_version": null,
+                "command": [
+                    "composer",
+                    "update",
+                    "laravel/framework",
+                    "--with-all-dependencies",
+                    "--minimal-changes",
+                    "--no-scripts",
+                    "--no-plugins",
+                    "--no-install",
+                    "--no-interaction"
+                ],
+                "duration_ms": 1,
+                "exit_code": 0,
+                "succeeded": true,
+                "outcome": "success",
+                "failure_type": null,
+                "stdout_excerpt": "Fixture target resolved.",
+                "stderr_excerpt": "",
+                "candidate_lock": {
+                    "sha256": "8ae5491363cf02faf31066502efc71434bfea78b873276b1cabb7962f9f8371a",
+                    "content_hash": "candidate-v8.83.27",
+                    "package_count": 1
+                },
+                "diagnostics": [],
+                "temp_path": null
+            },
+            {
+                "name": "target-platform-only",
+                "composer_version": null,
+                "command": [
+                    "composer",
+                    "update",
+                    "--no-scripts",
+                    "--no-plugins",
+                    "--no-install",
+                    "--no-interaction"
+                ],
+                "duration_ms": 1,
+                "exit_code": 0,
+                "succeeded": true,
+                "outcome": "success",
+                "failure_type": null,
+                "stdout_excerpt": "Fixture target resolved.",
+                "stderr_excerpt": "",
+                "candidate_lock": {
+                    "sha256": "f5c68267ae8dd17ac99cb55577fe45208367c358e8be650d2b908d6c2207ca18",
+                    "content_hash": "laravel-7-to-8",
+                    "package_count": 1
+                },
+                "diagnostics": [],
+                "temp_path": null
+            },
+            {
+                "name": "staged-targets",
+                "composer_version": null,
+                "command": [
+                    "composer",
+                    "update",
+                    "laravel/framework",
+                    "--with-all-dependencies",
+                    "--no-scripts",
+                    "--no-plugins",
+                    "--no-install",
+                    "--no-interaction"
+                ],
+                "duration_ms": 1,
+                "exit_code": 0,
+                "succeeded": true,
+                "outcome": "success",
+                "failure_type": null,
+                "stdout_excerpt": "Fixture target resolved.",
+                "stderr_excerpt": "",
+                "candidate_lock": {
+                    "sha256": "8ae5491363cf02faf31066502efc71434bfea78b873276b1cabb7962f9f8371a",
+                    "content_hash": "candidate-v8.83.27",
+                    "package_count": 1
+                },
+                "diagnostics": [],
+                "temp_path": null
+            }
+        ]
+    },
+    "transition": {
+        "package_changes": [
+            {
+                "name": "laravel/framework",
+                "change_type": "upgraded",
+                "from_version": "v7.30.7",
+                "to_version": "v8.83.27",
+                "direct": true,
+                "major_change": true,
+                "package_families": [
+                    "laravel"
+                ],
+                "from_source_reference": null,
+                "to_source_reference": null,
+                "from_dist_reference": null,
+                "to_dist_reference": null
+            }
+        ],
+        "root_constraint_changes": [
+            {
+                "package": "laravel/framework",
+                "change_type": "updated",
+                "from_constraint": "^7.0",
+                "to_constraint": "^8.0",
+                "reason": "The declared root constraint differs from the requested target.",
+                "evidence": [
+                    "root-constraint-1"
+                ]
+            }
+        ]
+    },
+    "blockers": [],
+    "source_impact": [],
+    "framework_findings": [
+        {
+            "framework": "laravel",
+            "severity": "high",
+            "summary": "Update the root laravel/framework constraint from `^7.0` to a constraint compatible with Laravel 8.",
+            "evidence": [
+                "laravel-framework-constraint-1"
+            ]
+        }
+    ],
+    "plan": {
+        "stages": [
+            {
+                "name": "constraints",
+                "summary": "Prepare the requested root constraint changes before dependency resolution.",
+                "actions": [
+                    "Update the `laravel/framework` root constraint to `^8.0`."
+                ],
+                "evidence": [
+                    "plan-1",
+                    "root-constraint-1"
+                ]
+            },
+            {
+                "name": "dependencies",
+                "summary": "Apply and review the successful dependency transition.",
+                "actions": [
+                    "Regenerate `composer.lock` with the smallest successful dependency transition."
+                ],
+                "evidence": [
+                    "plan-1"
+                ]
+            },
+            {
+                "name": "application",
+                "summary": "Apply source and framework migration work after dependency resolution is stable.",
+                "actions": [
+                    "Address framework compatibility findings before runtime validation."
+                ],
+                "evidence": [
+                    "plan-1",
+                    "laravel-framework-constraint-1"
+                ]
+            },
+            {
+                "name": "validation",
+                "summary": "Validate the upgraded project on the target runtime before release.",
+                "actions": [
+                    "Validate the Composer manifest and installed platform requirements.",
+                    "Run the project test suite and focused regression tests."
+                ],
+                "evidence": [
+                    "plan-1"
+                ]
+            }
+        ]
+    },
+    "risk": {
+        "level": "low",
+        "drivers": [
+            "Framework compatibility findings require review."
+        ]
+    },
+    "effort": {
+        "range_hours": [
+            4,
+            13
+        ],
+        "confidence": "low",
+        "components": {
+            "dependency_resolution": [
+                1,
+                2
+            ],
+            "source_changes": [
+                1,
+                3
+            ],
+            "tests_and_debugging": [
+                2,
+                8
+            ]
+        },
+        "assumptions": [
+            "Estimate is heuristic until project-specific tests and Composer solver output are reviewed."
+        ]
+    },
+    "tests": [
+        {
+            "name": "composer-validation",
+            "purpose": "Validate the edited Composer manifest before dependency installation.",
+            "command": "composer validate --strict",
+            "priority": "required"
+        },
+        {
+            "name": "project-test-suite",
+            "purpose": "Identify and run the project test suite; no Composer test script was detected.",
+            "command": null,
+            "priority": "required"
+        },
+        {
+            "name": "platform-requirements",
+            "purpose": "Confirm the installed dependencies satisfy PHP 8.0.0 and the deployment extensions.",
+            "command": "composer check-platform-reqs",
+            "priority": "required"
+        },
+        {
+            "name": "focused-regressions",
+            "purpose": "Add or run focused regression coverage for the reported source and framework findings.",
+            "command": null,
+            "priority": "recommended"
+        }
+    ],
+    "uncertainties": [
+        "No PHP source files were scanned.",
+        "Dependency resolution does not prove application runtime compatibility; the project test suite must run on the target runtime.",
+        "No Composer \"test\" script was found, so the project's canonical test command is unknown."
+    ],
+    "evidence": [
+        {
+            "id": "laravel-framework-constraint-1",
+            "class": "E2",
+            "summary": "The root Laravel framework constraint does not include the requested target major.",
+            "confidence": "high",
+            "context": {
+                "package": "laravel/framework",
+                "root_constraint": "^7.0",
+                "target_constraint": "^8.0",
+                "target_laravel_major": 8
+            }
+        },
+        {
+            "id": "root-constraint-1",
+            "class": "E2",
+            "summary": "Compared the root requirement for laravel/framework with the requested target.",
+            "confidence": "high",
+            "context": {
+                "package": "laravel/framework",
+                "from_constraint": "^7.0",
+                "to_constraint": "^8.0"
+            }
+        },
+        {
+            "id": "plan-1",
+            "class": "E5",
+            "summary": "Generated conservative staged actions from the requested targets and detected findings.",
+            "confidence": "low",
+            "context": {
+                "target_count": 2,
+                "root_constraint_change_count": 1,
+                "blocker_count": 0,
+                "source_finding_count": 0,
+                "framework_finding_count": 1
+            }
+        }
+    ]
+}

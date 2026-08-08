@@ -180,10 +180,12 @@ Acceptance gate: CLI and Artisan end-to-end tests produce equivalent canonical d
 
 ## Milestone 8: v0.1 Hardening and Release
 
-- [ ] Run all six required fixture scenarios and approve JSON/Markdown snapshots.
-- [ ] Test Windows and Unix path/process behavior.
-- [ ] Add installation, external-analysis, CLI, Artisan, schema, limitations, and troubleshooting documentation.
-- [ ] Add changelog, contribution guidance, security policy, release checklist, and package metadata needed for Packagist.
+Status: release hardening implemented on 2026-08-08; distribution smoke tests and tagging remain.
+
+- [x] Run all six required fixture scenarios and approve JSON/Markdown snapshots.
+- [x] Test Windows and Unix path/process behavior.
+- [x] Add installation, external-analysis, CLI, Artisan, schema, limitations, and troubleshooting documentation.
+- [x] Add changelog, contribution guidance, security policy, release checklist, and package metadata needed for Packagist.
 - [ ] Review dependency floors against PHP 8.0 and Laravel 8/9/10 installability.
 - [ ] Perform a clean-install smoke test and read-only audit from a fresh clone.
 - [ ] Tag package versions consistently and prepare the v0.1 release.
@@ -192,6 +194,8 @@ Acceptance gate: a fresh user can install and run the analyzer against the docum
 
 ## Recommended Next Work Session
 
-Milestones 0 through 7 are complete. Continue with Milestone 8:
+Milestones 0 through 7 and the release-hardening work are complete. Continue with Milestone 8 distribution checks:
 
-1. Run all six required fixture scenarios and approve the JSON/Markdown snapshots.
+1. Review dependency floors against PHP 8.0 and Laravel 8/9/10 installability.
+2. Perform the clean-install and fresh-clone checks in `docs/release-checklist.md`.
+3. Split and tag the three distribution packages after every release gate passes.
