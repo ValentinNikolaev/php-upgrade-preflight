@@ -24,22 +24,23 @@ jobs:
     name: Release metadata gate
     runs-on: ubuntu-latest
     env:
-      GH_TOKEN: ${{ github.token }}
-      RELEASE_VERSION: ${{ github.ref_type == 'tag' && github.ref_name || inputs.version }}
+      RELEASE_VERSION: ${{ github.event_name == 'push' && github.ref_type == 'tag' && github.ref_name || inputs.version }}
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           fetch-depth: 0
 
       - name: Normalize tag version
-        if: github.ref_type == 'tag'
+        if: github.event_name == 'push' && github.ref_type == 'tag'
         shell: bash
         run: echo "RELEASE_VERSION=${RELEASE_VERSION#v}" >> "${GITHUB_ENV}"
 
       - name: Verify signed release tag from main
-        if: github.ref_type == 'tag'
+        if: github.event_name == 'push' && github.ref_type == 'tag'
         shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
 
@@ -66,13 +67,13 @@ jobs:
           fi
 
       - name: Set up PHP 8.0
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@b604ade2a87db23f8871b7182e69ec5e75effb45 # v2
         with:
           php-version: '8.0'
           coverage: none
 
       - name: Install locked dependencies
-        uses: ramsey/composer-install@v3
+        uses: ramsey/composer-install@a8d0d959dab41457692a5e2041bd9b757a119e3f # v3
         with:
           composer-options: --prefer-dist --no-progress
 
@@ -91,7 +92,7 @@ jobs:
     name: Fresh clone / ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     env:
-      RELEASE_VERSION: ${{ github.ref_type == 'tag' && github.ref_name || inputs.version }}
+      RELEASE_VERSION: ${{ github.event_name == 'push' && github.ref_type == 'tag' && github.ref_name || inputs.version }}
     strategy:
       fail-fast: false
       matrix:
@@ -100,12 +101,12 @@ jobs:
           - windows-latest
     steps:
       - name: Check out release candidate
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           fetch-depth: 1
 
       - name: Set up PHP 8.0
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@b604ade2a87db23f8871b7182e69ec5e75effb45 # v2
         with:
           php-version: '8.0'
           coverage: none
@@ -209,18 +210,18 @@ jobs:
       - fresh-clone-audit
     runs-on: ubuntu-latest
     env:
-      RELEASE_VERSION: ${{ github.ref_type == 'tag' && github.ref_name || inputs.version }}
+      RELEASE_VERSION: ${{ github.event_name == 'push' && github.ref_type == 'tag' && github.ref_name || inputs.version }}
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
       - name: Normalize tag version
-        if: github.ref_type == 'tag'
+        if: github.event_name == 'push' && github.ref_type == 'tag'
         shell: bash
         run: echo "RELEASE_VERSION=${RELEASE_VERSION#v}" >> "${GITHUB_ENV}"
 
       - name: Set up PHP
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@b604ade2a87db23f8871b7182e69ec5e75effb45 # v2
         with:
           php-version: '8.0'
           coverage: none
@@ -254,7 +255,7 @@ jobs:
         run: php tools/verify-secret-leaks.php dist
 
       - name: Upload release archives
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: release-archives
           path: dist/*
@@ -266,25 +267,25 @@ jobs:
       - package
     runs-on: ubuntu-latest
     env:
-      RELEASE_VERSION: ${{ github.ref_type == 'tag' && github.ref_name || inputs.version }}
+      RELEASE_VERSION: ${{ github.event_name == 'push' && github.ref_type == 'tag' && github.ref_name || inputs.version }}
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
       - name: Normalize tag version
-        if: github.ref_type == 'tag'
+        if: github.event_name == 'push' && github.ref_type == 'tag'
         shell: bash
         run: echo "RELEASE_VERSION=${RELEASE_VERSION#v}" >> "${GITHUB_ENV}"
 
       - name: Set up PHP
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@b604ade2a87db23f8871b7182e69ec5e75effb45 # v2
         with:
           php-version: '8.1'
           coverage: none
           extensions: zip
 
       - name: Download release archives
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
           name: release-archives
           path: dist
@@ -467,49 +468,48 @@ jobs:
 
   publish:
     name: Publish GitHub release
-    if: github.ref_type == 'tag'
+    if: github.event_name == 'push' && github.ref_type == 'tag'
     needs:
       - artifact-consumer
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    env:
-      GH_TOKEN: ${{ github.token }}
-      RELEASE_VERSION: ${{ github.ref_name }}
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
-
-      - name: Download release archives
-        uses: actions/download-artifact@v4
-        with:
-          name: release-archives
-          path: dist
-
-      - name: Set up PHP for final artifact scan
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.0'
-          coverage: none
-          extensions: zip
-
-      - name: Re-scan downloaded release archives
-        run: php tools/verify-secret-leaks.php dist
-
       - name: Create GitHub release
         shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_VERSION: ${{ github.ref_name }}
         run: |
           set -euo pipefail
           version="${RELEASE_VERSION#v}"
+
+          mkdir -p dist
+          gh run download "${GITHUB_RUN_ID}" \
+            --repo "${GITHUB_REPOSITORY}" \
+            --name release-archives \
+            --dir dist
+          test "$(find dist -maxdepth 1 -type f -name '*.zip' | wc -l)" -eq 3
+          test "$(find dist -maxdepth 1 -type f | wc -l)" -eq 4
+          test -f dist/SHA256SUMS
+          test "$(wc -l < dist/SHA256SUMS)" -eq 3
+          (cd dist && sha256sum --check --strict SHA256SUMS)
+
+          gh api \
+            "repos/${GITHUB_REPOSITORY}/contents/docs/releases/v${version}.md?ref=${GITHUB_REF_NAME}" \
+            --jq '.content' \
+            | base64 --decode > release-notes.md
+          test -s release-notes.md
+
           if gh release view "${RELEASE_VERSION}" >/dev/null 2>&1; then
             gh release upload "${RELEASE_VERSION}" dist/* --clobber
             gh release edit "${RELEASE_VERSION}" \
               --title="PHP Upgrade Preflight ${RELEASE_VERSION}" \
-              --notes-file="docs/releases/v${version}.md"
+              --notes-file=release-notes.md
           else
             gh release create "${RELEASE_VERSION}" \
               dist/* \
               --verify-tag \
               --title="PHP Upgrade Preflight ${RELEASE_VERSION}" \
-              --notes-file="docs/releases/v${version}.md"
+              --notes-file=release-notes.md
           fi
