@@ -2,7 +2,7 @@
 
 Last updated: 2026-08-08
 
-This roadmap supersedes the [v0.1.0 implementation plan](DEVELOPMENT_PLAN_0.1.0.md). It covers the remaining v0.1.0 release work, a short v0.1.x stabilization line, and the v0.2.0 feature line.
+This roadmap supersedes the [v0.1.0 implementation plan](DEVELOPMENT_PLAN_0.1.0.md). It records the completed v0.1.0 release, a short v0.1.x stabilization line, and the v0.2.0 feature line.
 
 ## How to Use This Plan
 
@@ -17,8 +17,9 @@ This roadmap supersedes the [v0.1.0 implementation plan](DEVELOPMENT_PLAN_0.1.0.
 
 Repository state recorded on 2026-08-08:
 
-- The v0.1.0 implementation and local distribution gates exist, but signed tags, distribution repositories, and Packagist publication are incomplete. Candidate `55e5f79` passed the manual Release workflow and reached `origin/main`; post-review workflow security hardening requires one final candidate run before tagging.
-- The post-review candidate passes `docker compose run --rm php composer check` with 328 tests and 2,075 assertions, PHPStan, and PHP CS Fixer.
+- v0.1.0 was published from `a8d1548` with matching GitHub-verified signed tags in the monorepo and all three history-preserving distribution repositories. The final Release run passed all 28 jobs and published checksummed archives.
+- Packagist auto-updates `php-upgrade-preflight/core`, `php-upgrade-preflight/cli`, and `php-upgrade-preflight/laravel` at `v0.1.0`; the monorepo root package was not submitted. A clean Packagist-only quick start reproduced the JSON analysis and fixture immutability proof.
+- The release commit passes `docker compose run --rm php composer check` with 328 tests and 2,077 assertions, PHPStan, and PHP CS Fixer.
 - Tool version `0.1.0` emits canonical JSON schema `0.6`; Markdown projects the same report.
 - Core handles generic Composer and PHP targets. The Laravel rule pack handles Laravel 7 projects targeting Laravel 8 or 9.
 - The Laravel adapter can coexist with Laravel 8 through 12, but installability does not mean that later upgrade paths have rules.
@@ -28,7 +29,6 @@ The remaining gaps determine the milestone order:
 
 | Gap                                                            | Repository evidence                                                                        | Roadmap response   |
 |----------------------------------------------------------------|--------------------------------------------------------------------------------------------|--------------------|
-| v0.1.0 has no completed distribution                           | Archived plan and `docs/release-checklist.md` retain unsigned-tag and Packagist work       | Milestone 0        |
 | Extension results depend on the analyzer host                  | `ComposerScenarioRunner` simulates PHP but not an explicit extension set                   | Milestone 2        |
 | Source impact is an unranked AST inventory                     | `SourceUsageScanner` emits every usage and `RiskAndEffortEstimator` counts them directly   | Milestone 3        |
 | Laravel source and target versions are hard-coded to 7 and 8/9 | `LaravelTarget::isLaravel7Project()` and `singleSupportedMajor()` encode the current range | Milestones 4 and 5 |
@@ -78,14 +78,16 @@ Priority: P0. Do this before changing package development versions to `0.2.x-dev
 - [x] Add a release-artifact consumer job that verifies `SHA256SUMS`, installs all three generated ZIP packages in clean projects, runs `upgrade-intel --help`, performs one JSON analysis, and boots Laravel package discovery.
 - [x] Replace the Laravel compatibility `class_exists` smoke with an application boot that verifies provider discovery, analyzer binding, command registration, and one harmless command invocation for each supported host line.
 - [x] Add a synthetic Composer-output fixture containing credentials, tokens, and private repository URLs. Block publication if any secret reaches JSON, Markdown, CI logs, or release artifacts.
-- [ ] Re-run the manual `Release` workflow for `0.1.0` after the post-review workflow security hardening, then review the deterministic matrix, compatibility matrix, fresh-clone audits, generated archives, and checksums.
-- [ ] Push the approved release commit to `main`.
-- [ ] Create matching annotated, verified signed `v0.1.0` tags in the monorepo and all three distribution repositories.
-- [ ] Publish or synchronize `core`, `cli`, and `laravel` on Packagist. Do not publish the monorepo root package.
-- [ ] Install `php-upgrade-preflight/cli:^0.1` and `php-upgrade-preflight/laravel:^0.1` from Packagist in an empty tools directory and reproduce the README quick start.
-- [ ] Confirm the published analysis leaves the target fixture byte-for-byte unchanged, then record the release URL and CI evidence in the release notes or checklist.
+- [x] Re-run the manual `Release` workflow for `0.1.0` after the post-review workflow security hardening, then review the deterministic matrix, compatibility matrix, fresh-clone audits, generated archives, and checksums.
+- [x] Push the approved release commit to `main`.
+- [x] Create matching annotated, verified signed `v0.1.0` tags in the monorepo and all three distribution repositories.
+- [x] Publish or synchronize `core`, `cli`, and `laravel` on Packagist. Do not publish the monorepo root package.
+- [x] Install `php-upgrade-preflight/cli:^0.1` and `php-upgrade-preflight/laravel:^0.1` from Packagist in an empty tools directory and reproduce the README quick start.
+- [x] Confirm the published analysis leaves the target fixture byte-for-byte unchanged, then record the release URL and CI evidence in the release notes or checklist.
 
 Acceptance gate: users can install the three published package artifacts, execute both entry points, produce valid schema `0.6` reports, and verify target-project immutability. Every repository carries the same signed `v0.1.0` tag.
+
+Status: passed on 2026-08-08. Evidence is recorded in [`docs/releases/v0.1.0.md`](../docs/releases/v0.1.0.md) and [`docs/release-checklist.md`](../docs/release-checklist.md).
 
 ## Milestone 1: Lock the v0.2 Contract
 
@@ -205,4 +207,4 @@ Acceptance gate: v0.2.0 installs from published packages, validates against the 
 
 ## Recommended Next Work Session
 
-Run the final manual `Release` workflow for the post-review candidate, promote that exact commit to `main`, and then complete the signed-tag, distribution-repository, and Packagist steps with maintainer credentials.
+Start Milestone 1 by preserving an explicit v0.1 compatibility fixture and approving the v0.2 transition matrix. Keep release automation on patch-only `0.1.x` increments until the v0.2.0 release candidate and its contract changes are explicitly approved.
