@@ -13,11 +13,12 @@ use PhpUpgradePreflight\Core\Reporting\JsonReportWriter;
 use PhpUpgradePreflight\Core\Reporting\MarkdownReportWriter;
 use PhpUpgradePreflight\Core\Reporting\ReportFileWriter;
 use PhpUpgradePreflight\Core\Support\SensitiveOutputRedactor;
-use Symfony\Component\Console\Output\ConsoleOutputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 final class AnalyzeUpgradeCommand extends Command
 {
+    private const INVALID_EXIT_CODE = 2;
+
     protected $signature = 'upgrade:analyze
         {--path= : Project path to analyze}
         {--target=* : Target constraint using package:constraint syntax}
@@ -72,7 +73,7 @@ final class AnalyzeUpgradeCommand extends Command
         } catch (\InvalidArgumentException $exception) {
             $this->diagnostic('Invalid invocation: ' . $exception->getMessage());
 
-            return self::INVALID;
+            return self::INVALID_EXIT_CODE;
         } catch (\Throwable $exception) {
             $this->diagnostic('Analysis failed: ' . $exception->getMessage());
 
@@ -89,7 +90,7 @@ final class AnalyzeUpgradeCommand extends Command
                 $writtenPath = $this->reportFileWriter->write($request->projectPath(), $request->outputPath(), $rendered);
                 $this->info(sprintf('Wrote report to %s', $writtenPath));
             } else {
-                $this->output->getOutput()->writeln($rendered, OutputInterface::OUTPUT_RAW);
+                $this->output->writeln($rendered, OutputInterface::OUTPUT_RAW);
             }
 
             return self::SUCCESS;
@@ -133,11 +134,9 @@ final class AnalyzeUpgradeCommand extends Command
 
     private function diagnostic(string $message): void
     {
-        $output = $this->output->getOutput();
-        $diagnosticOutput = $output instanceof ConsoleOutputInterface
-            ? $output->getErrorOutput()
-            : $output;
-
-        $diagnosticOutput->writeln(SensitiveOutputRedactor::redact($message), OutputInterface::OUTPUT_RAW);
+        $this->output->getErrorStyle()->writeln(
+            SensitiveOutputRedactor::redact($message),
+            OutputInterface::OUTPUT_RAW
+        );
     }
 }

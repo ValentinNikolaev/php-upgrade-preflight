@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace PhpUpgradePreflight\Laravel\Tests\Unit;
 
-use Illuminate\Console\OutputStyle;
 use Illuminate\Contracts\Foundation\Application;
 use PhpUpgradePreflight\Core\Contracts\UpgradeAnalyzer;
 use PhpUpgradePreflight\Core\Model\ComposerJson;
@@ -19,6 +18,7 @@ use PhpUpgradePreflight\Core\Model\UpgradeRequest;
 use PhpUpgradePreflight\Laravel\Commands\AnalyzeUpgradeCommand;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Console\Tester\CommandTester;
 
 final class AnalyzeUpgradeCommandTest extends TestCase
@@ -149,7 +149,7 @@ final class AnalyzeUpgradeCommandTest extends TestCase
         $application = $this->createMock(Application::class);
         $application->method('basePath')->willReturn($basePath);
         $application->method('make')->willReturnCallback(
-            static fn (string $abstract, array $parameters): OutputStyle => new OutputStyle(
+            static fn (string $abstract, array $parameters): SymfonyStyle => new SymfonyStyle(
                 $parameters['input'],
                 $parameters['output']
             )
