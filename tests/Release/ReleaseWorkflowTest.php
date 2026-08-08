@@ -34,6 +34,23 @@ final class ReleaseWorkflowTest extends TestCase
         self::assertStringContainsString('if: ' . $tagPushCondition, $publish);
         self::assertStringContainsString('gh run download "${GITHUB_RUN_ID}"', $publish);
         self::assertStringContainsString('sha256sum --check --strict SHA256SUMS', $publish);
+        self::assertStringContainsString(
+            'gh release view "${RELEASE_VERSION}" --repo "${GITHUB_REPOSITORY}"',
+            $publish
+        );
+        self::assertStringContainsString(
+            "gh release upload \"\${RELEASE_VERSION}\" dist/* \\\n              --repo \"\${GITHUB_REPOSITORY}\"",
+            $publish
+        );
+        self::assertStringContainsString(
+            "gh release edit \"\${RELEASE_VERSION}\" \\\n              --repo \"\${GITHUB_REPOSITORY}\"",
+            $publish
+        );
+        self::assertStringContainsString(
+            "gh release create \"\${RELEASE_VERSION}\" \\\n              dist/* \\\n              --repo \"\${GITHUB_REPOSITORY}\"",
+            $publish
+        );
+        self::assertSame(5, substr_count($publish, '--repo "${GITHUB_REPOSITORY}"'));
         self::assertDoesNotMatchRegularExpression('/^\s+uses:/m', $publish);
         self::assertDoesNotMatchRegularExpression('/^\s{4}env:\R\s{6}GH_TOKEN:/m', $publish);
         self::assertMatchesRegularExpression('/^\s{8}env:\R\s{10}GH_TOKEN:/m', $publish);

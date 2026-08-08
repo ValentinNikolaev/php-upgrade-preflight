@@ -501,14 +501,18 @@ jobs:
             | base64 --decode > release-notes.md
           test -s release-notes.md
 
-          if gh release view "${RELEASE_VERSION}" >/dev/null 2>&1; then
-            gh release upload "${RELEASE_VERSION}" dist/* --clobber
+          if gh release view "${RELEASE_VERSION}" --repo "${GITHUB_REPOSITORY}" >/dev/null 2>&1; then
+            gh release upload "${RELEASE_VERSION}" dist/* \
+              --repo "${GITHUB_REPOSITORY}" \
+              --clobber
             gh release edit "${RELEASE_VERSION}" \
+              --repo "${GITHUB_REPOSITORY}" \
               --title="PHP Upgrade Preflight ${RELEASE_VERSION}" \
               --notes-file=release-notes.md
           else
             gh release create "${RELEASE_VERSION}" \
               dist/* \
+              --repo "${GITHUB_REPOSITORY}" \
               --verify-tag \
               --title="PHP Upgrade Preflight ${RELEASE_VERSION}" \
               --notes-file=release-notes.md
