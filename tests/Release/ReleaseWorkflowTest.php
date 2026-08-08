@@ -23,6 +23,7 @@ final class ReleaseWorkflowTest extends TestCase
 
         self::assertStringContainsString('rhysd/actionlint@sha256:', $workflow);
         self::assertStringContainsString('::add-mask::$value', $workflow);
+        self::assertStringContainsString('extensions: zip', $workflow);
     }
 
     public function testReleaseArchivesAreVersionedVerifiedInstalledAndScannedBeforePublication(): void
@@ -35,6 +36,10 @@ final class ReleaseWorkflowTest extends TestCase
         self::assertStringContainsString('php-upgrade-preflight/core:${RELEASE_VERSION}', $workflow);
         self::assertStringContainsString('php-upgrade-preflight/cli:${RELEASE_VERSION}', $workflow);
         self::assertStringContainsString('php-upgrade-preflight/laravel:${RELEASE_VERSION}', $workflow);
+        self::assertStringContainsString(
+            "php-version: '8.0'\n          coverage: none\n          extensions: zip\n\n      - name: Mask synthetic secret canaries",
+            $workflow
+        );
         self::assertStringContainsString('vendor/bin/upgrade-intel --help', $workflow);
         self::assertStringContainsString('--format=json', $workflow);
         self::assertStringContainsString('php tests/smoke.php', $workflow);
@@ -51,6 +56,12 @@ final class ReleaseWorkflowTest extends TestCase
         self::assertStringContainsString('tests/fixtures/laravel-app', $workflow);
         self::assertStringContainsString('php tests/smoke.php', $workflow);
         self::assertStringContainsString('$manifest["scripts"] = $fixture["scripts"]', $workflow);
+        foreach (['core', 'cli', 'laravel'] as $package) {
+            self::assertStringContainsString(
+                sprintf('options\\":{\\"versions\\":{\\"php-upgrade-preflight/%s\\":\\"0.1.x-dev\\"', $package),
+                $workflow
+            );
+        }
     }
 
     private function readRootFile(string $relativePath): string
