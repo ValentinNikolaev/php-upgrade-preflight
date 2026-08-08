@@ -42,7 +42,7 @@ final class WorkflowOptimizationToolTest extends TestCase
         (new Filesystem())->mkdir($temporaryDirectory);
 
         try {
-            $snapshot = file_get_contents($root . '/packages/core/tests/Snapshots/upgrade-report-v0.6.json');
+            $snapshot = file_get_contents($root . '/packages/core/tests/Snapshots/upgrade-report-v0.7.json');
             self::assertIsString($snapshot);
             $canonical = json_decode($snapshot, true, 512, JSON_THROW_ON_ERROR);
             self::assertIsArray($canonical);

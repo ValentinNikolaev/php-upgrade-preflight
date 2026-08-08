@@ -1,0 +1,184 @@
+{
+    "contract": "php-upgrade-preflight-v0.2",
+    "tool_line": "0.2",
+    "schema": "0.7",
+    "transition_semantics": {
+        "statuses": {
+            "supported": "The source and target each resolve to exactly one major and one approved direct rule pack or every required adjacent hop has an implemented rule pack.",
+            "partially_supported": "The source and target each resolve to exactly one major and an implemented contiguous prefix from the source covers at least one, but not every, required adjacent hop.",
+            "unsupported": "No safe complete or partial guidance path can be constructed because no required hop is implemented, a major is ambiguous or unknown, the request is not an upgrade, or it lies outside the catalog."
+        },
+        "rules": {
+            "ambiguous_source": {
+                "status": "unsupported",
+                "hops": [],
+                "uncertainty_required": true,
+                "best_guess_forbidden": true
+            },
+            "ambiguous_target": {
+                "status": "unsupported",
+                "hops": [],
+                "uncertainty_required": true,
+                "best_guess_forbidden": true
+            },
+            "missing_some_hops": {
+                "status": "partially_supported",
+                "covered_prefix_from_source_required": true,
+                "missing_hops_must_be_listed": true,
+                "uncertainty_required": true,
+                "guidance_must_not_cross_gap": true,
+                "post_gap_coverage_ignored": true
+            },
+            "first_hop_missing": {
+                "status": "unsupported",
+                "hops": [],
+                "missing_hops_must_be_listed": true,
+                "uncertainty_required": true,
+                "post_gap_coverage_ignored": true
+            },
+            "missing_all_hops": {
+                "status": "unsupported",
+                "missing_hops_must_be_listed": true,
+                "uncertainty_required": true
+            },
+            "non_upgrade": {
+                "status": "unsupported",
+                "uncertainty_required": true
+            }
+        }
+    },
+    "composition": {
+        "independent_dimensions": [
+            "resolution.status",
+            "transition.framework_guidance[].status"
+        ],
+        "resolution_statuses": [
+            "feasible",
+            "feasible_with_changes",
+            "blocked",
+            "unknown"
+        ],
+        "transition_statuses": [
+            "supported",
+            "partially_supported",
+            "unsupported"
+        ],
+        "rules": [
+            "resolution.status describes only the direct final-target Composer scenarios and never claims framework rule coverage.",
+            "framework transition status describes only guidance coverage and never claims that Composer can resolve the final target.",
+            "transition.package_changes comes only from the selected successful direct final-target Composer scenario; it is never a prediction for an adjacent hop.",
+            "framework hops are ordered guidance stages. A hop has no Composer feasibility result unless a distinct scenario for that hop was actually executed.",
+            "framework findings identify their applicable hop or hops and cannot be generalized across a missing hop.",
+            "A blocked or unknown direct resolution does not erase supported framework guidance; a feasible direct resolution does not upgrade partial or unsupported guidance.",
+            "The staged plan resolves direct Composer blockers before applying package changes, then follows covered framework hops in ascending order without crossing a missing hop."
+        ]
+    },
+    "schema_0_7": {
+        "new_required_top_level_fields": [
+            "platform",
+            "source_inventory"
+        ],
+        "transition_additions": [
+            "framework_guidance"
+        ],
+        "platform_fields": [
+            "analyzer.php_version",
+            "analyzer.provenance",
+            "current_php.version",
+            "current_php.provenance",
+            "target_php.version",
+            "target_php.provenance",
+            "extensions.provenance",
+            "extensions.explicitly_modeled",
+            "extensions.completeness",
+            "extensions.unmodeled_provenance",
+            "extensions.assumptions"
+        ],
+        "source_impact_fields": [
+            "affected_package",
+            "ownership",
+            "relevance",
+            "reason",
+            "severity",
+            "occurrences",
+            "evidence"
+        ],
+        "framework_finding_additions": [
+            "applies_to_hops"
+        ],
+        "migration": {
+            "dispatch_on": "metadata.schema_version",
+            "v0_6_source_impact_becomes": "source_inventory",
+            "v0_7_source_impact_meaning": "Only source usages correlated with a package change or an applicable framework rule.",
+            "unknown_ownership_is_nullable": true,
+            "historical_reports_are_not_rewritten": true
+        },
+        "historical_artifacts": {
+            "upgrade-report-v0.2.schema.json": "b436c638e363249d482ef378f0bc4d8e42184334fbe85c00e1d817457e47e070",
+            "upgrade-report-v0.3.schema.json": "c3c7b547e979d17edb20f09d8d9ed613f9292c44ec7964bc65ea4260c93a42be",
+            "upgrade-report-v0.4.schema.json": "5ce1262cfde7b4f559bacaac42082017a57736aa6799a55eca8f8e241bccf89b",
+            "upgrade-report-v0.5.schema.json": "8a8c29c47dfead6a95ce6a059f0cbf8500eb7e1326554097bca2d2b050cef890",
+            "upgrade-report-v0.6.schema.json": "3a00304e0cee642d3795ed75f97f0a83145e62a2566927840f11e9a9e505c223",
+            "upgrade-report-v0.2.json": "6756e79c1830fc04cb6bae32372c20acf711bfecf67146f99f2b779b5a3ea87d",
+            "upgrade-report-v0.3.json": "e3d0840fc6a2e58d4b4b8c43b8a2af79f0db09255eec7fbff8d58ea6c036a485",
+            "upgrade-report-v0.4.json": "169a86a07f9f762569f890414496766ff0d6abbe30299e832b629656e1a7060b",
+            "upgrade-report-v0.5.json": "6c642a0d8b0dfcad9f6b8fe1f6497070bb6c23b897e4896f216e42fb0c06f55d",
+            "upgrade-report-v0.6.json": "8cd1f2ddebd9cab28b7d023756ef4b6f279f8bddb0f12bc746d526f41dc95a94"
+        }
+    },
+    "development_version": {
+        "report_tool_version": "0.2.0-dev",
+        "composer_development_version": "0.2.x-dev",
+        "internal_constraint": "^0.2",
+        "maintenance_release_series": "0.1",
+        "minor_release_locked_until_candidate_approval": true
+    },
+    "budgets": {
+        "corpus": [
+            "blocked-illuminate-constraint",
+            "ignition-legacy-skeleton",
+            "laravel-7-to-8",
+            "laravel-7-to-9",
+            "laravel-package-matrix",
+            "php-extension-conflict"
+        ],
+        "report_size": {
+            "json_per_fixture_bytes": 131072,
+            "markdown_per_fixture_bytes": 65536,
+            "combined_corpus_bytes": 786432
+        },
+        "runtime": {
+            "corpus_seconds": 30,
+            "measurement": "One process, warm Composer install, fixture runner, debug disabled."
+        },
+        "memory": {
+            "peak_bytes": 268435456,
+            "measurement": "memory_get_peak_usage(true) for the one-process representative corpus run."
+        },
+        "redaction": {
+            "allowed_seeded_canary_occurrences": 0,
+            "surfaces": [
+                "canonical_json",
+                "markdown",
+                "console_diagnostics",
+                "release_archives"
+            ]
+        },
+        "determinism": {
+            "reruns": 3,
+            "require_byte_identical_normalized_reports": true,
+            "ordering": {
+                "targets": "package ascending",
+                "scenarios": "selector order",
+                "package_changes": "package name ascending",
+                "framework_guidance": "framework then source major then target major ascending",
+                "hops": "from major then target major ascending",
+                "source_inventory": "canonical file path ascending, then parser traversal order with first-occurrence deduplication",
+                "source_impact": "source inventory order",
+                "framework_findings": "framework integration registration order, then rule catalog order",
+                "uncertainties": "first production order with exact duplicates removed",
+                "evidence": "ledger insertion order"
+            }
+        }
+    }
+}

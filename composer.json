@@ -20,7 +20,7 @@
       "options": {
         "symlink": true,
         "versions": {
-          "php-upgrade-preflight/core": "0.1.x-dev"
+          "php-upgrade-preflight/core": "0.2.x-dev"
         }
       }
     },
@@ -30,7 +30,7 @@
       "options": {
         "symlink": true,
         "versions": {
-          "php-upgrade-preflight/cli": "0.1.x-dev"
+          "php-upgrade-preflight/cli": "0.2.x-dev"
         }
       }
     },
@@ -40,16 +40,16 @@
       "options": {
         "symlink": true,
         "versions": {
-          "php-upgrade-preflight/laravel": "0.1.x-dev"
+          "php-upgrade-preflight/laravel": "0.2.x-dev"
         }
       }
     }
   ],
   "require": {
     "php": "^8.0",
-    "php-upgrade-preflight/core": "0.1.x-dev",
-    "php-upgrade-preflight/cli": "0.1.x-dev",
-    "php-upgrade-preflight/laravel": "0.1.x-dev"
+    "php-upgrade-preflight/core": "0.2.x-dev",
+    "php-upgrade-preflight/cli": "0.2.x-dev",
+    "php-upgrade-preflight/laravel": "0.2.x-dev"
   },
   "require-dev": {
     "friendsofphp/php-cs-fixer": "^3.64",

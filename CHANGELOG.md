@@ -8,6 +8,15 @@ This project follows [Semantic Versioning](https://semver.org/). Report schema v
 
 - A machine-checked v0.1 compatibility contract covering the public PHP operation, generic CLI arguments and defaults, exit policy, schema `0.6`, and all six Laravel JSON/Markdown report approvals archived from the signed `v0.1.0` release.
 - The commit-pinned Laravel v0.2 transition scope through Laravel 13, with exact official guide, framework-manifest, and application-manifest evidence.
+- Schema `0.7` with complete/partial platform provenance, explicit unmodeled-host uncertainty, a distinct source inventory, actionable framework-correlated source impact, and framework guidance independent of Composer feasibility.
+- Typed transition assessments for the retained Laravel 7 to 8 and direct 7 to 9 rule packs; every emitted framework finding is scoped to a supported assessed hop.
+- A machine-checked v0.2 transition contract with contiguous-prefix partial-support semantics, development-version policy, `0.6` consumer migration, historical schema checksums, and representative-corpus quality budgets.
+
+### Changed
+
+- Development reports now identify `main` as tool `0.2.0-dev`; path packages and branch aliases use the `0.2.x-dev` line.
+- The release checklist is version-neutral; release-specific values and evidence live in versioned release notes.
+- Release workflow, contributor guidance, and project instructions now agree on the `0.1.x` maintenance line and later `main` releases.
 
 ## [0.1.0] - 2026-08-08
 

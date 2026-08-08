@@ -135,6 +135,7 @@ final class LaravelFixtureAnalysisTest extends TestCase
         $this->assertAllReferencesExist($jsonReport);
         $this->assertAllReferencesExist($markdownReport);
         $this->assertFormatParity($jsonReport, $markdownReport);
+        $this->assertFrameworkGuidanceScopesFindings($jsonReport);
         $this->assertApprovedSnapshots($fixture, $projectPath, $jsonReport, $markdownReport);
 
         return $jsonReport;
@@ -309,6 +310,8 @@ final class LaravelFixtureAnalysisTest extends TestCase
             }
         }
 
+        $replacements[PHP_VERSION] = JsonSnapshotNormalizer::ANALYZER_PHP_VERSION;
+
         uksort($replacements, static fn (string $left, string $right): int => strlen($right) <=> strlen($left));
         foreach ($replacements as $from => $to) {
             $markdown = str_replace([$from, json_encode($from, JSON_THROW_ON_ERROR)], [$to, json_encode($to, JSON_THROW_ON_ERROR)], $markdown);
@@ -359,11 +362,39 @@ final class LaravelFixtureAnalysisTest extends TestCase
             self::assertTrue($hasSource || $hasSources, sprintf('%s must link its documentation source.', $evidence->id()));
         }
 
-        foreach (array_merge($report->frameworkFindings(), $report->blockers(), $report->sourceImpact()) as $finding) {
+        foreach (array_merge(
+            $report->frameworkFindings(),
+            $report->blockers(),
+            $report->sourceImpact(),
+            $report->actionableSourceImpact(),
+            $report->frameworkGuidance()
+        ) as $finding) {
             self::assertNotSame([], $finding->evidence());
             foreach ($finding->evidence() as $reference) {
                 self::assertContains($reference, $evidenceIds);
             }
+        }
+
+        foreach ($report->frameworkGuidance() as $guidance) {
+            foreach ($guidance->hops() as $hop) {
+                self::assertNotSame([], $hop->evidence());
+                foreach ($hop->evidence() as $reference) {
+                    self::assertContains($reference, $evidenceIds);
+                }
+            }
+        }
+    }
+
+    private function assertFrameworkGuidanceScopesFindings(UpgradeReport $report): void
+    {
+        self::assertCount(1, $report->frameworkGuidance());
+        $guidance = $report->frameworkGuidance()[0];
+        self::assertSame('supported', $guidance->toArray()['status']);
+        self::assertSame(7, $guidance->sourceMajor());
+        self::assertNotSame([], $guidance->supportedHopReferences());
+
+        foreach ($report->frameworkFindings() as $finding) {
+            self::assertSame($guidance->supportedHopReferences(), $finding->appliesToHops());
         }
     }
 

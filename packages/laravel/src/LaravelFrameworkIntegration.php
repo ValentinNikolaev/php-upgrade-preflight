@@ -6,17 +6,24 @@ namespace PhpUpgradePreflight\Laravel;
 
 use PhpUpgradePreflight\Core\Framework\FrameworkDetection;
 use PhpUpgradePreflight\Core\Framework\FrameworkIntegration;
+use PhpUpgradePreflight\Core\Framework\FrameworkTransitionProvider;
 use PhpUpgradePreflight\Core\Framework\PackageFamilyClassifier;
+use PhpUpgradePreflight\Core\Model\Evidence;
+use PhpUpgradePreflight\Core\Model\EvidenceLedger;
+use PhpUpgradePreflight\Core\Model\FrameworkGuidance;
+use PhpUpgradePreflight\Core\Model\FrameworkHop;
 use PhpUpgradePreflight\Core\Model\ProjectState;
+use PhpUpgradePreflight\Core\Model\UpgradeRequest;
 use PhpUpgradePreflight\Laravel\Rules\LaravelFrameworkConstraintRule;
 use PhpUpgradePreflight\Laravel\Rules\LaravelPhpConstraintRule;
 use PhpUpgradePreflight\Laravel\Rules\LaravelSkeletonRule;
+use PhpUpgradePreflight\Laravel\Rules\LaravelTarget;
 use PhpUpgradePreflight\Laravel\Rules\OldIlluminateSupportRule;
 use PhpUpgradePreflight\Laravel\Rules\PackageVersionRule;
 use PhpUpgradePreflight\Laravel\Rules\SymfonyComponentConstraintRule;
 use PhpUpgradePreflight\Laravel\Rules\TargetedPackageAdvisoryRule;
 
-final class LaravelFrameworkIntegration implements FrameworkIntegration, PackageFamilyClassifier
+final class LaravelFrameworkIntegration implements FrameworkIntegration, FrameworkTransitionProvider, PackageFamilyClassifier
 {
     private LaravelPackageFamilyClassifier $packageFamilyClassifier;
 
@@ -146,6 +153,79 @@ final class LaravelFrameworkIntegration implements FrameworkIntegration, Package
         yield new LaravelSkeletonRule();
     }
 
+    public function assessTransition(
+        ProjectState $project,
+        UpgradeRequest $request,
+        EvidenceLedger $evidence
+    ): ?FrameworkGuidance {
+        if (!$this->hasLaravelTarget($request)) {
+            return null;
+        }
+
+        $sourceMajor = LaravelTarget::isLaravel7Project($project) ? 7 : null;
+        $target = LaravelTarget::fromRequest($request);
+        $targetMajor = $target === null ? null : $target->major();
+
+        if ($sourceMajor === null || $targetMajor === null) {
+            $evidenceId = $evidence->add(
+                'laravel-transition',
+                Evidence::E2_PACKAGE_METADATA,
+                'Laravel transition coverage could not be selected because a source or target major was ambiguous or unsupported.',
+                'high',
+                [
+                    'source_major' => $sourceMajor,
+                    'target_major' => $targetMajor,
+                    'root_requirements' => $project->composerJson()->rootRequirements(),
+                ]
+            )->id();
+
+            return new FrameworkGuidance(
+                'laravel',
+                $sourceMajor,
+                $targetMajor,
+                FrameworkGuidance::UNSUPPORTED,
+                [],
+                [sprintf(
+                    'Laravel framework guidance is unsupported because the source and target do not each resolve to one implemented major (%s).',
+                    $evidenceId
+                )],
+                [$evidenceId]
+            );
+        }
+
+        $rulePack = sprintf('laravel-%d-to-%d%s', $sourceMajor, $targetMajor, $targetMajor === 9 ? '-direct' : '');
+        $source = sprintf('https://laravel.com/docs/%d.x/upgrade', $targetMajor);
+        $evidenceId = $evidence->add(
+            'laravel-transition',
+            Evidence::E4_MAINTAINER_DOCUMENTATION,
+            sprintf('The retained Laravel %d to %d rule pack covers this requested transition.', $sourceMajor, $targetMajor),
+            'medium',
+            [
+                'source_major' => $sourceMajor,
+                'target_major' => $targetMajor,
+                'rule_pack' => $rulePack,
+                'source' => $source,
+            ]
+        )->id();
+        $hop = new FrameworkHop(
+            $sourceMajor,
+            $targetMajor,
+            FrameworkHop::SUPPORTED,
+            $rulePack,
+            [$evidenceId]
+        );
+
+        return new FrameworkGuidance(
+            'laravel',
+            $sourceMajor,
+            $targetMajor,
+            FrameworkGuidance::SUPPORTED,
+            [$hop],
+            [],
+            [$evidenceId]
+        );
+    }
+
     public function defaultSourcePaths(ProjectState $project): array
     {
         return ['src', 'app', 'bootstrap', 'config', 'database', 'routes', 'tests'];
@@ -154,5 +234,17 @@ final class LaravelFrameworkIntegration implements FrameworkIntegration, Package
     public function packageFamilies(string $packageName): array
     {
         return $this->packageFamilyClassifier->packageFamilies($packageName);
+    }
+
+    private function hasLaravelTarget(UpgradeRequest $request): bool
+    {
+        foreach ($request->targets()->packageTargets() as $target) {
+            $package = strtolower($target->package());
+            if ($package === 'laravel/framework' || str_starts_with($package, 'illuminate/')) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

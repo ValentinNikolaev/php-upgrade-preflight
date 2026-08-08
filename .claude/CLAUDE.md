@@ -103,7 +103,7 @@ CI runs `composer check` on PHP 8.0 through 8.5. Changes must pass on the PHP 8.
 
 - Do not create a release-notes file, move changelog entries into a dated release, or change tool/package version metadata for every ordinary change.
 - Keep completed work under `CHANGELOG.md`'s `[Unreleased]` section until the user explicitly asks to prepare a new release or the active milestone specifically requires one.
-- When a new release is intentionally prepared, update its release notes, changelog heading, `ReportMetadata::TOOL_VERSION`, branch aliases, internal package constraints, and matching tag plan together, then run the release verification workflow. Publish only from an annotated, GitHub-verified signed tag whose commit is on `main`.
+- When a new release is intentionally prepared, update its release notes, changelog heading, `ReportMetadata::TOOL_VERSION`, branch aliases, internal package constraints, and matching tag plan together, then run the release verification workflow. Publish only from an annotated, GitHub-verified signed tag whose commit is on the approved release line: the protected `0.1.x` maintenance branch for `0.1.x`, or `main` for later approved series.
 - Release automation is temporarily locked to the `0.1.x` series. Increment only the patch version until the v0.2.0 release candidate and its coordinated unlock are explicitly approved.
 
 ## v0.1 Completion Standard

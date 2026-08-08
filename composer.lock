@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "fff0b76e717758a15682259de3a2b34f",
+    "content-hash": "91c6830e84318a8de36e89a3920aba34",
     "packages": [
         {
             "name": "carbonphp/carbon-doctrine-types",
@@ -684,20 +684,28 @@
         },
         {
             "name": "php-upgrade-preflight/cli",
-            "version": "0.1.x-dev",
+            "version": "0.2.x-dev",
             "dist": {
                 "type": "path",
                 "url": "packages/cli",
-                "reference": "681c223491650b595a8af2f87a6deccaee268616"
+                "reference": "34a86702590cdd83545a7ae2a74c0304ad110047"
             },
             "require": {
                 "php": "^8.0",
-                "php-upgrade-preflight/core": "^0.1"
+                "php-upgrade-preflight/core": "^0.2"
+            },
+            "suggest": {
+                "php-upgrade-preflight/laravel": "Enables Laravel detection and the --framework=laravel rule pack in generic CLI mode."
             },
             "bin": [
                 "bin/upgrade-intel"
             ],
             "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-main": "0.2.x-dev"
+                }
+            },
             "autoload": {
                 "psr-4": {
                     "PhpUpgradePreflight\\Cli\\": "src/"
@@ -709,9 +717,26 @@
                 }
             },
             "license": [
-                "proprietary"
+                "PolyForm-Noncommercial-1.0.0"
+            ],
+            "authors": [
+                {
+                    "name": "Valentin Nikolaev"
+                }
             ],
             "description": "Generic CLI for PHP Upgrade Preflight.",
+            "homepage": "https://github.com/ValentinNikolaev/php-upgrade-preflight",
+            "keywords": [
+                "cli",
+                "composer",
+                "dependency-analysis",
+                "php",
+                "upgrade"
+            ],
+            "support": {
+                "issues": "https://github.com/ValentinNikolaev/php-upgrade-preflight/issues",
+                "source": "https://github.com/ValentinNikolaev/php-upgrade-preflight/tree/main/packages/cli"
+            },
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -719,11 +744,11 @@
         },
         {
             "name": "php-upgrade-preflight/core",
-            "version": "0.1.x-dev",
+            "version": "0.2.x-dev",
             "dist": {
                 "type": "path",
                 "url": "packages/core",
-                "reference": "9cd13ee6ac79ac840841122f4b82e59a69ac6b69"
+                "reference": "24a6ea414bc8d84074a35a6a989345eaf60a377b"
             },
             "require": {
                 "composer/semver": "^3.4",
@@ -734,6 +759,11 @@
                 "symfony/process": "^5.4|^6.0|^7.0"
             },
             "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-main": "0.2.x-dev"
+                }
+            },
             "autoload": {
                 "psr-4": {
                     "PhpUpgradePreflight\\Core\\": "src/"
@@ -745,9 +775,26 @@
                 }
             },
             "license": [
-                "proprietary"
+                "PolyForm-Noncommercial-1.0.0"
+            ],
+            "authors": [
+                {
+                    "name": "Valentin Nikolaev"
+                }
             ],
             "description": "Deterministic Composer/PHP upgrade analysis core.",
+            "homepage": "https://github.com/ValentinNikolaev/php-upgrade-preflight",
+            "keywords": [
+                "composer",
+                "dependency-analysis",
+                "php",
+                "static-analysis",
+                "upgrade"
+            ],
+            "support": {
+                "issues": "https://github.com/ValentinNikolaev/php-upgrade-preflight/issues",
+                "source": "https://github.com/ValentinNikolaev/php-upgrade-preflight/tree/main/packages/core"
+            },
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -755,21 +802,24 @@
         },
         {
             "name": "php-upgrade-preflight/laravel",
-            "version": "0.1.x-dev",
+            "version": "0.2.x-dev",
             "dist": {
                 "type": "path",
                 "url": "packages/laravel",
-                "reference": "9d64bbd25d8fbdb63ad8302a3b686dd581340556"
+                "reference": "280fff61030fa3d7cfcae664693ade02a37ea396"
             },
             "require": {
                 "composer/semver": "^3.4",
                 "illuminate/console": "^8.0|^9.0|^10.0|^11.0|^12.0",
                 "illuminate/support": "^8.0|^9.0|^10.0|^11.0|^12.0",
                 "php": "^8.0",
-                "php-upgrade-preflight/core": "^0.1"
+                "php-upgrade-preflight/core": "^0.2"
             },
             "type": "library",
             "extra": {
+                "branch-alias": {
+                    "dev-main": "0.2.x-dev"
+                },
                 "laravel": {
                     "providers": [
                         "PhpUpgradePreflight\\Laravel\\UpgradePreflightServiceProvider"
@@ -787,9 +837,26 @@
                 }
             },
             "license": [
-                "proprietary"
+                "PolyForm-Noncommercial-1.0.0"
+            ],
+            "authors": [
+                {
+                    "name": "Valentin Nikolaev"
+                }
             ],
             "description": "Laravel adapter and rules for PHP Upgrade Preflight.",
+            "homepage": "https://github.com/ValentinNikolaev/php-upgrade-preflight",
+            "keywords": [
+                "composer",
+                "dependency-analysis",
+                "laravel",
+                "php",
+                "upgrade"
+            ],
+            "support": {
+                "issues": "https://github.com/ValentinNikolaev/php-upgrade-preflight/issues",
+                "source": "https://github.com/ValentinNikolaev/php-upgrade-preflight/tree/main/packages/laravel"
+            },
             "transport-options": {
                 "symlink": true,
                 "relative": true

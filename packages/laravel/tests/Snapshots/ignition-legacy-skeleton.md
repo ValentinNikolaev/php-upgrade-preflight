@@ -1,6 +1,6 @@
 # PHP Upgrade Preflight Report
 
-Resolution: **blocked** | Schema: `0.6` | Tool: `php-upgrade-preflight 0.1.0`
+Resolution: **blocked** | Schema: `0.7` | Tool: `php-upgrade-preflight 0.2.0-dev`
 
 ## Analysis Request
 - Project: `<PROJECT_PATH>`
@@ -13,6 +13,12 @@ Resolution: **blocked** | Schema: `0.6` | Tool: `php-upgrade-preflight 0.1.0`
 - Targets:
   - `laravel/framework`: `^8.0`
   - `php`: `8.0.0`
+
+## Platform Provenance
+- Analyzer PHP: `<ANALYZER_PHP_VERSION>` (provenance: `runtime`)
+- Current project PHP: `7.4` (provenance: `request`)
+- Target PHP: `8.0.0` (provenance: `request`)
+- Extensions: provenance `analyzer_runtime`; explicitly modeled: no; completeness: `none`; unmodeled values: `analyzer_runtime`
 
 ## Project State
 - Analyzed path: `<PROJECT_PATH>`
@@ -136,6 +142,10 @@ Resolution: **blocked** | Schema: `0.6` | Tool: `php-upgrade-preflight 0.1.0`
 ## Package Changes
 - No lockfile changes detected.
 
+## Framework Transition Guidance
+- `laravel`: `supported` (`7` -> `8`; evidence: `laravel-transition-1`)
+  - hop `7` -> `8`: `supported`; rule pack `laravel-7-to-8` (evidence: `laravel-transition-1`)
+
 ## Root Constraint Changes
 - `laravel/framework`: updated `^7.0` -> `^8.0`. The declared root constraint differs from the requested target. (evidence: `root-constraint-1`)
 
@@ -151,7 +161,7 @@ Resolution: **blocked** | Schema: `0.6` | Tool: `php-upgrade-preflight 0.1.0`
   - option: Inspect the linked Composer evidence.
   - option: Run `composer prohibits php <constraint> --tree` in an isolated copy.
 
-## Source Impact
+## Source Inventory
 - `class_constant_access` `Fruitcake\Cors\HandleCors` in `app/Http/Kernel.php:10` (evidence: `source-1`)
 - `middleware_reference` `Fruitcake\Cors\HandleCors` in `app/Http/Kernel.php:10` (evidence: `source-2`)
 - `class_constant_access` `Facade\Ignition\IgnitionServiceProvider` in `config/app.php:5` (evidence: `source-3`)
@@ -159,11 +169,23 @@ Resolution: **blocked** | Schema: `0.6` | Tool: `php-upgrade-preflight 0.1.0`
 - `service_provider` `Facade\Ignition\IgnitionServiceProvider` in `config/app.php:5` (evidence: `source-5`)
 - `facade_alias` `Facade\Ignition\Facades\Flare` in `config/app.php:8` (evidence: `source-6`)
 
+## Actionable Source Impact
+- `low` impact for `package unknown` (`unknown` ownership; `framework_rule`): Referenced by active laravel compatibility guidance; package ownership has not been established. (evidence: `source-2`, `source-5`, `source-6`, `laravel-skeleton-guidance-1`)
+  - `middleware_reference` `Fruitcake\Cors\HandleCors` in `app/Http/Kernel.php:10` (evidence: `source-2`)
+- `low` impact for `package unknown` (`unknown` ownership; `framework_rule`): Referenced by active laravel compatibility guidance; package ownership has not been established. (evidence: `source-5`, `source-2`, `source-6`, `laravel-skeleton-guidance-1`)
+  - `service_provider` `Facade\Ignition\IgnitionServiceProvider` in `config/app.php:5` (evidence: `source-5`)
+- `low` impact for `package unknown` (`unknown` ownership; `framework_rule`): Referenced by active laravel compatibility guidance; package ownership has not been established. (evidence: `source-6`, `source-2`, `source-5`, `laravel-skeleton-guidance-1`)
+  - `facade_alias` `Facade\Ignition\Facades\Flare` in `config/app.php:8` (evidence: `source-6`)
+
 ## Framework Findings
 - `laravel` `high`: Update the root laravel/framework constraint from `^7.0` to a constraint compatible with Laravel 8. (evidence: `laravel-framework-constraint-1`)
+  - applies to hops: `7 -> 8`
 - `laravel` `high`: The root PHP constraint `^7.4` excludes target PHP `8.0.0`; update it for the Laravel 8 upgrade. (evidence: `laravel-php-constraint-1`)
+  - applies to hops: `7 -> 8`
 - `laravel` `medium`: facade/ignition 1.16.4 is outside the encoded Laravel 8 review range `>=2.3.6 <3.0`; review its upgrade or replacement. (evidence: `laravel-package-facade_ignition-1`, `laravel-package-guidance-1`)
+  - applies to hops: `7 -> 8`
 - `laravel` `low`: Compare detected Laravel skeleton-managed integration locations (Kernel middleware, app config providers/aliases, or TrustProxies inheritance) with the Laravel 8 skeleton; these are review locations, not confirmed incompatibilities. (evidence: `source-2`, `source-5`, `source-6`, `laravel-skeleton-guidance-1`)
+  - applies to hops: `7 -> 8`
 
 ## Staged Plan
 1. **constraints** — Prepare the requested root constraint changes before dependency resolution. (evidence: `plan-1`, `root-constraint-1`)
@@ -203,6 +225,7 @@ Resolution: **blocked** | Schema: `0.6` | Tool: `php-upgrade-preflight 0.1.0`
 - Dependency resolution does not prove application runtime compatibility; the project test suite must run on the target runtime.
 - Root PHP constraint "^7.4" does not include target platform PHP 8.0.0; select an appropriate Composer constraint instead of using the exact simulated platform version.
 - No Composer "test" script was found, so the project's canonical test command is unknown.
+- Composer extension checks used the analyzer runtime because no complete explicit extension platform was supplied.
 
 ## Evidence
 - `solver-1` (`E1`, high confidence): Composer scenario "exact-target" failed. Context: `{"scenario":"exact-target","targets":[{"package":"laravel/framework","constraint":"^8.0"},{"package":"php","constraint":"8.0.0"}],"exit_code":2,"output_excerpt":"Your requirements could not be resolved to an installable set of packages.\n- Root composer.json retains legacy package constraints that exclude the requested Laravel target.","diagnostics":[{"package":"laravel/framework","constraint":"^8.0","command":["composer","prohibits","laravel/framework","^8.0","--tree","--locked","--no-scripts","--no-plugins","--no-interaction"],"exit_code":1,"stdout_excerpt":"","stderr_excerpt":"No additional fixture diagnostic."},{"package":"php","constraint":"8.0.0","command":["composer","prohibits","php","8.0.0","--tree","--locked","--no-scripts","--no-plugins","--no-interaction"],"exit_code":1,"stdout_excerpt":"","stderr_excerpt":"No additional fixture diagnostic."}]}`
@@ -216,6 +239,7 @@ Resolution: **blocked** | Schema: `0.6` | Tool: `php-upgrade-preflight 0.1.0`
 - `source-4` (`E3`, high confidence): Detected Facade\Ignition\Facades\Flare in config/app.php. Context: `{"file":"config/app.php","line":8,"usage_type":"class_constant_access"}`
 - `source-5` (`E3`, high confidence): Detected Facade\Ignition\IgnitionServiceProvider in config/app.php. Context: `{"file":"config/app.php","line":5,"usage_type":"service_provider"}`
 - `source-6` (`E3`, high confidence): Detected Facade\Ignition\Facades\Flare in config/app.php. Context: `{"file":"config/app.php","line":8,"usage_type":"facade_alias"}`
+- `laravel-transition-1` (`E4`, medium confidence): The retained Laravel 7 to 8 rule pack covers this requested transition. Context: `{"source_major":7,"target_major":8,"rule_pack":"laravel-7-to-8","source":"https://laravel.com/docs/8.x/upgrade"}`
 - `laravel-framework-constraint-1` (`E2`, high confidence): The root Laravel framework constraint does not include the requested target major. Context: `{"package":"laravel/framework","root_constraint":"^7.0","target_constraint":"^8.0","target_laravel_major":8}`
 - `laravel-php-constraint-1` (`E2`, high confidence): The detected PHP target or root constraint does not satisfy the Laravel target PHP range. Context: `{"observation":"target_php","observed_php":"8.0.0","root_php_constraint":"^7.4","required_php":"^7.3|^8.0","target_laravel_major":8,"laravel_range_satisfied":true,"root_constraint_satisfied":false}`
 - `laravel-package-facade_ignition-1` (`E2`, high confidence): facade/ignition is present in Composer metadata. Context: `{"package":"facade/ignition","locked_version":"1.16.4","root_constraint":"^1.0","framework_requirements":[],"target_laravel_major":8}`

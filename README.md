@@ -60,10 +60,10 @@ Composer stdout, stderr, diagnostics, and command failure messages pass through 
 
 ## Reports
 
-JSON is the canonical report. The current contract uses schema version `0.6`, independent of the tool version. Reports contain:
+JSON is the canonical report. Development on `main` uses schema version `0.7` and tool version `0.2.0-dev`; the published v0.1 package line remains on schema `0.6`. Reports contain:
 
 - scenario commands, solver outcomes, diagnostics, and candidate-lock fingerprints;
-- package changes, structured blockers, source usage, and framework findings;
+- platform provenance with explicit host-dependence uncertainty, package changes, structured blockers, raw source inventory, actionable source impact, framework transition guidance, and hop-scoped framework findings;
 - staged actions, test guidance, risk, effort, uncertainty, and linked evidence.
 
 Six application-shaped Laravel fixtures have approved JSON and Markdown snapshots in [`packages/laravel/tests/Snapshots`](packages/laravel/tests/Snapshots). CI runs the same suite on Ubuntu and Windows.
@@ -81,6 +81,7 @@ Six application-shaped Laravel fixtures have approved JSON and Markdown snapshot
 - [CLI reference](docs/cli.md)
 - [Artisan reference](docs/artisan.md)
 - [JSON schema and compatibility](docs/schema.md)
+- [v0.2 report and transition contract](docs/v0.2-contract.md)
 - [Laravel v0.2 transition scope](docs/laravel-v0.2-transition-scope.md)
 - [Limitations and trust boundaries](docs/limitations.md)
 - [Troubleshooting](docs/troubleshooting.md)

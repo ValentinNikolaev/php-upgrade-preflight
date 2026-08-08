@@ -93,12 +93,12 @@ Status: passed on 2026-08-08. Evidence is recorded in [`docs/releases/v0.1.0.md`
 
 - [x] Preserve a v0.1 compatibility fixture that snapshots the public PHP operation, CLI arguments, exit policy, schema `0.6`, and all six approved Laravel reports.
 - [x] Approve the exact adjacent Laravel transition matrix. Review the official [Laravel 10](https://laravel.com/docs/10.x/upgrade), [Laravel 11](https://laravel.com/docs/11.x/upgrade), [Laravel 12](https://laravel.com/docs/12.x/upgrade), and [Laravel 13](https://laravel.com/docs/13.x/upgrade) guides plus exact package manifests before encoding a range.
-- [ ] Define `supported`, `partially_supported`, and `unsupported` transition semantics. Ambiguous source majors and missing adjacent rule packs must produce uncertainty, not a best guess.
-- [ ] Define how direct Composer feasibility, adjacent upgrade hops, package changes, and framework guidance appear together without contradicting one another.
-- [ ] Plan schema `0.7` for platform provenance and actionable source-impact fields. Preserve every historical schema file and document the consumer migration from `0.6`.
-- [ ] Define the development-version policy after the v0.1.0 tag so reports from `main` do not continue identifying unreleased v0.2 behavior as tool `0.1.0`.
-- [ ] Make `docs/release-checklist.md` version-neutral or generate its version-specific values through the existing release verifier.
-- [ ] Set report-size, runtime, memory, redaction, and deterministic-ordering budgets for the representative fixture corpus.
+- [x] Define `supported`, `partially_supported`, and `unsupported` transition semantics. Ambiguous source majors and missing adjacent rule packs must produce uncertainty, not a best guess.
+- [x] Define how direct Composer feasibility, adjacent upgrade hops, package changes, and framework guidance appear together without contradicting one another.
+- [x] Plan schema `0.7` for platform provenance and actionable source-impact fields. Preserve every historical schema file and document the consumer migration from `0.6`.
+- [x] Define the development-version policy after the v0.1.0 tag so reports from `main` do not continue identifying unreleased v0.2 behavior as tool `0.1.0`.
+- [x] Make `docs/release-checklist.md` version-neutral or generate its version-specific values through the existing release verifier.
+- [x] Set report-size, runtime, memory, redaction, and deterministic-ordering budgets for the representative fixture corpus.
 
 Acceptance gate: the repository contains one approved v0.2 scope and transition matrix, a schema migration decision, measurable budgets, and compatibility tests that fail on accidental v0.1 contract drift.
 

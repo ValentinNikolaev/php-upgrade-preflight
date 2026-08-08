@@ -8,6 +8,7 @@ final class JsonSnapshotNormalizer
 {
     public const PROJECT_PATH = '<PROJECT_PATH>';
     public const TEMP_DIRECTORY = '<TEMP_DIR>';
+    public const ANALYZER_PHP_VERSION = '<ANALYZER_PHP_VERSION>';
 
     /**
      * @param list<string> $temporaryDirectories
@@ -20,6 +21,14 @@ final class JsonSnapshotNormalizer
 
         /** @var mixed $decoded */
         $decoded = json_decode($json, false, 512, JSON_THROW_ON_ERROR);
+        if (is_object($decoded)
+            && isset($decoded->platform)
+            && is_object($decoded->platform)
+            && isset($decoded->platform->analyzer)
+            && is_object($decoded->platform->analyzer)
+        ) {
+            $decoded->platform->analyzer->php_version = self::ANALYZER_PHP_VERSION;
+        }
         $temporaryDirectories = array_merge(
             $temporaryDirectories,
             self::temporaryDirectoriesIn($decoded)

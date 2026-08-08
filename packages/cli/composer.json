@@ -22,7 +22,7 @@
   },
   "require": {
     "php": "^8.0",
-    "php-upgrade-preflight/core": "^0.1"
+    "php-upgrade-preflight/core": "^0.2"
   },
   "suggest": {
     "php-upgrade-preflight/laravel": "Enables Laravel detection and the --framework=laravel rule pack in generic CLI mode."
@@ -42,7 +42,7 @@
   ],
   "extra": {
     "branch-alias": {
-      "dev-main": "0.1.x-dev"
+      "dev-main": "0.2.x-dev"
     }
   }
 }

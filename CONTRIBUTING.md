@@ -76,7 +76,7 @@ By contributing, you agree that your contribution is licensed under the reposito
 
 ## Releases and versions
 
-Run the release workflow manually to exercise the release gates and build archives without publishing. A matching annotated, GitHub-verified `vMAJOR.MINOR.PATCH` tag on `main` reruns the gates and publishes the GitHub release only after the quality, compatibility, and fresh-clone audit jobs succeed.
+Run the release workflow manually to exercise the release gates and build archives without publishing. A matching annotated, GitHub-verified `vMAJOR.MINOR.PATCH` tag on the approved release line reruns the gates and publishes the GitHub release only after the quality, compatibility, and fresh-clone audit jobs succeed. Until the v0.2 release candidate is approved, `0.1.x` tags must be reachable from the protected `0.1.x` maintenance branch; later approved series use `main`.
 
 Before tagging, run:
 

@@ -6,7 +6,11 @@ namespace PhpUpgradePreflight\Laravel\Tests\Unit;
 
 use PhpUpgradePreflight\Core\Model\ComposerJson;
 use PhpUpgradePreflight\Core\Model\ComposerLock;
+use PhpUpgradePreflight\Core\Model\EvidenceLedger;
+use PhpUpgradePreflight\Core\Model\FrameworkGuidance;
 use PhpUpgradePreflight\Core\Model\ProjectState;
+use PhpUpgradePreflight\Core\Model\UpgradeRequest;
+use PhpUpgradePreflight\Core\Model\UpgradeTarget;
 use PhpUpgradePreflight\Laravel\LaravelFrameworkIntegration;
 use PHPUnit\Framework\TestCase;
 
@@ -176,5 +180,49 @@ final class LaravelFrameworkIntegrationTest extends TestCase
 
         self::assertTrue($detection->isDetected());
         self::assertNull($detection->version());
+    }
+
+    public function testItAssessesTheRetainedDirectTransitionAndScopesItsHop(): void
+    {
+        $project = new ProjectState(
+            __DIR__,
+            new ComposerJson(['require' => ['laravel/framework' => '^7.0']]),
+            new ComposerLock(['packages' => [['name' => 'laravel/framework', 'version' => 'v7.30.7']]])
+        );
+        $request = new UpgradeRequest(__DIR__, [new UpgradeTarget('laravel/framework', '^9.0')]);
+        $evidence = new EvidenceLedger();
+
+        $guidance = (new LaravelFrameworkIntegration())->assessTransition($project, $request, $evidence);
+
+        self::assertNotNull($guidance);
+        self::assertSame(FrameworkGuidance::SUPPORTED, $guidance->toArray()['status']);
+        self::assertSame(7, $guidance->sourceMajor());
+        self::assertSame(9, $guidance->targetMajor());
+        self::assertSame([['from_major' => 7, 'to_major' => 9]], $guidance->supportedHopReferences());
+        self::assertSame('laravel-7-to-9-direct', $guidance->toArray()['hops'][0]['rule_pack']);
+        self::assertCount(1, $evidence->all());
+    }
+
+    public function testItDoesNotGuessAnAmbiguousSourceMajor(): void
+    {
+        $project = new ProjectState(
+            __DIR__,
+            new ComposerJson([
+                'require' => [
+                    'illuminate/console' => '^7.0',
+                    'illuminate/support' => '^8.0',
+                ],
+            ]),
+            new ComposerLock([])
+        );
+        $request = new UpgradeRequest(__DIR__, [new UpgradeTarget('illuminate/support', '^9.0')]);
+
+        $guidance = (new LaravelFrameworkIntegration())->assessTransition($project, $request, new EvidenceLedger());
+
+        self::assertNotNull($guidance);
+        self::assertSame(FrameworkGuidance::UNSUPPORTED, $guidance->toArray()['status']);
+        self::assertNull($guidance->sourceMajor());
+        self::assertSame([], $guidance->hops());
+        self::assertNotSame([], $guidance->toArray()['uncertainties']);
     }
 }

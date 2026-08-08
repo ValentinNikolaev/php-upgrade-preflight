@@ -8,13 +8,16 @@ use PHPUnit\Framework\TestCase;
 
 final class ReleaseWorkflowTest extends TestCase
 {
-    public function testReleaseRequiresVerifiedAnnotatedTagFromMain(): void
+    public function testReleaseRequiresVerifiedAnnotatedTagFromTheApprovedReleaseLine(): void
     {
         $workflow = $this->readRootFile('.github/workflows/release.yml');
 
         self::assertStringContainsString('tag_object_type', $workflow);
         self::assertStringContainsString('.verification.verified', $workflow);
         self::assertStringContainsString('git merge-base --is-ancestor', $workflow);
+        self::assertStringContainsString("release_branch='main'", $workflow);
+        self::assertStringContainsString("release_branch='0.1.x'", $workflow);
+        self::assertStringContainsString('refs/remotes/origin/${release_branch}', $workflow);
     }
 
     public function testOnlyATagPushCanEnterTagVerificationAndPublication(): void

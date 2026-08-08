@@ -14,7 +14,7 @@ The machine-readable decision and its exact upstream evidence are in [`laravel-v
 | 11 | 12 | `^12.0` | 8.2.0 | Add adjacent rule pack |
 | 12 | 13 | `^13.0` | 8.3.0 | Add adjacent rule pack |
 
-Laravel 7 to 8 and Laravel 7 to 9 remain frozen v0.1 compatibility paths. The latter is a retained direct path, not an adjacent rule pack. Multi-major composition is separate work: this scope approves the individual hops but does not yet define when a composed request is `supported`, `partially_supported`, or `unsupported`.
+Laravel 7 to 8 and Laravel 7 to 9 remain frozen v0.1 compatibility paths. The latter is a retained direct path, not an adjacent rule pack. Multi-major support and the separation between direct Composer feasibility and hop guidance are defined in the [v0.2 contract](v0.2-contract.md).
 
 The planned Laravel adapter host range after implementation is `^8.0|^9.0|^10.0|^11.0|^12.0|^13.0` for `illuminate/console` and `illuminate/support`. That range is deliberately not present in the v0.1 package manifest yet; it must land with Laravel 13 host installation and application-boot coverage.
 

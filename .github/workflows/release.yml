@@ -36,7 +36,7 @@ jobs:
         shell: bash
         run: echo "RELEASE_VERSION=${RELEASE_VERSION#v}" >> "${GITHUB_ENV}"
 
-      - name: Verify signed release tag from main
+      - name: Verify signed release tag from approved release line
         if: github.event_name == 'push' && github.ref_type == 'tag'
         shell: bash
         env:
@@ -59,10 +59,15 @@ jobs:
             exit 1
           fi
 
-          git fetch --no-tags origin '+refs/heads/main:refs/remotes/origin/main'
+          release_branch='main'
+          if [[ "${RELEASE_VERSION}" == 0.1.* ]]; then
+            release_branch='0.1.x'
+          fi
+
+          git fetch --no-tags origin "+refs/heads/${release_branch}:refs/remotes/origin/${release_branch}"
           tag_commit="$(git rev-parse "${GITHUB_REF_NAME}^{commit}")"
-          if ! git merge-base --is-ancestor "${tag_commit}" refs/remotes/origin/main; then
-            echo "Release tag ${GITHUB_REF_NAME} is not on the main branch." >&2
+          if ! git merge-base --is-ancestor "${tag_commit}" "refs/remotes/origin/${release_branch}"; then
+            echo "Release tag ${GITHUB_REF_NAME} is not on the approved ${release_branch} release line." >&2
             exit 1
           fi
 

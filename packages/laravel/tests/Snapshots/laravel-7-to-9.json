@@ -1,9 +1,9 @@
 {
     "metadata": {
-        "schema_version": "0.6",
+        "schema_version": "0.7",
         "tool": {
             "name": "php-upgrade-preflight",
-            "version": "0.1.0"
+            "version": "0.2.0-dev"
         }
     },
     "request_summary": {
@@ -33,6 +33,27 @@
             "laravel/framework": "^7.0"
         },
         "locked_packages": 1
+    },
+    "platform": {
+        "analyzer": {
+            "php_version": "<ANALYZER_PHP_VERSION>",
+            "provenance": "runtime"
+        },
+        "current_php": {
+            "version": "7.4",
+            "provenance": "request"
+        },
+        "target_php": {
+            "version": "8.1.0",
+            "provenance": "request"
+        },
+        "extensions": {
+            "provenance": "analyzer_runtime",
+            "explicitly_modeled": false,
+            "completeness": "none",
+            "unmodeled_provenance": "analyzer_runtime",
+            "assumptions": []
+        }
     },
     "resolution": {
         "status": "feasible_with_changes",
@@ -243,15 +264,45 @@
                     "root-constraint-1"
                 ]
             }
+        ],
+        "framework_guidance": [
+            {
+                "framework": "laravel",
+                "source_major": 7,
+                "target_major": 9,
+                "status": "supported",
+                "hops": [
+                    {
+                        "from_major": 7,
+                        "to_major": 9,
+                        "status": "supported",
+                        "rule_pack": "laravel-7-to-9-direct",
+                        "evidence": [
+                            "laravel-transition-1"
+                        ]
+                    }
+                ],
+                "uncertainties": [],
+                "evidence": [
+                    "laravel-transition-1"
+                ]
+            }
         ]
     },
     "blockers": [],
+    "source_inventory": [],
     "source_impact": [],
     "framework_findings": [
         {
             "framework": "laravel",
             "severity": "high",
             "summary": "Update the root laravel/framework constraint from `^7.0` to a constraint compatible with Laravel 9.",
+            "applies_to_hops": [
+                {
+                    "from_major": 7,
+                    "to_major": 9
+                }
+            ],
             "evidence": [
                 "laravel-framework-constraint-1"
             ]
@@ -363,9 +414,22 @@
     "uncertainties": [
         "No PHP source files were scanned.",
         "Dependency resolution does not prove application runtime compatibility; the project test suite must run on the target runtime.",
-        "No Composer \"test\" script was found, so the project's canonical test command is unknown."
+        "No Composer \"test\" script was found, so the project's canonical test command is unknown.",
+        "Composer extension checks used the analyzer runtime because no complete explicit extension platform was supplied."
     ],
     "evidence": [
+        {
+            "id": "laravel-transition-1",
+            "class": "E4",
+            "summary": "The retained Laravel 7 to 9 rule pack covers this requested transition.",
+            "confidence": "medium",
+            "context": {
+                "source_major": 7,
+                "target_major": 9,
+                "rule_pack": "laravel-7-to-9-direct",
+                "source": "https://laravel.com/docs/9.x/upgrade"
+            }
+        },
         {
             "id": "laravel-framework-constraint-1",
             "class": "E2",

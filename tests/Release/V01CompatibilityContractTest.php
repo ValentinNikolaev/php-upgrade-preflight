@@ -14,7 +14,6 @@ use PhpUpgradePreflight\Core\Model\EffortEstimate;
 use PhpUpgradePreflight\Core\Model\Evidence;
 use PhpUpgradePreflight\Core\Model\LockDiff;
 use PhpUpgradePreflight\Core\Model\ProjectState;
-use PhpUpgradePreflight\Core\Model\ReportMetadata;
 use PhpUpgradePreflight\Core\Model\RiskSummary;
 use PhpUpgradePreflight\Core\Model\UpgradeReport;
 use PhpUpgradePreflight\Core\Model\UpgradeRequest;
@@ -187,8 +186,15 @@ final class V01CompatibilityContractTest extends TestCase
         $schema = $this->contract['canonical_schema'];
         self::assertIsArray($schema);
         self::assertSame('0.6', $schema['version']);
-        self::assertSame($schema['version'], ReportMetadata::SCHEMA_VERSION);
         $this->assertLockedFile($schema);
+        $schemaContents = file_get_contents($this->root . '/' . $schema['path']);
+        self::assertIsString($schemaContents);
+        $publishedSchema = json_decode($schemaContents, true, 512, JSON_THROW_ON_ERROR);
+        self::assertIsArray($publishedSchema);
+        self::assertSame(
+            $schema['version'],
+            $publishedSchema['$defs']['metadata']['properties']['schema_version']['const']
+        );
 
         $reports = $this->contract['approved_laravel_reports'];
         self::assertIsArray($reports);

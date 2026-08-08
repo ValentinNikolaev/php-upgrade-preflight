@@ -1,9 +1,9 @@
 {
     "metadata": {
-        "schema_version": "0.6",
+        "schema_version": "0.7",
         "tool": {
             "name": "php-upgrade-preflight",
-            "version": "0.1.0"
+            "version": "0.2.0-dev"
         }
     },
     "request_summary": {
@@ -46,6 +46,27 @@
             "orchestra/testbench": "^5.0"
         },
         "locked_packages": 14
+    },
+    "platform": {
+        "analyzer": {
+            "php_version": "<ANALYZER_PHP_VERSION>",
+            "provenance": "runtime"
+        },
+        "current_php": {
+            "version": "7.4",
+            "provenance": "request"
+        },
+        "target_php": {
+            "version": "8.1.0",
+            "provenance": "request"
+        },
+        "extensions": {
+            "provenance": "analyzer_runtime",
+            "explicitly_modeled": false,
+            "completeness": "none",
+            "unmodeled_provenance": "analyzer_runtime",
+            "assumptions": []
+        }
     },
     "resolution": {
         "status": "blocked",
@@ -369,6 +390,29 @@
                     "root-constraint-1"
                 ]
             }
+        ],
+        "framework_guidance": [
+            {
+                "framework": "laravel",
+                "source_major": 7,
+                "target_major": 9,
+                "status": "supported",
+                "hops": [
+                    {
+                        "from_major": 7,
+                        "to_major": 9,
+                        "status": "supported",
+                        "rule_pack": "laravel-7-to-9-direct",
+                        "evidence": [
+                            "laravel-transition-1"
+                        ]
+                    }
+                ],
+                "uncertainties": [],
+                "evidence": [
+                    "laravel-transition-1"
+                ]
+            }
         ]
     },
     "blockers": [
@@ -416,12 +460,19 @@
             ]
         }
     ],
+    "source_inventory": [],
     "source_impact": [],
     "framework_findings": [
         {
             "framework": "laravel",
             "severity": "high",
             "summary": "Update the root laravel/framework constraint from `^7.0` to a constraint compatible with Laravel 9.",
+            "applies_to_hops": [
+                {
+                    "from_major": 7,
+                    "to_major": 9
+                }
+            ],
             "evidence": [
                 "laravel-framework-constraint-1"
             ]
@@ -430,6 +481,12 @@
             "framework": "laravel",
             "severity": "high",
             "summary": "The root PHP constraint `^7.4` excludes target PHP `8.1.0`; update it for the Laravel 9 upgrade.",
+            "applies_to_hops": [
+                {
+                    "from_major": 7,
+                    "to_major": 9
+                }
+            ],
             "evidence": [
                 "laravel-php-constraint-1"
             ]
@@ -438,6 +495,12 @@
             "framework": "laravel",
             "severity": "high",
             "summary": "laravel/passport v8.5.0 is outside the encoded Laravel 9 review range `^10.0|^11.0`; review its upgrade or replacement.",
+            "applies_to_hops": [
+                {
+                    "from_major": 7,
+                    "to_major": 9
+                }
+            ],
             "evidence": [
                 "laravel-package-laravel_passport-1",
                 "laravel-package-guidance-1"
@@ -447,6 +510,12 @@
             "framework": "laravel",
             "severity": "medium",
             "summary": "laravel/sanctum v1.3.3 is outside the encoded Laravel 9 review range `^2.0|^3.0`; review its upgrade or replacement.",
+            "applies_to_hops": [
+                {
+                    "from_major": 7,
+                    "to_major": 9
+                }
+            ],
             "evidence": [
                 "laravel-package-laravel_sanctum-1",
                 "laravel-package-guidance-2"
@@ -456,6 +525,12 @@
             "framework": "laravel",
             "severity": "high",
             "summary": "laravel/horizon v4.3.5 is outside the encoded Laravel 9 review range `^5.0`; review its upgrade or replacement.",
+            "applies_to_hops": [
+                {
+                    "from_major": 7,
+                    "to_major": 9
+                }
+            ],
             "evidence": [
                 "laravel-package-laravel_horizon-1",
                 "laravel-package-guidance-3"
@@ -465,6 +540,12 @@
             "framework": "laravel",
             "severity": "medium",
             "summary": "laravel/telescope v3.7.0 is outside the encoded Laravel 9 review range `^4.0`; review its upgrade or replacement.",
+            "applies_to_hops": [
+                {
+                    "from_major": 7,
+                    "to_major": 9
+                }
+            ],
             "evidence": [
                 "laravel-package-laravel_telescope-1",
                 "laravel-package-guidance-4"
@@ -474,6 +555,12 @@
             "framework": "laravel",
             "severity": "medium",
             "summary": "phpunit/phpunit 8.5.21 is outside the encoded Laravel 9 review range `^9.5.10`; review its upgrade or replacement.",
+            "applies_to_hops": [
+                {
+                    "from_major": 7,
+                    "to_major": 9
+                }
+            ],
             "evidence": [
                 "laravel-package-phpunit_phpunit-1",
                 "laravel-package-guidance-5"
@@ -483,6 +570,12 @@
             "framework": "laravel",
             "severity": "low",
             "summary": "mockery/mockery 1.3.6 is outside the encoded Laravel 9 review range `^1.4`; review its upgrade or replacement.",
+            "applies_to_hops": [
+                {
+                    "from_major": 7,
+                    "to_major": 9
+                }
+            ],
             "evidence": [
                 "laravel-package-mockery_mockery-1",
                 "laravel-package-guidance-6"
@@ -492,6 +585,12 @@
             "framework": "laravel",
             "severity": "high",
             "summary": "Review direct Symfony component constraints for Laravel 9 (`^6.0` expected): symfony/http-foundation.",
+            "applies_to_hops": [
+                {
+                    "from_major": 7,
+                    "to_major": 9
+                }
+            ],
             "evidence": [
                 "laravel-symfony-constraints-1",
                 "laravel-symfony-guidance-1"
@@ -501,6 +600,12 @@
             "framework": "laravel",
             "severity": "high",
             "summary": "Replace facade/ignition with spatie/laravel-ignition for the Laravel 9 target.",
+            "applies_to_hops": [
+                {
+                    "from_major": 7,
+                    "to_major": 9
+                }
+            ],
             "evidence": [
                 "laravel-advisory-facade_ignition-1",
                 "laravel-package-advisory-1"
@@ -510,6 +615,12 @@
             "framework": "laravel",
             "severity": "medium",
             "summary": "Remove fideloper/proxy and review the trusted proxy middleware for the Laravel 9 target.",
+            "applies_to_hops": [
+                {
+                    "from_major": 7,
+                    "to_major": 9
+                }
+            ],
             "evidence": [
                 "laravel-advisory-fideloper_proxy-1",
                 "laravel-package-advisory-2"
@@ -519,6 +630,12 @@
             "framework": "laravel",
             "severity": "medium",
             "summary": "Review removal of fruitcake/laravel-cors because Laravel 9 integrates CORS middleware through the framework.",
+            "applies_to_hops": [
+                {
+                    "from_major": 7,
+                    "to_major": 9
+                }
+            ],
             "evidence": [
                 "laravel-advisory-fruitcake_laravel_cors-1",
                 "laravel-package-advisory-3"
@@ -528,6 +645,12 @@
             "framework": "laravel",
             "severity": "medium",
             "summary": "nunomaduro/collision v4.3.0 is outside the encoded Laravel 9 review range `^6.1`; review its upgrade or replacement.",
+            "applies_to_hops": [
+                {
+                    "from_major": 7,
+                    "to_major": 9
+                }
+            ],
             "evidence": [
                 "laravel-package-nunomaduro_collision-1",
                 "laravel-package-guidance-7"
@@ -537,6 +660,12 @@
             "framework": "laravel",
             "severity": "low",
             "summary": "laravel/ui v2.5.0 is outside the encoded Laravel 9 review range `^4.0`; review its upgrade or replacement.",
+            "applies_to_hops": [
+                {
+                    "from_major": 7,
+                    "to_major": 9
+                }
+            ],
             "evidence": [
                 "laravel-package-laravel_ui-1",
                 "laravel-package-guidance-8"
@@ -546,6 +675,12 @@
             "framework": "laravel",
             "severity": "medium",
             "summary": "orchestra/testbench v5.4.0 is outside the encoded Laravel 9 review range `^7.0`; review its upgrade or replacement.",
+            "applies_to_hops": [
+                {
+                    "from_major": 7,
+                    "to_major": 9
+                }
+            ],
             "evidence": [
                 "laravel-package-orchestra_testbench-1",
                 "laravel-package-guidance-9"
@@ -695,7 +830,8 @@
         "No PHP source files were scanned.",
         "Dependency resolution does not prove application runtime compatibility; the project test suite must run on the target runtime.",
         "Root PHP constraint \"^7.4\" does not include target platform PHP 8.1.0; select an appropriate Composer constraint instead of using the exact simulated platform version.",
-        "No Composer \"test\" script was found, so the project's canonical test command is unknown."
+        "No Composer \"test\" script was found, so the project's canonical test command is unknown.",
+        "Composer extension checks used the analyzer runtime because no complete explicit extension platform was supplied."
     ],
     "evidence": [
         {
@@ -951,6 +1087,18 @@
                         "stderr_excerpt": "No additional fixture diagnostic."
                     }
                 ]
+            }
+        },
+        {
+            "id": "laravel-transition-1",
+            "class": "E4",
+            "summary": "The retained Laravel 7 to 9 rule pack covers this requested transition.",
+            "confidence": "medium",
+            "context": {
+                "source_major": 7,
+                "target_major": 9,
+                "rule_pack": "laravel-7-to-9-direct",
+                "source": "https://laravel.com/docs/9.x/upgrade"
             }
         },
         {

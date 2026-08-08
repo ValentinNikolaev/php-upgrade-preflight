@@ -5,10 +5,10 @@ JSON reports use a versioned consumer contract. Tool releases and schema release
 ```json
 {
   "metadata": {
-    "schema_version": "0.6",
+    "schema_version": "0.7",
     "tool": {
       "name": "php-upgrade-preflight",
-      "version": "0.1.0"
+      "version": "0.2.0-dev"
     }
   }
 }
@@ -18,10 +18,11 @@ Select a parser or validator through `metadata.schema_version`. Do not infer the
 
 ## Current contract
 
-The current strict Draft 2020-12 schema is [`upgrade-report-v0.6.schema.json`](../packages/core/resources/schema/upgrade-report-v0.6.schema.json). It rejects unknown properties and defines scenario outcomes, structured blockers, evidence references, transition data, guidance, risk, effort, and uncertainties.
+The current strict Draft 2020-12 schema is [`upgrade-report-v0.7.schema.json`](../packages/core/resources/schema/upgrade-report-v0.7.schema.json). It rejects unknown properties and defines scenario outcomes, structured blockers, platform provenance, package changes, framework-transition guidance, source inventory, actionable source impact, risk, effort, and uncertainties.
 
 Historical schemas remain in the same directory for consumers that store older reports:
 
+- [v0.6](../packages/core/resources/schema/upgrade-report-v0.6.schema.json)
 - [v0.5](../packages/core/resources/schema/upgrade-report-v0.5.schema.json)
 - [v0.4](../packages/core/resources/schema/upgrade-report-v0.4.schema.json)
 - [v0.3](../packages/core/resources/schema/upgrade-report-v0.3.schema.json)
@@ -29,13 +30,28 @@ Historical schemas remain in the same directory for consumers that store older r
 
 ## Compatibility policy
 
-Patch releases may correct findings, scenario selection, evidence, or wording while retaining schema `0.6`. Consumers must tolerate different array contents that still validate against the schema.
+Patch releases may correct findings, scenario selection, evidence, or wording while retaining their schema version. Consumers must tolerate different array contents that still validate against that schema.
 
 A report-shape change requires a new schema version and a new schema file. Existing schema files remain immutable. The project keeps canonical schema snapshots and six full fixture report snapshots under test.
 
 Markdown has no independent contract. It projects the canonical report for human review and may change its presentation in a patch release.
 
 Composer `stdout_excerpt` and `stderr_excerpt` values are bounded and redacted before they enter the canonical model. Stable markers such as `[REDACTED]`, `[REDACTED_TOKEN]`, and `[REDACTED_URL]` replace sensitive values without changing the schema shape.
+
+## Migrating from 0.6 to 0.7
+
+Dispatch on `metadata.schema_version`; do not infer shape from the tool version. The migration is structural:
+
+| 0.6 | 0.7 |
+| --- | --- |
+| `source_impact[]` was raw parser inventory | Raw observations move to `source_inventory[]` |
+| No actionable source object | `source_impact[]` contains relevance, reason, severity, ownership, affected package, exact occurrences, and evidence |
+| PHP values were spread across request/project fields | `platform` records analyzer, current, target, and extension provenance, including extension-model completeness and the source of unmodeled values |
+| No framework coverage status | `transition.framework_guidance[]` records support and ordered hops separately from Composer resolution; findings add `applies_to_hops` |
+
+Continue reading `request_summary` and `project_state` for the user's request and original Composer inputs. Use `platform` when explaining which PHP or extension state influenced analysis. `extensions.completeness: partial` with `provenance: mixed` means only the listed assumptions were explicit and unlisted extensions still came from `extensions.unmodeled_provenance`; it is not a reproducible complete target platform. An `affected_package` of `null` with `ownership: unknown` is deliberate uncertainty, not permission to infer an owner.
+
+Do not map `transition.framework_guidance[].status` onto `resolution.status`. Composer feasibility and framework guidance coverage are independent; [the v0.2 contract](v0.2-contract.md) defines their composition.
 
 ## Validate a report
 

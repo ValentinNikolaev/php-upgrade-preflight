@@ -18,6 +18,12 @@ Release automation is currently locked to the `0.1.x` line. Until the v0.2.0 rel
 
 This lock does not cancel the v0.2.0 roadmap. Unlocking `0.2.0` is an intentional release-policy change made together with its approved contract, version metadata, changelog, release notes, package constraints, and tag plan.
 
+## Development builds after v0.1.0
+
+`main` now identifies reports as tool `0.2.0-dev`. Root path repositories and package branch aliases use `0.2.x-dev`, while internal package constraints use `^0.2`. This makes reports from unreleased v0.2 work distinguishable from the signed `0.1.0` release.
+
+The patch-only release lock and the development identity solve different problems. A `0.1.x` maintenance release is prepared from the protected `0.1.x` maintenance line with internally consistent `0.1.x` metadata; signed `0.1.x` tags must be reachable from that line, while later approved release series use `main`. The verifier continues to reject `0.2.0` until the release candidate is explicitly approved. Exact release tags never use a `-dev` suffix.
+
 ## When to release `1.0`
 
 Version `1.0.0` is an explicit stability commitment, not a calendar milestone. It is appropriate when the public PHP API, CLI behavior, package split, and supported schema policy are mature enough that future breaking changes can wait for a new major release.

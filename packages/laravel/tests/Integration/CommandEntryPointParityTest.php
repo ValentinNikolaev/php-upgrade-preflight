@@ -84,7 +84,7 @@ final class CommandEntryPointParityTest extends TestCase
         $artisanReport = $this->normalizeReport($artisanReport);
 
         self::assertSame($cliReport, $artisanReport);
-        self::assertSame('0.6', $cliReport['metadata']['schema_version']);
+        self::assertSame('0.7', $cliReport['metadata']['schema_version']);
         self::assertSame($expectedStatus, $cliReport['resolution']['status']);
         self::assertNotSame([], $cliReport['resolution']['scenarios']);
         self::assertNotSame('project-input', $cliReport['resolution']['scenarios'][0]['name']);
