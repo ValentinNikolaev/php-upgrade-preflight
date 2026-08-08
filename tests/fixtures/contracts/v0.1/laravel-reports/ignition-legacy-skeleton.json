@@ -1,0 +1,1051 @@
+{
+    "metadata": {
+        "schema_version": "0.6",
+        "tool": {
+            "name": "php-upgrade-preflight",
+            "version": "0.1.0"
+        }
+    },
+    "request_summary": {
+        "project_path": "<PROJECT_PATH>",
+        "targets": [
+            {
+                "package": "laravel/framework",
+                "constraint": "^8.0"
+            },
+            {
+                "package": "php",
+                "constraint": "8.0.0"
+            }
+        ],
+        "from_php": "7.4",
+        "target_php": "8.0.0",
+        "source_paths": [],
+        "frameworks": [],
+        "format": "json",
+        "output_path": null
+    },
+    "project_state": {
+        "path": "<PROJECT_PATH>",
+        "platform_php": null,
+        "root_requirements": {
+            "php": "^7.4",
+            "laravel/framework": "^7.0",
+            "facade/ignition": "^1.0"
+        },
+        "locked_packages": 2
+    },
+    "resolution": {
+        "status": "blocked",
+        "scenarios": [
+            {
+                "name": "baseline-validation",
+                "composer_version": null,
+                "command": [
+                    "composer",
+                    "validate",
+                    "--check-lock",
+                    "--no-check-publish",
+                    "--no-scripts",
+                    "--no-plugins",
+                    "--no-interaction"
+                ],
+                "duration_ms": 1,
+                "exit_code": 0,
+                "succeeded": true,
+                "outcome": "success",
+                "failure_type": null,
+                "stdout_excerpt": "Fixture baseline is valid.",
+                "stderr_excerpt": "",
+                "candidate_lock": {
+                    "sha256": "ff4acbafded8f33cd64c19ffb5d943b24a4041a2ba81fa4b8aa0f5aef137703d",
+                    "content_hash": "ignition-legacy-skeleton",
+                    "package_count": 2
+                },
+                "diagnostics": [],
+                "temp_path": null
+            },
+            {
+                "name": "exact-target",
+                "composer_version": null,
+                "command": [
+                    "composer",
+                    "update",
+                    "laravel/framework",
+                    "--no-scripts",
+                    "--no-plugins",
+                    "--no-install",
+                    "--no-interaction"
+                ],
+                "duration_ms": 1,
+                "exit_code": 2,
+                "succeeded": false,
+                "outcome": "solver_failure",
+                "failure_type": "solver",
+                "stdout_excerpt": "",
+                "stderr_excerpt": "Your requirements could not be resolved to an installable set of packages.\n- Root composer.json retains legacy package constraints that exclude the requested Laravel target.",
+                "candidate_lock": null,
+                "diagnostics": [
+                    {
+                        "package": "laravel/framework",
+                        "constraint": "^8.0",
+                        "command": [
+                            "composer",
+                            "prohibits",
+                            "laravel/framework",
+                            "^8.0",
+                            "--tree",
+                            "--locked",
+                            "--no-scripts",
+                            "--no-plugins",
+                            "--no-interaction"
+                        ],
+                        "exit_code": 1,
+                        "stdout_excerpt": "",
+                        "stderr_excerpt": "No additional fixture diagnostic."
+                    },
+                    {
+                        "package": "php",
+                        "constraint": "8.0.0",
+                        "command": [
+                            "composer",
+                            "prohibits",
+                            "php",
+                            "8.0.0",
+                            "--tree",
+                            "--locked",
+                            "--no-scripts",
+                            "--no-plugins",
+                            "--no-interaction"
+                        ],
+                        "exit_code": 1,
+                        "stdout_excerpt": "",
+                        "stderr_excerpt": "No additional fixture diagnostic."
+                    }
+                ],
+                "temp_path": null
+            },
+            {
+                "name": "target-with-all-dependencies",
+                "composer_version": null,
+                "command": [
+                    "composer",
+                    "update",
+                    "laravel/framework",
+                    "--with-all-dependencies",
+                    "--no-scripts",
+                    "--no-plugins",
+                    "--no-install",
+                    "--no-interaction"
+                ],
+                "duration_ms": 1,
+                "exit_code": 2,
+                "succeeded": false,
+                "outcome": "solver_failure",
+                "failure_type": "solver",
+                "stdout_excerpt": "",
+                "stderr_excerpt": "Your requirements could not be resolved to an installable set of packages.\n- Root composer.json retains legacy package constraints that exclude the requested Laravel target.",
+                "candidate_lock": null,
+                "diagnostics": [
+                    {
+                        "package": "laravel/framework",
+                        "constraint": "^8.0",
+                        "command": [
+                            "composer",
+                            "prohibits",
+                            "laravel/framework",
+                            "^8.0",
+                            "--tree",
+                            "--locked",
+                            "--no-scripts",
+                            "--no-plugins",
+                            "--no-interaction"
+                        ],
+                        "exit_code": 1,
+                        "stdout_excerpt": "",
+                        "stderr_excerpt": "No additional fixture diagnostic."
+                    },
+                    {
+                        "package": "php",
+                        "constraint": "8.0.0",
+                        "command": [
+                            "composer",
+                            "prohibits",
+                            "php",
+                            "8.0.0",
+                            "--tree",
+                            "--locked",
+                            "--no-scripts",
+                            "--no-plugins",
+                            "--no-interaction"
+                        ],
+                        "exit_code": 1,
+                        "stdout_excerpt": "",
+                        "stderr_excerpt": "No additional fixture diagnostic."
+                    }
+                ],
+                "temp_path": null
+            },
+            {
+                "name": "minimal-changes",
+                "composer_version": null,
+                "command": [
+                    "composer",
+                    "update",
+                    "laravel/framework",
+                    "--with-all-dependencies",
+                    "--minimal-changes",
+                    "--no-scripts",
+                    "--no-plugins",
+                    "--no-install",
+                    "--no-interaction"
+                ],
+                "duration_ms": 1,
+                "exit_code": 2,
+                "succeeded": false,
+                "outcome": "solver_failure",
+                "failure_type": "solver",
+                "stdout_excerpt": "",
+                "stderr_excerpt": "Your requirements could not be resolved to an installable set of packages.\n- Root composer.json retains legacy package constraints that exclude the requested Laravel target.",
+                "candidate_lock": null,
+                "diagnostics": [
+                    {
+                        "package": "laravel/framework",
+                        "constraint": "^8.0",
+                        "command": [
+                            "composer",
+                            "prohibits",
+                            "laravel/framework",
+                            "^8.0",
+                            "--tree",
+                            "--locked",
+                            "--no-scripts",
+                            "--no-plugins",
+                            "--no-interaction"
+                        ],
+                        "exit_code": 1,
+                        "stdout_excerpt": "",
+                        "stderr_excerpt": "No additional fixture diagnostic."
+                    },
+                    {
+                        "package": "php",
+                        "constraint": "8.0.0",
+                        "command": [
+                            "composer",
+                            "prohibits",
+                            "php",
+                            "8.0.0",
+                            "--tree",
+                            "--locked",
+                            "--no-scripts",
+                            "--no-plugins",
+                            "--no-interaction"
+                        ],
+                        "exit_code": 1,
+                        "stdout_excerpt": "",
+                        "stderr_excerpt": "No additional fixture diagnostic."
+                    }
+                ],
+                "temp_path": null
+            },
+            {
+                "name": "target-platform-only",
+                "composer_version": null,
+                "command": [
+                    "composer",
+                    "update",
+                    "--no-scripts",
+                    "--no-plugins",
+                    "--no-install",
+                    "--no-interaction"
+                ],
+                "duration_ms": 1,
+                "exit_code": 2,
+                "succeeded": false,
+                "outcome": "solver_failure",
+                "failure_type": "solver",
+                "stdout_excerpt": "",
+                "stderr_excerpt": "Your requirements could not be resolved to an installable set of packages.\n- Root composer.json retains legacy package constraints that exclude the requested Laravel target.",
+                "candidate_lock": null,
+                "diagnostics": [
+                    {
+                        "package": "php",
+                        "constraint": "8.0.0",
+                        "command": [
+                            "composer",
+                            "prohibits",
+                            "php",
+                            "8.0.0",
+                            "--tree",
+                            "--locked",
+                            "--no-scripts",
+                            "--no-plugins",
+                            "--no-interaction"
+                        ],
+                        "exit_code": 1,
+                        "stdout_excerpt": "",
+                        "stderr_excerpt": "No additional fixture diagnostic."
+                    }
+                ],
+                "temp_path": null
+            },
+            {
+                "name": "staged-targets",
+                "composer_version": null,
+                "command": [
+                    "composer",
+                    "update",
+                    "laravel/framework",
+                    "--with-all-dependencies",
+                    "--no-scripts",
+                    "--no-plugins",
+                    "--no-install",
+                    "--no-interaction"
+                ],
+                "duration_ms": 1,
+                "exit_code": 2,
+                "succeeded": false,
+                "outcome": "solver_failure",
+                "failure_type": "solver",
+                "stdout_excerpt": "",
+                "stderr_excerpt": "Your requirements could not be resolved to an installable set of packages.\n- Root composer.json retains legacy package constraints that exclude the requested Laravel target.",
+                "candidate_lock": null,
+                "diagnostics": [
+                    {
+                        "package": "laravel/framework",
+                        "constraint": "^8.0",
+                        "command": [
+                            "composer",
+                            "prohibits",
+                            "laravel/framework",
+                            "^8.0",
+                            "--tree",
+                            "--locked",
+                            "--no-scripts",
+                            "--no-plugins",
+                            "--no-interaction"
+                        ],
+                        "exit_code": 1,
+                        "stdout_excerpt": "",
+                        "stderr_excerpt": "No additional fixture diagnostic."
+                    }
+                ],
+                "temp_path": null
+            }
+        ]
+    },
+    "transition": {
+        "package_changes": [],
+        "root_constraint_changes": [
+            {
+                "package": "laravel/framework",
+                "change_type": "updated",
+                "from_constraint": "^7.0",
+                "to_constraint": "^8.0",
+                "reason": "The declared root constraint differs from the requested target.",
+                "evidence": [
+                    "root-constraint-1"
+                ]
+            }
+        ]
+    },
+    "blockers": [
+        {
+            "type": "unknown-composer-failure",
+            "subject": "laravel/framework",
+            "requested_constraint": "^8.0",
+            "blocker": null,
+            "locked_version": null,
+            "conflict": null,
+            "dependency_path": [
+                "laravel/framework"
+            ],
+            "options": [
+                "Inspect the linked Composer evidence.",
+                "Run `composer prohibits laravel/framework <constraint> --tree` in an isolated copy."
+            ],
+            "summary": "Composer failed, but the blocker type could not be classified.",
+            "confidence": "low",
+            "evidence": [
+                "solver-1",
+                "solver-2",
+                "solver-3",
+                "solver-5"
+            ]
+        },
+        {
+            "type": "unknown-composer-failure",
+            "subject": "php",
+            "requested_constraint": "8.0.0",
+            "blocker": null,
+            "locked_version": null,
+            "conflict": null,
+            "dependency_path": [
+                "php"
+            ],
+            "options": [
+                "Inspect the linked Composer evidence.",
+                "Run `composer prohibits php <constraint> --tree` in an isolated copy."
+            ],
+            "summary": "Composer failed, but the blocker type could not be classified.",
+            "confidence": "low",
+            "evidence": [
+                "solver-4"
+            ]
+        }
+    ],
+    "source_impact": [
+        {
+            "file": "app/Http/Kernel.php",
+            "symbol": "Fruitcake\\Cors\\HandleCors",
+            "usage_type": "class_constant_access",
+            "line": 10,
+            "evidence": [
+                "source-1"
+            ]
+        },
+        {
+            "file": "app/Http/Kernel.php",
+            "symbol": "Fruitcake\\Cors\\HandleCors",
+            "usage_type": "middleware_reference",
+            "line": 10,
+            "evidence": [
+                "source-2"
+            ]
+        },
+        {
+            "file": "config/app.php",
+            "symbol": "Facade\\Ignition\\IgnitionServiceProvider",
+            "usage_type": "class_constant_access",
+            "line": 5,
+            "evidence": [
+                "source-3"
+            ]
+        },
+        {
+            "file": "config/app.php",
+            "symbol": "Facade\\Ignition\\Facades\\Flare",
+            "usage_type": "class_constant_access",
+            "line": 8,
+            "evidence": [
+                "source-4"
+            ]
+        },
+        {
+            "file": "config/app.php",
+            "symbol": "Facade\\Ignition\\IgnitionServiceProvider",
+            "usage_type": "service_provider",
+            "line": 5,
+            "evidence": [
+                "source-5"
+            ]
+        },
+        {
+            "file": "config/app.php",
+            "symbol": "Facade\\Ignition\\Facades\\Flare",
+            "usage_type": "facade_alias",
+            "line": 8,
+            "evidence": [
+                "source-6"
+            ]
+        }
+    ],
+    "framework_findings": [
+        {
+            "framework": "laravel",
+            "severity": "high",
+            "summary": "Update the root laravel/framework constraint from `^7.0` to a constraint compatible with Laravel 8.",
+            "evidence": [
+                "laravel-framework-constraint-1"
+            ]
+        },
+        {
+            "framework": "laravel",
+            "severity": "high",
+            "summary": "The root PHP constraint `^7.4` excludes target PHP `8.0.0`; update it for the Laravel 8 upgrade.",
+            "evidence": [
+                "laravel-php-constraint-1"
+            ]
+        },
+        {
+            "framework": "laravel",
+            "severity": "medium",
+            "summary": "facade/ignition 1.16.4 is outside the encoded Laravel 8 review range `>=2.3.6 <3.0`; review its upgrade or replacement.",
+            "evidence": [
+                "laravel-package-facade_ignition-1",
+                "laravel-package-guidance-1"
+            ]
+        },
+        {
+            "framework": "laravel",
+            "severity": "low",
+            "summary": "Compare detected Laravel skeleton-managed integration locations (Kernel middleware, app config providers/aliases, or TrustProxies inheritance) with the Laravel 8 skeleton; these are review locations, not confirmed incompatibilities.",
+            "evidence": [
+                "source-2",
+                "source-5",
+                "source-6",
+                "laravel-skeleton-guidance-1"
+            ]
+        }
+    ],
+    "plan": {
+        "stages": [
+            {
+                "name": "constraints",
+                "summary": "Prepare the requested root constraint changes before dependency resolution.",
+                "actions": [
+                    "Update the `laravel/framework` root constraint to `^8.0`.",
+                    "Select a root PHP constraint that includes target platform PHP 8.0.0 without pinning an exact patch version."
+                ],
+                "evidence": [
+                    "plan-1",
+                    "root-constraint-1"
+                ]
+            },
+            {
+                "name": "dependencies",
+                "summary": "Resolve dependency blockers and review the resulting lockfile transition.",
+                "actions": [
+                    "Resolve the `unknown-composer-failure` blocker affecting `laravel/framework`.",
+                    "Resolve the `unknown-composer-failure` blocker affecting `php`.",
+                    "Rerun the isolated Composer scenarios after resolving the reported blockers."
+                ],
+                "evidence": [
+                    "plan-1",
+                    "solver-1",
+                    "solver-2",
+                    "solver-3",
+                    "solver-5",
+                    "solver-4"
+                ]
+            },
+            {
+                "name": "application",
+                "summary": "Apply source and framework migration work after dependency resolution is stable.",
+                "actions": [
+                    "Review the reported source locations and adapt affected application code.",
+                    "Address framework compatibility findings before runtime validation."
+                ],
+                "evidence": [
+                    "plan-1",
+                    "source-1",
+                    "source-2",
+                    "source-3",
+                    "source-4",
+                    "source-5",
+                    "source-6",
+                    "laravel-framework-constraint-1",
+                    "laravel-php-constraint-1",
+                    "laravel-package-facade_ignition-1",
+                    "laravel-package-guidance-1",
+                    "laravel-skeleton-guidance-1"
+                ]
+            },
+            {
+                "name": "validation",
+                "summary": "Validate the upgraded project on the target runtime before release.",
+                "actions": [
+                    "Validate the Composer manifest and installed platform requirements.",
+                    "Run the project test suite and focused regression tests."
+                ],
+                "evidence": [
+                    "plan-1"
+                ]
+            }
+        ]
+    },
+    "risk": {
+        "level": "high",
+        "drivers": [
+            "Composer resolution is blocked.",
+            "Framework compatibility findings require review."
+        ]
+    },
+    "effort": {
+        "range_hours": [
+            6,
+            30
+        ],
+        "confidence": "low",
+        "components": {
+            "dependency_resolution": [
+                3,
+                8
+            ],
+            "source_changes": [
+                1,
+                14
+            ],
+            "tests_and_debugging": [
+                2,
+                8
+            ]
+        },
+        "assumptions": [
+            "Estimate is heuristic until project-specific tests and Composer solver output are reviewed."
+        ]
+    },
+    "tests": [
+        {
+            "name": "composer-validation",
+            "purpose": "Validate the edited Composer manifest before dependency installation.",
+            "command": "composer validate --strict",
+            "priority": "required"
+        },
+        {
+            "name": "project-test-suite",
+            "purpose": "Identify and run the project test suite; no Composer test script was detected.",
+            "command": null,
+            "priority": "required"
+        },
+        {
+            "name": "platform-requirements",
+            "purpose": "Confirm the installed dependencies satisfy PHP 8.0.0 and the deployment extensions.",
+            "command": "composer check-platform-reqs",
+            "priority": "required"
+        },
+        {
+            "name": "focused-regressions",
+            "purpose": "Add or run focused regression coverage for the reported source and framework findings.",
+            "command": null,
+            "priority": "recommended"
+        }
+    ],
+    "uncertainties": [
+        "Dependency resolution does not prove application runtime compatibility; the project test suite must run on the target runtime.",
+        "Root PHP constraint \"^7.4\" does not include target platform PHP 8.0.0; select an appropriate Composer constraint instead of using the exact simulated platform version.",
+        "No Composer \"test\" script was found, so the project's canonical test command is unknown."
+    ],
+    "evidence": [
+        {
+            "id": "solver-1",
+            "class": "E1",
+            "summary": "Composer scenario \"exact-target\" failed.",
+            "confidence": "high",
+            "context": {
+                "scenario": "exact-target",
+                "targets": [
+                    {
+                        "package": "laravel/framework",
+                        "constraint": "^8.0"
+                    },
+                    {
+                        "package": "php",
+                        "constraint": "8.0.0"
+                    }
+                ],
+                "exit_code": 2,
+                "output_excerpt": "Your requirements could not be resolved to an installable set of packages.\n- Root composer.json retains legacy package constraints that exclude the requested Laravel target.",
+                "diagnostics": [
+                    {
+                        "package": "laravel/framework",
+                        "constraint": "^8.0",
+                        "command": [
+                            "composer",
+                            "prohibits",
+                            "laravel/framework",
+                            "^8.0",
+                            "--tree",
+                            "--locked",
+                            "--no-scripts",
+                            "--no-plugins",
+                            "--no-interaction"
+                        ],
+                        "exit_code": 1,
+                        "stdout_excerpt": "",
+                        "stderr_excerpt": "No additional fixture diagnostic."
+                    },
+                    {
+                        "package": "php",
+                        "constraint": "8.0.0",
+                        "command": [
+                            "composer",
+                            "prohibits",
+                            "php",
+                            "8.0.0",
+                            "--tree",
+                            "--locked",
+                            "--no-scripts",
+                            "--no-plugins",
+                            "--no-interaction"
+                        ],
+                        "exit_code": 1,
+                        "stdout_excerpt": "",
+                        "stderr_excerpt": "No additional fixture diagnostic."
+                    }
+                ]
+            }
+        },
+        {
+            "id": "solver-2",
+            "class": "E1",
+            "summary": "Composer scenario \"target-with-all-dependencies\" failed.",
+            "confidence": "high",
+            "context": {
+                "scenario": "target-with-all-dependencies",
+                "targets": [
+                    {
+                        "package": "laravel/framework",
+                        "constraint": "^8.0"
+                    },
+                    {
+                        "package": "php",
+                        "constraint": "8.0.0"
+                    }
+                ],
+                "exit_code": 2,
+                "output_excerpt": "Your requirements could not be resolved to an installable set of packages.\n- Root composer.json retains legacy package constraints that exclude the requested Laravel target.",
+                "diagnostics": [
+                    {
+                        "package": "laravel/framework",
+                        "constraint": "^8.0",
+                        "command": [
+                            "composer",
+                            "prohibits",
+                            "laravel/framework",
+                            "^8.0",
+                            "--tree",
+                            "--locked",
+                            "--no-scripts",
+                            "--no-plugins",
+                            "--no-interaction"
+                        ],
+                        "exit_code": 1,
+                        "stdout_excerpt": "",
+                        "stderr_excerpt": "No additional fixture diagnostic."
+                    },
+                    {
+                        "package": "php",
+                        "constraint": "8.0.0",
+                        "command": [
+                            "composer",
+                            "prohibits",
+                            "php",
+                            "8.0.0",
+                            "--tree",
+                            "--locked",
+                            "--no-scripts",
+                            "--no-plugins",
+                            "--no-interaction"
+                        ],
+                        "exit_code": 1,
+                        "stdout_excerpt": "",
+                        "stderr_excerpt": "No additional fixture diagnostic."
+                    }
+                ]
+            }
+        },
+        {
+            "id": "solver-3",
+            "class": "E1",
+            "summary": "Composer scenario \"minimal-changes\" failed.",
+            "confidence": "high",
+            "context": {
+                "scenario": "minimal-changes",
+                "targets": [
+                    {
+                        "package": "laravel/framework",
+                        "constraint": "^8.0"
+                    },
+                    {
+                        "package": "php",
+                        "constraint": "8.0.0"
+                    }
+                ],
+                "exit_code": 2,
+                "output_excerpt": "Your requirements could not be resolved to an installable set of packages.\n- Root composer.json retains legacy package constraints that exclude the requested Laravel target.",
+                "diagnostics": [
+                    {
+                        "package": "laravel/framework",
+                        "constraint": "^8.0",
+                        "command": [
+                            "composer",
+                            "prohibits",
+                            "laravel/framework",
+                            "^8.0",
+                            "--tree",
+                            "--locked",
+                            "--no-scripts",
+                            "--no-plugins",
+                            "--no-interaction"
+                        ],
+                        "exit_code": 1,
+                        "stdout_excerpt": "",
+                        "stderr_excerpt": "No additional fixture diagnostic."
+                    },
+                    {
+                        "package": "php",
+                        "constraint": "8.0.0",
+                        "command": [
+                            "composer",
+                            "prohibits",
+                            "php",
+                            "8.0.0",
+                            "--tree",
+                            "--locked",
+                            "--no-scripts",
+                            "--no-plugins",
+                            "--no-interaction"
+                        ],
+                        "exit_code": 1,
+                        "stdout_excerpt": "",
+                        "stderr_excerpt": "No additional fixture diagnostic."
+                    }
+                ]
+            }
+        },
+        {
+            "id": "solver-4",
+            "class": "E1",
+            "summary": "Composer scenario \"target-platform-only\" failed.",
+            "confidence": "high",
+            "context": {
+                "scenario": "target-platform-only",
+                "targets": [
+                    {
+                        "package": "php",
+                        "constraint": "8.0.0"
+                    }
+                ],
+                "exit_code": 2,
+                "output_excerpt": "Your requirements could not be resolved to an installable set of packages.\n- Root composer.json retains legacy package constraints that exclude the requested Laravel target.",
+                "diagnostics": [
+                    {
+                        "package": "php",
+                        "constraint": "8.0.0",
+                        "command": [
+                            "composer",
+                            "prohibits",
+                            "php",
+                            "8.0.0",
+                            "--tree",
+                            "--locked",
+                            "--no-scripts",
+                            "--no-plugins",
+                            "--no-interaction"
+                        ],
+                        "exit_code": 1,
+                        "stdout_excerpt": "",
+                        "stderr_excerpt": "No additional fixture diagnostic."
+                    }
+                ]
+            }
+        },
+        {
+            "id": "solver-5",
+            "class": "E1",
+            "summary": "Composer scenario \"staged-targets\" failed.",
+            "confidence": "high",
+            "context": {
+                "scenario": "staged-targets",
+                "targets": [
+                    {
+                        "package": "laravel/framework",
+                        "constraint": "^8.0"
+                    },
+                    {
+                        "package": "php",
+                        "constraint": "7.4.0"
+                    }
+                ],
+                "exit_code": 2,
+                "output_excerpt": "Your requirements could not be resolved to an installable set of packages.\n- Root composer.json retains legacy package constraints that exclude the requested Laravel target.",
+                "diagnostics": [
+                    {
+                        "package": "laravel/framework",
+                        "constraint": "^8.0",
+                        "command": [
+                            "composer",
+                            "prohibits",
+                            "laravel/framework",
+                            "^8.0",
+                            "--tree",
+                            "--locked",
+                            "--no-scripts",
+                            "--no-plugins",
+                            "--no-interaction"
+                        ],
+                        "exit_code": 1,
+                        "stdout_excerpt": "",
+                        "stderr_excerpt": "No additional fixture diagnostic."
+                    }
+                ]
+            }
+        },
+        {
+            "id": "source-1",
+            "class": "E3",
+            "summary": "Detected Fruitcake\\Cors\\HandleCors in app/Http/Kernel.php.",
+            "confidence": "high",
+            "context": {
+                "file": "app/Http/Kernel.php",
+                "line": 10,
+                "usage_type": "class_constant_access"
+            }
+        },
+        {
+            "id": "source-2",
+            "class": "E3",
+            "summary": "Detected Fruitcake\\Cors\\HandleCors in app/Http/Kernel.php.",
+            "confidence": "high",
+            "context": {
+                "file": "app/Http/Kernel.php",
+                "line": 10,
+                "usage_type": "middleware_reference"
+            }
+        },
+        {
+            "id": "source-3",
+            "class": "E3",
+            "summary": "Detected Facade\\Ignition\\IgnitionServiceProvider in config/app.php.",
+            "confidence": "high",
+            "context": {
+                "file": "config/app.php",
+                "line": 5,
+                "usage_type": "class_constant_access"
+            }
+        },
+        {
+            "id": "source-4",
+            "class": "E3",
+            "summary": "Detected Facade\\Ignition\\Facades\\Flare in config/app.php.",
+            "confidence": "high",
+            "context": {
+                "file": "config/app.php",
+                "line": 8,
+                "usage_type": "class_constant_access"
+            }
+        },
+        {
+            "id": "source-5",
+            "class": "E3",
+            "summary": "Detected Facade\\Ignition\\IgnitionServiceProvider in config/app.php.",
+            "confidence": "high",
+            "context": {
+                "file": "config/app.php",
+                "line": 5,
+                "usage_type": "service_provider"
+            }
+        },
+        {
+            "id": "source-6",
+            "class": "E3",
+            "summary": "Detected Facade\\Ignition\\Facades\\Flare in config/app.php.",
+            "confidence": "high",
+            "context": {
+                "file": "config/app.php",
+                "line": 8,
+                "usage_type": "facade_alias"
+            }
+        },
+        {
+            "id": "laravel-framework-constraint-1",
+            "class": "E2",
+            "summary": "The root Laravel framework constraint does not include the requested target major.",
+            "confidence": "high",
+            "context": {
+                "package": "laravel/framework",
+                "root_constraint": "^7.0",
+                "target_constraint": "^8.0",
+                "target_laravel_major": 8
+            }
+        },
+        {
+            "id": "laravel-php-constraint-1",
+            "class": "E2",
+            "summary": "The detected PHP target or root constraint does not satisfy the Laravel target PHP range.",
+            "confidence": "high",
+            "context": {
+                "observation": "target_php",
+                "observed_php": "8.0.0",
+                "root_php_constraint": "^7.4",
+                "required_php": "^7.3|^8.0",
+                "target_laravel_major": 8,
+                "laravel_range_satisfied": true,
+                "root_constraint_satisfied": false
+            }
+        },
+        {
+            "id": "laravel-package-facade_ignition-1",
+            "class": "E2",
+            "summary": "facade/ignition is present in Composer metadata.",
+            "confidence": "high",
+            "context": {
+                "package": "facade/ignition",
+                "locked_version": "1.16.4",
+                "root_constraint": "^1.0",
+                "framework_requirements": [],
+                "target_laravel_major": 8
+            }
+        },
+        {
+            "id": "laravel-package-guidance-1",
+            "class": "E4",
+            "summary": "The encoded Laravel 8 guidance maps facade/ignition to `>=2.3.6 <3.0`.",
+            "confidence": "medium",
+            "context": {
+                "package": "facade/ignition",
+                "target_laravel_major": 8,
+                "compatible_package_constraint": ">=2.3.6 <3.0",
+                "sources": [
+                    "https://laravel.com/docs/8.x/upgrade"
+                ]
+            }
+        },
+        {
+            "id": "laravel-skeleton-guidance-1",
+            "class": "E5",
+            "summary": "Detected Kernel middleware, application provider/alias entries, or TrustProxies inheritance identify skeleton-managed integration points for manual comparison.",
+            "confidence": "low",
+            "context": {
+                "target_laravel_major": 8,
+                "indicator_count": 3,
+                "indicators": [
+                    {
+                        "file": "app/Http/Kernel.php",
+                        "line": 10,
+                        "symbol": "Fruitcake\\Cors\\HandleCors",
+                        "usage_type": "middleware_reference"
+                    },
+                    {
+                        "file": "config/app.php",
+                        "line": 5,
+                        "symbol": "Facade\\Ignition\\IgnitionServiceProvider",
+                        "usage_type": "service_provider"
+                    },
+                    {
+                        "file": "config/app.php",
+                        "line": 8,
+                        "symbol": "Facade\\Ignition\\Facades\\Flare",
+                        "usage_type": "facade_alias"
+                    }
+                ],
+                "claim": "review_location_only"
+            }
+        },
+        {
+            "id": "root-constraint-1",
+            "class": "E2",
+            "summary": "Compared the root requirement for laravel/framework with the requested target.",
+            "confidence": "high",
+            "context": {
+                "package": "laravel/framework",
+                "from_constraint": "^7.0",
+                "to_constraint": "^8.0"
+            }
+        },
+        {
+            "id": "plan-1",
+            "class": "E5",
+            "summary": "Generated conservative staged actions from the requested targets and detected findings.",
+            "confidence": "low",
+            "context": {
+                "target_count": 2,
+                "root_constraint_change_count": 1,
+                "blocker_count": 2,
+                "source_finding_count": 6,
+                "framework_finding_count": 4
+            }
+        }
+    ]
+}

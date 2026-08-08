@@ -91,8 +91,8 @@ Status: passed on 2026-08-08. Evidence is recorded in [`docs/releases/v0.1.0.md`
 
 ## Milestone 1: Lock the v0.2 Contract
 
-- [ ] Preserve a v0.1 compatibility fixture that snapshots the public PHP operation, CLI arguments, exit policy, schema `0.6`, and all six approved Laravel reports.
-- [ ] Approve the exact adjacent Laravel transition matrix. Review the official [Laravel 10](https://laravel.com/docs/10.x/upgrade), [Laravel 11](https://laravel.com/docs/11.x/upgrade), [Laravel 12](https://laravel.com/docs/12.x/upgrade), and [Laravel 13](https://laravel.com/docs/13.x/upgrade) guides plus exact package manifests before encoding a range.
+- [x] Preserve a v0.1 compatibility fixture that snapshots the public PHP operation, CLI arguments, exit policy, schema `0.6`, and all six approved Laravel reports.
+- [x] Approve the exact adjacent Laravel transition matrix. Review the official [Laravel 10](https://laravel.com/docs/10.x/upgrade), [Laravel 11](https://laravel.com/docs/11.x/upgrade), [Laravel 12](https://laravel.com/docs/12.x/upgrade), and [Laravel 13](https://laravel.com/docs/13.x/upgrade) guides plus exact package manifests before encoding a range.
 - [ ] Define `supported`, `partially_supported`, and `unsupported` transition semantics. Ambiguous source majors and missing adjacent rule packs must produce uncertainty, not a best guess.
 - [ ] Define how direct Composer feasibility, adjacent upgrade hops, package changes, and framework guidance appear together without contradicting one another.
 - [ ] Plan schema `0.7` for platform provenance and actionable source-impact fields. Preserve every historical schema file and document the consumer migration from `0.6`.

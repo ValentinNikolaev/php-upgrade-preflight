@@ -35,6 +35,8 @@ docker compose run --rm php composer test:fixtures
 
 The six Laravel fixture reports are approval tests. Review both formats after an intentional behavior change, then regenerate them.
 
+The v0.1 compatibility manifest at `tests/fixtures/contracts/v0.1.json` locks the public PHP operation, generic CLI surface, exit policy, schema `0.6`, and byte-for-byte report artifacts archived from the signed `v0.1.0` tag under `tests/fixtures/contracts/v0.1/laravel-reports`. Current development snapshots remain separate under `packages/laravel/tests/Snapshots`. Do not update the archived reports or manifest during ordinary snapshot regeneration. A correction to the released v0.1 baseline requires explicit compatibility review and documented provenance.
+
 POSIX shell:
 
 ```bash

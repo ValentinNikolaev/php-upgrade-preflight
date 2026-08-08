@@ -4,6 +4,11 @@ This project follows [Semantic Versioning](https://semver.org/). Report schema v
 
 ## [Unreleased]
 
+### Added
+
+- A machine-checked v0.1 compatibility contract covering the public PHP operation, generic CLI arguments and defaults, exit policy, schema `0.6`, and all six Laravel JSON/Markdown report approvals archived from the signed `v0.1.0` release.
+- The commit-pinned Laravel v0.2 transition scope through Laravel 13, with exact official guide, framework-manifest, and application-manifest evidence.
+
 ## [0.1.0] - 2026-08-08
 
 ### Added

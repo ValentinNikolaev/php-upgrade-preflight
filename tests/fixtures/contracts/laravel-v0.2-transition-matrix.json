@@ -1,0 +1,277 @@
+{
+    "contract": "laravel-v0.2-transition-scope",
+    "approved_on": "2026-08-08",
+    "decision": {
+        "laravel_13": "included",
+        "planned_adapter_illuminate_range": "^8.0|^9.0|^10.0|^11.0|^12.0|^13.0",
+        "note": "This is approved implementation scope, not a claim that the current v0.1 rule pack or adapter already supports every listed target."
+    },
+    "retained_v0_1_transitions": [
+        {
+            "from": 7,
+            "to": 8,
+            "kind": "adjacent"
+        },
+        {
+            "from": 7,
+            "to": 9,
+            "kind": "legacy_direct"
+        }
+    ],
+    "in_scope_adjacent_transitions": [
+        {
+            "from": 8,
+            "to": 9,
+            "target_constraint": "^9.0",
+            "minimum_target_php": "8.0.2",
+            "evidence_target": 9
+        },
+        {
+            "from": 9,
+            "to": 10,
+            "target_constraint": "^10.0",
+            "minimum_target_php": "8.1.0",
+            "evidence_target": 10
+        },
+        {
+            "from": 10,
+            "to": 11,
+            "target_constraint": "^11.0",
+            "minimum_target_php": "8.2.0",
+            "evidence_target": 11
+        },
+        {
+            "from": 11,
+            "to": 12,
+            "target_constraint": "^12.0",
+            "minimum_target_php": "8.2.0",
+            "evidence_target": 12
+        },
+        {
+            "from": 12,
+            "to": 13,
+            "target_constraint": "^13.0",
+            "minimum_target_php": "8.3.0",
+            "evidence_target": 13
+        }
+    ],
+    "reviewed_targets": [
+        {
+            "major": 9,
+            "guide": {
+                "url": "https://laravel.com/docs/9.x/upgrade",
+                "source": "https://github.com/laravel/docs/blob/177c095cc802ea0a1fa5f765e870c2cccaae9aa2/upgrade.md",
+                "commit": "177c095cc802ea0a1fa5f765e870c2cccaae9aa2",
+                "platform": {
+                    "php": ">=8.0.2"
+                },
+                "dependencies": {
+                    "laravel/framework": "^9.0",
+                    "nunomaduro/collision": "^6.1",
+                    "pusher/pusher-php-server": "^5.0",
+                    "spatie/laravel-ignition": "^1.0"
+                }
+            },
+            "framework_manifest": {
+                "source": "https://github.com/laravel/framework/blob/feb47bae900315eb9b030de98626b384cbbb86ac/composer.json",
+                "commit": "feb47bae900315eb9b030de98626b384cbbb86ac",
+                "require": {
+                    "php": "^8.0.2",
+                    "composer-runtime-api": null,
+                    "nesbot/carbon": "^2.62.1"
+                },
+                "require-dev": {
+                    "phpunit/phpunit": "^9.5.8"
+                }
+            },
+            "application_manifest": {
+                "source": "https://github.com/laravel/laravel/blob/5b60b604c4167b30286a6e033723a6b274e8452d/composer.json",
+                "commit": "5b60b604c4167b30286a6e033723a6b274e8452d",
+                "require": {
+                    "php": "^8.0.2",
+                    "laravel/framework": "^9.19"
+                },
+                "require-dev": {
+                    "nunomaduro/collision": "^6.1",
+                    "phpunit/phpunit": "^9.5.10"
+                }
+            }
+        },
+        {
+            "major": 10,
+            "guide": {
+                "url": "https://laravel.com/docs/10.x/upgrade",
+                "source": "https://github.com/laravel/docs/blob/37e19ec52ec0894e9380fb57f3c5d0dd1f85872a/upgrade.md",
+                "commit": "37e19ec52ec0894e9380fb57f3c5d0dd1f85872a",
+                "platform": {
+                    "php": ">=8.1.0",
+                    "composer": ">=2.2.0"
+                },
+                "dependencies": {
+                    "doctrine/dbal": "^3.0",
+                    "laravel/framework": "^10.0",
+                    "laravel/passport": "^11.0",
+                    "laravel/sanctum": "^3.2",
+                    "laravel/ui": "^4.0",
+                    "nunomaduro/collision": "^7.0",
+                    "phpunit/phpunit": "^10.0",
+                    "spatie/laravel-ignition": "^2.0"
+                }
+            },
+            "framework_manifest": {
+                "source": "https://github.com/laravel/framework/blob/61cad00bdaf0f710da070e1596c9ca6d567f4d12/composer.json",
+                "commit": "61cad00bdaf0f710da070e1596c9ca6d567f4d12",
+                "require": {
+                    "php": "^8.1",
+                    "composer-runtime-api": "^2.2",
+                    "nesbot/carbon": "^2.67"
+                },
+                "require-dev": {
+                    "phpunit/phpunit": "^10.0.7"
+                }
+            },
+            "application_manifest": {
+                "source": "https://github.com/laravel/laravel/blob/7effeb99ec1568f006ed95e60d3e7dfeed1b8160/composer.json",
+                "commit": "7effeb99ec1568f006ed95e60d3e7dfeed1b8160",
+                "require": {
+                    "php": "^8.1",
+                    "laravel/framework": "^10.10"
+                },
+                "require-dev": {
+                    "nunomaduro/collision": "^7.0",
+                    "phpunit/phpunit": "^10.1"
+                }
+            }
+        },
+        {
+            "major": 11,
+            "guide": {
+                "url": "https://laravel.com/docs/11.x/upgrade",
+                "source": "https://github.com/laravel/docs/blob/be9d43b96acd98dc32872b7498d158430c251f1c/upgrade.md",
+                "commit": "be9d43b96acd98dc32872b7498d158430c251f1c",
+                "platform": {
+                    "php": ">=8.2.0",
+                    "curl": ">=7.34.0"
+                },
+                "dependencies": {
+                    "inertiajs/inertia-laravel": "^1.0",
+                    "laravel/breeze": "^2.0",
+                    "laravel/cashier": "^15.0",
+                    "laravel/dusk": "^8.0",
+                    "laravel/framework": "^11.0",
+                    "laravel/jetstream": "^5.0",
+                    "laravel/octane": "^2.3",
+                    "laravel/passport": "^12.0",
+                    "laravel/sanctum": "^4.0",
+                    "laravel/scout": "^10.0",
+                    "laravel/spark-stripe": "^5.0",
+                    "laravel/telescope": "^5.0",
+                    "livewire/livewire": "^3.4",
+                    "nunomaduro/collision": "^8.1"
+                }
+            },
+            "framework_manifest": {
+                "source": "https://github.com/laravel/framework/blob/e353708c960ec5066d76b0da4b81c8a68d183b93/composer.json",
+                "commit": "e353708c960ec5066d76b0da4b81c8a68d183b93",
+                "require": {
+                    "php": "^8.2",
+                    "composer-runtime-api": "^2.2",
+                    "nesbot/carbon": "^2.72.6|^3.8.4"
+                },
+                "require-dev": {
+                    "phpunit/phpunit": "^10.5.35|^11.3.6|^12.0.1"
+                }
+            },
+            "application_manifest": {
+                "source": "https://github.com/laravel/laravel/blob/ecf6de4992d70dd37c21676be6b8ba4743151e63/composer.json",
+                "commit": "ecf6de4992d70dd37c21676be6b8ba4743151e63",
+                "require": {
+                    "php": "^8.2",
+                    "laravel/framework": "^11.31"
+                },
+                "require-dev": {
+                    "nunomaduro/collision": "^8.1",
+                    "phpunit/phpunit": "^11.0.1"
+                }
+            }
+        },
+        {
+            "major": 12,
+            "guide": {
+                "url": "https://laravel.com/docs/12.x/upgrade",
+                "source": "https://github.com/laravel/docs/blob/5b8c610735c8af96a3bda4e37a820b27dc40aee9/upgrade.md",
+                "commit": "5b8c610735c8af96a3bda4e37a820b27dc40aee9",
+                "platform": {},
+                "dependencies": {
+                    "laravel/framework": "^12.0",
+                    "pestphp/pest": "^3.0",
+                    "phpunit/phpunit": "^11.0"
+                }
+            },
+            "framework_manifest": {
+                "source": "https://github.com/laravel/framework/blob/5260836df1b953a558d9b810880f20db15568c01/composer.json",
+                "commit": "5260836df1b953a558d9b810880f20db15568c01",
+                "require": {
+                    "php": "^8.2",
+                    "composer-runtime-api": "^2.2",
+                    "nesbot/carbon": "^3.8.4"
+                },
+                "require-dev": {
+                    "phpunit/phpunit": "^10.5.35|^11.5.3|^12.0.1"
+                }
+            },
+            "application_manifest": {
+                "source": "https://github.com/laravel/laravel/blob/e90c74ca717e9082d7463a2db50814fe565a3e44/composer.json",
+                "commit": "e90c74ca717e9082d7463a2db50814fe565a3e44",
+                "require": {
+                    "php": "^8.2",
+                    "laravel/framework": "^12.0"
+                },
+                "require-dev": {
+                    "nunomaduro/collision": "^8.6",
+                    "phpunit/phpunit": "^11.5.50"
+                }
+            }
+        },
+        {
+            "major": 13,
+            "guide": {
+                "url": "https://laravel.com/docs/13.x/upgrade",
+                "source": "https://github.com/laravel/docs/blob/9c5a062c14069bab9054b558829e282f9593a065/upgrade.md",
+                "commit": "9c5a062c14069bab9054b558829e282f9593a065",
+                "platform": {},
+                "dependencies": {
+                    "laravel/boost": "^2.0",
+                    "laravel/framework": "^13.0",
+                    "laravel/tinker": "^3.0",
+                    "pestphp/pest": "^4.0",
+                    "phpunit/phpunit": "^12.0"
+                }
+            },
+            "framework_manifest": {
+                "source": "https://github.com/laravel/framework/blob/8df67f9d176d1d0375a866d8c6780be95ce0336e/composer.json",
+                "commit": "8df67f9d176d1d0375a866d8c6780be95ce0336e",
+                "require": {
+                    "php": "^8.3",
+                    "composer-runtime-api": "^2.2",
+                    "nesbot/carbon": "^3.8.4"
+                },
+                "require-dev": {
+                    "phpunit/phpunit": "^11.5.50 || ^12.5.8 || ^13.0.3"
+                }
+            },
+            "application_manifest": {
+                "source": "https://github.com/laravel/laravel/blob/c926b8ca7fa01e71852e19141f2bdd7fabfb6ade/composer.json",
+                "commit": "c926b8ca7fa01e71852e19141f2bdd7fabfb6ade",
+                "require": {
+                    "php": "^8.3",
+                    "laravel/framework": "^13.17"
+                },
+                "require-dev": {
+                    "nunomaduro/collision": "^8.6",
+                    "phpunit/phpunit": "^12.5.12"
+                }
+            }
+        }
+    ]
+}

@@ -1,0 +1,219 @@
+{
+    "contract": "php-upgrade-preflight-v0.1",
+    "released_version": "0.1.0",
+    "released_commit": "a8d154826f35fcb25a22868556534cc8c0331c0c",
+    "public_php_operation": {
+        "interface": "PhpUpgradePreflight\\Core\\Contracts\\UpgradeAnalyzer",
+        "method": "analyzeUpgrade",
+        "public": true,
+        "static": false,
+        "parameters": [
+            {
+                "name": "request",
+                "type": "PhpUpgradePreflight\\Core\\Model\\UpgradeRequest",
+                "optional": false,
+                "by_reference": false,
+                "variadic": false
+            }
+        ],
+        "return_type": "PhpUpgradePreflight\\Core\\Model\\UpgradeReport"
+    },
+    "cli": {
+        "binary": "upgrade-intel",
+        "command": "analyze",
+        "arguments": [
+            {
+                "syntax": "--path=PATH",
+                "repeatable": false,
+                "default": "current directory"
+            },
+            {
+                "syntax": "--target=PACKAGE:VALUE",
+                "repeatable": true,
+                "default": []
+            },
+            {
+                "syntax": "--target-php=VERSION",
+                "repeatable": false,
+                "default": null
+            },
+            {
+                "syntax": "--from-php=VALUE",
+                "repeatable": false,
+                "default": null
+            },
+            {
+                "syntax": "--source=PATH",
+                "repeatable": true,
+                "default": []
+            },
+            {
+                "syntax": "--framework=NAME",
+                "repeatable": true,
+                "default": []
+            },
+            {
+                "syntax": "--format=json|markdown",
+                "repeatable": false,
+                "default": "json"
+            },
+            {
+                "syntax": "--output=PATH",
+                "repeatable": false,
+                "default": null
+            },
+            {
+                "syntax": "--debug",
+                "repeatable": false,
+                "default": false
+            },
+            {
+                "syntax": "-h, --help",
+                "repeatable": false,
+                "default": false
+            }
+        ],
+        "help": "Usage:\n  upgrade-intel analyze --target=package:constraint [options]\n\nOptions:\n  --path=PATH             Project path to analyze (default: current directory)\n  --target=PACKAGE:VALUE  Target package constraint; repeatable\n  --target-php=VERSION    Explicit target PHP platform version\n  --from-php=VALUE        Current project PHP version\n  --source=PATH           Additional source path to scan; repeatable\n  --framework=NAME        Framework integration to enable; repeatable\n  --format=json|markdown  Report format (default: json)\n  --output=PATH           Write the report to a file\n  --debug                 Preserve temporary Composer workspaces\n  -h, --help              Show this help\n",
+        "probe_argv": [
+            "upgrade-intel",
+            "analyze",
+            "--path=<PROJECT_PATH>",
+            "--target=laravel/framework:^9.0",
+            "--target=vendor/package:^2.0",
+            "--target-php=8.1",
+            "--from-php=7.4",
+            "--source=packages/core/src",
+            "--source=packages/cli/src",
+            "--framework=laravel",
+            "--framework=fixture",
+            "--format=markdown",
+            "--output=<PROJECT_PATH>/../upgrade-report.md",
+            "--debug"
+        ],
+        "probe_result": {
+            "path": "<PROJECT_PATH>",
+            "target": [
+                "laravel/framework:^9.0",
+                "vendor/package:^2.0"
+            ],
+            "target-php": "8.1",
+            "from-php": "7.4",
+            "source": [
+                "packages/core/src",
+                "packages/cli/src"
+            ],
+            "framework": [
+                "laravel",
+                "fixture"
+            ],
+            "format": "markdown",
+            "output": "<PROJECT_PATH>/../upgrade-report.md",
+            "debug": true
+        },
+        "default_probe_result": {
+            "path": "<CURRENT_DIRECTORY>",
+            "target": [],
+            "target-php": "8.2",
+            "from-php": null,
+            "source": [],
+            "framework": [],
+            "format": "json",
+            "output": null,
+            "debug": false
+        }
+    },
+    "exit_policy": {
+        "success": {
+            "code": 0,
+            "conditions": [
+                "help",
+                "completed canonical report, including blocked or unknown resolution"
+            ]
+        },
+        "failure": {
+            "code": 1,
+            "conditions": [
+                "internal or operational failure prevented report production"
+            ]
+        },
+        "invalid": {
+            "code": 2,
+            "conditions": [
+                "invalid invocation"
+            ]
+        }
+    },
+    "canonical_schema": {
+        "version": "0.6",
+        "path": "packages/core/resources/schema/upgrade-report-v0.6.schema.json",
+        "sha256": "3a00304e0cee642d3795ed75f97f0a83145e62a2566927840f11e9a9e505c223"
+    },
+    "approved_laravel_reports": [
+        {
+            "fixture": "blocked-illuminate-constraint",
+            "json": {
+                "path": "tests/fixtures/contracts/v0.1/laravel-reports/blocked-illuminate-constraint.json",
+                "sha256": "3b48a2372af5c978da559ce1712001380cd26e30f6f5a88e03a560104028ab59"
+            },
+            "markdown": {
+                "path": "tests/fixtures/contracts/v0.1/laravel-reports/blocked-illuminate-constraint.md",
+                "sha256": "0d3c67ea734acdc283c16461894ea860db08ac6f55808b1d2673f428a0aa585b"
+            }
+        },
+        {
+            "fixture": "ignition-legacy-skeleton",
+            "json": {
+                "path": "tests/fixtures/contracts/v0.1/laravel-reports/ignition-legacy-skeleton.json",
+                "sha256": "8345d2baad11ffa3aca6433e5e88e23390563a3272f96167e185f3d57311e1dc"
+            },
+            "markdown": {
+                "path": "tests/fixtures/contracts/v0.1/laravel-reports/ignition-legacy-skeleton.md",
+                "sha256": "4e4a64a13a7c630b4c04ee4212d2277b9141b71b827233ebe16f7442529f0eda"
+            }
+        },
+        {
+            "fixture": "laravel-7-to-8",
+            "json": {
+                "path": "tests/fixtures/contracts/v0.1/laravel-reports/laravel-7-to-8.json",
+                "sha256": "dedf25a90a621f25df765411c4482df254ca00bd2d0251a94729d2282d00f365"
+            },
+            "markdown": {
+                "path": "tests/fixtures/contracts/v0.1/laravel-reports/laravel-7-to-8.md",
+                "sha256": "1151ecfc9eca31c156994ee32ecf441ee7825e2d42b08e3efb75ebe59ac9c017"
+            }
+        },
+        {
+            "fixture": "laravel-7-to-9",
+            "json": {
+                "path": "tests/fixtures/contracts/v0.1/laravel-reports/laravel-7-to-9.json",
+                "sha256": "c283e7d6d53bb29fbb37164eab49e52fb758fda4b6671c87035a0a62e1d8d9fe"
+            },
+            "markdown": {
+                "path": "tests/fixtures/contracts/v0.1/laravel-reports/laravel-7-to-9.md",
+                "sha256": "aa5308d0ec78bfc220174341845e977c28ace31887f6cebf590266739e41f53c"
+            }
+        },
+        {
+            "fixture": "laravel-package-matrix",
+            "json": {
+                "path": "tests/fixtures/contracts/v0.1/laravel-reports/laravel-package-matrix.json",
+                "sha256": "0f0e8fe6c669ad240cc22ef1bf1ae7d620ccc94628f5ef676d139e558ffc9df8"
+            },
+            "markdown": {
+                "path": "tests/fixtures/contracts/v0.1/laravel-reports/laravel-package-matrix.md",
+                "sha256": "7c5294d07a5a701651eb853c9589ff3ba05340d7519d0ad1659439eac48fb283"
+            }
+        },
+        {
+            "fixture": "php-extension-conflict",
+            "json": {
+                "path": "tests/fixtures/contracts/v0.1/laravel-reports/php-extension-conflict.json",
+                "sha256": "257639452557b42b8e43584cf63591af30de44e7efa16355db089b12cda78d58"
+            },
+            "markdown": {
+                "path": "tests/fixtures/contracts/v0.1/laravel-reports/php-extension-conflict.md",
+                "sha256": "b8a648a0c363cab3d3654635dcc80d90daf7e297faf95233eb7aea53287aeedb"
+            }
+        }
+    ]
+}

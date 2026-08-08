@@ -81,6 +81,7 @@ Six application-shaped Laravel fixtures have approved JSON and Markdown snapshot
 - [CLI reference](docs/cli.md)
 - [Artisan reference](docs/artisan.md)
 - [JSON schema and compatibility](docs/schema.md)
+- [Laravel v0.2 transition scope](docs/laravel-v0.2-transition-scope.md)
 - [Limitations and trust boundaries](docs/limitations.md)
 - [Troubleshooting](docs/troubleshooting.md)
 - [Contributing](CONTRIBUTING.md)
