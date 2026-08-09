@@ -89,14 +89,14 @@ final class V01CompatibilityContractTest extends TestCase
         );
 
         self::assertSame(AnalyzeCommand::SUCCESS, $exitCode);
-        self::assertSame($cli['help'], $stdout);
+        $this->assertLegacyHelpIsPreserved($cli['help'], $stdout);
         self::assertSame('', $stderr);
         [$shortHelpExit, $shortHelpOutput, $shortHelpError] = $this->runCommand(
             new V01BlockedAnalyzer(),
             [(string) $cli['binary'], '-h']
         );
         self::assertSame(AnalyzeCommand::SUCCESS, $shortHelpExit);
-        self::assertSame($cli['help'], $shortHelpOutput);
+        self::assertSame($stdout, $shortHelpOutput);
         self::assertSame('', $shortHelpError);
         foreach ($cli['arguments'] as $argument) {
             self::assertIsArray($argument);
@@ -121,6 +121,20 @@ final class V01CompatibilityContractTest extends TestCase
         self::assertSame($currentDirectory, $defaults['path']);
         $defaults['path'] = '<CURRENT_DIRECTORY>';
         self::assertSame($cli['default_probe_result'], $defaults);
+    }
+
+    private function assertLegacyHelpIsPreserved(string $legacy, string $actual): void
+    {
+        $lines = preg_split('/\R/', $legacy);
+        self::assertIsArray($lines);
+
+        foreach ($lines as $line) {
+            if (trim($line) === '') {
+                continue;
+            }
+
+            self::assertStringContainsString($line, $actual);
+        }
     }
 
     public function testItLocksTheExitPolicyIncludingValidBlockedAndUnknownReports(): void

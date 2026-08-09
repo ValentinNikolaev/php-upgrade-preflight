@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace PhpUpgradePreflight\Cli;
 
+use PhpUpgradePreflight\Core\Model\ExtensionAssumption;
+use PhpUpgradePreflight\Core\Model\ExtensionAssumptionSet;
 use PhpUpgradePreflight\Core\Model\ReportFormat;
 
 final class CommandLineParser
@@ -17,6 +19,7 @@ final class CommandLineParser
      *     from-php: ?string,
      *     source: list<string>,
      *     framework: list<string>,
+     *     extension-assumptions?: list<ExtensionAssumption>,
      *     format: string,
      *     output: ?string,
      *     debug: bool
@@ -50,6 +53,8 @@ final class CommandLineParser
             'debug' => false,
         ];
         $seen = [];
+        $presentExtensions = [];
+        $absentExtensions = [];
 
         foreach ($arguments as $argument) {
             if ($argument === '--debug') {
@@ -70,6 +75,16 @@ final class CommandLineParser
 
             if ($name === 'debug') {
                 throw new \InvalidArgumentException('Option "--debug" does not accept a value.');
+            }
+
+            if ($name === 'with-extension') {
+                $presentExtensions[] = $value;
+                continue;
+            }
+
+            if ($name === 'without-extension') {
+                $absentExtensions[] = $value;
+                continue;
             }
 
             if (in_array($name, ['target', 'source', 'framework'], true)) {
@@ -94,6 +109,10 @@ final class CommandLineParser
         }
 
         $options['format'] = ReportFormat::normalize((string) $options['format']);
+        $extensionAssumptions = ExtensionAssumptionSet::fromInputs($presentExtensions, $absentExtensions)->all();
+        if ($extensionAssumptions !== []) {
+            $options['extension-assumptions'] = $extensionAssumptions;
+        }
 
         return $options;
     }

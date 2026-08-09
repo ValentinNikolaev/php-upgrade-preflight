@@ -33,6 +33,8 @@ final class AnalyzeUpgradeCommandTest extends TestCase
             '--target-php' => '8.2',
             '--from-php' => '7.4',
             '--source' => ['app'],
+            '--with-extension' => ['ext-intl:72.1'],
+            '--without-extension' => ['ext-xdebug'],
             '--format' => 'markdown',
         ], ['capture_stderr_separately' => true]);
 
@@ -44,6 +46,10 @@ final class AnalyzeUpgradeCommandTest extends TestCase
         self::assertSame('7.4', $analyzer->request->fromPhp());
         self::assertSame(['app'], $analyzer->request->sourcePaths());
         self::assertSame(['laravel'], $analyzer->request->frameworks());
+        self::assertSame(['ext-intl', 'ext-xdebug'], array_map(
+            static fn ($assumption): string => $assumption->name(),
+            $analyzer->request->extensionAssumptions()
+        ));
         self::assertSame(ReportFormat::MARKDOWN, $analyzer->request->format());
         self::assertStringStartsWith('# PHP Upgrade Preflight', $tester->getDisplay());
         self::assertStringContainsString('Literal <info>canonical text</info> remains unchanged.', $tester->getDisplay());
@@ -81,6 +87,12 @@ final class AnalyzeUpgradeCommandTest extends TestCase
             [['--path' => $projectPath, '--target' => ['php:8.1'], '--target-php' => '8.2'], 'Conflicting PHP targets'],
             [['--path' => $projectPath, '--target-php' => '8.2', '--source' => ['missing']], 'Source path'],
             [['--path' => $projectPath, '--target-php' => '8.2', '--format' => 'yaml'], 'Unsupported report format'],
+            [[
+                '--path' => $projectPath,
+                '--target-php' => '8.2',
+                '--with-extension' => ['ext-json'],
+                '--without-extension' => ['EXT-JSON'],
+            ], 'may only be specified once'],
             [[
                 '--path' => $projectPath,
                 '--target-php' => '8.2',

@@ -102,12 +102,14 @@ Status: passed on 2026-08-08. Evidence is recorded in [`docs/releases/v0.1.0.md`
 
 Acceptance gate: the repository contains one approved v0.2 scope and transition matrix, a schema migration decision, measurable budgets, and compatibility tests that fail on accidental v0.1 contract drift.
 
+Status: passed on 2026-08-08. Evidence is recorded in [`docs/v0.2-contract.md`](../docs/v0.2-contract.md), [`docs/laravel-v0.2-transition-scope.md`](../docs/laravel-v0.2-transition-scope.md), [`tests/fixtures/contracts/v0.2.json`](../tests/fixtures/contracts/v0.2.json), and the v0.1/v0.2 release contract tests. The complete `composer check` gate passed with 356 tests and 3,093 assertions.
+
 ## Milestone 2: Platform Determinism and Report Privacy
 
-- [ ] Introduce a typed target-platform model that distinguishes analyzer runtime, current project PHP, target PHP, host extensions, and explicitly simulated extension assumptions.
-- [ ] Define CLI and Artisan input for extension presence, absence, and version assumptions without allowing contradictory duplicate values.
-- [ ] Apply platform assumptions only in temporary Composer workspaces and record their provenance in the canonical report.
-- [ ] Record uncertainty when an extension result depends on unmodeled host state. Do not present a host-dependent result as reproducible target evidence.
+- [x] Introduce a typed target-platform model that distinguishes analyzer runtime, current project PHP, target PHP, host extensions, and explicitly simulated extension assumptions.
+- [x] Define CLI and Artisan input for extension presence, absence, and version assumptions without allowing contradictory duplicate values.
+- [x] Apply platform assumptions only in temporary Composer workspaces and record their provenance in the canonical report.
+- [x] Record uncertainty when an extension result depends on unmodeled host state. Do not present a host-dependent result as reproducible target evidence.
 - [ ] Redact URL user information, authorization values, common token formats, and credential-bearing Composer diagnostics before storing evidence or rendering reports.
 - [ ] Define a path-exposure policy for project, output, repository, and debug-workspace paths. Default shareable reports must not expose analyzer-owned temporary roots or credentials.
 - [ ] Add deterministic fixtures for required, missing, disabled, and version-constrained extensions plus credential-bearing repository failures.
@@ -207,4 +209,4 @@ Acceptance gate: v0.2.0 installs from published packages, validates against the 
 
 ## Recommended Next Work Session
 
-Start Milestone 1 by preserving an explicit v0.1 compatibility fixture and approving the v0.2 transition matrix. Keep release automation on patch-only `0.1.x` increments until the v0.2.0 release candidate and its contract changes are explicitly approved.
+Start Milestone 2 by reconciling the existing schema `0.7` platform-provenance implementation with the remaining typed-input, host-determinism, and redaction requirements. Keep release automation on patch-only `0.1.x` increments until the v0.2.0 release candidate and its contract changes are explicitly approved.

@@ -72,7 +72,8 @@ final class AnalyzeCommand
                 $options['framework'],
                 $options['format'],
                 $options['output'],
-                $options['debug']
+                $options['debug'],
+                $options['extension-assumptions'] ?? []
             );
             $this->frameworkIntegrations->assertAvailable($request->frameworks());
 
@@ -122,6 +123,9 @@ Options:
   --target=PACKAGE:VALUE  Target package constraint; repeatable
   --target-php=VERSION    Explicit target PHP platform version
   --from-php=VALUE        Current project PHP version
+  --with-extension=EXT[:VERSION]
+                          Assume an extension is present; repeatable
+  --without-extension=EXT Assume an extension is absent; repeatable
   --source=PATH           Additional source path to scan; repeatable
   --framework=NAME        Framework integration to enable; repeatable
   --format=json|markdown  Report format (default: json)

@@ -51,6 +51,8 @@ Dispatch on `metadata.schema_version`; do not infer shape from the tool version.
 
 Continue reading `request_summary` and `project_state` for the user's request and original Composer inputs. Use `platform` when explaining which PHP or extension state influenced analysis. `extensions.completeness: partial` with `provenance: mixed` means only the listed assumptions were explicit and unlisted extensions still came from `extensions.unmodeled_provenance`; it is not a reproducible complete target platform. An `affected_package` of `null` with `ownership: unknown` is deliberate uncertainty, not permission to infer an owner.
 
+Extension assumptions are ordered by Composer extension name. `provenance: request` identifies CLI or Artisan `--with-extension` / `--without-extension` input; `provenance: composer_config` identifies the analyzed manifest's original `config.platform` entry. Request input overrides the same manifest entry, while duplicate request values are rejected. A present assumption with a `null` version models presence only and adds a version-compatibility uncertainty. Solver conflicts caused by its sentinel use the non-blocking `extension-version-unknown` blocker classification; exact modeled version conflicts use the blocking `extension-version-incompatible` classification. Reports never promote unlisted analyzer-host extension state to reproducible target evidence.
+
 Do not map `transition.framework_guidance[].status` onto `resolution.status`. Composer feasibility and framework guidance coverage are independent; [the v0.2 contract](v0.2-contract.md) defines their composition.
 
 ## Validate a report

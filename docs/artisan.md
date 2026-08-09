@@ -16,10 +16,14 @@ The command defaults `--path` to the Laravel application's base path and always 
 | `--target=PACKAGE:CONSTRAINT` | Requested package constraint. Repeat as needed. |
 | `--target-php=VERSION` | Exact target PHP platform version. |
 | `--from-php=VERSION` | Known current PHP version. |
+| `--with-extension=EXT[:VERSION]` | Assume `ext-name` is present, optionally at an exact version. Repeat as needed. |
+| `--without-extension=EXT` | Assume `ext-name` is absent. Repeat as needed. |
 | `--source=PATH` | File or directory inside the project. Repeat as needed. |
 | `--format=json\|markdown` | Report format. Defaults to `json`. |
 | `--output=PATH` | Report file outside the analyzed project. |
 | `--debug` | Preserve temporary workspaces. |
+
+Extension options have the same validation and provenance semantics as the standalone CLI. A name may be supplied only once across both options. Exact versions and absences affect only temporary Composer workspaces. Absence simulation requires Composer 2.2 or newer and stops affected scenarios before workspace creation on an older detected version. Presence without a version remains visible as uncertainty; related constraint failures are non-blocking `extension-version-unknown` advisories. Every unlisted host extension also remains explicit uncertainty in the canonical report.
 
 Example:
 

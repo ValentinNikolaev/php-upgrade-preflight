@@ -19,6 +19,9 @@ final class CommandLineParserTest extends TestCase
             '--source=src',
             '--source=tests',
             '--framework=laravel',
+            '--with-extension=ext-intl:72.1',
+            '--with-extension=ext-json',
+            '--without-extension=ext-xdebug',
             '--debug',
         ]);
 
@@ -26,6 +29,10 @@ final class CommandLineParserTest extends TestCase
         self::assertSame('8.2', $options['target-php']);
         self::assertSame(['src', 'tests'], $options['source']);
         self::assertSame(['laravel'], $options['framework']);
+        self::assertSame(['ext-intl', 'ext-json', 'ext-xdebug'], array_map(
+            static fn ($assumption): string => $assumption->name(),
+            $options['extension-assumptions']
+        ));
         self::assertTrue($options['debug']);
     }
 
@@ -59,6 +66,13 @@ final class CommandLineParserTest extends TestCase
             [['upgrade-intel', 'analyze', '--target-php=8.2', '--format=yaml'], 'Unsupported report format'],
             [['upgrade-intel', 'analyze', '--target-php=8.2', '--target-php=8.3'], 'may only be specified once'],
             [['upgrade-intel', 'analyze', '--target-php=8.2', '--debug=false'], 'does not accept a value'],
+            [[
+                'upgrade-intel',
+                'analyze',
+                '--target-php=8.2',
+                '--with-extension=ext-json:8.2.0',
+                '--without-extension=EXT-JSON',
+            ], 'may only be specified once'],
         ];
     }
 }

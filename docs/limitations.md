@@ -4,7 +4,7 @@ PHP Upgrade Preflight predicts dependency and source impact. It does not perform
 
 ## Dependency resolution
 
-- Composer resolves scenarios against the repositories, credentials, extensions, and network available to the analyzer process.
+- Composer resolves scenarios against the repositories, credentials, and network available to the analyzer process. Explicit extension versions and absences override the named extensions in temporary workspaces; absence simulation requires Composer 2.2 or newer. Presence-only extension assumptions cannot prove versioned constraints, so sentinel-related failures remain non-blocking advisories. Every unlisted extension remains analyzer-host state and is reported as uncertainty.
 - Scripts and plugins stay disabled. A project that depends on plugin behavior may resolve differently in its normal environment.
 - A successful candidate lock proves that Composer found one dependency solution. It does not prove runtime compatibility.
 - Partial platform and staged probes provide ordering evidence. Only full-target scenarios determine combined feasibility.
