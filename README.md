@@ -65,7 +65,7 @@ The analyzer keeps exact project and source paths for internal filesystem access
 JSON is the canonical report. Development on `main` uses schema version `0.7` and tool version `0.2.0-dev`; the published v0.1 package line remains on schema `0.6`. Reports contain:
 
 - scenario commands, solver outcomes, diagnostics, and candidate-lock fingerprints;
-- platform provenance with explicit host-dependence uncertainty, package changes, structured blockers, raw source inventory, actionable source impact, framework transition guidance, and hop-scoped framework findings;
+- platform provenance with explicit host-dependence uncertainty, package changes, structured blockers, raw source inventory, Composer-autoload-owned actionable source impact, framework transition guidance, and hop-scoped framework findings;
 - staged actions, test guidance, risk, effort, uncertainty, and linked evidence.
 
 Six application-shaped Laravel fixtures have approved JSON and Markdown snapshots in [`packages/laravel/tests/Snapshots`](packages/laravel/tests/Snapshots). CI runs the same suite on Ubuntu and Windows.

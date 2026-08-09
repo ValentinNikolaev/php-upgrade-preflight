@@ -121,16 +121,18 @@ Status: passed on 2026-08-09. Evidence is recorded in the offline platform-deter
 
 ## Milestone 3: Actionable Source Impact
 
-- [ ] Retain root and locked-package `autoload` and `autoload-dev` metadata needed for symbol ownership. Handle unsupported classmaps or dynamic loaders as uncertainty.
-- [ ] Build a deterministic ownership index for supported PSR-4, PSR-0, classmap, and files mappings without loading target code.
-- [ ] Separate raw source usages from actionable impact findings. Keep raw scanner output internal or expose it under an explicitly named inventory section.
-- [ ] Correlate usages with removed, upgraded, downgraded, or major-jump packages and with active framework rules.
-- [ ] Add affected package, relevance, reason, severity, and evidence references to actionable source-impact findings in schema `0.7`.
-- [ ] Deduplicate repeated usages while preserving every exact file and line evidence record.
-- [ ] Change risk and effort estimation to use weighted actionable findings. Unrelated imports must not raise the estimate.
-- [ ] Add fixtures for owned symbols, ambiguous namespace ownership, classmap-only packages, removed packages, unchanged packages, and large unrelated application namespaces.
+- [x] Retain root and locked-package `autoload` and `autoload-dev` metadata needed for symbol ownership. Handle unsupported classmaps or dynamic loaders as uncertainty.
+- [x] Build a deterministic ownership index for supported PSR-4, PSR-0, classmap, and files mappings without loading target code.
+- [x] Separate raw source usages from actionable impact findings. Keep raw scanner output internal or expose it under an explicitly named inventory section.
+- [x] Correlate usages with removed, upgraded, downgraded, or major-jump packages and with active framework rules.
+- [x] Add affected package, relevance, reason, severity, and evidence references to actionable source-impact findings in schema `0.7`.
+- [x] Deduplicate repeated usages while preserving every exact file and line evidence record.
+- [x] Change risk and effort estimation to use weighted actionable findings. Unrelated imports must not raise the estimate.
+- [x] Add fixtures for owned symbols, ambiguous namespace ownership, classmap-only packages, removed packages, unchanged packages, and large unrelated application namespaces.
 
 Acceptance gate: each reported actionable source finding explains why the target upgrade affects it, unrelated source inventory does not inflate risk or effort, and ownership uncertainty remains visible.
+
+Status: passed on 2026-08-10. Evidence is recorded in the typed autoload-ownership unit suite, actionable-impact unit and integration fixtures, weighted estimator regressions, schema/snapshot validation, and the complete `composer check` gate with 417 tests and 3,931 assertions.
 
 ## Milestone 4: Generalize Laravel Transition Modeling
 
@@ -211,4 +213,4 @@ Acceptance gate: v0.2.0 installs from published packages, validates against the 
 
 ## Recommended Next Work Session
 
-Start Milestone 3 by separating raw source inventory from actionable impact scoring and by defining exact ownership, relevance, and evidence thresholds before changing risk or effort calculations. Keep release automation on patch-only `0.1.x` increments until the v0.2.0 release candidate and its contract changes are explicitly approved.
+Start Milestone 4 by replacing Laravel-7-only source detection with conservative typed major detection, then model adjacent transition hops and move version-specific requirements into a validated Laravel rule catalog. Keep release automation on patch-only `0.1.x` increments until the v0.2.0 release candidate and its contract changes are explicitly approved.

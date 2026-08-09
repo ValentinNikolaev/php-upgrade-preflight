@@ -680,17 +680,14 @@
                 ],
                 "evidence": [
                     "plan-1",
-                    "source-1",
                     "source-2",
-                    "source-3",
-                    "source-4",
                     "source-5",
                     "source-6",
+                    "laravel-skeleton-guidance-1",
                     "laravel-framework-constraint-1",
                     "laravel-php-constraint-1",
                     "laravel-package-facade_ignition-1",
-                    "laravel-package-guidance-1",
-                    "laravel-skeleton-guidance-1"
+                    "laravel-package-guidance-1"
                 ]
             },
             {
@@ -710,7 +707,8 @@
         "level": "high",
         "drivers": [
             "Composer resolution is blocked.",
-            "Framework compatibility findings require review."
+            "Framework compatibility findings require review.",
+            "Weighted actionable source findings require review."
         ]
     },
     "effort": {
@@ -1208,7 +1206,7 @@
                 "target_count": 2,
                 "root_constraint_change_count": 1,
                 "blocker_count": 2,
-                "source_finding_count": 6,
+                "source_finding_count": 3,
                 "framework_finding_count": 4
             }
         }

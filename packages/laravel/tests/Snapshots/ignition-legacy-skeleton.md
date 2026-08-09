@@ -195,7 +195,7 @@ Resolution: **blocked** | Schema: `0.7` | Tool: `php-upgrade-preflight 0.2.0-dev
    - Resolve the `unknown-composer-failure` blocker affecting `laravel/framework`.
    - Resolve the `unknown-composer-failure` blocker affecting `php`.
    - Rerun the isolated Composer scenarios after resolving the reported blockers.
-3. **application** — Apply source and framework migration work after dependency resolution is stable. (evidence: `plan-1`, `source-1`, `source-2`, `source-3`, `source-4`, `source-5`, `source-6`, `laravel-framework-constraint-1`, `laravel-php-constraint-1`, `laravel-package-facade_ignition-1`, `laravel-package-guidance-1`, `laravel-skeleton-guidance-1`)
+3. **application** — Apply source and framework migration work after dependency resolution is stable. (evidence: `plan-1`, `source-2`, `source-5`, `source-6`, `laravel-skeleton-guidance-1`, `laravel-framework-constraint-1`, `laravel-php-constraint-1`, `laravel-package-facade_ignition-1`, `laravel-package-guidance-1`)
    - Review the reported source locations and adapt affected application code.
    - Address framework compatibility findings before runtime validation.
 4. **validation** — Validate the upgraded project on the target runtime before release. (evidence: `plan-1`)
@@ -207,6 +207,7 @@ Resolution: **blocked** | Schema: `0.7` | Tool: `php-upgrade-preflight 0.2.0-dev
 - Risk drivers:
   - Composer resolution is blocked.
   - Framework compatibility findings require review.
+  - Weighted actionable source findings require review.
 - Effort: `6-30` hours (low confidence)
 - Effort components:
   - `dependency_resolution`: `3-8` hours
@@ -246,4 +247,4 @@ Resolution: **blocked** | Schema: `0.7` | Tool: `php-upgrade-preflight 0.2.0-dev
 - `laravel-package-guidance-1` (`E4`, medium confidence): The encoded Laravel 8 guidance maps facade/ignition to `>=2.3.6 <3.0`. Context: `{"package":"facade/ignition","target_laravel_major":8,"compatible_package_constraint":">=2.3.6 <3.0","sources":["https://laravel.com/docs/8.x/upgrade"]}`
 - `laravel-skeleton-guidance-1` (`E5`, low confidence): Detected Kernel middleware, application provider/alias entries, or TrustProxies inheritance identify skeleton-managed integration points for manual comparison. Context: `{"target_laravel_major":8,"indicator_count":3,"indicators":[{"file":"app/Http/Kernel.php","line":10,"symbol":"Fruitcake\\Cors\\HandleCors","usage_type":"middleware_reference"},{"file":"config/app.php","line":5,"symbol":"Facade\\Ignition\\IgnitionServiceProvider","usage_type":"service_provider"},{"file":"config/app.php","line":8,"symbol":"Facade\\Ignition\\Facades\\Flare","usage_type":"facade_alias"}],"claim":"review_location_only"}`
 - `root-constraint-1` (`E2`, high confidence): Compared the root requirement for laravel/framework with the requested target. Context: `{"package":"laravel/framework","from_constraint":"^7.0","to_constraint":"^8.0"}`
-- `plan-1` (`E5`, low confidence): Generated conservative staged actions from the requested targets and detected findings. Context: `{"target_count":2,"root_constraint_change_count":1,"blocker_count":2,"source_finding_count":6,"framework_finding_count":4}`
+- `plan-1` (`E5`, low confidence): Generated conservative staged actions from the requested targets and detected findings. Context: `{"target_count":2,"root_constraint_change_count":1,"blocker_count":2,"source_finding_count":3,"framework_finding_count":4}`

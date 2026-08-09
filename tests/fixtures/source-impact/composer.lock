@@ -1,0 +1,35 @@
+{
+    "packages": [
+        {
+            "name": "fixture/changed",
+            "version": "1.0.0",
+            "autoload": {"psr-4": {"Changed\\": "src/"}}
+        },
+        {
+            "name": "fixture/ambiguous-a",
+            "version": "1.0.0",
+            "autoload": {"psr-4": {"Shared\\": "src/"}}
+        },
+        {
+            "name": "fixture/ambiguous-b",
+            "version": "1.0.0",
+            "autoload": {"psr-4": {"Shared\\": "src/"}}
+        },
+        {
+            "name": "fixture/classmap",
+            "version": "1.0.0",
+            "autoload": {"classmap": ["src/"]}
+        },
+        {
+            "name": "fixture/removed",
+            "version": "1.0.0",
+            "autoload": {"psr-4": {"Removed\\": "src/"}}
+        },
+        {
+            "name": "fixture/unchanged",
+            "version": "1.0.0",
+            "autoload": {"psr-4": {"Stable\\": "src/"}}
+        }
+    ],
+    "packages-dev": []
+}

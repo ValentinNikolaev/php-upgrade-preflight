@@ -194,7 +194,7 @@
                 "package_changes": "package name ascending",
                 "framework_guidance": "framework then source major then target major ascending",
                 "hops": "from major then target major ascending",
-                "source_inventory": "canonical file path ascending, then parser traversal order with first-occurrence deduplication",
+                "source_inventory": "canonical file path ascending, then parser traversal order with exact file/symbol/type/line duplicates merged",
                 "source_impact": "source inventory order",
                 "framework_findings": "framework integration registration order, then rule catalog order",
                 "uncertainties": "first production order with exact duplicates removed",

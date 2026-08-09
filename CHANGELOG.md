@@ -13,6 +13,7 @@ This project follows [Semantic Versioning](https://semver.org/). Report schema v
 - A machine-checked v0.2 transition contract with contiguous-prefix partial-support semantics, development-version policy, `0.6` consumer migration, historical schema checksums, and representative-corpus quality budgets.
 - Offline Composer fixtures for required, missing, disabled, compatible, and incompatible extension-platform scenarios, including request provenance and immutable path-repository coverage.
 - A seeded report-privacy verifier for canonical JSON, Markdown, evidence, exception rendering, debug output, command diagnostics, and CI logs on Linux and Windows quality jobs.
+- Static symbol ownership from root and locked-package PSR-4, PSR-0, classmap, and files autoload metadata, with typed exact declarations, constant case sensitivity, bounded scanning, explicit ambiguity, and dynamic-loader uncertainty.
 
 ### Changed
 
@@ -20,6 +21,7 @@ This project follows [Semantic Versioning](https://semver.org/). Report schema v
 - The release checklist is version-neutral; release-specific values and evidence live in versioned release notes.
 - Release workflow, contributor guidance, and project instructions now agree on the `0.1.x` maintenance line and later `main` releases.
 - Default shareable reports replace project, output, local-repository, and analyzer-workspace roots with stable policy markers; exact sanitized workspace paths require explicit non-shareable debug mode.
+- Source-change plans, risk, and effort now use weighted actionable package/framework correlations rather than every raw scanner observation.
 
 ### Security
 

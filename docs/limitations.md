@@ -14,6 +14,8 @@ PHP Upgrade Preflight predicts dependency and source impact. It does not perform
 
 - The scanner parses PHP syntax and reports supported static symbol and configuration references.
 - It does not execute the application, resolve container bindings, evaluate dynamic class names, or infer string-built symbols.
+- Composer PSR-4 and PSR-0 ownership uses deterministic longest-prefix matching for class-like symbols. Function and constant ownership requires an exact declaration from an available classmap or files entry. Root `autoload-dev` metadata is indexed, while dependency `autoload-dev` metadata remains root-only and is ignored.
+- Missing classmap/files paths, unsupported metadata shapes, `eval`, `class_alias`, and registered dynamic autoloaders are reported as ownership uncertainty. Exact classmap/files indexing is skipped when inventory is empty and stops at a deterministic 2,000-file safety limit; exceeding it also adds uncertainty. Custom installer paths and runtime-generated symbols may therefore remain unresolved.
 - Parse errors skip the malformed file and add evidence-linked uncertainty.
 - Default scans exclude dependencies and common generated, cache, and build directories. Explicit paths inside the project can opt into an excluded directory.
 
