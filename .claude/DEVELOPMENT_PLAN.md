@@ -110,12 +110,14 @@ Status: passed on 2026-08-08. Evidence is recorded in [`docs/v0.2-contract.md`](
 - [x] Define CLI and Artisan input for extension presence, absence, and version assumptions without allowing contradictory duplicate values.
 - [x] Apply platform assumptions only in temporary Composer workspaces and record their provenance in the canonical report.
 - [x] Record uncertainty when an extension result depends on unmodeled host state. Do not present a host-dependent result as reproducible target evidence.
-- [ ] Redact URL user information, authorization values, common token formats, and credential-bearing Composer diagnostics before storing evidence or rendering reports.
-- [ ] Define a path-exposure policy for project, output, repository, and debug-workspace paths. Default shareable reports must not expose analyzer-owned temporary roots or credentials.
-- [ ] Add deterministic fixtures for required, missing, disabled, and version-constrained extensions plus credential-bearing repository failures.
-- [ ] Verify redaction in JSON, Markdown, exception messages, debug output, and CI logs.
+- [x] Redact URL user information, authorization values, common token formats, and credential-bearing Composer diagnostics before storing evidence or rendering reports.
+- [x] Define a path-exposure policy for project, output, repository, and debug-workspace paths. Default shareable reports must not expose analyzer-owned temporary roots or credentials.
+- [x] Add deterministic fixtures for required, missing, disabled, and version-constrained extensions plus credential-bearing repository failures.
+- [x] Verify redaction in JSON, Markdown, exception messages, debug output, and CI logs.
 
-Acceptance gate: equivalent explicit platform inputs produce equivalent normalized results across hosts, every assumption has provenance, and a seeded secret never appears in any persisted or logged output.
+Acceptance gate: equivalent explicit assumptions produce equivalent normalized results for each modeled extension across supported hosts, every assumption has provenance, unlisted extensions remain explicitly partial and host-dependent, and a seeded secret never appears in any persisted or logged output. Full host independence requires a future complete target-platform input rather than inference from a partial assumption list.
+
+Status: passed on 2026-08-09. Evidence is recorded in the offline platform-determinism integration suite, the normalized host-inventory independence test for explicitly modeled assumptions, the credential-bearing repository failure fixture, the canonical path-exposure contract, and `tools/verify-report-privacy.php`, which runs after PHPUnit in the shared Linux/Windows quality matrix. The complete `composer check` gate passed with 401 tests and 3,832 assertions.
 
 ## Milestone 3: Actionable Source Impact
 
@@ -209,4 +211,4 @@ Acceptance gate: v0.2.0 installs from published packages, validates against the 
 
 ## Recommended Next Work Session
 
-Start Milestone 2 by reconciling the existing schema `0.7` platform-provenance implementation with the remaining typed-input, host-determinism, and redaction requirements. Keep release automation on patch-only `0.1.x` increments until the v0.2.0 release candidate and its contract changes are explicitly approved.
+Start Milestone 3 by separating raw source inventory from actionable impact scoring and by defining exact ownership, relevance, and evidence thresholds before changing risk or effort calculations. Keep release automation on patch-only `0.1.x` increments until the v0.2.0 release candidate and its contract changes are explicitly approved.

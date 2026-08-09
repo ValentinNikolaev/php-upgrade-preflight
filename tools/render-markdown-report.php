@@ -5,9 +5,10 @@ declare(strict_types=1);
 use PhpUpgradePreflight\Core\Model\ReportFormat;
 use PhpUpgradePreflight\Core\Reporting\MarkdownReportWriter;
 use PhpUpgradePreflight\Core\Reporting\ReportFileWriter;
+use PhpUpgradePreflight\Core\Support\PathExposurePolicy;
 
-if (count($argv) !== 3) {
-    fwrite(STDERR, "Usage: php tools/render-markdown-report.php INPUT.json OUTPUT.md\n");
+if (count($argv) < 3 || count($argv) > 4) {
+    fwrite(STDERR, "Usage: php tools/render-markdown-report.php INPUT.json OUTPUT.md [PROJECT_ROOT]\n");
     exit(2);
 }
 
@@ -19,7 +20,7 @@ if (!is_file($autoloadPath)) {
 require $autoloadPath;
 
 try {
-    $contents = file_get_contents($argv[1]);
+    $contents = @file_get_contents($argv[1]);
     if ($contents === false) {
         throw new RuntimeException('Unable to read the canonical JSON report.');
     }
@@ -29,9 +30,13 @@ try {
         throw new RuntimeException('The canonical JSON report is invalid.');
     }
 
-    $projectPath = $canonical['request_summary']['project_path'] ?? null;
-    if (!is_string($projectPath) || $projectPath === '') {
+    $reportedProjectPath = $canonical['request_summary']['project_path'] ?? null;
+    if (!is_string($reportedProjectPath) || $reportedProjectPath === '') {
         throw new RuntimeException('The canonical JSON report has no project path.');
+    }
+    $projectPath = $argv[3] ?? $reportedProjectPath;
+    if ($projectPath === PathExposurePolicy::PROJECT_ROOT) {
+        throw new RuntimeException('A sanitized report requires PROJECT_ROOT for output validation.');
     }
 
     $fileWriter = new ReportFileWriter();
@@ -46,4 +51,7 @@ try {
     exit(1);
 }
 
-fwrite(STDOUT, sprintf("Wrote report to %s\n", $writtenPath));
+fwrite(STDOUT, sprintf(
+    "Wrote report to %s\n",
+    PathExposurePolicy::operationalPath($writtenPath)
+));

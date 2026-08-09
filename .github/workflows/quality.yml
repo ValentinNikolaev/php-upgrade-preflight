@@ -101,3 +101,6 @@ jobs:
 
       - name: Run test suite
         run: composer test
+
+      - name: Verify report privacy
+        run: php tools/verify-report-privacy.php

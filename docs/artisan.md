@@ -21,9 +21,11 @@ The command defaults `--path` to the Laravel application's base path and always 
 | `--source=PATH` | File or directory inside the project. Repeat as needed. |
 | `--format=json\|markdown` | Report format. Defaults to `json`. |
 | `--output=PATH` | Report file outside the analyzed project. |
-| `--debug` | Preserve temporary workspaces. |
+| `--debug` | Preserve temporary workspaces and expose exact `temp_path` values; output is non-shareable. |
 
 Extension options have the same validation and provenance semantics as the standalone CLI. A name may be supplied only once across both options. Exact versions and absences affect only temporary Composer workspaces. Absence simulation requires Composer 2.2 or newer and stops affected scenarios before workspace creation on an older detected version. Presence without a version remains visible as uncertainty; related constraint failures are non-blocking `extension-version-unknown` advisories. Every unlisted host extension also remains explicit uncertainty in the canonical report.
+
+By default, canonical JSON and Markdown replace absolute local roots with `[PROJECT_ROOT]`, `[REPORT_OUTPUT]`, `[LOCAL_REPOSITORY]`, and `[ANALYZER_WORKSPACE]`. The analyzer still uses exact project and source paths internally, while reported source files remain project-relative. A cleanup failure reports only `[ANALYZER_WORKSPACE]` unless `--debug` was supplied. Explicit debug mode preserves workspaces and exposes exact `temp_path` values, so debug reports and retained workspaces are non-shareable. Credential redaction remains active in every mode.
 
 Example:
 

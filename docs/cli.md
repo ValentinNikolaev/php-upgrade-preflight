@@ -20,12 +20,14 @@ upgrade-intel analyze --target=package:constraint [options]
 | `--framework=NAME` | Installed framework adapter to enable. Repeat as needed. |
 | `--format=json\|markdown` | Report format. Defaults to `json`. |
 | `--output=PATH` | Report file outside the analyzed project. Defaults to stdout. |
-| `--debug` | Preserve Composer workspaces and report their paths. |
+| `--debug` | Preserve Composer workspaces and expose exact `temp_path` values; output is non-shareable. |
 | `-h`, `--help` | Print command help. |
 
 Supply at least one package target or `--target-php`. `--target=php:8.1` and `--target-php=8.1` are equivalent; if you use both, they must normalize to the same exact PHP version.
 
 The parser accepts only the documented forms. Write `--path=value`, not `--path value`. The `--debug` flag takes no value.
+
+By default, canonical JSON and Markdown replace absolute local roots with `[PROJECT_ROOT]`, `[REPORT_OUTPUT]`, `[LOCAL_REPOSITORY]`, and `[ANALYZER_WORKSPACE]`. The analyzer still uses exact project and source paths internally, while reported source files remain project-relative. A cleanup failure reports only `[ANALYZER_WORKSPACE]` unless `--debug` was supplied. Explicit debug mode preserves workspaces and exposes exact `temp_path` values, so debug reports and retained workspaces are non-shareable. Credential redaction remains active in every mode.
 
 Extension names use Composer's `ext-name` form. An extension may appear only once across `--with-extension` and `--without-extension`; repeated or contradictory assumptions are rejected. Exact versions and absences are written only to analyzer-owned temporary Composer manifests. Absence simulation requires Composer 2.2 or newer; older detected versions stop the affected target scenarios before a workspace is created and leave resolution unknown. Presence without a version uses a conservative temporary presence sentinel. A constraint failure involving that sentinel is reported as the non-blocking `extension-version-unknown` advisory, not as reproducible evidence that the extension is missing. Unlisted extensions still come from the analyzer runtime and are labeled as host-dependent in `platform.extensions` and `uncertainties`.
 

@@ -28,7 +28,7 @@ Install `php-upgrade-preflight/laravel` beside the CLI. An explicit `--framework
 
 ## Relative path repositories fail
 
-The analyzer rewrites ordinary relative `path` repository URLs against the target project before running Composer. URLs containing environment variables or `~` remain untouched. Use an absolute path or define the required variable in the analyzer process when Composer cannot resolve one of those URLs.
+The analyzer rewrites ordinary relative `path` repository URLs against the target project before running Composer. URLs containing environment variables or `~` remain untouched. Use an absolute path or define the required variable in the analyzer process when Composer cannot resolve one of those URLs. Default JSON and Markdown show the resolved local repository root as `[LOCAL_REPOSITORY]`.
 
 ## Private packages cannot be downloaded
 
@@ -42,7 +42,7 @@ Composer scenarios have a five-minute timeout. Check repository availability, au
 
 ## Temporary workspace cleanup fails
 
-The report records `cleanup_failure` and a `temp_path`. Close processes that hold files in that directory, inspect it if needed, then remove that exact directory manually. Debug runs preserve workspaces by design.
+In default mode, the report records `cleanup_failure` and only the `[ANALYZER_WORKSPACE]` marker. Re-run with explicit `--debug` only when you need the exact `temp_path` for inspection or manual removal. Debug reports and retained workspaces are non-shareable artifacts, and debug runs preserve workspaces by design. Credentials remain redacted in every mode.
 
 ## The command returns `0` for a blocked upgrade
 
@@ -50,4 +50,4 @@ Exit code `0` means the analyzer produced a report. Read `resolution.status` for
 
 ## Windows and Unix reports differ
 
-Report paths use the host's native behavior. Approved test snapshots normalize path separators and temporary roots, while PHP symbols retain namespace backslashes. Report consumers should treat file paths as host paths and avoid comparing raw absolute project directories.
+Default canonical JSON and Markdown use `[PROJECT_ROOT]`, `[REPORT_OUTPUT]`, `[LOCAL_REPOSITORY]`, and `[ANALYZER_WORKSPACE]` instead of host-specific absolute roots. Source file locations remain project-relative. The analyzer still uses native exact project and source paths internally, but report consumers should compare the stable markers and relative locations.

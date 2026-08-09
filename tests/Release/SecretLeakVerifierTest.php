@@ -45,18 +45,20 @@ final class SecretLeakVerifierTest extends TestCase
         $labels = array_keys($canaries);
         $values = array_values($canaries);
         $file = $this->directory . '/report.json';
+        $secretNamedFile = $this->directory . '/' . $values[3] . '.log';
         $zip = $this->directory . '/release.zip';
         $this->filesystem->dumpFile($file, $values[0]);
+        $this->filesystem->dumpFile($secretNamedFile, 'ordinary content');
         $archive = $this->openArchive($zip);
         $archive->addFromString('payload.txt', $values[1]);
         $archive->addFromString('docs/' . $values[2] . '.txt', 'ordinary content');
         $archive->close();
 
-        $errors = $this->verifier()->verify([$file, $zip]);
+        $errors = $this->verifier()->verify([$file, $secretNamedFile, $zip]);
         $message = implode("\n", $errors);
 
         self::assertNotSame([], $errors);
-        foreach (array_slice($labels, 0, 3) as $label) {
+        foreach (array_slice($labels, 0, 4) as $label) {
             self::assertStringContainsString($label, $message);
         }
         foreach ($values as $value) {

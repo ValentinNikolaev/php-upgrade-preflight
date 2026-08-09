@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace PhpUpgradePreflight\Laravel\Tests\Integration;
 
+use PhpUpgradePreflight\Core\Support\PathExposurePolicy;
 use PhpUpgradePreflight\Tests\Support\FixtureSnapshot;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Command\Command;
@@ -77,8 +78,10 @@ final class CommandEntryPointParityTest extends TestCase
 
         $cliReport = $this->decodeReport($cliOutputPath);
         $artisanReport = $this->decodeReport($artisanOutputPath);
-        self::assertSame($this->canonicalPath($cliOutputPath), $this->canonicalPath($cliReport['request_summary']['output_path']));
-        self::assertSame($this->canonicalPath($artisanOutputPath), $this->canonicalPath($artisanReport['request_summary']['output_path']));
+        self::assertSame(PathExposurePolicy::REPORT_OUTPUT, $cliReport['request_summary']['output_path']);
+        self::assertSame(PathExposurePolicy::REPORT_OUTPUT, $artisanReport['request_summary']['output_path']);
+        self::assertSame(PathExposurePolicy::PROJECT_ROOT, $cliReport['request_summary']['project_path']);
+        self::assertSame(PathExposurePolicy::PROJECT_ROOT, $artisanReport['request_summary']['project_path']);
 
         $cliReport = $this->normalizeReport($cliReport);
         $artisanReport = $this->normalizeReport($artisanReport);
@@ -199,8 +202,4 @@ final class CommandEntryPointParityTest extends TestCase
         return dirname(__DIR__, 4);
     }
 
-    private function canonicalPath(string $path): string
-    {
-        return str_replace('\\', '/', $path);
-    }
 }

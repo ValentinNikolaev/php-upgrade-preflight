@@ -160,13 +160,34 @@
             "surfaces": [
                 "canonical_json",
                 "markdown",
+                "evidence",
+                "exception_messages",
+                "debug_output",
                 "console_diagnostics",
+                "ci_logs",
                 "release_archives"
             ]
+        },
+        "path_exposure": {
+            "default_shareable_markers": {
+                "project": "[PROJECT_ROOT]",
+                "output": "[REPORT_OUTPUT]",
+                "local_repository": "[LOCAL_REPOSITORY]",
+                "analyzer_workspace": "[ANALYZER_WORKSPACE]"
+            },
+            "source_locations_are_project_relative": true,
+            "exact_workspace_requires_debug": true,
+            "debug_artifacts_are_shareable": false,
+            "credentials_are_redacted_in_debug": true
         },
         "determinism": {
             "reruns": 3,
             "require_byte_identical_normalized_reports": true,
+            "platform_scope": {
+                "modeled_extensions_are_host_independent": true,
+                "partial_unlisted_extensions_are_host_dependent": true,
+                "complete_input_required_for_full_host_independence": true
+            },
             "ordering": {
                 "targets": "package ascending",
                 "scenarios": "selector order",

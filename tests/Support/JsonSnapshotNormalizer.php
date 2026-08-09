@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace PhpUpgradePreflight\Tests\Support;
 
+use PhpUpgradePreflight\Core\Support\PathExposurePolicy;
+
 final class JsonSnapshotNormalizer
 {
     public const PROJECT_PATH = '<PROJECT_PATH>';
@@ -78,6 +80,8 @@ final class JsonSnapshotNormalizer
     {
         $paths = [
             ['path' => $projectPath, 'placeholder' => self::PROJECT_PATH],
+            ['path' => PathExposurePolicy::PROJECT_ROOT, 'placeholder' => self::PROJECT_PATH],
+            ['path' => PathExposurePolicy::ANALYZER_WORKSPACE, 'placeholder' => self::TEMP_DIRECTORY],
         ];
 
         foreach ($temporaryDirectories as $directory) {

@@ -56,7 +56,9 @@ The analyzer treats the target project as immutable input. Composer runs only in
 
 Composer stdout, stderr, diagnostics, and command failure messages pass through a deterministic secret boundary before they can reach reports or console diagnostics. Credential-bearing URLs, authorization values, common token forms, and named credential fields are replaced with stable redaction markers; release CI also scans generated reports and archives with synthetic canaries.
 
-`--debug` preserves temporary workspaces for investigation. A debug run therefore leaves copied Composer files on disk and reports each path.
+The analyzer keeps exact project and source paths for internal filesystem access. Default shareable JSON and Markdown replace absolute local roots with stable markers: `[PROJECT_ROOT]` for the analyzed project, `[REPORT_OUTPUT]` for the report destination, `[LOCAL_REPOSITORY]` for local Composer repositories, and `[ANALYZER_WORKSPACE]` for analyzer-owned temporary roots. Reported source files remain project-relative.
+
+`--debug` preserves temporary workspaces and exposes exact `temp_path` values. Debug reports and retained workspaces are therefore non-shareable artifacts. Without `--debug`, cleanup failures report only `[ANALYZER_WORKSPACE]`. Credential redaction remains active in every mode.
 
 ## Reports
 

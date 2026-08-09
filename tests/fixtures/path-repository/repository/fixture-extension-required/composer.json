@@ -1,0 +1,11 @@
+{
+  "name": "fixture/extension-required",
+  "description": "Local package used to prove a modeled required extension resolves deterministically.",
+  "version": "1.0.0",
+  "type": "library",
+  "license": "MIT",
+  "require": {
+    "php": "^8.0",
+    "ext-preflight-required": "*"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "name": "fixture/extension-missing",
+  "description": "Local package used to prove an explicitly missing extension blocks resolution deterministically.",
+  "version": "1.0.0",
+  "type": "library",
+  "license": "MIT",
+  "require": {
+    "php": "^8.0",
+    "ext-preflight-missing": "*"
+  }
+}

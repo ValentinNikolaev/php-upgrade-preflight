@@ -210,8 +210,33 @@ final class V02ContractTest extends TestCase
 
         self::assertLessThanOrEqual($budgets['report_size']['combined_corpus_bytes'], $combined);
         self::assertSame(0, $budgets['redaction']['allowed_seeded_canary_occurrences']);
+        self::assertSame([
+            'canonical_json',
+            'markdown',
+            'evidence',
+            'exception_messages',
+            'debug_output',
+            'console_diagnostics',
+            'ci_logs',
+            'release_archives',
+        ], $budgets['redaction']['surfaces']);
+        self::assertSame([
+            'project' => '[PROJECT_ROOT]',
+            'output' => '[REPORT_OUTPUT]',
+            'local_repository' => '[LOCAL_REPOSITORY]',
+            'analyzer_workspace' => '[ANALYZER_WORKSPACE]',
+        ], $budgets['path_exposure']['default_shareable_markers']);
+        self::assertTrue($budgets['path_exposure']['source_locations_are_project_relative']);
+        self::assertTrue($budgets['path_exposure']['exact_workspace_requires_debug']);
+        self::assertFalse($budgets['path_exposure']['debug_artifacts_are_shareable']);
+        self::assertTrue($budgets['path_exposure']['credentials_are_redacted_in_debug']);
         self::assertSame(3, $budgets['determinism']['reruns']);
         self::assertTrue($budgets['determinism']['require_byte_identical_normalized_reports']);
+        self::assertSame([
+            'modeled_extensions_are_host_independent' => true,
+            'partial_unlisted_extensions_are_host_dependent' => true,
+            'complete_input_required_for_full_host_independence' => true,
+        ], $budgets['determinism']['platform_scope']);
         self::assertSame(268435456, $budgets['memory']['peak_bytes']);
         self::assertSame(30, $budgets['runtime']['corpus_seconds']);
     }

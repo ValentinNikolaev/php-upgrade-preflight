@@ -11,12 +11,20 @@ This project follows [Semantic Versioning](https://semver.org/). Report schema v
 - Schema `0.7` with complete/partial platform provenance, explicit unmodeled-host uncertainty, a distinct source inventory, actionable framework-correlated source impact, and framework guidance independent of Composer feasibility.
 - Typed transition assessments for the retained Laravel 7 to 8 and direct 7 to 9 rule packs; every emitted framework finding is scoped to a supported assessed hop.
 - A machine-checked v0.2 transition contract with contiguous-prefix partial-support semantics, development-version policy, `0.6` consumer migration, historical schema checksums, and representative-corpus quality budgets.
+- Offline Composer fixtures for required, missing, disabled, compatible, and incompatible extension-platform scenarios, including request provenance and immutable path-repository coverage.
+- A seeded report-privacy verifier for canonical JSON, Markdown, evidence, exception rendering, debug output, command diagnostics, and CI logs on Linux and Windows quality jobs.
 
 ### Changed
 
 - Development reports now identify `main` as tool `0.2.0-dev`; path packages and branch aliases use the `0.2.x-dev` line.
 - The release checklist is version-neutral; release-specific values and evidence live in versioned release notes.
 - Release workflow, contributor guidance, and project instructions now agree on the `0.1.x` maintenance line and later `main` releases.
+- Default shareable reports replace project, output, local-repository, and analyzer-workspace roots with stable policy markers; exact sanitized workspace paths require explicit non-shareable debug mode.
+
+### Security
+
+- Expanded recursive redaction for URL user information, authorization and Composer auth values, common provider tokens, escaped JSON, multiline diagnostics, and credential-bearing evidence before serialization.
+- Sanitized filesystem failures, cleanup exception chains, CLI and Artisan diagnostics, and local repository output before they can reach reports or CI logs.
 
 ## [0.1.0] - 2026-08-08
 

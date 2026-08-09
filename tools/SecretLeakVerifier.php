@@ -23,14 +23,14 @@ final class SecretLeakVerifier
 
     public static function fromFixture(string $path): self
     {
-        $contents = file_get_contents($path);
+        $contents = @file_get_contents($path);
         if ($contents === false) {
-            throw new \RuntimeException(sprintf('Could not read secret-canary fixture: %s', $path));
+            throw new \RuntimeException('Could not read the secret-canary fixture.');
         }
 
         $fixture = json_decode($contents, true, 512, JSON_THROW_ON_ERROR);
         if (!is_array($fixture) || !isset($fixture['canaries']) || !is_array($fixture['canaries'])) {
-            throw new \RuntimeException(sprintf('Secret-canary fixture has no canary map: %s', $path));
+            throw new \RuntimeException('The secret-canary fixture has no canary map.');
         }
 
         /** @var array<string, string> $canaries */
@@ -44,14 +44,28 @@ final class SecretLeakVerifier
     {
         $errors = [];
 
-        foreach ($paths as $path) {
+        foreach ($paths as $inputIndex => $path) {
+            $input = sprintf('input #%d', $inputIndex + 1);
+            $this->scanValue($path, $input . ' path', $errors);
+
             if (is_dir($path)) {
                 $iterator = new \RecursiveIteratorIterator(
                     new \RecursiveDirectoryIterator($path, \FilesystemIterator::SKIP_DOTS)
                 );
+                $fileIndex = 0;
                 foreach ($iterator as $file) {
                     if ($file instanceof \SplFileInfo && $file->isFile()) {
-                        $this->scanFile($file->getPathname(), $errors);
+                        ++$fileIndex;
+                        $this->scanValue(
+                            $file->getPathname(),
+                            sprintf('%s file #%d path', $input, $fileIndex),
+                            $errors
+                        );
+                        $this->scanFile(
+                            $file->getPathname(),
+                            sprintf('%s file #%d', $input, $fileIndex),
+                            $errors
+                        );
                     }
                 }
 
@@ -59,38 +73,38 @@ final class SecretLeakVerifier
             }
 
             if (!is_file($path)) {
-                $errors[] = sprintf('Leak-scan input does not exist: %s', $path);
+                $errors[] = sprintf('Leak-scan %s does not exist.', $input);
 
                 continue;
             }
 
-            $this->scanFile($path, $errors);
+            $this->scanFile($path, $input, $errors);
         }
 
         return $errors;
     }
 
     /** @param list<string> $errors */
-    private function scanFile(string $path, array &$errors): void
+    private function scanFile(string $path, string $surface, array &$errors): void
     {
         if (strtolower(pathinfo($path, PATHINFO_EXTENSION)) === 'zip') {
-            $this->scanZip($path, $errors);
+            $this->scanZip($path, $surface, $errors);
 
             return;
         }
 
-        $contents = file_get_contents($path);
+        $contents = @file_get_contents($path);
         if ($contents === false) {
-            $errors[] = sprintf('Could not read leak-scan input: %s', $path);
+            $errors[] = sprintf('Could not read leak-scan %s.', $surface);
 
             return;
         }
 
-        $this->scanValue($contents, sprintf('file %s', $path), $errors);
+        $this->scanValue($contents, $surface, $errors);
     }
 
     /** @param list<string> $errors */
-    private function scanZip(string $path, array &$errors): void
+    private function scanZip(string $path, string $surface, array &$errors): void
     {
         if (!class_exists(\ZipArchive::class)) {
             $errors[] = 'The ZIP extension is required to inspect release archives.';
@@ -101,7 +115,7 @@ final class SecretLeakVerifier
         $archive = new \ZipArchive();
         $opened = $archive->open($path);
         if ($opened !== true) {
-            $errors[] = sprintf('Could not open release archive for leak scanning: %s', $path);
+            $errors[] = sprintf('Could not open release archive %s for leak scanning.', $surface);
 
             return;
         }
@@ -110,24 +124,24 @@ final class SecretLeakVerifier
             for ($index = 0; $index < $archive->numFiles; ++$index) {
                 $name = $archive->getNameIndex($index);
                 if ($name === false) {
-                    $errors[] = sprintf('Could not read ZIP entry name #%d in %s.', $index, $path);
+                    $errors[] = sprintf('Could not read ZIP entry name #%d in %s.', $index, $surface);
 
                     continue;
                 }
 
-                $this->scanValue($name, sprintf('ZIP entry name #%d in %s', $index, $path), $errors);
+                $this->scanValue($name, sprintf('ZIP entry name #%d in %s', $index, $surface), $errors);
                 if (str_ends_with($name, '/')) {
                     continue;
                 }
 
                 $contents = $archive->getFromIndex($index);
                 if ($contents === false) {
-                    $errors[] = sprintf('Could not read ZIP entry #%d in %s.', $index, $path);
+                    $errors[] = sprintf('Could not read ZIP entry #%d in %s.', $index, $surface);
 
                     continue;
                 }
 
-                $this->scanValue($contents, sprintf('ZIP entry #%d in %s', $index, $path), $errors);
+                $this->scanValue($contents, sprintf('ZIP entry #%d in %s', $index, $surface), $errors);
             }
         } finally {
             $archive->close();

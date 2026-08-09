@@ -95,6 +95,11 @@ final class ReleaseWorkflowTest extends TestCase
         self::assertStringContainsString("if: runner.os != 'Windows'", $workflow);
         self::assertStringContainsString('composer install --prefer-dist --no-interaction --no-progress', $workflow);
         self::assertStringContainsString('run: composer test', $workflow);
+        self::assertStringContainsString('run: php tools/verify-report-privacy.php', $workflow);
+        self::assertGreaterThan(
+            strpos($workflow, 'run: composer test'),
+            strpos($workflow, 'run: php tools/verify-report-privacy.php')
+        );
         self::assertStringNotContainsString('composer check', $workflow);
     }
 

@@ -1,0 +1,11 @@
+{
+  "name": "fixture/extension-versioned",
+  "description": "Local package used to prove exact extension versions satisfy Composer constraints deterministically.",
+  "version": "1.0.0",
+  "type": "library",
+  "license": "MIT",
+  "require": {
+    "php": "^8.0",
+    "ext-preflight-versioned": "^2.0"
+  }
+}

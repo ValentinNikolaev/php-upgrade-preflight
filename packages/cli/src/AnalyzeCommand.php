@@ -11,6 +11,7 @@ use PhpUpgradePreflight\Core\Model\UpgradeTarget;
 use PhpUpgradePreflight\Core\Reporting\JsonReportWriter;
 use PhpUpgradePreflight\Core\Reporting\MarkdownReportWriter;
 use PhpUpgradePreflight\Core\Reporting\ReportFileWriter;
+use PhpUpgradePreflight\Core\Support\PathExposurePolicy;
 use PhpUpgradePreflight\Core\Support\SensitiveOutputRedactor;
 
 final class AnalyzeCommand
@@ -99,7 +100,10 @@ final class AnalyzeCommand
 
             if ($request->outputPath() !== null) {
                 $writtenPath = $this->reportFileWriter->write($request->projectPath(), $request->outputPath(), $rendered);
-                fwrite($this->stdout, sprintf("Wrote report to %s\n", $writtenPath));
+                fwrite($this->stdout, sprintf(
+                    "Wrote report to %s\n",
+                    PathExposurePolicy::operationalPath($writtenPath)
+                ));
             } else {
                 fwrite($this->stdout, $rendered);
             }

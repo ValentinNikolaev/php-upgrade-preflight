@@ -13,6 +13,7 @@ use PhpUpgradePreflight\Core\Model\UpgradeRequest;
 use PhpUpgradePreflight\Core\Model\UpgradeTarget;
 use PhpUpgradePreflight\Core\Reporting\JsonReportWriter;
 use PhpUpgradePreflight\Core\Reporting\MarkdownReportWriter;
+use PhpUpgradePreflight\Core\Support\PathExposurePolicy;
 use PhpUpgradePreflight\Laravel\LaravelFrameworkIntegration;
 use PhpUpgradePreflight\Tests\Support\FixtureSnapshot;
 use PhpUpgradePreflight\Tests\Support\JsonSnapshotNormalizer;
@@ -299,6 +300,7 @@ final class LaravelFixtureAnalysisTest extends TestCase
         foreach ([$projectPath, str_replace('\\', '/', $projectPath), str_replace('/', '\\', $projectPath)] as $path) {
             $replacements[$path] = JsonSnapshotNormalizer::PROJECT_PATH;
         }
+        $replacements[PathExposurePolicy::PROJECT_ROOT] = JsonSnapshotNormalizer::PROJECT_PATH;
 
         foreach ($report->sourceImpact() as $usage) {
             $replacements[$usage->file()] = str_replace('\\', '/', $usage->file());

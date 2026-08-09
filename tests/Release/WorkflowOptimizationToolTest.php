@@ -61,6 +61,7 @@ final class WorkflowOptimizationToolTest extends TestCase
                 $root . '/tools/render-markdown-report.php',
                 $inputPath,
                 $outputPath,
+                $projectPath,
             ], $root);
             $process->run();
 
@@ -76,6 +77,28 @@ final class WorkflowOptimizationToolTest extends TestCase
             self::assertSame(hash('sha256', $expected), hash('sha256', $actual));
         } finally {
             (new Filesystem())->remove($temporaryDirectory);
+        }
+    }
+
+    public function testPrivacyVerifierScansGeneratedReportsExceptionsDebugOutputAndCiLogs(): void
+    {
+        $root = dirname(__DIR__, 2);
+        $process = new Process([PHP_BINARY, $root . '/tools/verify-report-privacy.php'], $root);
+        $process->setTimeout(60);
+        $process->run();
+
+        self::assertTrue($process->isSuccessful(), $process->getErrorOutput());
+        self::assertSame('Report privacy verification passed.' . PHP_EOL, $process->getOutput());
+
+        $fixtureContents = file_get_contents($root . '/tests/fixtures/security/composer-output-with-secrets.json');
+        self::assertIsString($fixtureContents);
+        $fixture = json_decode($fixtureContents, true, 512, JSON_THROW_ON_ERROR);
+        self::assertIsArray($fixture['canaries'] ?? null);
+        $log = $process->getOutput() . $process->getErrorOutput();
+        foreach ($fixture['canaries'] as $label => $canary) {
+            if (str_contains($log, $canary)) {
+                self::fail(sprintf('Sensitive canary %s reached the privacy verifier log.', $label));
+            }
         }
     }
 }

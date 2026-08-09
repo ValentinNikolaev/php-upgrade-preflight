@@ -56,7 +56,7 @@ final class CommandLineParser
         $presentExtensions = [];
         $absentExtensions = [];
 
-        foreach ($arguments as $argument) {
+        foreach ($arguments as $index => $argument) {
             if ($argument === '--debug') {
                 if (isset($seen['debug'])) {
                     throw new \InvalidArgumentException('Option "--debug" may only be specified once.');
@@ -68,7 +68,7 @@ final class CommandLineParser
             }
 
             if (!str_starts_with($argument, '--') || !str_contains($argument, '=')) {
-                throw new \InvalidArgumentException(sprintf('Unsupported argument "%s".', $argument));
+                throw new \InvalidArgumentException(sprintf('Unsupported argument at position %d.', $index));
             }
 
             [$name, $value] = explode('=', substr($argument, 2), 2);
@@ -93,7 +93,7 @@ final class CommandLineParser
             }
 
             if (!array_key_exists($name, $options)) {
-                throw new \InvalidArgumentException(sprintf('Unknown option "--%s".', $name));
+                throw new \InvalidArgumentException('Unknown option.');
             }
 
             if (isset($seen[$name])) {

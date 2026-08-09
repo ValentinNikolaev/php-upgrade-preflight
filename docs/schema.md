@@ -38,6 +38,19 @@ Markdown has no independent contract. It projects the canonical report for human
 
 Composer `stdout_excerpt` and `stderr_excerpt` values are bounded and redacted before they enter the canonical model. Stable markers such as `[REDACTED]`, `[REDACTED_TOKEN]`, and `[REDACTED_URL]` replace sensitive values without changing the schema shape.
 
+## Path exposure and report privacy
+
+Default canonical JSON and Markdown replace absolute local roots with stable markers:
+
+| Marker | Meaning |
+| --- | --- |
+| `[PROJECT_ROOT]` | Analyzed project root. |
+| `[REPORT_OUTPUT]` | Report destination root. |
+| `[LOCAL_REPOSITORY]` | Local Composer repository root. |
+| `[ANALYZER_WORKSPACE]` | Analyzer-owned temporary workspace root. |
+
+The analyzer still uses exact project and source paths internally, while source file locations in reports remain project-relative. Exact `temp_path` values are exposed only when `--debug` is explicit; those debug reports and retained workspaces are non-shareable artifacts. In default mode, cleanup failures expose only `[ANALYZER_WORKSPACE]`. Credential redaction remains active in every mode, including debug.
+
 ## Migrating from 0.6 to 0.7
 
 Dispatch on `metadata.schema_version`; do not infer shape from the tool version. The migration is structural:

@@ -5,7 +5,7 @@ declare(strict_types=1);
 $fixturePath = dirname(__DIR__) . '/tests/fixtures/security/composer-output-with-secrets.json';
 
 try {
-    $contents = file_get_contents($fixturePath);
+    $contents = @file_get_contents($fixturePath);
     if ($contents === false) {
         throw new RuntimeException('Unable to read the synthetic secret fixture.');
     }

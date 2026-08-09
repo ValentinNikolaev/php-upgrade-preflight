@@ -28,7 +28,9 @@ PHP Upgrade Preflight predicts dependency and source impact. It does not perform
 
 The analysis pipeline copies the target manifest and lockfile, then scans source files without writing them. A project-local `composer require` still changes the project during installation. Shell redirection can also write inside the project before the analyzer can validate the destination.
 
-Debug mode preserves temporary copies. Cleanup failures report the leaked workspace path for manual removal.
+Exact project and source paths remain available only for internal filesystem access. Default canonical JSON and Markdown replace absolute roots with `[PROJECT_ROOT]`, `[REPORT_OUTPUT]`, `[LOCAL_REPOSITORY]`, and `[ANALYZER_WORKSPACE]`; source file locations remain project-relative.
+
+Debug mode preserves temporary copies and exposes exact `temp_path` values, making debug reports and retained workspaces non-shareable. Default cleanup failures expose only `[ANALYZER_WORKSPACE]`. Credentials remain redacted in every mode.
 
 ## Untrusted projects
 
