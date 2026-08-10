@@ -15,6 +15,7 @@ This project follows [Semantic Versioning](https://semver.org/). Report schema v
 - Offline Composer fixtures for required, missing, disabled, compatible, and incompatible extension-platform scenarios, including request provenance and immutable path-repository coverage.
 - A seeded report-privacy verifier for canonical JSON, Markdown, evidence, exception rendering, debug output, command diagnostics, and CI logs on Linux and Windows quality jobs.
 - Static symbol ownership from root and locked-package PSR-4, PSR-0, classmap, and files autoload metadata, with typed exact declarations, constant case sensitivity, bounded scanning, explicit ambiguity, and dynamic-loader uncertainty.
+- Adjacent Laravel 8→9, 9→10, 10→11, and 11→12 rule packs with fixture coverage for target PHP, Composer metadata, curl availability, official dependency and first-party package migrations, PHPUnit/Pest requirements, Carbon 3, and removed queue-dispatch APIs.
 
 ### Changed
 

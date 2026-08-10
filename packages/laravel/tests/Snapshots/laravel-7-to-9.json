@@ -274,17 +274,27 @@
                 "hops": [
                     {
                         "from_major": 7,
-                        "to_major": 9,
+                        "to_major": 8,
                         "status": "supported",
-                        "rule_pack": "laravel-7-to-9-direct",
+                        "rule_pack": "laravel-7-to-8",
                         "evidence": [
                             "laravel-transition-1"
+                        ]
+                    },
+                    {
+                        "from_major": 8,
+                        "to_major": 9,
+                        "status": "supported",
+                        "rule_pack": "laravel-8-to-9",
+                        "evidence": [
+                            "laravel-transition-2"
                         ]
                     }
                 ],
                 "uncertainties": [],
                 "evidence": [
-                    "laravel-transition-1"
+                    "laravel-transition-1",
+                    "laravel-transition-2"
                 ]
             }
         ]
@@ -299,7 +309,7 @@
             "summary": "Update the root laravel/framework constraint from `^7.0` to a constraint compatible with Laravel 9.",
             "applies_to_hops": [
                 {
-                    "from_major": 7,
+                    "from_major": 8,
                     "to_major": 9
                 }
             ],
@@ -421,12 +431,24 @@
         {
             "id": "laravel-transition-1",
             "class": "E4",
-            "summary": "The retained Laravel 7 to 9 rule pack covers this requested transition.",
+            "summary": "The retained Laravel 7 to 8 rule pack covers this requested transition.",
             "confidence": "medium",
             "context": {
                 "source_major": 7,
+                "target_major": 8,
+                "rule_pack": "laravel-7-to-8",
+                "source": "https://laravel.com/docs/8.x/upgrade"
+            }
+        },
+        {
+            "id": "laravel-transition-2",
+            "class": "E4",
+            "summary": "The implemented Laravel 8 to 9 rule pack covers this requested transition.",
+            "confidence": "medium",
+            "context": {
+                "source_major": 8,
                 "target_major": 9,
-                "rule_pack": "laravel-7-to-9-direct",
+                "rule_pack": "laravel-8-to-9",
                 "source": "https://laravel.com/docs/9.x/upgrade"
             }
         },

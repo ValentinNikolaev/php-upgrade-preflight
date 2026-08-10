@@ -1,0 +1,14 @@
+{
+  "name": "fixture/laravel-9-to-10",
+  "require": {
+    "php": "^8.0",
+    "laravel/framework": "^9.0",
+    "doctrine/dbal": "^2.13",
+    "laravel/sanctum": "^2.0",
+    "spatie/laravel-ignition": "^1.0"
+  },
+  "require-dev": {
+    "nunomaduro/collision": "^6.0",
+    "phpunit/phpunit": "^9.0"
+  }
+}

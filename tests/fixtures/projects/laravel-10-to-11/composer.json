@@ -1,0 +1,23 @@
+{
+  "name": "fixture/laravel-10-to-11",
+  "require": {
+    "php": "^8.1",
+    "laravel/framework": "^10.0",
+    "doctrine/dbal": "^3.0",
+    "laravel/cashier": "^14.0",
+    "laravel/passport": "^11.0",
+    "laravel/sanctum": "^3.0",
+    "laravel/spark-stripe": "^4.0",
+    "laravel/telescope": "^4.0"
+  },
+  "require-dev": {
+    "nunomaduro/collision": "^7.0",
+    "phpunit/phpunit": "^10.0"
+  },
+  "config": {
+    "platform": {
+      "php": "8.1.0",
+      "ext-curl": false
+    }
+  }
+}

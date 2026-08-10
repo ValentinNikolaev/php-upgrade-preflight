@@ -19,7 +19,10 @@ use PhpUpgradePreflight\Laravel\Catalog\LaravelRuleCatalog;
 use PhpUpgradePreflight\Laravel\Catalog\PackageAdvisoryDefinition;
 use PhpUpgradePreflight\Laravel\Catalog\PackageRuleDefinition;
 use PhpUpgradePreflight\Laravel\Catalog\TransitionDefinition;
+use PhpUpgradePreflight\Laravel\Rules\LaravelComposerVersionRule;
+use PhpUpgradePreflight\Laravel\Rules\LaravelCurlExtensionRule;
 use PhpUpgradePreflight\Laravel\Rules\LaravelFrameworkConstraintRule;
+use PhpUpgradePreflight\Laravel\Rules\LaravelHighSignalSourceRule;
 use PhpUpgradePreflight\Laravel\Rules\LaravelPhpConstraintRule;
 use PhpUpgradePreflight\Laravel\Rules\LaravelSkeletonRule;
 use PhpUpgradePreflight\Laravel\Rules\LaravelSource;
@@ -116,6 +119,15 @@ final class LaravelFrameworkIntegration implements FrameworkIntegration, Framewo
                     break;
                 case BuiltinRuleDefinition::SKELETON:
                     yield new LaravelSkeletonRule($definition, $this->catalog->skeletonPatterns());
+                    break;
+                case BuiltinRuleDefinition::COMPOSER_VERSION:
+                    yield new LaravelComposerVersionRule($definition);
+                    break;
+                case BuiltinRuleDefinition::CURL_EXTENSION:
+                    yield new LaravelCurlExtensionRule($definition);
+                    break;
+                case BuiltinRuleDefinition::HIGH_SIGNAL_SOURCE:
+                    yield new LaravelHighSignalSourceRule($definition);
                     break;
                 default:
                     throw new \LogicException(sprintf('Unsupported Laravel built-in rule: %s.', $definition->rule()));
@@ -267,7 +279,12 @@ final class LaravelFrameworkIntegration implements FrameworkIntegration, Framewo
                 $evidenceId = $evidence->add(
                     'laravel-transition',
                     Evidence::E4_MAINTAINER_DOCUMENTATION,
-                    sprintf('The retained Laravel %d to %d rule pack covers this requested transition.', $fromMajor, $toMajor),
+                    sprintf(
+                        'The %s Laravel %d to %d rule pack covers this requested transition.',
+                        $fromMajor === 7 ? 'retained' : 'implemented',
+                        $fromMajor,
+                        $toMajor
+                    ),
                     'medium',
                     [
                         'source_major' => $fromMajor,

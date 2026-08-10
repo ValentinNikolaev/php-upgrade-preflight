@@ -53,6 +53,17 @@ final class LaravelTarget
             : new self($selectedMajor, $selectedConstraint, $requestedConstraints);
     }
 
+    public static function forMajor(int $major): self
+    {
+        if ($major < 0) {
+            throw new \InvalidArgumentException('A Laravel target major must be non-negative.');
+        }
+
+        $constraint = '^' . $major . '.0';
+
+        return new self($major, $constraint, ['laravel/framework' => $constraint]);
+    }
+
     public function major(): int
     {
         return $this->major;

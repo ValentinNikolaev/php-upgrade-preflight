@@ -96,8 +96,9 @@ Resolution: **feasible_with_changes** | Schema: `0.7` | Tool: `php-upgrade-prefl
   - dist reference: `-` -> `-`
 
 ## Framework Transition Guidance
-- `laravel`: `supported` (`7` -> `9`; evidence: `laravel-transition-1`)
-  - hop `7` -> `9`: `supported`; rule pack `laravel-7-to-9-direct` (evidence: `laravel-transition-1`)
+- `laravel`: `supported` (`7` -> `9`; evidence: `laravel-transition-1`, `laravel-transition-2`)
+  - hop `7` -> `8`: `supported`; rule pack `laravel-7-to-8` (evidence: `laravel-transition-1`)
+  - hop `8` -> `9`: `supported`; rule pack `laravel-8-to-9` (evidence: `laravel-transition-2`)
 
 ## Root Constraint Changes
 - `laravel/framework`: updated `^7.0` -> `^9.0`. The declared root constraint differs from the requested target. (evidence: `root-constraint-1`)
@@ -113,7 +114,7 @@ Resolution: **feasible_with_changes** | Schema: `0.7` | Tool: `php-upgrade-prefl
 
 ## Framework Findings
 - `laravel` `high`: Update the root laravel/framework constraint from `^7.0` to a constraint compatible with Laravel 9. (evidence: `laravel-framework-constraint-1`)
-  - applies to hops: `7 -> 9`
+  - applies to hops: `8 -> 9`
 
 ## Staged Plan
 1. **constraints** — Prepare the requested root constraint changes before dependency resolution. (evidence: `plan-1`, `root-constraint-1`)
@@ -151,7 +152,8 @@ Resolution: **feasible_with_changes** | Schema: `0.7` | Tool: `php-upgrade-prefl
 - Composer extension checks used the analyzer runtime because no complete explicit extension platform was supplied.
 
 ## Evidence
-- `laravel-transition-1` (`E4`, medium confidence): The retained Laravel 7 to 9 rule pack covers this requested transition. Context: `{"source_major":7,"target_major":9,"rule_pack":"laravel-7-to-9-direct","source":"https://laravel.com/docs/9.x/upgrade"}`
+- `laravel-transition-1` (`E4`, medium confidence): The retained Laravel 7 to 8 rule pack covers this requested transition. Context: `{"source_major":7,"target_major":8,"rule_pack":"laravel-7-to-8","source":"https://laravel.com/docs/8.x/upgrade"}`
+- `laravel-transition-2` (`E4`, medium confidence): The implemented Laravel 8 to 9 rule pack covers this requested transition. Context: `{"source_major":8,"target_major":9,"rule_pack":"laravel-8-to-9","source":"https://laravel.com/docs/9.x/upgrade"}`
 - `laravel-framework-constraint-1` (`E2`, high confidence): The root Laravel framework constraint does not include the requested target major. Context: `{"package":"laravel/framework","root_constraint":"^7.0","target_constraint":"^9.0","target_laravel_major":9}`
 - `root-constraint-1` (`E2`, high confidence): Compared the root requirement for laravel/framework with the requested target. Context: `{"package":"laravel/framework","from_constraint":"^7.0","to_constraint":"^9.0"}`
 - `plan-1` (`E5`, low confidence): Generated conservative staged actions from the requested targets and detected findings. Context: `{"target_count":2,"root_constraint_change_count":1,"blocker_count":0,"source_finding_count":0,"framework_finding_count":1}`

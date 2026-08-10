@@ -21,9 +21,11 @@ PHP Upgrade Preflight predicts dependency and source impact. It does not perform
 
 ## Framework guidance
 
-- v0.1 ships Laravel rules for conservative Laravel 7 to 8 or 9 analysis.
+- v0.2 retains Laravel 7 to 8/9 rules and adds adjacent rule packs through Laravel 12. Laravel 13 remains approved catalog scope but is not implemented by Milestone 5.
 - Encoded package ranges and maintainer links identify review work; they do not replace each package's upgrade guide.
 - Skeleton findings identify locations to compare and carry low confidence. They are not confirmed incompatibilities.
+- Laravel 11's streamlined application skeleton is optional for upgraded Laravel 10 applications; the adapter does not report the retained Laravel 10 structure as required migration work.
+- The Laravel 11 curl rule can prove an explicitly absent `ext-curl` assumption. A present PHP extension version does not prove the linked libcurl runtime version, so deployment verification remains necessary.
 - Ambiguous framework target ranges produce less guidance instead of guessing a target major.
 
 ## Read-only boundary

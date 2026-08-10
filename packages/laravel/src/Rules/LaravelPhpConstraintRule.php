@@ -5,15 +5,17 @@ declare(strict_types=1);
 namespace PhpUpgradePreflight\Laravel\Rules;
 
 use PhpUpgradePreflight\Core\Framework\CompatibilityRule;
+use PhpUpgradePreflight\Core\Framework\HopAwareCompatibilityRule;
 use PhpUpgradePreflight\Core\Model\CompatibilityFinding;
 use PhpUpgradePreflight\Core\Model\Evidence;
 use PhpUpgradePreflight\Core\Model\EvidenceLedger;
+use PhpUpgradePreflight\Core\Model\FrameworkHop;
 use PhpUpgradePreflight\Core\Model\ProjectState;
 use PhpUpgradePreflight\Core\Model\UpgradeRequest;
 use PhpUpgradePreflight\Laravel\Catalog\BuiltinRuleDefinition;
 use PhpUpgradePreflight\Laravel\Catalog\LaravelRuleCatalog;
 
-final class LaravelPhpConstraintRule implements CompatibilityRule
+final class LaravelPhpConstraintRule implements CompatibilityRule, HopAwareCompatibilityRule
 {
     private BuiltinRuleDefinition $definition;
     private LaravelRuleCatalog $catalog;
@@ -32,11 +34,37 @@ final class LaravelPhpConstraintRule implements CompatibilityRule
     ): ?CompatibilityFinding {
         $target = LaravelTarget::fromRequest($request);
         $sourceMajor = LaravelSource::fromProject($project)->major();
-        $targetDefinition = $target === null ? null : $this->catalog->target($target->major());
-        if ($target === null
-            || $sourceMajor === null
-            || $targetDefinition === null
-            || !$this->definition->appliesTo($sourceMajor, $target->major())) {
+
+        return $target === null || $sourceMajor === null
+            ? null
+            : $this->evaluateTransition($project, $request, $evidence, $sourceMajor, $target);
+    }
+
+    public function evaluateForHop(
+        ProjectState $project,
+        UpgradeRequest $request,
+        EvidenceLedger $evidence,
+        FrameworkHop $hop,
+        ?string $composerVersion = null,
+        array $sourceUsages = []
+    ): ?CompatibilityFinding {
+        $target = LaravelTarget::fromRequest($request);
+        if ($target === null || $target->major() !== $hop->toMajor()) {
+            return null;
+        }
+
+        return $this->evaluateTransition($project, $request, $evidence, $hop->fromMajor(), $target);
+    }
+
+    private function evaluateTransition(
+        ProjectState $project,
+        UpgradeRequest $request,
+        EvidenceLedger $evidence,
+        int $sourceMajor,
+        LaravelTarget $target
+    ): ?CompatibilityFinding {
+        $targetDefinition = $this->catalog->target($target->major());
+        if ($targetDefinition === null || !$this->definition->appliesTo($sourceMajor, $target->major())) {
             return null;
         }
 

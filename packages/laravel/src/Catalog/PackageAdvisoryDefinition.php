@@ -9,6 +9,9 @@ final class PackageAdvisoryDefinition implements RuleDefinition
     public const REPLACE_IGNITION = 'replace_ignition';
     public const REMOVE_TRUSTED_PROXY = 'remove_trusted_proxy';
     public const REVIEW_CORS_REMOVAL = 'review_cors_removal';
+    public const PUBLISH_MIGRATIONS = 'publish_migrations';
+    public const REVIEW_DBAL_REMOVAL = 'review_dbal_removal';
+    public const REPLACE_FLYSYSTEM_SFTP = 'replace_flysystem_sftp';
 
     private string $key;
     private string $package;
@@ -64,6 +67,10 @@ final class PackageAdvisoryDefinition implements RuleDefinition
                 return 'fideloper/proxy';
             case self::REVIEW_CORS_REMOVAL:
                 return 'fruitcake/laravel-cors';
+            case self::REVIEW_DBAL_REMOVAL:
+                return 'doctrine/dbal';
+            case self::REPLACE_FLYSYSTEM_SFTP:
+                return 'league/flysystem-sftp';
         }
 
         return null;

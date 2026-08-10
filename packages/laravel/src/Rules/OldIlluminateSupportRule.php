@@ -5,14 +5,16 @@ declare(strict_types=1);
 namespace PhpUpgradePreflight\Laravel\Rules;
 
 use PhpUpgradePreflight\Core\Framework\CompatibilityRule;
+use PhpUpgradePreflight\Core\Framework\HopAwareCompatibilityRule;
 use PhpUpgradePreflight\Core\Model\CompatibilityFinding;
 use PhpUpgradePreflight\Core\Model\Evidence;
 use PhpUpgradePreflight\Core\Model\EvidenceLedger;
+use PhpUpgradePreflight\Core\Model\FrameworkHop;
 use PhpUpgradePreflight\Core\Model\ProjectState;
 use PhpUpgradePreflight\Core\Model\UpgradeRequest;
 use PhpUpgradePreflight\Laravel\Catalog\BuiltinRuleDefinition;
 
-final class OldIlluminateSupportRule implements CompatibilityRule
+final class OldIlluminateSupportRule implements CompatibilityRule, HopAwareCompatibilityRule
 {
     private const SPECIALIZED_PACKAGES = [
         'laravel/horizon',
@@ -36,9 +38,36 @@ final class OldIlluminateSupportRule implements CompatibilityRule
     ): ?CompatibilityFinding {
         $target = LaravelTarget::fromRequest($request);
         $sourceMajor = LaravelSource::fromProject($project)->major();
-        if ($target === null
-            || $sourceMajor === null
-            || !$this->definition->appliesTo($sourceMajor, $target->major())) {
+        if ($target === null || $sourceMajor === null) {
+            return null;
+        }
+
+        return $this->evaluateTransition($project, $evidence, $sourceMajor, $target);
+    }
+
+    public function evaluateForHop(
+        ProjectState $project,
+        UpgradeRequest $request,
+        EvidenceLedger $evidence,
+        FrameworkHop $hop,
+        ?string $composerVersion = null,
+        array $sourceUsages = []
+    ): ?CompatibilityFinding {
+        $target = LaravelTarget::fromRequest($request);
+        if ($target === null || $target->major() !== $hop->toMajor()) {
+            return null;
+        }
+
+        return $this->evaluateTransition($project, $evidence, $hop->fromMajor(), $target);
+    }
+
+    private function evaluateTransition(
+        ProjectState $project,
+        EvidenceLedger $evidence,
+        int $sourceMajor,
+        LaravelTarget $target
+    ): ?CompatibilityFinding {
+        if (!$this->definition->appliesTo($sourceMajor, $target->major())) {
             return null;
         }
 

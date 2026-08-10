@@ -1,0 +1,14 @@
+{
+  "content-hash": "laravel-9-to-10",
+  "packages": [
+    {"name": "laravel/framework", "version": "v9.52.16"},
+    {"name": "doctrine/dbal", "version": "2.13.9"},
+    {"name": "laravel/sanctum", "version": "v2.15.1"},
+    {"name": "spatie/laravel-ignition", "version": "1.10.0"}
+  ],
+  "packages-dev": [
+    {"name": "nunomaduro/collision", "version": "v6.4.0"},
+    {"name": "phpunit/phpunit", "version": "9.6.29"}
+  ],
+  "plugin-api-version": "2.1.0"
+}

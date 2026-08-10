@@ -1,0 +1,17 @@
+{
+  "content-hash": "laravel-10-to-11",
+  "packages": [
+    {"name": "laravel/framework", "version": "v10.48.28"},
+    {"name": "doctrine/dbal", "version": "3.8.7"},
+    {"name": "laravel/cashier", "version": "v14.14.0"},
+    {"name": "laravel/passport", "version": "v11.10.6"},
+    {"name": "laravel/sanctum", "version": "v3.3.3"},
+    {"name": "laravel/spark-stripe", "version": "v4.3.2"},
+    {"name": "laravel/telescope", "version": "v4.17.6"}
+  ],
+  "packages-dev": [
+    {"name": "nunomaduro/collision", "version": "v7.12.0"},
+    {"name": "phpunit/phpunit", "version": "10.5.58"}
+  ],
+  "plugin-api-version": "2.2.0"
+}

@@ -1,6 +1,6 @@
 # Laravel v0.2 transition scope
 
-This document approves the Laravel transition rule packs that v0.2.0 may implement. It does not expand the transitions supported by the current v0.1 analyzer. Until the corresponding rules, fixtures, host-installability checks, and documentation ship, the v0.1 support statement remains Laravel 7 to Laravel 8 or 9.
+This document records the approved Laravel transition rule packs for v0.2.0. Milestone 5 implements the retained Laravel 7 to 8/9 behavior and adjacent rule packs from Laravel 8 to Laravel 12. Laravel 12 to 13 remains approved follow-up scope and is not implemented by this milestone.
 
 The machine-readable decision and its exact upstream evidence are in [`laravel-v0.2-transition-matrix.json`](../tests/fixtures/contracts/laravel-v0.2-transition-matrix.json). Every reviewed upstream file is pinned to the official Git commit observed on 2026-08-08 so later branch edits cannot silently change the basis for this scope.
 

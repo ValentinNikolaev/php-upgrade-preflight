@@ -11,6 +11,8 @@ use PhpUpgradePreflight\Core\Model\FrameworkGuidance;
 use PhpUpgradePreflight\Core\Model\ProjectState;
 use PhpUpgradePreflight\Core\Model\UpgradeRequest;
 use PhpUpgradePreflight\Core\Model\UpgradeTarget;
+use PhpUpgradePreflight\Laravel\Catalog\LaravelRuleCatalog;
+use PhpUpgradePreflight\Laravel\Catalog\TransitionDefinition;
 use PhpUpgradePreflight\Laravel\LaravelFrameworkIntegration;
 use PHPUnit\Framework\TestCase;
 
@@ -30,7 +32,7 @@ final class LaravelFrameworkIntegrationTest extends TestCase
         self::assertSame('laravel', $integration->name());
         self::assertTrue($detection->isDetected());
         self::assertSame('v8.83.27', $detection->version());
-        self::assertCount(19, iterator_to_array($integration->rules()));
+        self::assertCount(59, iterator_to_array($integration->rules()));
         self::assertSame(['src', 'app', 'bootstrap', 'config', 'database', 'routes', 'tests'], $integration->defaultSourcePaths($project));
         self::assertSame(['laravel'], $integration->packageFamilies('laravel/framework'));
     }
@@ -182,7 +184,7 @@ final class LaravelFrameworkIntegrationTest extends TestCase
         self::assertNull($detection->version());
     }
 
-    public function testItAssessesTheRetainedDirectTransitionAndScopesItsHop(): void
+    public function testItPrefersTheCompleteAdjacentPathOverTheRetainedDirectTransition(): void
     {
         $project = new ProjectState(
             __DIR__,
@@ -198,9 +200,61 @@ final class LaravelFrameworkIntegrationTest extends TestCase
         self::assertSame(FrameworkGuidance::SUPPORTED, $guidance->toArray()['status']);
         self::assertSame(7, $guidance->sourceMajor());
         self::assertSame(9, $guidance->targetMajor());
+        self::assertSame([
+            ['from_major' => 7, 'to_major' => 8],
+            ['from_major' => 8, 'to_major' => 9],
+        ], $guidance->supportedHopReferences());
+        self::assertSame('laravel-7-to-8', $guidance->toArray()['hops'][0]['rule_pack']);
+        self::assertSame('laravel-8-to-9', $guidance->toArray()['hops'][1]['rule_pack']);
+        self::assertCount(2, $evidence->all());
+    }
+
+    public function testItRetainsTheDirectLaravel7To9PackAsAFallback(): void
+    {
+        $catalog = LaravelRuleCatalog::v0_2();
+        $transitions = array_map(
+            static function (TransitionDefinition $transition): TransitionDefinition {
+                if ($transition->key() !== 'adjacent-8-9') {
+                    return $transition;
+                }
+
+                return new TransitionDefinition(
+                    $transition->key(),
+                    $transition->sourceMajor(),
+                    $transition->targetMajor(),
+                    $transition->kind(),
+                    null,
+                    $transition->sources()
+                );
+            },
+            $catalog->transitions()
+        );
+        $fallbackCatalog = new LaravelRuleCatalog(
+            $catalog->version(),
+            $catalog->minimumMajor(),
+            $catalog->maximumMajor(),
+            $catalog->targets(),
+            $transitions,
+            $catalog->rules(),
+            $catalog->skeletonPatterns()
+        );
+        $project = new ProjectState(
+            __DIR__,
+            new ComposerJson(['require' => ['laravel/framework' => '^7.0']]),
+            new ComposerLock(['packages' => [['name' => 'laravel/framework', 'version' => 'v7.30.7']]])
+        );
+        $request = new UpgradeRequest(__DIR__, [new UpgradeTarget('laravel/framework', '^9.0')]);
+
+        $guidance = (new LaravelFrameworkIntegration(null, $fallbackCatalog))->assessTransition(
+            $project,
+            $request,
+            new EvidenceLedger()
+        );
+
+        self::assertNotNull($guidance);
+        self::assertSame(FrameworkGuidance::SUPPORTED, $guidance->status());
         self::assertSame([['from_major' => 7, 'to_major' => 9]], $guidance->supportedHopReferences());
-        self::assertSame('laravel-7-to-9-direct', $guidance->toArray()['hops'][0]['rule_pack']);
-        self::assertCount(1, $evidence->all());
+        self::assertSame('laravel-7-to-9-direct', $guidance->hops()[0]->toArray()['rule_pack']);
     }
 
     public function testItDoesNotGuessAnAmbiguousSourceMajor(): void
@@ -226,7 +280,7 @@ final class LaravelFrameworkIntegrationTest extends TestCase
         self::assertNotSame([], $guidance->toArray()['uncertainties']);
     }
 
-    public function testItResolvesOneSourceMajorFromRootedIlluminateLocksWithDifferentPatchVersions(): void
+    public function testItResolvesOneSourceMajorAndStopsAtTheUnimplementedLaravel13Hop(): void
     {
         $project = new ProjectState(
             __DIR__,
@@ -254,9 +308,16 @@ final class LaravelFrameworkIntegrationTest extends TestCase
         self::assertNotNull($guidance);
         self::assertSame(10, $guidance->sourceMajor());
         self::assertSame(13, $guidance->targetMajor());
-        self::assertSame(FrameworkGuidance::UNSUPPORTED, $guidance->status());
-        self::assertSame([], $guidance->hops());
-        self::assertCount(3, $guidance->toArray()['uncertainties']);
+        self::assertSame(FrameworkGuidance::PARTIALLY_SUPPORTED, $guidance->status());
+        self::assertSame([
+            [10, 11, 'supported'],
+            [11, 12, 'supported'],
+            [12, 13, 'unsupported'],
+        ], array_map(
+            static fn ($hop): array => [$hop->fromMajor(), $hop->toMajor(), $hop->status()],
+            $guidance->hops()
+        ));
+        self::assertCount(1, $guidance->toArray()['uncertainties']);
     }
 
     public function testItReportsInconsistentRootedIlluminateLockedMajorsAsUncertainty(): void
@@ -453,7 +514,7 @@ final class LaravelFrameworkIntegrationTest extends TestCase
         yield 'source below catalog' => ['v6.20.44', '^7.0', 6, 7, 'outside the modeled Laravel 7 through 13'];
     }
 
-    public function testItModelsAContiguousSupportedPrefixAndMissingAdjacentHops(): void
+    public function testItModelsAContiguousSupportedAdjacentPathThroughLaravel10(): void
     {
         $project = new ProjectState(
             __DIR__,
@@ -469,13 +530,17 @@ final class LaravelFrameworkIntegrationTest extends TestCase
         );
 
         self::assertNotNull($guidance);
-        self::assertSame(FrameworkGuidance::PARTIALLY_SUPPORTED, $guidance->status());
-        self::assertSame([['from_major' => 7, 'to_major' => 8]], $guidance->supportedHopReferences());
+        self::assertSame(FrameworkGuidance::SUPPORTED, $guidance->status());
+        self::assertSame([
+            ['from_major' => 7, 'to_major' => 8],
+            ['from_major' => 8, 'to_major' => 9],
+            ['from_major' => 9, 'to_major' => 10],
+        ], $guidance->supportedHopReferences());
         self::assertSame(
             [
                 [7, 8, 'supported'],
-                [8, 9, 'unsupported'],
-                [9, 10, 'unsupported'],
+                [8, 9, 'supported'],
+                [9, 10, 'supported'],
             ],
             array_map(
                 static fn ($hop): array => [$hop->fromMajor(), $hop->toMajor(), $hop->status()],

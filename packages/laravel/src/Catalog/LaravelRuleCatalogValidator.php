@@ -71,6 +71,9 @@ final class LaravelRuleCatalogValidator
                     BuiltinRuleDefinition::SYMFONY_CONSTRAINT,
                     BuiltinRuleDefinition::ILLUMINATE_SUPPORT,
                     BuiltinRuleDefinition::SKELETON,
+                    BuiltinRuleDefinition::COMPOSER_VERSION,
+                    BuiltinRuleDefinition::CURL_EXTENSION,
+                    BuiltinRuleDefinition::HIGH_SIGNAL_SOURCE,
                 ], true)) {
                     $errors[] = sprintf('Unsupported built-in rule type for %s: %s.', $rule->key(), $rule->rule());
                 }
@@ -107,6 +110,9 @@ final class LaravelRuleCatalogValidator
                     PackageAdvisoryDefinition::REPLACE_IGNITION,
                     PackageAdvisoryDefinition::REMOVE_TRUSTED_PROXY,
                     PackageAdvisoryDefinition::REVIEW_CORS_REMOVAL,
+                    PackageAdvisoryDefinition::PUBLISH_MIGRATIONS,
+                    PackageAdvisoryDefinition::REVIEW_DBAL_REMOVAL,
+                    PackageAdvisoryDefinition::REPLACE_FLYSYSTEM_SFTP,
                 ], true)) {
                     $errors[] = sprintf('Unsupported package advisory action for %s: %s.', $rule->key(), $rule->action());
                 }
@@ -123,7 +129,9 @@ final class LaravelRuleCatalogValidator
                 $this->validateSeverity($rule->severity(), $rule->key(), $errors);
                 $this->validateSources($rule->sources(), $rule->key(), $errors);
                 $this->validateAdviceApplicability($catalog, $rule->key(), $rule->applicability(), $errors);
-                $this->recordAdvice($rule->package(), $rule->applicability(), $rule->key(), $advice, $errors);
+                if ($rule->action() !== PackageAdvisoryDefinition::PUBLISH_MIGRATIONS) {
+                    $this->recordAdvice($rule->package(), $rule->applicability(), $rule->key(), $advice, $errors);
+                }
 
                 continue;
             }

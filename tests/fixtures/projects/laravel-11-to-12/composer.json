@@ -1,0 +1,13 @@
+{
+  "name": "fixture/laravel-11-to-12",
+  "require": {
+    "php": "^8.2",
+    "laravel/framework": "^11.0",
+    "nesbot/carbon": "^2.72"
+  },
+  "require-dev": {
+    "nunomaduro/collision": "^8.1",
+    "pestphp/pest": "^2.0",
+    "phpunit/phpunit": "^10.0"
+  }
+}

@@ -396,7 +396,10 @@ final class LaravelFixtureAnalysisTest extends TestCase
         self::assertNotSame([], $guidance->supportedHopReferences());
 
         foreach ($report->frameworkFindings() as $finding) {
-            self::assertSame($guidance->supportedHopReferences(), $finding->appliesToHops());
+            self::assertNotSame([], $finding->appliesToHops());
+            foreach ($finding->appliesToHops() as $hop) {
+                self::assertContains($hop, $guidance->supportedHopReferences());
+            }
         }
     }
 

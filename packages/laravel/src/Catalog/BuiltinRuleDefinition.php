@@ -11,6 +11,9 @@ final class BuiltinRuleDefinition implements RuleDefinition
     public const SYMFONY_CONSTRAINT = 'symfony_constraint';
     public const ILLUMINATE_SUPPORT = 'illuminate_support';
     public const SKELETON = 'skeleton';
+    public const COMPOSER_VERSION = 'composer_version';
+    public const CURL_EXTENSION = 'curl_extension';
+    public const HIGH_SIGNAL_SOURCE = 'high_signal_source';
 
     private string $key;
     private string $rule;

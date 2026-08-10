@@ -1,0 +1,13 @@
+{
+  "content-hash": "laravel-11-to-12",
+  "packages": [
+    {"name": "laravel/framework", "version": "v11.44.7"},
+    {"name": "nesbot/carbon", "version": "2.72.6"}
+  ],
+  "packages-dev": [
+    {"name": "nunomaduro/collision", "version": "v8.1.1"},
+    {"name": "pestphp/pest", "version": "v2.36.0"},
+    {"name": "phpunit/phpunit", "version": "10.5.58"}
+  ],
+  "plugin-api-version": "2.2.0"
+}

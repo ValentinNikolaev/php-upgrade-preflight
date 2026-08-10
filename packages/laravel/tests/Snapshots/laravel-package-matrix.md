@@ -155,8 +155,9 @@ Resolution: **blocked** | Schema: `0.7` | Tool: `php-upgrade-preflight 0.2.0-dev
 - No lockfile changes detected.
 
 ## Framework Transition Guidance
-- `laravel`: `supported` (`7` -> `9`; evidence: `laravel-transition-1`)
-  - hop `7` -> `9`: `supported`; rule pack `laravel-7-to-9-direct` (evidence: `laravel-transition-1`)
+- `laravel`: `supported` (`7` -> `9`; evidence: `laravel-transition-1`, `laravel-transition-2`)
+  - hop `7` -> `8`: `supported`; rule pack `laravel-7-to-8` (evidence: `laravel-transition-1`)
+  - hop `8` -> `9`: `supported`; rule pack `laravel-8-to-9` (evidence: `laravel-transition-2`)
 
 ## Root Constraint Changes
 - `laravel/framework`: updated `^7.0` -> `^9.0`. The declared root constraint differs from the requested target. (evidence: `root-constraint-1`)
@@ -181,35 +182,35 @@ Resolution: **blocked** | Schema: `0.7` | Tool: `php-upgrade-preflight 0.2.0-dev
 
 ## Framework Findings
 - `laravel` `high`: Update the root laravel/framework constraint from `^7.0` to a constraint compatible with Laravel 9. (evidence: `laravel-framework-constraint-1`)
-  - applies to hops: `7 -> 9`
+  - applies to hops: `8 -> 9`
 - `laravel` `high`: The root PHP constraint `^7.4` excludes target PHP `8.1.0`; update it for the Laravel 9 upgrade. (evidence: `laravel-php-constraint-1`)
-  - applies to hops: `7 -> 9`
+  - applies to hops: `8 -> 9`
 - `laravel` `high`: laravel/passport v8.5.0 is outside the encoded Laravel 9 review range `^10.0|^11.0`; review its upgrade or replacement. (evidence: `laravel-package-laravel_passport-1`, `laravel-package-guidance-1`)
-  - applies to hops: `7 -> 9`
+  - applies to hops: `8 -> 9`
 - `laravel` `medium`: laravel/sanctum v1.3.3 is outside the encoded Laravel 9 review range `^2.0|^3.0`; review its upgrade or replacement. (evidence: `laravel-package-laravel_sanctum-1`, `laravel-package-guidance-2`)
-  - applies to hops: `7 -> 9`
+  - applies to hops: `8 -> 9`
 - `laravel` `high`: laravel/horizon v4.3.5 is outside the encoded Laravel 9 review range `^5.0`; review its upgrade or replacement. (evidence: `laravel-package-laravel_horizon-1`, `laravel-package-guidance-3`)
-  - applies to hops: `7 -> 9`
+  - applies to hops: `8 -> 9`
 - `laravel` `medium`: laravel/telescope v3.7.0 is outside the encoded Laravel 9 review range `^4.0`; review its upgrade or replacement. (evidence: `laravel-package-laravel_telescope-1`, `laravel-package-guidance-4`)
-  - applies to hops: `7 -> 9`
+  - applies to hops: `8 -> 9`
 - `laravel` `medium`: phpunit/phpunit 8.5.21 is outside the encoded Laravel 9 review range `^9.5.10`; review its upgrade or replacement. (evidence: `laravel-package-phpunit_phpunit-1`, `laravel-package-guidance-5`)
-  - applies to hops: `7 -> 9`
+  - applies to hops: `8 -> 9`
 - `laravel` `low`: mockery/mockery 1.3.6 is outside the encoded Laravel 9 review range `^1.4`; review its upgrade or replacement. (evidence: `laravel-package-mockery_mockery-1`, `laravel-package-guidance-6`)
-  - applies to hops: `7 -> 9`
+  - applies to hops: `8 -> 9`
 - `laravel` `high`: Review direct Symfony component constraints for Laravel 9 (`^6.0` expected): symfony/http-foundation. (evidence: `laravel-symfony-constraints-1`, `laravel-symfony-guidance-1`)
-  - applies to hops: `7 -> 9`
+  - applies to hops: `8 -> 9`
 - `laravel` `high`: Replace facade/ignition with spatie/laravel-ignition for the Laravel 9 target. (evidence: `laravel-advisory-facade_ignition-1`, `laravel-package-advisory-1`)
-  - applies to hops: `7 -> 9`
+  - applies to hops: `8 -> 9`
 - `laravel` `medium`: Remove fideloper/proxy and review the trusted proxy middleware for the Laravel 9 target. (evidence: `laravel-advisory-fideloper_proxy-1`, `laravel-package-advisory-2`)
-  - applies to hops: `7 -> 9`
+  - applies to hops: `8 -> 9`
 - `laravel` `medium`: Review removal of fruitcake/laravel-cors because Laravel 9 integrates CORS middleware through the framework. (evidence: `laravel-advisory-fruitcake_laravel_cors-1`, `laravel-package-advisory-3`)
-  - applies to hops: `7 -> 9`
+  - applies to hops: `8 -> 9`
 - `laravel` `medium`: nunomaduro/collision v4.3.0 is outside the encoded Laravel 9 review range `^6.1`; review its upgrade or replacement. (evidence: `laravel-package-nunomaduro_collision-1`, `laravel-package-guidance-7`)
-  - applies to hops: `7 -> 9`
+  - applies to hops: `8 -> 9`
 - `laravel` `low`: laravel/ui v2.5.0 is outside the encoded Laravel 9 review range `^4.0`; review its upgrade or replacement. (evidence: `laravel-package-laravel_ui-1`, `laravel-package-guidance-8`)
-  - applies to hops: `7 -> 9`
+  - applies to hops: `8 -> 9`
 - `laravel` `medium`: orchestra/testbench v5.4.0 is outside the encoded Laravel 9 review range `^7.0`; review its upgrade or replacement. (evidence: `laravel-package-orchestra_testbench-1`, `laravel-package-guidance-9`)
-  - applies to hops: `7 -> 9`
+  - applies to hops: `8 -> 9`
 
 ## Staged Plan
 1. **constraints** — Prepare the requested root constraint changes before dependency resolution. (evidence: `plan-1`, `root-constraint-1`)
@@ -257,7 +258,8 @@ Resolution: **blocked** | Schema: `0.7` | Tool: `php-upgrade-preflight 0.2.0-dev
 - `solver-3` (`E1`, high confidence): Composer scenario "minimal-changes" failed. Context: `{"scenario":"minimal-changes","targets":[{"package":"laravel/framework","constraint":"^9.0"},{"package":"php","constraint":"8.1.0"}],"exit_code":2,"output_excerpt":"Your requirements could not be resolved to an installable set of packages.\n- Root composer.json retains legacy package constraints that exclude the requested Laravel target.","diagnostics":[{"package":"laravel/framework","constraint":"^9.0","command":["composer","prohibits","laravel/framework","^9.0","--tree","--locked","--no-scripts","--no-plugins","--no-interaction"],"exit_code":1,"stdout_excerpt":"","stderr_excerpt":"No additional fixture diagnostic."},{"package":"php","constraint":"8.1.0","command":["composer","prohibits","php","8.1.0","--tree","--locked","--no-scripts","--no-plugins","--no-interaction"],"exit_code":1,"stdout_excerpt":"","stderr_excerpt":"No additional fixture diagnostic."}]}`
 - `solver-4` (`E1`, high confidence): Composer scenario "target-platform-only" failed. Context: `{"scenario":"target-platform-only","targets":[{"package":"php","constraint":"8.1.0"}],"exit_code":2,"output_excerpt":"Your requirements could not be resolved to an installable set of packages.\n- Root composer.json retains legacy package constraints that exclude the requested Laravel target.","diagnostics":[{"package":"php","constraint":"8.1.0","command":["composer","prohibits","php","8.1.0","--tree","--locked","--no-scripts","--no-plugins","--no-interaction"],"exit_code":1,"stdout_excerpt":"","stderr_excerpt":"No additional fixture diagnostic."}]}`
 - `solver-5` (`E1`, high confidence): Composer scenario "staged-targets" failed. Context: `{"scenario":"staged-targets","targets":[{"package":"laravel/framework","constraint":"^9.0"},{"package":"php","constraint":"7.4.0"}],"exit_code":2,"output_excerpt":"Your requirements could not be resolved to an installable set of packages.\n- Root composer.json retains legacy package constraints that exclude the requested Laravel target.","diagnostics":[{"package":"laravel/framework","constraint":"^9.0","command":["composer","prohibits","laravel/framework","^9.0","--tree","--locked","--no-scripts","--no-plugins","--no-interaction"],"exit_code":1,"stdout_excerpt":"","stderr_excerpt":"No additional fixture diagnostic."}]}`
-- `laravel-transition-1` (`E4`, medium confidence): The retained Laravel 7 to 9 rule pack covers this requested transition. Context: `{"source_major":7,"target_major":9,"rule_pack":"laravel-7-to-9-direct","source":"https://laravel.com/docs/9.x/upgrade"}`
+- `laravel-transition-1` (`E4`, medium confidence): The retained Laravel 7 to 8 rule pack covers this requested transition. Context: `{"source_major":7,"target_major":8,"rule_pack":"laravel-7-to-8","source":"https://laravel.com/docs/8.x/upgrade"}`
+- `laravel-transition-2` (`E4`, medium confidence): The implemented Laravel 8 to 9 rule pack covers this requested transition. Context: `{"source_major":8,"target_major":9,"rule_pack":"laravel-8-to-9","source":"https://laravel.com/docs/9.x/upgrade"}`
 - `laravel-framework-constraint-1` (`E2`, high confidence): The root Laravel framework constraint does not include the requested target major. Context: `{"package":"laravel/framework","root_constraint":"^7.0","target_constraint":"^9.0","target_laravel_major":9}`
 - `laravel-php-constraint-1` (`E2`, high confidence): The detected PHP target or root constraint does not satisfy the Laravel target PHP range. Context: `{"observation":"target_php","observed_php":"8.1.0","root_php_constraint":"^7.4","required_php":"^8.0.2","target_laravel_major":9,"laravel_range_satisfied":true,"root_constraint_satisfied":false}`
 - `laravel-package-laravel_passport-1` (`E2`, high confidence): laravel/passport is present in Composer metadata. Context: `{"package":"laravel/passport","locked_version":"v8.5.0","root_constraint":"^8.0","framework_requirements":[],"target_laravel_major":9}`
