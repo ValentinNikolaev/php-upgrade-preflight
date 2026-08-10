@@ -14,6 +14,11 @@ use PhpUpgradePreflight\Core\Model\FrameworkGuidance;
 use PhpUpgradePreflight\Core\Model\FrameworkHop;
 use PhpUpgradePreflight\Core\Model\ProjectState;
 use PhpUpgradePreflight\Core\Model\UpgradeRequest;
+use PhpUpgradePreflight\Laravel\Catalog\BuiltinRuleDefinition;
+use PhpUpgradePreflight\Laravel\Catalog\LaravelRuleCatalog;
+use PhpUpgradePreflight\Laravel\Catalog\PackageAdvisoryDefinition;
+use PhpUpgradePreflight\Laravel\Catalog\PackageRuleDefinition;
+use PhpUpgradePreflight\Laravel\Catalog\TransitionDefinition;
 use PhpUpgradePreflight\Laravel\Rules\LaravelFrameworkConstraintRule;
 use PhpUpgradePreflight\Laravel\Rules\LaravelPhpConstraintRule;
 use PhpUpgradePreflight\Laravel\Rules\LaravelSkeletonRule;
@@ -26,24 +31,15 @@ use PhpUpgradePreflight\Laravel\Rules\TargetedPackageAdvisoryRule;
 
 final class LaravelFrameworkIntegration implements FrameworkIntegration, FrameworkTransitionProvider, PackageFamilyClassifier
 {
-    private const MINIMUM_CATALOG_MAJOR = 7;
-    private const MAXIMUM_CATALOG_MAJOR = 13;
-
-    /** @var array<string, string> */
-    private const ADJACENT_RULE_PACKS = [
-        '7:8' => 'laravel-7-to-8',
-    ];
-
-    /** @var array<string, string> */
-    private const DIRECT_RULE_PACKS = [
-        '7:9' => 'laravel-7-to-9-direct',
-    ];
-
     private LaravelPackageFamilyClassifier $packageFamilyClassifier;
+    private LaravelRuleCatalog $catalog;
 
-    public function __construct(?LaravelPackageFamilyClassifier $packageFamilyClassifier = null)
-    {
+    public function __construct(
+        ?LaravelPackageFamilyClassifier $packageFamilyClassifier = null,
+        ?LaravelRuleCatalog $catalog = null
+    ) {
         $this->packageFamilyClassifier = $packageFamilyClassifier ?? new LaravelPackageFamilyClassifier();
+        $this->catalog = $catalog ?? LaravelRuleCatalog::v0_2();
     }
 
     public function name(): string
@@ -90,81 +86,41 @@ final class LaravelFrameworkIntegration implements FrameworkIntegration, Framewo
 
     public function rules(): iterable
     {
-        $laravel8Upgrade = 'https://laravel.com/docs/8.x/upgrade';
-        $laravel9Upgrade = 'https://laravel.com/docs/9.x/upgrade';
-        $laravel8Skeleton = 'https://github.com/laravel/laravel/blob/8.x/composer.json';
-        $laravel9Skeleton = 'https://github.com/laravel/laravel/blob/9.x/composer.json';
+        foreach ($this->catalog->rules() as $definition) {
+            if ($definition instanceof PackageRuleDefinition) {
+                yield new PackageVersionRule($definition);
 
-        yield new LaravelFrameworkConstraintRule();
-        yield new LaravelPhpConstraintRule();
-        yield new PackageVersionRule('laravel/passport', [8 => '^10.0', 9 => '^10.0|^11.0'], 'high', [
-            8 => [$laravel8Upgrade],
-            9 => [
-                'https://github.com/laravel/passport/blob/10.x/composer.json',
-                'https://github.com/laravel/passport/blob/11.x/composer.json',
-            ],
-        ], true);
-        yield new PackageVersionRule('laravel/sanctum', [8 => '^2.0', 9 => '^2.0|^3.0'], 'medium', [
-            8 => ['https://github.com/laravel/sanctum/blob/2.x/composer.json'],
-            9 => [
-                'https://github.com/laravel/sanctum/blob/2.x/composer.json',
-                'https://github.com/laravel/sanctum/blob/3.x/composer.json',
-            ],
-        ], true);
-        yield new PackageVersionRule('laravel/horizon', [8 => '^5.0', 9 => '^5.0'], 'high', [
-            8 => [$laravel8Upgrade],
-            9 => ['https://github.com/laravel/horizon/blob/5.x/composer.json'],
-        ], true);
-        yield new PackageVersionRule('laravel/telescope', [8 => '^4.0', 9 => '^4.0'], 'medium', [
-            8 => ['https://github.com/laravel/telescope/blob/4.x/composer.json'],
-            9 => ['https://github.com/laravel/telescope/blob/4.x/composer.json'],
-        ], true);
-        yield new PackageVersionRule('phpunit/phpunit', [8 => '^9.0', 9 => '^9.5.10'], 'medium', [
-            8 => [$laravel8Upgrade, $laravel8Skeleton],
-            9 => [$laravel9Skeleton],
-        ]);
-        yield new PackageVersionRule('mockery/mockery', [8 => '^1.4', 9 => '^1.4'], 'low', [
-            8 => [$laravel8Skeleton],
-            9 => [$laravel9Skeleton],
-        ]);
-        yield new SymfonyComponentConstraintRule();
-        yield new OldIlluminateSupportRule();
-        yield new PackageVersionRule('facade/ignition', [8 => '>=2.3.6 <3.0'], 'medium', [8 => [$laravel8Upgrade]]);
-        yield new TargetedPackageAdvisoryRule(
-            'facade/ignition',
-            [9],
-            'Replace facade/ignition with spatie/laravel-ignition for the Laravel 9 target.',
-            'high',
-            $laravel9Upgrade
-        );
-        yield new TargetedPackageAdvisoryRule(
-            'fideloper/proxy',
-            [9],
-            'Remove fideloper/proxy and review the trusted proxy middleware for the Laravel 9 target.',
-            'medium',
-            $laravel9Upgrade
-        );
-        yield new PackageVersionRule('fruitcake/laravel-cors', [8 => '^2.0'], 'medium', [8 => [$laravel8Skeleton]]);
-        yield new TargetedPackageAdvisoryRule(
-            'fruitcake/laravel-cors',
-            [9],
-            'Review removal of fruitcake/laravel-cors because Laravel 9 integrates CORS middleware through the framework.',
-            'medium',
-            $laravel9Upgrade
-        );
-        yield new PackageVersionRule('nunomaduro/collision', [8 => '^5.0', 9 => '^6.1'], 'medium', [
-            8 => [$laravel8Upgrade],
-            9 => [$laravel9Upgrade],
-        ]);
-        yield new PackageVersionRule('laravel/ui', [8 => '^3.0', 9 => '^4.0'], 'low', [
-            8 => ['https://github.com/laravel/ui/blob/3.x/composer.json'],
-            9 => ['https://github.com/laravel/ui/blob/4.x/composer.json'],
-        ]);
-        yield new PackageVersionRule('orchestra/testbench', [8 => '^6.0', 9 => '^7.0'], 'medium', [
-            8 => ['https://github.com/orchestral/testbench/blob/6.x/composer.json'],
-            9 => ['https://github.com/orchestral/testbench/blob/7.x/composer.json'],
-        ]);
-        yield new LaravelSkeletonRule();
+                continue;
+            }
+            if ($definition instanceof PackageAdvisoryDefinition) {
+                yield new TargetedPackageAdvisoryRule($definition);
+
+                continue;
+            }
+            if (!$definition instanceof BuiltinRuleDefinition) {
+                throw new \LogicException('Unsupported Laravel catalog rule definition.');
+            }
+
+            switch ($definition->rule()) {
+                case BuiltinRuleDefinition::FRAMEWORK_CONSTRAINT:
+                    yield new LaravelFrameworkConstraintRule($definition);
+                    break;
+                case BuiltinRuleDefinition::PHP_CONSTRAINT:
+                    yield new LaravelPhpConstraintRule($definition, $this->catalog);
+                    break;
+                case BuiltinRuleDefinition::SYMFONY_CONSTRAINT:
+                    yield new SymfonyComponentConstraintRule($definition, $this->catalog);
+                    break;
+                case BuiltinRuleDefinition::ILLUMINATE_SUPPORT:
+                    yield new OldIlluminateSupportRule($definition);
+                    break;
+                case BuiltinRuleDefinition::SKELETON:
+                    yield new LaravelSkeletonRule($definition, $this->catalog->skeletonPatterns());
+                    break;
+                default:
+                    throw new \LogicException(sprintf('Unsupported Laravel built-in rule: %s.', $definition->rule()));
+            }
+        }
     }
 
     public function assessTransition(
@@ -227,19 +183,19 @@ final class LaravelFrameworkIntegration implements FrameworkIntegration, Framewo
             );
         }
 
-        $directRulePack = self::DIRECT_RULE_PACKS[$this->transitionKey($sourceMajor, $targetMajor)] ?? null;
-        if ($directRulePack !== null && !$this->hasCompleteAdjacentPath($sourceMajor, $targetMajor)) {
-            return $this->supportedDirectTransition($sourceMajor, $targetMajor, $directRulePack, $evidence);
+        $direct = $this->catalog->transition($sourceMajor, $targetMajor, TransitionDefinition::DIRECT);
+        if ($direct !== null && $direct->isSupported() && !$this->hasCompleteAdjacentPath($sourceMajor, $targetMajor)) {
+            return $this->supportedDirectTransition($direct, $evidence);
         }
 
-        if ($sourceMajor < self::MINIMUM_CATALOG_MAJOR || $targetMajor > self::MAXIMUM_CATALOG_MAJOR) {
+        if ($sourceMajor < $this->catalog->minimumMajor() || $targetMajor > $this->catalog->maximumMajor()) {
             return $this->unsupportedTransition(
                 $sourceMajor,
                 $targetMajor,
                 sprintf(
                     'Laravel framework guidance is unsupported outside the modeled Laravel %d through %d transition catalog.',
-                    self::MINIMUM_CATALOG_MAJOR,
-                    self::MAXIMUM_CATALOG_MAJOR
+                    $this->catalog->minimumMajor(),
+                    $this->catalog->maximumMajor()
                 ),
                 $evidence
             );
@@ -249,12 +205,16 @@ final class LaravelFrameworkIntegration implements FrameworkIntegration, Framewo
     }
 
     private function supportedDirectTransition(
-        int $sourceMajor,
-        int $targetMajor,
-        string $rulePack,
+        TransitionDefinition $transition,
         EvidenceLedger $evidence
     ): FrameworkGuidance {
-        $source = sprintf('https://laravel.com/docs/%d.x/upgrade', $targetMajor);
+        $sourceMajor = $transition->sourceMajor();
+        $targetMajor = $transition->targetMajor();
+        $rulePack = $transition->rulePack();
+        if ($rulePack === null) {
+            throw new \LogicException('A supported direct transition must declare a rule pack.');
+        }
+        $source = $transition->sources()[0];
         $evidenceId = $evidence->add(
             'laravel-transition',
             Evidence::E4_MAINTAINER_DOCUMENTATION,
@@ -299,7 +259,8 @@ final class LaravelFrameworkIntegration implements FrameworkIntegration, Framewo
 
         for ($fromMajor = $sourceMajor; $fromMajor < $targetMajor; ++$fromMajor) {
             $toMajor = $fromMajor + 1;
-            $implementedRulePack = self::ADJACENT_RULE_PACKS[$this->transitionKey($fromMajor, $toMajor)] ?? null;
+            $definition = $this->catalog->transition($fromMajor, $toMajor, TransitionDefinition::ADJACENT);
+            $implementedRulePack = $definition === null ? null : $definition->rulePack();
             $rulePack = $coveredPrefix ? $implementedRulePack : null;
 
             if ($rulePack !== null) {
@@ -312,7 +273,7 @@ final class LaravelFrameworkIntegration implements FrameworkIntegration, Framewo
                         'source_major' => $fromMajor,
                         'target_major' => $toMajor,
                         'rule_pack' => $rulePack,
-                        'source' => sprintf('https://laravel.com/docs/%d.x/upgrade', $toMajor),
+                        'source' => $definition->sources()[0],
                     ]
                 )->id();
                 $hops[] = new FrameworkHop(
@@ -343,7 +304,7 @@ final class LaravelFrameworkIntegration implements FrameworkIntegration, Framewo
                     'rule_pack' => $implementedRulePack,
                     'implemented' => $ignoredAfterGap,
                     'ignored_after_gap' => $ignoredAfterGap,
-                    'source' => sprintf('https://laravel.com/docs/%d.x/upgrade', $toMajor),
+                    'source' => $definition === null ? null : $definition->sources()[0],
                 ]
             )->id();
             $hops[] = new FrameworkHop(
@@ -403,8 +364,8 @@ final class LaravelFrameworkIntegration implements FrameworkIntegration, Framewo
             [
                 'source_major' => $sourceMajor,
                 'target_major' => $targetMajor,
-                'catalog_minimum_major' => self::MINIMUM_CATALOG_MAJOR,
-                'catalog_maximum_major' => self::MAXIMUM_CATALOG_MAJOR,
+                'catalog_minimum_major' => $this->catalog->minimumMajor(),
+                'catalog_maximum_major' => $this->catalog->maximumMajor(),
             ]
         )->id();
 
@@ -441,15 +402,15 @@ final class LaravelFrameworkIntegration implements FrameworkIntegration, Framewo
         return false;
     }
 
-    private function transitionKey(int $sourceMajor, int $targetMajor): string
-    {
-        return $sourceMajor . ':' . $targetMajor;
-    }
-
     private function hasCompleteAdjacentPath(int $sourceMajor, int $targetMajor): bool
     {
         for ($fromMajor = $sourceMajor; $fromMajor < $targetMajor; ++$fromMajor) {
-            if (!isset(self::ADJACENT_RULE_PACKS[$this->transitionKey($fromMajor, $fromMajor + 1)])) {
+            $transition = $this->catalog->transition(
+                $fromMajor,
+                $fromMajor + 1,
+                TransitionDefinition::ADJACENT
+            );
+            if ($transition === null || !$transition->isSupported()) {
                 return false;
             }
         }

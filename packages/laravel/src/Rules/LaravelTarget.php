@@ -85,24 +85,6 @@ final class LaravelTarget
         return $this->requestedConstraints !== [];
     }
 
-    public function phpRange(): string
-    {
-        $ranges = [
-            8 => '^7.3|^8.0',
-            9 => '^8.0.2',
-            10 => '^8.1',
-            11 => '^8.2',
-            12 => '^8.2',
-            13 => '^8.3',
-        ];
-
-        if (!isset($ranges[$this->major])) {
-            throw new \LogicException(sprintf('No Laravel %d PHP compatibility range is encoded.', $this->major));
-        }
-
-        return $ranges[$this->major];
-    }
-
     public static function constraintsIntersect(string $left, string $right): bool
     {
         try {

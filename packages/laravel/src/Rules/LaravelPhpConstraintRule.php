@@ -10,9 +10,20 @@ use PhpUpgradePreflight\Core\Model\Evidence;
 use PhpUpgradePreflight\Core\Model\EvidenceLedger;
 use PhpUpgradePreflight\Core\Model\ProjectState;
 use PhpUpgradePreflight\Core\Model\UpgradeRequest;
+use PhpUpgradePreflight\Laravel\Catalog\BuiltinRuleDefinition;
+use PhpUpgradePreflight\Laravel\Catalog\LaravelRuleCatalog;
 
 final class LaravelPhpConstraintRule implements CompatibilityRule
 {
+    private BuiltinRuleDefinition $definition;
+    private LaravelRuleCatalog $catalog;
+
+    public function __construct(BuiltinRuleDefinition $definition, LaravelRuleCatalog $catalog)
+    {
+        $this->definition = $definition;
+        $this->catalog = $catalog;
+    }
+
     public function evaluate(
         ProjectState $project,
         UpgradeRequest $request,
@@ -20,15 +31,18 @@ final class LaravelPhpConstraintRule implements CompatibilityRule
         array $sourceUsages = []
     ): ?CompatibilityFinding {
         $target = LaravelTarget::fromRequest($request);
+        $sourceMajor = LaravelSource::fromProject($project)->major();
+        $targetDefinition = $target === null ? null : $this->catalog->target($target->major());
         if ($target === null
-            || LaravelSource::fromProject($project)->major() !== 7
-            || !in_array($target->major(), [8, 9], true)) {
+            || $sourceMajor === null
+            || $targetDefinition === null
+            || !$this->definition->appliesTo($sourceMajor, $target->major())) {
             return null;
         }
 
         $targetPhp = $request->targetPhp();
         $rootPhp = $project->composerJson()->rootRequirements()['php'] ?? null;
-        $phpRange = $target->phpRange();
+        $phpRange = $targetDefinition->phpConstraint();
 
         if ($targetPhp !== null) {
             $laravelCompatible = LaravelTarget::versionSatisfies($targetPhp, $phpRange);
@@ -76,7 +90,7 @@ final class LaravelPhpConstraintRule implements CompatibilityRule
                 [
                     'target_laravel_major' => $target->major(),
                     'php_constraint' => $phpRange,
-                    'source' => sprintf('https://laravel.com/docs/%d.x/upgrade', $target->major()),
+                    'source' => $targetDefinition->phpSources()[0],
                 ]
             )->id();
         }

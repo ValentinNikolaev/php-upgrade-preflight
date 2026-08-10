@@ -10,6 +10,8 @@ use PhpUpgradePreflight\Core\Model\Evidence;
 use PhpUpgradePreflight\Core\Model\EvidenceLedger;
 use PhpUpgradePreflight\Core\Model\ProjectState;
 use PhpUpgradePreflight\Core\Model\UpgradeRequest;
+use PhpUpgradePreflight\Laravel\Catalog\BuiltinRuleDefinition;
+use PhpUpgradePreflight\Laravel\Catalog\LaravelRuleCatalog;
 
 final class SymfonyComponentConstraintRule implements CompatibilityRule
 {
@@ -30,6 +32,15 @@ final class SymfonyComponentConstraintRule implements CompatibilityRule
         'symfony/var-dumper',
     ];
 
+    private BuiltinRuleDefinition $definition;
+    private LaravelRuleCatalog $catalog;
+
+    public function __construct(BuiltinRuleDefinition $definition, LaravelRuleCatalog $catalog)
+    {
+        $this->definition = $definition;
+        $this->catalog = $catalog;
+    }
+
     public function evaluate(
         ProjectState $project,
         UpgradeRequest $request,
@@ -37,13 +48,19 @@ final class SymfonyComponentConstraintRule implements CompatibilityRule
         array $sourceUsages = []
     ): ?CompatibilityFinding {
         $target = LaravelTarget::fromRequest($request);
+        $sourceMajor = LaravelSource::fromProject($project)->major();
+        $targetDefinition = $target === null ? null : $this->catalog->target($target->major());
         if ($target === null
-            || LaravelSource::fromProject($project)->major() !== 7
-            || !in_array($target->major(), [8, 9], true)) {
+            || $sourceMajor === null
+            || $targetDefinition === null
+            || !$this->definition->appliesTo($sourceMajor, $target->major())) {
             return null;
         }
 
-        $compatibleRange = $target->major() === 8 ? '^5.0' : '^6.0';
+        $compatibleRange = $targetDefinition->symfonyConstraint();
+        if ($compatibleRange === null) {
+            return null;
+        }
         $incompatible = [];
         foreach ($project->composerJson()->rootRequirements() as $package => $constraint) {
             if (!in_array($package, self::COMPONENTS, true)
@@ -78,7 +95,7 @@ final class SymfonyComponentConstraintRule implements CompatibilityRule
             [
                 'target_laravel_major' => $target->major(),
                 'compatible_symfony_constraint' => $compatibleRange,
-                'source' => sprintf('https://github.com/laravel/framework/blob/%d.x/composer.json', $target->major()),
+                'source' => $targetDefinition->symfonySources()[0],
             ]
         )->id();
 

@@ -11,9 +11,22 @@ use PhpUpgradePreflight\Core\Model\EvidenceLedger;
 use PhpUpgradePreflight\Core\Model\ProjectState;
 use PhpUpgradePreflight\Core\Model\SourceUsage;
 use PhpUpgradePreflight\Core\Model\UpgradeRequest;
+use PhpUpgradePreflight\Laravel\Catalog\BuiltinRuleDefinition;
+use PhpUpgradePreflight\Laravel\Catalog\SkeletonPattern;
 
 final class LaravelSkeletonRule implements CompatibilityRule
 {
+    private BuiltinRuleDefinition $definition;
+    /** @var list<SkeletonPattern> */
+    private array $patterns;
+
+    /** @param list<SkeletonPattern> $patterns */
+    public function __construct(BuiltinRuleDefinition $definition, array $patterns)
+    {
+        $this->definition = $definition;
+        $this->patterns = $patterns;
+    }
+
     public function evaluate(
         ProjectState $project,
         UpgradeRequest $request,
@@ -21,29 +34,23 @@ final class LaravelSkeletonRule implements CompatibilityRule
         array $sourceUsages = []
     ): ?CompatibilityFinding {
         $target = LaravelTarget::fromRequest($request);
+        $sourceMajor = LaravelSource::fromProject($project)->major();
         if ($target === null
-            || LaravelSource::fromProject($project)->major() !== 7
-            || !in_array($target->major(), [8, 9], true)) {
+            || $sourceMajor === null
+            || !$this->definition->appliesTo($sourceMajor, $target->major())) {
             return null;
         }
 
         $matched = array_values(array_filter(
             $sourceUsages,
-            static function (SourceUsage $usage): bool {
-                $file = strtolower(str_replace('\\', '/', $usage->file()));
-
-                if ($file === 'app/http/kernel.php' && $usage->usageType() === 'middleware_reference') {
-                    return true;
+            function (SourceUsage $usage): bool {
+                foreach ($this->patterns as $pattern) {
+                    if ($this->matches($usage, $pattern)) {
+                        return true;
+                    }
                 }
 
-                if ($file === 'config/app.php'
-                    && in_array($usage->usageType(), ['service_provider', 'facade_alias'], true)) {
-                    return true;
-                }
-
-                return $file === 'app/http/middleware/trustproxies.php'
-                    && $usage->usageType() === 'inheritance'
-                    && strtolower($usage->symbol()) === 'fideloper\\proxy\\trustproxies';
+                return false;
             }
         ));
 
@@ -85,5 +92,15 @@ final class LaravelSkeletonRule implements CompatibilityRule
             ),
             array_values(array_unique(array_merge($sourceEvidence, [$heuristicId])))
         );
+    }
+
+    private function matches(SourceUsage $usage, SkeletonPattern $pattern): bool
+    {
+        if (strtolower(str_replace('\\', '/', $usage->file())) !== $pattern->file()
+            || !in_array($usage->usageType(), $pattern->usageTypes(), true)) {
+            return false;
+        }
+
+        return $pattern->symbol() === null || strtolower($usage->symbol()) === $pattern->symbol();
     }
 }

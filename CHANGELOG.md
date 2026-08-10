@@ -10,6 +10,7 @@ This project follows [Semantic Versioning](https://semver.org/). Report schema v
 - The commit-pinned Laravel v0.2 transition scope through Laravel 13, with exact official guide, framework-manifest, and application-manifest evidence.
 - Schema `0.7` with complete/partial platform provenance, explicit unmodeled-host uncertainty, a distinct source inventory, actionable framework-correlated source impact, and framework guidance independent of Composer feasibility.
 - Typed transition assessments for the retained Laravel 7 to 8 and direct 7 to 9 rule packs; every emitted framework finding is scoped to a supported assessed hop.
+- A versioned, typed Laravel rule catalog for transition applicability, PHP and package constraints, official evidence sources, and skeleton patterns, with test-time validation of keys, sources, SemVer, coverage gaps, and conflicting advice.
 - A machine-checked v0.2 transition contract with contiguous-prefix partial-support semantics, development-version policy, `0.6` consumer migration, historical schema checksums, and representative-corpus quality budgets.
 - Offline Composer fixtures for required, missing, disabled, compatible, and incompatible extension-platform scenarios, including request provenance and immutable path-repository coverage.
 - A seeded report-privacy verifier for canonical JSON, Markdown, evidence, exception rendering, debug output, command diagnostics, and CI logs on Linux and Windows quality jobs.

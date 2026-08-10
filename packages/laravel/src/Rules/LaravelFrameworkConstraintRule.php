@@ -10,9 +10,17 @@ use PhpUpgradePreflight\Core\Model\Evidence;
 use PhpUpgradePreflight\Core\Model\EvidenceLedger;
 use PhpUpgradePreflight\Core\Model\ProjectState;
 use PhpUpgradePreflight\Core\Model\UpgradeRequest;
+use PhpUpgradePreflight\Laravel\Catalog\BuiltinRuleDefinition;
 
 final class LaravelFrameworkConstraintRule implements CompatibilityRule
 {
+    private BuiltinRuleDefinition $definition;
+
+    public function __construct(BuiltinRuleDefinition $definition)
+    {
+        $this->definition = $definition;
+    }
+
     public function evaluate(
         ProjectState $project,
         UpgradeRequest $request,
@@ -22,9 +30,10 @@ final class LaravelFrameworkConstraintRule implements CompatibilityRule
         $target = LaravelTarget::fromRequest($request);
         $constraint = $project->composerJson()->rootRequirements()['laravel/framework'] ?? null;
 
+        $sourceMajor = LaravelSource::fromProject($project)->major();
         if ($target === null
-            || LaravelSource::fromProject($project)->major() !== 7
-            || !in_array($target->major(), [8, 9], true)
+            || $sourceMajor === null
+            || !$this->definition->appliesTo($sourceMajor, $target->major())
             || $constraint === null
             || $target->intersectsRequestedFrameworkRange($constraint)) {
             return null;

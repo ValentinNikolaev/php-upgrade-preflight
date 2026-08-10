@@ -141,14 +141,14 @@ Status: passed on 2026-08-10. Evidence is recorded in the typed autoload-ownersh
 - [x] Generalize target parsing beyond majors 8 and 9 while rejecting cross-major target constraints that do not identify one target major.
 - [x] Model a Laravel transition as source major, target major, adjacent hops, and support status.
 - [x] Preserve modular Illuminate detection and report inconsistent rooted component versions as uncertainty.
-- [ ] Move PHP requirements, package guidance, official sources, skeleton patterns, and rule applicability into a versioned Laravel rule catalog.
-- [ ] Validate the catalog at test time for duplicate keys, missing evidence sources, invalid SemVer constraints, unsupported gaps, and contradictory package advice.
-- [ ] Keep rule execution and source matching in typed rule classes. Do not turn the catalog into unvalidated prose or move Laravel concepts into core.
+- [x] Move PHP requirements, package guidance, official sources, skeleton patterns, and rule applicability into a versioned Laravel rule catalog.
+- [x] Validate the catalog at test time for duplicate keys, missing evidence sources, invalid SemVer constraints, unsupported gaps, and contradictory package advice.
+- [x] Keep rule execution and source matching in typed rule classes. Do not turn the catalog into unvalidated prose or move Laravel concepts into core.
 - [x] Prove that v0.1 Laravel 7 to 8/9 fixtures retain their approved findings unless a documented correction requires a snapshot change.
 
 Acceptance gate: the adapter identifies supported source and target majors without a Laravel-7 special case, constructs deterministic adjacent hops, and refuses ambiguous transitions with evidence-backed uncertainty.
 
-Status: in progress on 2026-08-10. Typed source and target detection, transition composition, modular Illuminate uncertainty, and v0.1 fixture regression coverage are complete. The versioned Laravel rule catalog, catalog validation, and catalog-backed typed rule execution remain before the milestone acceptance gate can pass. The implemented slice passes 435 tests with 4,005 assertions, PHPStan, PHP CS Fixer, and manifest validation.
+Status: passed on 2026-08-10. Evidence is recorded in the typed source/target and transition unit suites, catalog validator regressions, catalog-backed rule tests, and unchanged v0.1 Laravel fixture approvals. The complete `composer check` gate passes with 439 tests and 4,015 assertions.
 
 ## Milestone 5: Later Laravel Upgrade Intelligence
 
