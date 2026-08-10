@@ -68,6 +68,81 @@ final class SecretLeakVerifierTest extends TestCase
         }
     }
 
+    public function testItLoadsCanariesFromFixture(): void
+    {
+        $fixture = dirname(__DIR__) . '/fixtures/security/composer-output-with-secrets.json';
+        $canaries = $this->canaries();
+        $file = $this->directory . '/report.txt';
+        $this->filesystem->dumpFile($file, reset($canaries));
+
+        $errors = SecretLeakVerifier::fromFixture($fixture)->verify([$file]);
+
+        self::assertNotSame([], $errors);
+        self::assertStringContainsString((string) array_key_first($canaries), implode("\n", $errors));
+    }
+
+    public function testItRejectsMissingAndMalformedFixtures(): void
+    {
+        try {
+            SecretLeakVerifier::fromFixture($this->directory . '/missing.json');
+            self::fail('Missing canary fixture was accepted.');
+        } catch (\RuntimeException $exception) {
+            self::assertStringContainsString('Could not read', $exception->getMessage());
+        }
+
+        $path = $this->directory . '/malformed.json';
+        $this->filesystem->dumpFile($path, '{"canaries":"invalid"}');
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('has no canary map');
+        SecretLeakVerifier::fromFixture($path);
+    }
+
+    /** @dataProvider invalidCanaryProvider */
+    public function testItRejectsInvalidCanaries(array $canaries): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('labels and values must be non-empty strings');
+
+        new SecretLeakVerifier($canaries);
+    }
+
+    /** @return list<array{array<mixed, mixed>}> */
+    public function invalidCanaryProvider(): array
+    {
+        return [
+            [['' => 'value']],
+            [['label' => '']],
+            [[0 => 'value']],
+        ];
+    }
+
+    public function testItScansDirectoriesAndReportsMissingInputs(): void
+    {
+        $canaries = $this->canaries();
+        $label = (string) array_key_first($canaries);
+        $this->filesystem->dumpFile($this->directory . '/nested/report.txt', reset($canaries));
+
+        $errors = $this->verifier()->verify([
+            $this->directory . '/nested',
+            $this->directory . '/missing.txt',
+        ]);
+        $message = implode("\n", $errors);
+
+        self::assertStringContainsString($label, $message);
+        self::assertStringContainsString('Leak-scan input #2 does not exist.', $message);
+    }
+
+    public function testItRejectsMalformedZipArchives(): void
+    {
+        $zip = $this->directory . '/malformed.zip';
+        $this->filesystem->dumpFile($zip, 'not a zip archive');
+
+        $errors = $this->verifier()->verify([$zip]);
+
+        self::assertSame(['Could not open release archive input #1 for leak scanning.'], $errors);
+    }
+
     private function verifier(): SecretLeakVerifier
     {
         return new SecretLeakVerifier($this->canaries());

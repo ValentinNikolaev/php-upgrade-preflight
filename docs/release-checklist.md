@@ -19,6 +19,8 @@ Run `composer release:verify -- VERSION` to enforce the release-series, tool-ver
 
 - [ ] Run `composer check` on every supported analyzer PHP version.
 - [ ] Confirm the required Windows and Ubuntu jobs pass.
+- [ ] Confirm the coverage, changed-code, selective-mutation, and representative-corpus budget gates pass.
+- [ ] Confirm the release dependency audit reports no vulnerable locked packages.
 - [ ] Run `composer test:fixtures` and review every JSON and Markdown snapshot pair.
 - [ ] Confirm fixture immutability assertions pass and `git status --short` shows no fixture changes.
 - [ ] Enforce the representative-corpus report-size, runtime, memory, redaction, and ordering budgets in [the v0.2 contract](v0.2-contract.md), when applicable to the release line.

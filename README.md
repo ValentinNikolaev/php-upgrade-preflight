@@ -102,7 +102,7 @@ docker compose run --rm php composer install
 docker compose run --rm php composer check
 ```
 
-`composer check` validates every package manifest, runs PHPUnit, performs static analysis, and checks formatting. See [CONTRIBUTING.md](CONTRIBUTING.md) for focused test commands and snapshot updates.
+`composer check` is the offline, deterministic gate: it validates every package manifest, runs the unit, integration, and smoke PHPUnit suites, performs static analysis, and checks formatting. Live compatibility installs and dependency audits run in separate workflows. See [CONTRIBUTING.md](CONTRIBUTING.md) for the documented `test:unit`, `test:integration`, `test:smoke`, and `test:all` commands, focused package tests, and snapshot updates.
 
 ## License
 

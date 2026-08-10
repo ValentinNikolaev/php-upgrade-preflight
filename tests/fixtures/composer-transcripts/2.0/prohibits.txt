@@ -1,0 +1,2 @@
+vendor/framework 2.0.0 requires vendor/legacy (^1.0)
+vendor/legacy 1.5.0 requires vendor/dependency (^1.0)

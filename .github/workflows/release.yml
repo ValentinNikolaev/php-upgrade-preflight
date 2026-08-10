@@ -93,6 +93,10 @@ jobs:
     name: Dependency compatibility
     uses: ./.github/workflows/compatibility.yml
 
+  dependency-audit:
+    name: Dependency vulnerability gate
+    uses: ./.github/workflows/security.yml
+
   fresh-clone-audit:
     name: Fresh clone / ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
@@ -201,6 +205,7 @@ jobs:
       - quality
       - runtime-quality
       - compatibility
+      - dependency-audit
       - fresh-clone-audit
     runs-on: ubuntu-latest
     env:

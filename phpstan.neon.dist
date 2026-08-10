@@ -6,5 +6,5 @@ parameters:
     paths:
         - packages
         - tests/Release
-        - tools/ReleaseVerifier.php
-        - tools/SecretLeakVerifier.php
+        - tests/Support
+        - tools

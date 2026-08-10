@@ -6,15 +6,16 @@ PHP Upgrade Preflight v0.1 requires PHP `^8.0` (PHP 8.0 through PHP 8.x) and Com
 
 The three analyzer packages have a PHP 8.0 runtime floor. Composer selects compatible transitive versions at that floor; normal and `--prefer-lowest` consumer installs are checked separately from the deterministic test suite.
 
-| Installed package | Host PHP floor | Compatibility gate |
-| --- | --- | --- |
-| Core or CLI | PHP 8.0 | Clean normal and lowest-dependency installs |
-| Laravel adapter with Laravel 8 | PHP 8.0 | Clean install plus provider autoload |
-| Laravel adapter with Laravel 9 | PHP 8.0.2 | Tested on the latest PHP 8.0 patch |
-| Laravel adapter with Laravel 10 | PHP 8.1 | Clean install plus provider autoload |
-| Laravel adapter with Laravel 11 or 12 | PHP 8.2 | Declared host integration smoke test |
+| Installed package                     | Host PHP floor | Compatibility gate                          |
+|---------------------------------------|----------------|---------------------------------------------|
+| Core or CLI                           | PHP 8.0        | Clean normal and lowest-dependency installs |
+| Laravel adapter with Laravel 8        | PHP 8.0        | Clean install plus provider autoload        |
+| Laravel adapter with Laravel 9        | PHP 8.0.2      | Tested on the latest PHP 8.0 patch          |
+| Laravel adapter with Laravel 10       | PHP 8.1        | Clean install plus provider autoload        |
+| Laravel adapter with Laravel 11 or 12 | PHP 8.2        | Clean temporary-application boot test       |
+| Laravel adapter with Laravel 13       | PHP 8.3        | Clean temporary-application boot test       |
 
-Laravel's own PHP requirement determines the effective floor when it is higher than the analyzer's PHP 8.0 floor. The v0.1 rule set analyzes upgrades to Laravel 8 and 9; installability with newer Laravel hosts only means the adapter and Artisan integration can coexist with those framework versions.
+Laravel's own PHP requirement determines the effective floor when it is higher than the analyzer's PHP 8.0 floor. The transition catalog covers Laravel 7→8, every adjacent transition from 8→9 through 12→13, and the documented direct 7→9 path. Installability is checked independently: the networked compatibility workflow creates a clean temporary application and boots package discovery plus the Artisan command on every Laravel 8–13 host line, at normal and lowest dependency resolution.
 
 ## Choose the packages
 

@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "mutations": [
+    {
+      "name": "scenario-selection-package-target-guard",
+      "file": "packages/core/src/Analysis/ScenarioSelector.php",
+      "search": "$targets->targetPhp() !== null && $targets->packageTargets() !== []",
+      "replace": "$targets->targetPhp() !== null && $targets->packageTargets() === []",
+      "test_filter": "ScenarioSelectorTest"
+    },
+    {
+      "name": "composer-blocker-platform-pattern",
+      "file": "packages/core/src/Analysis/ComposerBlockerParser.php",
+      "search": "(?:php(?:-64bit|-ipv6)?|ext-",
+      "replace": "(?:mutant-php(?:-64bit|-ipv6)?|ext-",
+      "test_filter": "ComposerBlockerParserTranscriptTest"
+    },
+    {
+      "name": "schema-version-constant",
+      "file": "packages/core/resources/schema/upgrade-report-v0.7.schema.json",
+      "search": "\"const\": \"0.7\"",
+      "replace": "\"const\": \"mutant\"",
+      "test_filter": "UpgradeReportSchemaTest"
+    },
+    {
+      "name": "risk-resolution-blocker-level",
+      "file": "packages/core/src/Analysis/RiskAndEffortEstimator.php",
+      "search": "$hasResolutionBlocker\n            ? 'high'",
+      "replace": "$hasResolutionBlocker\n            ? 'low'",
+      "test_filter": "RiskAndEffortEstimatorTest"
+    },
+    {
+      "name": "laravel-transition-equal-major-guard",
+      "file": "packages/laravel/src/LaravelFrameworkIntegration.php",
+      "search": "if ($sourceMajor >= $targetMajor)",
+      "replace": "if ($sourceMajor > $targetMajor)",
+      "test_filter": "LaravelFrameworkIntegrationTest"
+    },
+    {
+      "name": "release-series-lock-branch",
+      "file": "tools/ReleaseVerifier.php",
+      "search": "if ($series !== self::ACTIVE_RELEASE_SERIES)",
+      "replace": "if ($series === self::ACTIVE_RELEASE_SERIES)",
+      "test_filter": "ReleaseVerifierTest"
+    }
+  ]
+}

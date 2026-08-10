@@ -1,0 +1,235 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Method PhpUpgradePreflight\\Core\\Analysis\\FrameworkRuleEngine\:\:sourcePaths\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: packages/core/src/Analysis/FrameworkRuleEngine.php
+
+		-
+			message: '#^Method PhpUpgradePreflight\\Core\\Analysis\\ReportAssembler\:\:assemble\(\) has parameter \$actionableSourceImpact with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: packages/core/src/Analysis/ReportAssembler.php
+
+		-
+			message: '#^Method PhpUpgradePreflight\\Core\\Analysis\\ReportSectionBuilder\:\:frameworkEvidence\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: packages/core/src/Analysis/ReportSectionBuilder.php
+
+		-
+			message: '#^Method PhpUpgradePreflight\\Core\\Analysis\\ReportSectionBuilder\:\:sourceEvidence\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: packages/core/src/Analysis/ReportSectionBuilder.php
+
+		-
+			message: '#^Method PhpUpgradePreflight\\Core\\Analysis\\ReportSectionBuilder\:\:uncertainties\(\) has parameter \$sourceUncertainties with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: packages/core/src/Analysis/ReportSectionBuilder.php
+
+		-
+			message: '#^Method PhpUpgradePreflight\\Core\\Analysis\\ReportSectionBuilder\:\:uncertainties\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: packages/core/src/Analysis/ReportSectionBuilder.php
+
+		-
+			message: '#^Method PhpUpgradePreflight\\Core\\Analysis\\ScenarioSelector\:\:select\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: packages/core/src/Analysis/ScenarioSelector.php
+
+		-
+			message: '#^Method PhpUpgradePreflight\\Core\\Analysis\\ScenarioSelector\:\:uniqueScenarios\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: packages/core/src/Analysis/ScenarioSelector.php
+
+		-
+			message: '#^Method PhpUpgradePreflight\\Core\\Analysis\\SourceImpactBuilder\:\:relevantPackageChanges\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: packages/core/src/Analysis/SourceImpactBuilder.php
+
+		-
+			message: '#^Method PhpUpgradePreflight\\Core\\Composer\\ComposerScenarioRunner\:\:absolutePathRepositories\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: packages/core/src/Composer/ComposerScenarioRunner.php
+
+		-
+			message: '#^Method PhpUpgradePreflight\\Core\\Composer\\ComposerScenarioRunner\:\:runTargetDiagnostics\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: packages/core/src/Composer/ComposerScenarioRunner.php
+
+		-
+			message: '#^Method PhpUpgradePreflight\\Core\\Model\\CompatibilityFinding\:\:__construct\(\) has parameter \$appliesToHops with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: packages/core/src/Model/CompatibilityFinding.php
+
+		-
+			message: '#^Method PhpUpgradePreflight\\Core\\Model\\ComposerJson\:\:arrayValue\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: packages/core/src/Model/ComposerJson.php
+
+		-
+			message: '#^Method PhpUpgradePreflight\\Core\\Model\\ComposerJson\:\:stringMap\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: packages/core/src/Model/ComposerJson.php
+
+		-
+			message: '#^Method PhpUpgradePreflight\\Core\\Model\\ComposerLock\:\:autoloadMetadata\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: packages/core/src/Model/ComposerLock.php
+
+		-
+			message: '#^Method PhpUpgradePreflight\\Core\\Model\\FrameworkGuidance\:\:__construct\(\) has parameter \$evidence with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: packages/core/src/Model/FrameworkGuidance.php
+
+		-
+			message: '#^Method PhpUpgradePreflight\\Core\\Model\\FrameworkGuidance\:\:__construct\(\) has parameter \$uncertainties with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: packages/core/src/Model/FrameworkGuidance.php
+
+		-
+			message: '#^Method PhpUpgradePreflight\\Core\\Model\\PackageRef\:\:__construct\(\) has parameter \$autoload with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: packages/core/src/Model/PackageRef.php
+
+		-
+			message: '#^Method PhpUpgradePreflight\\Core\\Model\\PlanStage\:\:__construct\(\) has parameter \$evidence with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: packages/core/src/Model/PlanStage.php
+
+		-
+			message: '#^Method PhpUpgradePreflight\\Core\\Model\\ScenarioResult\:\:__construct\(\) has parameter \$command with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: packages/core/src/Model/ScenarioResult.php
+
+		-
+			message: '#^Method PhpUpgradePreflight\\Core\\Model\\ScenarioResult\:\:__construct\(\) has parameter \$diagnostics with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: packages/core/src/Model/ScenarioResult.php
+
+		-
+			message: '#^Method PhpUpgradePreflight\\Core\\Model\\SourceImpactFinding\:\:__construct\(\) has parameter \$evidence with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: packages/core/src/Model/SourceImpactFinding.php
+
+		-
+			message: '#^Method PhpUpgradePreflight\\Core\\Model\\UpgradeReport\:\:appendFindingReferences\(\) has parameter \$findingReferences with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: packages/core/src/Model/UpgradeReport.php
+
+		-
+			message: '#^Method PhpUpgradePreflight\\Core\\Model\\UpgradeReport\:\:appendFindingReferences\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: packages/core/src/Model/UpgradeReport.php
+
+		-
+			message: '#^Method PhpUpgradePreflight\\Core\\Model\\UpgradeRequest\:\:normalizeFrameworks\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: packages/core/src/Model/UpgradeRequest.php
+
+		-
+			message: '#^Method PhpUpgradePreflight\\Core\\Model\\UpgradeRequest\:\:normalizeSourcePaths\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: packages/core/src/Model/UpgradeRequest.php
+
+		-
+			message: '#^Class PhpUpgradePreflight\\Core\\Model\\UpgradeTargetSet implements generic interface IteratorAggregate but does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: packages/core/src/Model/UpgradeTargetSet.php
+
+		-
+			message: '#^Method PhpUpgradePreflight\\Core\\Source\\AutoloadOwnershipIndexBuilder\:\:build\(\) has parameter \$requestedSymbols with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: packages/core/src/Source/AutoloadOwnershipIndexBuilder.php
+
+		-
+			message: '#^Method PhpUpgradePreflight\\Core\\Source\\AutoloadOwnershipIndexBuilder\:\:requestedSymbolMap\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: packages/core/src/Source/AutoloadOwnershipIndexBuilder.php
+
+		-
+			message: '#^Method PhpUpgradePreflight\\Core\\Support\\PathExposurePolicy\:\:redactPathsInArray\(\) has parameter \$seen with generic class SplObjectStorage but does not specify its types\: TObject, TData$#'
+			identifier: missingType.generics
+			count: 1
+			path: packages/core/src/Support/PathExposurePolicy.php
+
+		-
+			message: '#^Method PhpUpgradePreflight\\Core\\Support\\PathExposurePolicy\:\:redactPathsInValue\(\) has parameter \$seen with generic class SplObjectStorage but does not specify its types\: TObject, TData$#'
+			identifier: missingType.generics
+			count: 1
+			path: packages/core/src/Support/PathExposurePolicy.php
+
+		-
+			message: '#^Method PhpUpgradePreflight\\Core\\Support\\PathExposurePolicy\:\:sanitizeCanonicalReport\(\) has parameter \$repositoryPaths with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: packages/core/src/Support/PathExposurePolicy.php
+
+		-
+			message: '#^Method PhpUpgradePreflight\\Core\\Support\\SensitiveOutputRedactor\:\:redactObjectProperties\(\) has parameter \$seen with generic class SplObjectStorage but does not specify its types\: TObject, TData$#'
+			identifier: missingType.generics
+			count: 1
+			path: packages/core/src/Support/SensitiveOutputRedactor.php
+
+		-
+			message: '#^Method PhpUpgradePreflight\\Core\\Support\\SensitiveOutputRedactor\:\:redactStructuredValue\(\) has parameter \$seen with generic class SplObjectStorage but does not specify its types\: TObject, TData$#'
+			identifier: missingType.generics
+			count: 1
+			path: packages/core/src/Support/SensitiveOutputRedactor.php
+
+		-
+			message: '#^Method PhpUpgradePreflight\\Laravel\\Catalog\\LaravelRuleCatalogValidator\:\:recordAdvice\(\) has parameter \$errors with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: packages/laravel/src/Catalog/LaravelRuleCatalogValidator.php
+
+		-
+			message: '#^Method PhpUpgradePreflight\\Laravel\\Catalog\\LaravelRuleCatalogValidator\:\:recordKey\(\) has parameter \$errors with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: packages/laravel/src/Catalog/LaravelRuleCatalogValidator.php
+
+		-
+			message: '#^Method PhpUpgradePreflight\\Laravel\\Catalog\\LaravelRuleCatalogValidator\:\:validateApplicability\(\) has parameter \$errors with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: packages/laravel/src/Catalog/LaravelRuleCatalogValidator.php
+
+		-
+			message: '#^Method PhpUpgradePreflight\\Laravel\\Catalog\\LaravelRuleCatalogValidator\:\:validateSources\(\) has parameter \$errors with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: packages/laravel/src/Catalog/LaravelRuleCatalogValidator.php
+
+		-
+			message: '#^Method PhpUpgradePreflight\\Tools\\SecretLeakVerifier\:\:verify\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tools/SecretLeakVerifier.php

@@ -1,0 +1,4 @@
+Your requirements could not be resolved to an installable set of packages.
+
+  Problem 1
+    - vendor/package is locked to version 1.4.0 and an update of this package was not requested.

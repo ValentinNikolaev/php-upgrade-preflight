@@ -1,0 +1,8 @@
+Your requirements could not be resolved to an installable set of packages.
+
+  Problem 1
+    - Root composer.json requires vendor/first ^1.0 -> satisfiable by vendor/first[1.0.0].
+
+  Problem 2
+    - Root composer.json requires vendor/second ^2.0 -> satisfiable by vendor/second[2.0.0].
+    - vendor/second 2.0.0 requires ext-redis ^6.0 -> it is missing from your system. Install or enable PHP's redis extension.

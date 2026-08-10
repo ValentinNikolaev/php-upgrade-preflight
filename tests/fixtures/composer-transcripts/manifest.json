@@ -1,0 +1,222 @@
+{
+  "schema_version": 1,
+  "versions": [
+    {
+      "composer_version": "2.0.14",
+      "capabilities": {
+        "absent_extension_simulation": false,
+        "locked_prohibits": false
+      },
+      "cases": [
+        {
+          "name": "solver-php-upper-bound",
+          "kind": "solver",
+          "transcript": "2.0/solver.txt",
+          "targets": [
+            {"package": "php", "constraint": "8.2"}
+          ],
+          "expected": [
+            {
+              "type": "php-platform-too-high",
+              "subject": "php",
+              "requested_constraint": "8.2.0",
+              "blocker": "vendor/framework",
+              "locked_version": "2.0.0",
+              "conflict": "^7.4",
+              "dependency_path": ["vendor/framework", "php"]
+            }
+          ]
+        },
+        {
+          "name": "prohibits-transitive-chain",
+          "kind": "prohibits",
+          "transcript": "2.0/prohibits.txt",
+          "targets": [
+            {"package": "vendor/dependency", "constraint": "^2.0"}
+          ],
+          "diagnostic": {
+            "package": "vendor/dependency",
+            "constraint": "^2.0",
+            "command": ["composer", "prohibits", "vendor/dependency", "^2.0", "--tree"]
+          },
+          "expected": [
+            {
+              "type": "transitive-package-conflict",
+              "subject": "vendor/dependency",
+              "requested_constraint": "^2.0",
+              "blocker": "vendor/legacy",
+              "locked_version": "1.5.0",
+              "conflict": "^1.0",
+              "dependency_path": ["vendor/framework", "vendor/legacy", "vendor/dependency"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "composer_version": "2.2.25",
+      "capabilities": {
+        "absent_extension_simulation": true,
+        "locked_prohibits": false
+      },
+      "cases": [
+        {
+          "name": "solver-missing-extension",
+          "kind": "solver",
+          "transcript": "2.2/solver.txt",
+          "targets": [
+            {"package": "vendor/framework", "constraint": "^3.0"}
+          ],
+          "expected": [
+            {
+              "type": "extension-missing",
+              "subject": "ext-intl",
+              "requested_constraint": null,
+              "blocker": "vendor/framework",
+              "locked_version": "3.0.0",
+              "conflict": "*",
+              "dependency_path": ["vendor/framework", "ext-intl"]
+            }
+          ]
+        },
+        {
+          "name": "prohibits-php-target",
+          "kind": "prohibits",
+          "transcript": "2.2/prohibits.txt",
+          "targets": [
+            {"package": "php", "constraint": "8.2"}
+          ],
+          "diagnostic": {
+            "package": "php",
+            "constraint": "8.2.0",
+            "command": ["composer", "prohibits", "php", "8.2.0", "--tree"]
+          },
+          "expected": [
+            {
+              "type": "php-platform-too-high",
+              "subject": "php",
+              "requested_constraint": "8.2.0",
+              "blocker": "root/project",
+              "locked_version": "dev-main",
+              "conflict": "~8.1.0",
+              "dependency_path": ["root/project", "php"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "composer_version": "2.4.4",
+      "capabilities": {
+        "absent_extension_simulation": true,
+        "locked_prohibits": true
+      },
+      "cases": [
+        {
+          "name": "solver-locked-root-package",
+          "kind": "solver",
+          "transcript": "2.4/solver.txt",
+          "targets": [
+            {"package": "vendor/package", "constraint": "^2.0"}
+          ],
+          "expected": [
+            {
+              "type": "transitive-package-conflict",
+              "subject": "vendor/package",
+              "requested_constraint": "^2.0",
+              "blocker": "vendor/package",
+              "locked_version": "1.4.0",
+              "conflict": null,
+              "dependency_path": ["vendor/package"]
+            }
+          ]
+        },
+        {
+          "name": "prohibits-locked-transitive-chain",
+          "kind": "prohibits",
+          "transcript": "2.4/prohibits.txt",
+          "targets": [
+            {"package": "fixture/dependency", "constraint": "^2.0"}
+          ],
+          "diagnostic": {
+            "package": "fixture/dependency",
+            "constraint": "^2.0",
+            "command": ["composer", "prohibits", "fixture/dependency", "^2.0", "--tree", "--locked"]
+          },
+          "expected": [
+            {
+              "type": "transitive-package-conflict",
+              "subject": "fixture/dependency",
+              "requested_constraint": "^2.0",
+              "blocker": "fixture/blocker",
+              "locked_version": "1.2.3",
+              "conflict": "^1.0",
+              "dependency_path": ["root/project", "fixture/blocker", "fixture/dependency"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "composer_version": "2.8.12",
+      "capabilities": {
+        "absent_extension_simulation": true,
+        "locked_prohibits": true
+      },
+      "cases": [
+        {
+          "name": "solver-multiple-problems",
+          "kind": "solver",
+          "transcript": "2.8/solver.txt",
+          "targets": [
+            {"package": "vendor/first", "constraint": "^2.0"}
+          ],
+          "expected": [
+            {
+              "type": "root-constraint-conflict",
+              "subject": "vendor/first",
+              "requested_constraint": "^2.0",
+              "blocker": null,
+              "locked_version": null,
+              "conflict": "^1.0",
+              "dependency_path": ["vendor/first"]
+            },
+            {
+              "type": "extension-missing",
+              "subject": "ext-redis",
+              "requested_constraint": null,
+              "blocker": "vendor/second",
+              "locked_version": "2.0.0",
+              "conflict": "^6.0",
+              "dependency_path": ["vendor/second", "ext-redis"]
+            }
+          ]
+        },
+        {
+          "name": "prohibits-native-tree",
+          "kind": "prohibits",
+          "transcript": "2.8/prohibits.txt",
+          "targets": [
+            {"package": "php", "constraint": "9.0"}
+          ],
+          "diagnostic": {
+            "package": "php",
+            "constraint": "9.0.0",
+            "command": ["composer", "prohibits", "php", "9.0.0", "--tree", "--locked"]
+          },
+          "expected": [
+            {
+              "type": "php-platform-too-high",
+              "subject": "php",
+              "requested_constraint": "9.0.0",
+              "blocker": "root/project",
+              "locked_version": null,
+              "conflict": "^8.0",
+              "dependency_path": ["root/project", "php"]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

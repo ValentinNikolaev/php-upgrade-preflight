@@ -6,8 +6,9 @@ use PhpCsFixer\Config;
 use PhpCsFixer\Finder;
 
 $finder = Finder::create()
-    ->in([__DIR__.'/packages', __DIR__.'/tests/Release', __DIR__.'/tools'])
+    ->in([__DIR__.'/packages', __DIR__.'/tests/Release', __DIR__.'/tests/Support', __DIR__.'/tools'])
     ->name('*.php')
+    ->append([__DIR__.'/packages/cli/bin/upgrade-intel'])
     ->ignoreDotFiles(true)
     ->ignoreVCS(true);
 

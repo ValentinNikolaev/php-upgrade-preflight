@@ -23,10 +23,14 @@ final class ReleaseVerifier
     ];
 
     private string $root;
+    private \Closure $fileReader;
 
-    public function __construct(string $root)
+    public function __construct(string $root, ?callable $fileReader = null)
     {
         $this->root = rtrim($root, '/\\');
+        $this->fileReader = \Closure::fromCallable(
+            $fileReader ?? static fn (string $path) => @file_get_contents($path)
+        );
     }
 
     /** @return list<string> */
@@ -128,7 +132,7 @@ final class ReleaseVerifier
     private function readJson(string $path, array &$errors): array
     {
         try {
-            $contents = file_get_contents($path);
+            $contents = $this->readFile($path);
             if ($contents === false) {
                 throw new \RuntimeException('could not read file');
             }
@@ -163,7 +167,7 @@ final class ReleaseVerifier
     private function verifyToolVersion(string $version, array &$errors): void
     {
         $metadataPath = $this->root . '/packages/core/src/Model/ReportMetadata.php';
-        $metadata = file_get_contents($metadataPath);
+        $metadata = $this->readFile($metadataPath);
         if ($metadata === false || !preg_match("/TOOL_VERSION\s*=\s*'([^']+)'/", $metadata, $toolVersion)) {
             $errors[] = $metadataPath . ': could not find TOOL_VERSION';
 
@@ -176,7 +180,7 @@ final class ReleaseVerifier
     /** @param list<string> $errors */
     private function verifyChangelog(string $version, array &$errors): void
     {
-        $changelog = file_get_contents($this->root . '/CHANGELOG.md');
+        $changelog = $this->readFile($this->root . '/CHANGELOG.md');
         if ($changelog === false || !preg_match(
             '/^## \[' . preg_quote($version, '/') . '\] - \d{4}-\d{2}-\d{2}$/m',
             $changelog
@@ -195,7 +199,7 @@ final class ReleaseVerifier
             return;
         }
 
-        $notes = file_get_contents($path);
+        $notes = $this->readFile($path);
         if ($notes === false) {
             $errors[] = sprintf('could not read release notes: %s', $path);
 
@@ -211,5 +215,10 @@ final class ReleaseVerifier
         if ($body === '') {
             $errors[] = sprintf('release notes must contain content after the heading: %s', $path);
         }
+    }
+
+    private function readFile(string $path): string|false
+    {
+        return ($this->fileReader)($path);
     }
 }

@@ -1,0 +1,5 @@
+Your requirements could not be resolved to an installable set of packages.
+
+  Problem 1
+    - Root composer.json requires vendor/framework ^2.0 -> satisfiable by vendor/framework[2.0.0].
+    - vendor/framework 2.0.0 requires php ^7.4 -> your php version (8.2.0) does not satisfy that requirement.

@@ -1,0 +1,14 @@
+includes:
+    - phpstan-production-baseline.neon
+
+parameters:
+    level: 6
+    treatPhpDocTypesAsCertain: false
+    bootstrapFiles:
+        - tests/phpstan-bootstrap.php
+    paths:
+        - packages/core/src
+        - packages/cli/src
+        - packages/cli/bin/upgrade-intel
+        - packages/laravel/src
+        - tools

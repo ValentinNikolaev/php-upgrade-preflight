@@ -56,7 +56,8 @@
     "illuminate/container": "^8.0",
     "opis/json-schema": "^2.6",
     "phpstan/phpstan": "^2.1",
-    "phpunit/phpunit": "^9.6"
+    "phpunit/phpunit": "^9.6",
+    "symfony/yaml": "^5.4 || ^6.0 || ^7.0"
   },
   "autoload-dev": {
     "psr-4": {
@@ -73,13 +74,29 @@
       "@composer validate --strict packages/cli/composer.json",
       "@composer validate --strict packages/laravel/composer.json"
     ],
-    "test": "phpunit",
+    "test": "@test:all",
+    "test:unit": "phpunit --testsuite unit",
+    "test:integration": "phpunit --testsuite integration",
+    "test:smoke": "phpunit --testsuite smoke",
+    "test:all": [
+      "@test:unit",
+      "@test:integration",
+      "@test:smoke"
+    ],
+    "test:coverage": [
+      "phpunit --testsuite unit --coverage-clover build/coverage/clover.xml",
+      "php tools/verify-coverage.php build/coverage/clover.xml"
+    ],
+    "test:mutation": "php tools/run-selective-mutations.php",
     "test:core": "phpunit --testsuite core",
     "test:cli": "phpunit --testsuite cli",
     "test:laravel": "phpunit --testsuite laravel",
     "test:fixtures": "phpunit --filter LaravelFixtureAnalysisTest",
     "release:verify": "php tools/verify-release.php",
-    "analyse": "phpstan analyse --memory-limit=512M",
+    "analyse": [
+      "phpstan analyse --configuration=phpstan.neon.dist --memory-limit=512M",
+      "phpstan analyse --configuration=phpstan-production.neon.dist --memory-limit=512M"
+    ],
     "lint": "php-cs-fixer fix --dry-run --diff",
     "check": [
       "@validate:all",

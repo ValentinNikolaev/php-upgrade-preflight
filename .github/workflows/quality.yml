@@ -54,6 +54,34 @@ jobs:
           composer analyse
           composer lint
 
+  coverage:
+    name: Coverage ratchet / PHP 8.3
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Set up PHP 8.3 with PCOV
+        uses: shivammathur/setup-php@b604ade2a87db23f8871b7182e69ec5e75effb45 # v2
+        with:
+          php-version: '8.3'
+          coverage: pcov
+          extensions: zip
+
+      - name: Mask synthetic secret canaries
+        run: php tools/mask-secret-canaries.php
+
+      - name: Cache Composer dependencies
+        uses: ramsey/composer-install@a8d0d959dab41457692a5e2041bd9b757a119e3f # v3
+        with:
+          composer-options: --prefer-dist --no-progress
+
+      - name: Measure and verify coverage
+        run: composer test:coverage
+
+      - name: Run selective mutation gate
+        run: composer test:mutation
+
   quality:
     name: ${{ matrix.os }} / PHP ${{ matrix.php }}
     runs-on: ${{ matrix.os }}

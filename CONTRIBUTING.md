@@ -17,6 +17,10 @@ The development container uses PHP 8.3. Composer resolves dependencies against P
 ## Run focused checks
 
 ```bash
+composer test:unit
+composer test:integration
+composer test:smoke
+composer test:all
 composer test:core
 composer test:cli
 composer test:laravel
@@ -24,6 +28,23 @@ composer test:fixtures
 composer analyse
 composer lint
 ```
+
+`test:unit`, `test:integration`, and `test:smoke` are disjoint. `test:all` runs those deterministic suites in order, and `composer check` uses `test:all` together with manifest validation, static analysis, and formatting. These commands do not perform dependency installation, vulnerability queries, or live package-resolution checks.
+
+The GitHub `Compatibility smoke` workflow is the networked ecosystem gate. It creates clean temporary consumers, resolves both normal and lowest dependencies, and boots the package inside every supported Laravel host line. Its failures stay separate from offline test regressions. Dependency vulnerability data is likewise refreshed only in the scheduled and release audit workflows.
+
+## Coverage, mutation, and budgets
+
+The dedicated PHP 8.3 coverage job enables PCOV and runs:
+
+```bash
+composer test:coverage
+composer test:mutation
+```
+
+`test:coverage` measures the full unit suite and compares it with the committed exact baseline. Overall and critical-module ratios may not decline, and newly uncovered source-line fingerprints fail the ratchet; there is no hand-picked percentage threshold. Update the baseline with `php tools/verify-coverage.php build/coverage/clover.xml --write-baseline` only after reviewing a successful full-unit Clover report.
+
+`test:mutation` runs after coverage and must kill the six configured mutants for scenario selection, blocker parsing, schema validation, risk and effort, Laravel transition selection, and release verification. The integration suite also enforces the v0.2 representative-corpus limits for runtime, peak memory, per-report size, and combined report size.
 
 Use the Docker prefix when the host lacks PHP or Composer:
 

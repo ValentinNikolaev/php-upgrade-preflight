@@ -4,7 +4,30 @@
     colors="true"
     cacheResult="false"
 >
+    <coverage>
+        <include>
+            <directory suffix=".php">packages/core/src</directory>
+            <directory suffix=".php">packages/cli/src</directory>
+            <directory suffix=".php">packages/laravel/src</directory>
+            <file>tools/ReleaseVerifier.php</file>
+            <file>tools/CoverageVerifier.php</file>
+            <file>tools/SecretLeakVerifier.php</file>
+        </include>
+    </coverage>
     <testsuites>
+        <testsuite name="unit">
+            <directory suffix="Test.php">packages/core/tests/Unit</directory>
+            <directory suffix="Test.php">packages/cli/tests/Unit</directory>
+            <directory suffix="Test.php">packages/laravel/tests/Unit</directory>
+            <directory suffix="Test.php">tests/Release</directory>
+        </testsuite>
+        <testsuite name="integration">
+            <directory suffix="Test.php">packages/core/tests/Integration</directory>
+            <directory suffix="Test.php">packages/laravel/tests/Integration</directory>
+        </testsuite>
+        <testsuite name="smoke">
+            <directory suffix="Test.php">tests/Smoke</directory>
+        </testsuite>
         <testsuite name="core">
             <directory suffix="Test.php">packages/core/tests/Unit</directory>
             <directory suffix="Test.php">packages/core/tests/Integration</directory>

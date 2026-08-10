@@ -1,0 +1,1 @@
+root/project dev-main requires php (~8.1.0)

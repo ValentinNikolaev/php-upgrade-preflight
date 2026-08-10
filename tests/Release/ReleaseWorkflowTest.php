@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace PhpUpgradePreflight\Tests\Release;
 
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Yaml\Yaml;
 
 final class ReleaseWorkflowTest extends TestCase
 {
@@ -61,12 +62,17 @@ final class ReleaseWorkflowTest extends TestCase
 
     public function testEveryExternalActionIsPinnedToAFullCommitSha(): void
     {
-        foreach (['quality.yml', 'compatibility.yml', 'release.yml'] as $workflowName) {
-            $workflow = $this->readRootFile('.github/workflows/' . $workflowName);
-            preg_match_all('/^\s+uses:\s+([^\s#]+)/m', $workflow, $matches);
-            self::assertNotEmpty($matches[1], sprintf('No action references found in %s.', $workflowName));
+        $workflowPaths = glob(dirname(__DIR__, 2) . '/.github/workflows/*.yml');
+        self::assertIsArray($workflowPaths);
+        self::assertNotEmpty($workflowPaths);
 
-            foreach ($matches[1] as $reference) {
+        foreach ($workflowPaths as $workflowPath) {
+            $workflowName = basename($workflowPath);
+            $workflow = $this->parseYamlFile('.github/workflows/' . $workflowName);
+            $references = $this->collectUsesReferences($workflow);
+            self::assertNotEmpty($references, sprintf('No action references found in %s.', $workflowName));
+
+            foreach ($references as $reference) {
                 if (str_starts_with($reference, './')) {
                     continue;
                 }
@@ -78,6 +84,45 @@ final class ReleaseWorkflowTest extends TestCase
                 );
             }
         }
+    }
+
+    public function testDependencyAuditIsScheduledAndBlocksReleasePackaging(): void
+    {
+        $security = $this->parseYamlFile('.github/workflows/security.yml');
+        self::assertIsArray($security['on'] ?? null);
+        self::assertArrayHasKey('workflow_call', $security['on']);
+        self::assertArrayHasKey('workflow_dispatch', $security['on']);
+        self::assertNotEmpty($security['on']['schedule'] ?? []);
+
+        $audit = $security['jobs']['dependency-audit'] ?? null;
+        self::assertIsArray($audit);
+        $runs = array_values(array_filter(array_column($audit['steps'] ?? [], 'run'), 'is_string'));
+        self::assertContains('composer audit --locked --no-interaction --no-ansi', $runs);
+
+        $release = $this->parseYamlFile('.github/workflows/release.yml');
+        self::assertSame(
+            './.github/workflows/security.yml',
+            $release['jobs']['dependency-audit']['uses'] ?? null
+        );
+        self::assertContains('dependency-audit', $release['jobs']['package']['needs'] ?? []);
+    }
+
+    public function testDependencyUpdateAutomationCoversComposerAndGitHubActions(): void
+    {
+        $dependabot = $this->parseYamlFile('.github/dependabot.yml');
+        self::assertSame(2, $dependabot['version'] ?? null);
+        self::assertIsArray($dependabot['updates'] ?? null);
+
+        $ecosystems = [];
+        foreach ($dependabot['updates'] as $update) {
+            self::assertIsArray($update);
+            self::assertSame('/', $update['directory'] ?? null);
+            self::assertSame('weekly', $update['schedule']['interval'] ?? null);
+            $ecosystems[] = $update['package-ecosystem'] ?? null;
+        }
+
+        sort($ecosystems);
+        self::assertSame(['composer', 'github-actions'], $ecosystems);
     }
 
     public function testQualityGateLintsWorkflowFilesAndAvoidsRepeatedStaticChecks(): void
@@ -142,18 +187,64 @@ final class ReleaseWorkflowTest extends TestCase
 
     public function testLaravelCompatibilityBootsTheDiscoveredProviderAndCommandHarness(): void
     {
-        $workflow = $this->readRootFile('.github/workflows/compatibility.yml');
+        $workflow = $this->parseYamlFile('.github/workflows/compatibility.yml');
+        $job = $workflow['jobs']['installability'] ?? null;
+        self::assertIsArray($job);
+        self::assertSame(['normal', 'lowest'], $job['strategy']['matrix']['resolution'] ?? null);
 
-        self::assertStringNotContainsString('class_exists(', $workflow);
-        self::assertStringContainsString('tests/fixtures/laravel-app', $workflow);
-        self::assertStringContainsString('php tests/smoke.php', $workflow);
-        self::assertStringContainsString('$manifest["scripts"] = $fixture["scripts"]', $workflow);
+        $cases = $job['strategy']['matrix']['case'] ?? null;
+        self::assertIsArray($cases);
+        $laravelHosts = [];
+        foreach ($cases as $case) {
+            self::assertIsArray($case);
+            if (($case['smoke'] ?? null) === 'laravel') {
+                $laravelHosts[$case['framework']] = $case['php'];
+            }
+        }
+        self::assertSame([
+            'laravel/framework:^8.0' => '8.0',
+            'laravel/framework:^9.0' => '8.0',
+            'laravel/framework:^10.0' => '8.1',
+            'laravel/framework:^11.0' => '8.2',
+            'laravel/framework:^12.0' => '8.2',
+            'laravel/framework:^13.0' => '8.3',
+        ], $laravelHosts);
+
+        $runs = implode("\n", array_values(array_filter(array_column($job['steps'], 'run'), 'is_string')));
+        self::assertStringNotContainsString('class_exists(', $runs);
+        self::assertStringContainsString('tests/fixtures/laravel-app', $runs);
+        self::assertStringContainsString('php tests/smoke.php', $runs);
+        self::assertStringContainsString('$manifest["scripts"] = $fixture["scripts"]', $runs);
         foreach (['core', 'cli', 'laravel'] as $package) {
             self::assertStringContainsString(
                 sprintf('options\\":{\\"versions\\":{\\"php-upgrade-preflight/%s\\":\\"0.2.x-dev\\"', $package),
-                $workflow
+                $runs
             );
         }
+    }
+
+    public function testCoverageIsMeasuredAndRatchetedBeforeSelectiveMutation(): void
+    {
+        $workflow = $this->parseYamlFile('.github/workflows/quality.yml');
+        $coverage = $workflow['jobs']['coverage'] ?? null;
+        self::assertIsArray($coverage);
+
+        $steps = $coverage['steps'] ?? null;
+        self::assertIsArray($steps);
+        $runs = array_values(array_filter(array_column($steps, 'run'), 'is_string'));
+        self::assertContains('composer test:coverage', $runs);
+        self::assertContains('composer test:mutation', $runs);
+        self::assertLessThan(
+            array_search('composer test:mutation', $runs, true),
+            array_search('composer test:coverage', $runs, true)
+        );
+
+        $setup = array_values(array_filter(
+            $steps,
+            static fn (array $step): bool => str_starts_with($step['uses'] ?? '', 'shivammathur/setup-php@')
+        ));
+        self::assertCount(1, $setup);
+        self::assertSame('pcov', $setup[0]['with']['coverage'] ?? null);
     }
 
     private function readRootFile(string $relativePath): string
@@ -162,5 +253,38 @@ final class ReleaseWorkflowTest extends TestCase
         self::assertNotFalse($contents);
 
         return $contents;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function parseYamlFile(string $relativePath): array
+    {
+        $workflow = Yaml::parseFile(dirname(__DIR__, 2) . '/' . $relativePath);
+        self::assertIsArray($workflow, sprintf('%s must contain a YAML mapping.', $relativePath));
+
+        return $workflow;
+    }
+
+    /**
+     * @param array<mixed> $value
+     *
+     * @return list<string>
+     */
+    private function collectUsesReferences(array $value): array
+    {
+        $references = [];
+        foreach ($value as $key => $child) {
+            if ($key === 'uses' && is_string($child)) {
+                $references[] = $child;
+                continue;
+            }
+
+            if (is_array($child)) {
+                array_push($references, ...$this->collectUsesReferences($child));
+            }
+        }
+
+        return $references;
     }
 }

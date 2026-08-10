@@ -1,0 +1,4 @@
+php 8.3.33 The PHP interpreter
+|--root/project (requires php ^8.0)
+`--fixture/dependency 1.0.0 (requires php ^8.0)
+   `--root/project (requires fixture/dependency ^1.0)

@@ -171,17 +171,19 @@ Status: passed on 2026-08-10. Evidence is recorded in the commit-pinned transiti
 
 ## Milestone 6: Test, Quality, and Supply-Chain Hardening
 
-- [ ] Add the documented `test:unit`, `test:integration`, `test:smoke`, and `test:all` Composer commands. Keep `composer check` offline and deterministic.
-- [ ] Add one coverage job, record the current baseline, and ratchet critical-module and changed-code coverage without selecting an arbitrary initial percentage.
-- [ ] Raise PHPStan in measured steps, starting with production code. Expand analysis and CS Fixer scope to all first-party support and release-tool code.
-- [ ] Add transcript fixtures for supported Composer versions so parser changes fail against known solver and `prohibits` output.
-- [ ] Run real temporary Laravel application boot tests for every supported host line and keep networked failures separate from deterministic regressions.
-- [ ] Add `composer audit` to scheduled and release-blocking workflows, configure dependency update automation, and pin third-party GitHub Actions by commit SHA.
-- [ ] Add table-driven tests for every release-verifier branch and parse workflow YAML in policy tests instead of relying only on substring assertions.
-- [ ] Add selective mutation tests for scenario selection, blocker parsing, schema validation, risk/effort logic, Laravel transition selection, and release verification after coverage measurement.
-- [ ] Enforce the runtime, memory, and report-size budgets set in Milestone 1 on representative fixtures.
+- [x] Add the documented `test:unit`, `test:integration`, `test:smoke`, and `test:all` Composer commands. Keep `composer check` offline and deterministic.
+- [x] Add one coverage job, record the current baseline, and ratchet critical-module and changed-code coverage without selecting an arbitrary initial percentage.
+- [x] Raise PHPStan in measured steps, starting with production code. Expand analysis and CS Fixer scope to all first-party support and release-tool code.
+- [x] Add transcript fixtures for supported Composer versions so parser changes fail against known solver and `prohibits` output.
+- [x] Run real temporary Laravel application boot tests for every supported host line and keep networked failures separate from deterministic regressions.
+- [x] Add `composer audit` to scheduled and release-blocking workflows, configure dependency update automation, and pin third-party GitHub Actions by commit SHA.
+- [x] Add table-driven tests for every release-verifier branch and parse workflow YAML in policy tests instead of relying only on substring assertions.
+- [x] Add selective mutation tests for scenario selection, blocker parsing, schema validation, risk/effort logic, Laravel transition selection, and release verification after coverage measurement.
+- [x] Enforce the runtime, memory, and report-size budgets set in Milestone 1 on representative fixtures.
 
 Acceptance gate: developers can choose deterministic or networked scope explicitly, quality metrics ratchet instead of regress, release policy tests cover every enforced rule, and dependency or workflow integrity failures block publication.
+
+Status: passed on 2026-08-10. The offline `composer check` gate passes with 550 tests and 5,422 assertions across the disjoint unit, integration, and smoke suites, both PHPStan configurations, and all 198 CS Fixer targets. The PCOV coverage ratchet passes at 6,342 of 6,886 executable lines with critical-module and changed-code safeguards, all six selective mutants are killed, and the representative corpus stays within its runtime, memory, and report-size budgets. Composer 2.0, 2.2, 2.4, and 2.8 transcript fixtures protect solver and `prohibits` parsing. Separate normal and lowest-dependency Laravel 8-13 application boot jobs, scheduled and release-blocking dependency audits, Dependabot coverage, commit-pinned actions, parsed workflow policy tests, and table-driven release-verifier branches provide the supply-chain and publication evidence. The locked dependency audit reports no known vulnerability advisories, and the completed Milestone 5 transition suite remains green.
 
 ## Milestone 7: Adapter Extensibility and External Execution
 
@@ -218,4 +220,4 @@ Acceptance gate: v0.2.0 installs from published packages, validates against the 
 
 ## Recommended Next Work Session
 
-Start Milestone 6 by adding the documented deterministic and networked test commands, then record a coverage baseline before setting changed-code or critical-module ratchets. Keep the completed Laravel transition contracts and v0.1 fixture approvals intact, and keep release automation on patch-only `0.1.x` increments until the v0.2.0 release candidate and its contract changes are explicitly approved.
+Start Milestone 7 by replacing the Laravel-specific CLI registry probe with a documented adapter registration or Composer-metadata discovery mechanism, then prove the mechanism with a test-only third-party adapter. Keep Laravel auto-detection, CLI/Artisan parity, the completed transition contracts, and v0.1 fixture approvals intact, and keep release automation on patch-only `0.1.x` increments until the v0.2.0 release candidate and its contract changes are explicitly approved.

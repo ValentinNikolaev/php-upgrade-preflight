@@ -1,0 +1,625 @@
+{
+    "schema_version": 1,
+    "measurement": "Full unit test suite, Clover line coverage",
+    "policy": [
+        "overall_ratio_must_not_decrease",
+        "critical_module_ratio_must_not_decrease",
+        "new_executable_lines_must_be_covered"
+    ],
+    "overall": {
+        "covered": 6342,
+        "executable": 6886
+    },
+    "critical_modules": {
+        "packages/core/src/Analysis/ScenarioSelector.php": {
+            "covered": 44,
+            "executable": 44
+        },
+        "packages/core/src/Analysis/ComposerBlockerParser.php": {
+            "covered": 223,
+            "executable": 231
+        },
+        "packages/core/src/Model/UpgradeReport.php": {
+            "covered": 151,
+            "executable": 157
+        },
+        "packages/core/src/Analysis/RiskAndEffortEstimator.php": {
+            "covered": 50,
+            "executable": 51
+        },
+        "packages/laravel/src/LaravelFrameworkIntegration.php": {
+            "covered": 242,
+            "executable": 290
+        },
+        "tools/ReleaseVerifier.php": {
+            "covered": 114,
+            "executable": 114
+        },
+        "tools/CoverageVerifier.php": {
+            "covered": 128,
+            "executable": 132
+        },
+        "tools/SecretLeakVerifier.php": {
+            "covered": 64,
+            "executable": 73
+        }
+    },
+    "known_uncovered_fingerprints": {
+        "packages/cli/src/AnalyzeCommand.php": {
+            "089fda954598e49013eb5471edc64ac2a9737a00a0a9a35b882470c9b860d1b3": 1,
+            "0c049cf1444bfb9b41131eea0a974d8ea4750a88dde275f3d9c18627e27dd09b": 1,
+            "34c69c193503669bc7ba33917da4de32e57a415b81c71c4d4e77f7fbe937e042": 1,
+            "381af2f9583cb0ce583078a8c949c381d60e6158b850fd40d5414dddb365631e": 1,
+            "5d06d87bbff164d36dcf9d9ffc3fa2ed750a64e19acdb2f8339bfba63ae25300": 1,
+            "7b8dc726e3f545d0356f43bf4777892615dc003ee3a70e789f039e2448383569": 1,
+            "ad94368e9e126eec1010883894c21797df69542c1d78a462c8ba5a30d326c020": 1,
+            "d168561937225877ce517bbba09ad919cb2a8fce9e759ee7b28041a1ca83554a": 1
+        },
+        "packages/cli/src/CommandLineParser.php": {
+            "377c1088ae8927a670c41ba1d8b7aaf3a5f2b1ba0e28c15ff90a636f7fc995db": 1,
+            "3a52cc190dd7e14c93d807723a7a138e2e467b0c0c17e193f78a899b6ac21f1d": 1,
+            "4d47a32e64bdf42936b5a9d7b5bdcc515c774989b899cfc6be815424e12ccd0b": 1,
+            "d3d8834c0f72b326fcfee01b76b0ef2fef14e0d1485e603f01ee91911de78b08": 1
+        },
+        "packages/cli/src/FrameworkIntegrationRegistry.php": {
+            "58b547f3d0c27caa692eab0addabd55770ff7cbe5d387c13fbb7d52e57498435": 1,
+            "63d2924560651cb484582ee73d47d1378e9b6e8815865e1f76f5ad401f768a11": 1
+        },
+        "packages/core/src/Analysis/ComposerBlockerParser.php": {
+            "36f12b8085b29b40c651cdeca7578487e4038863b2f1a4bd523c311c7e57762f": 1,
+            "4ad2292cb6c5c2d31325739acfa4452421493ab7819e55fbaef0c55ac99bab33": 1,
+            "4b7f4adc73e5b1a37f38f23a94c3cfa7f31e3e409acec8423934e1dcbe64c480": 1,
+            "9905c74cac2343e0f2334ca7bbf91e7f681e26dffa4035c3a75f96106d00bcc3": 1,
+            "a54e3219d6115fba9d105e608759aedb61e68491307fb6654465043d04b80d2d": 2,
+            "cfa52ba8b5d23a2e99f491e640f3e23e43f0fb06272976e56223667422973086": 1,
+            "d2f88e69b10b4b172a6c72d729b2185c4b6d3d5e2afaa34e6f86721a7ba9858f": 1
+        },
+        "packages/core/src/Analysis/DefaultUpgradeAnalyzer.php": {
+            "0d432b4d6471042d0421a2fd1ec6a79d3bcbb05721dc02f4ed77e707421e7224": 1,
+            "46958fe921b36c6ca469213e23418a50491ef9a2d212d0d60ba8460330942fdb": 1,
+            "a6329315a184ec10c4dcfc0e79d4b428c7fa0ab595d2d2e4ae92ad6369c866a1": 1
+        },
+        "packages/core/src/Analysis/FrameworkRuleEngine.php": {
+            "0bf37874b7af9907cc21dc845f1daf71d4f9392a2ca7a5b474c14db2db91e879": 2,
+            "358ba3f2223784d800ea2ba8df77338f4c08cb3b2c280ec8b3020925fa2bc4ef": 1,
+            "4af85a57f3456664a1aaaa18ad9571aa9dd7f459dea4fffb8e16e706c2dd31f1": 1,
+            "54062ad2d8dd4afa206919823b01a64bac077f7ea35e554e7ec4bb6107da64ea": 1,
+            "5dfd8e251fc601e6b09f25620d2b0dafa5e4c9f38bd3765d72b4395bbbf93fa3": 1,
+            "5e27c97a72d92a9143d8a69b8cf6d39c6108c76517d07162cd569e50ba5db2de": 1,
+            "87a28c4850ad05ce9c974b599628e450c63256f0cacef2f53779ec908f58a52f": 1,
+            "a0ad1be357b4e19f96ec68f46db8219013287a5779b3e42a189ec3f2b09310cf": 1,
+            "ab9f9e2ea56b78dfdf34d948dc67b0e3a4914350d8e74b78f868f2b9a979b59b": 1,
+            "efb834a15ce7362f1ed52f0ad186feb95afe7ef69d9660c544eb17761fc84a12": 1,
+            "fecaaab1677a63eb41da79c5a25e287c3d43860046e5dc43fd2deea61776335a": 1
+        },
+        "packages/core/src/Analysis/LockDiffBuilder.php": {
+            "736d0a2ce637a07a96b0dfe0d76e31de65470388a423c7c10d7611085e8b3c2f": 1
+        },
+        "packages/core/src/Analysis/ReportSectionBuilder.php": {
+            "24122a867b2fe93aa7a70a8ba599320eaa15899c493f0d50cf6a22fef5a983d9": 1,
+            "62da2ff741d7553c4371983d08605c4f62aed05e1d5084d33c5baeff21b1f969": 1,
+            "6e40fb975ddbe14540475217a970dd6342a09cd4168dff93109fcda7dcd047fd": 2,
+            "7c7f64cd425ae12e43e4562af10993ccc77b85af5b98fa50e2a715c196cf59bf": 1,
+            "9d8b2b5670d18da8a99f6152f7ee75558019cd106d8032bf7c1117bd37273e37": 2,
+            "b04aac282ac126e805213acfe14f584e08bcb145512a717700495c92c6f40405": 2,
+            "b99a8b596a682e71ee602aa108b2b1edb58a218c2289a6b8a2723953b8733b10": 1,
+            "c07c4ba04ec1dd62def04474fe065ea5cbb9faf41ebb6a812e4633d64815ed7b": 1,
+            "c11dda452cfaf72bc515353e5615b2aaccf8d608a2298b0685ca012aa328a0ed": 1,
+            "c68fa19176718891fa9d2a01cb224b73b5621a71a9821b5eff3f857656f5f973": 1,
+            "c738fe1262792948464da18b424407ec36bbbb3c1f5bdf896b0aeaf4941487c4": 2,
+            "cbc9b748a312b706cb0a68bc806aae3c8c5afbf0b2853fc81aa11dc43ae98e90": 1,
+            "f86fcc6e63fd0901518120095f4f6f6e88ed4fd39551d35a2faa32cd96386bff": 1
+        },
+        "packages/core/src/Analysis/RiskAndEffortEstimator.php": {
+            "ca294552a6a10a7ef86b5d26ed48294d6bea8f61775a206a6667560baf504944": 1
+        },
+        "packages/core/src/Analysis/SourceImpactBuilder.php": {
+            "18cf640bb6b1369f265e801c68ec7cd448a00fc0dac0572da33a5a0b573f50b9": 1,
+            "cc411d1bc49d2392d840e8ba4ddc77a0132297095d6265f8b356af5ced534cc5": 1,
+            "eb5f7b5be608f7f6dd757f88469a55fb6322824d76635e56830304503eb78b88": 1
+        },
+        "packages/core/src/Composer/ComposerScenarioRunner.php": {
+            "10e0fa08a73f0cd151617165a96e7df8c8d14ecfc63d6f1f343559f16198939f": 1,
+            "21bf500b847e9476908b89ad287211d24c1e9521a543a9dd1c49ad93c36b6ef3": 1,
+            "358ba3f2223784d800ea2ba8df77338f4c08cb3b2c280ec8b3020925fa2bc4ef": 2,
+            "4ad2292cb6c5c2d31325739acfa4452421493ab7819e55fbaef0c55ac99bab33": 2,
+            "52d719ddc42f8c96cfcb7873687a8e5743f7e809413a75efae0c66cce4d4c362": 1,
+            "5e27c97a72d92a9143d8a69b8cf6d39c6108c76517d07162cd569e50ba5db2de": 2,
+            "8cd8043d9918de29aecfc49317a274dda8250803ef32a5adc86465190b1e1f1f": 1,
+            "95237b7ec4def50142845edbd82085f33a5fb9e3ae6aa01658cec8d56bbed825": 2,
+            "9ba75b5bc16c6c8ba383c9b72b3f17d3e4ef493b29d08d3be1ba2a2e89bd2af5": 2,
+            "aef3c0862a093100d79d121d5da000787a4e141a959b51e25edaadcec9a5be96": 1,
+            "b04e9b9e2f410c1586c946d7d98d897e50e6d8e1f53554050fdf9179bc3dfea7": 2,
+            "b13c971b599f389265d33b88c1685869b3483b498ce45956c46114d976d3a60c": 1,
+            "ed9d0d22d644b693b1bbfed21efedd687e48c73378611f9a117a352aebba234c": 2
+        },
+        "packages/core/src/Composer/JsonFileReader.php": {
+            "15d00073a2e454dd736e7db6c2fa0a93bec36d76d925007346b465b39e95a3ba": 1,
+            "37c84f99bf658452d713a4b661f30f0bc077bbe2d828017520e84bc64540ba14": 1,
+            "3aab5fe786cadde1f92d1a16e0a73a58c0d980d7af00d967c9133e1f0852fa78": 1,
+            "4048a3a6bfd9537c7adc9fff301d36cee1ef927997832d4dcd3fbe8ff250f914": 1,
+            "6a604c0cc37fca99462d429e23304f23268a475d34bdf7395cc2a74f7dea004f": 1,
+            "9d8b2b5670d18da8a99f6152f7ee75558019cd106d8032bf7c1117bd37273e37": 1,
+            "ba5ec51d07a4ac0e951608704431d59a02b21a4e951acc10505a8dc407c501ee": 1
+        },
+        "packages/core/src/Composer/ProjectStateBuilder.php": {
+            "099459d4e8626c45e1123612f463f961e9124324b5d67de68a50c19e1e5daa58": 1,
+            "0d432b4d6471042d0421a2fd1ec6a79d3bcbb05721dc02f4ed77e707421e7224": 1,
+            "5a56f3dfea0a9b56f039f672d20bfb65fd7e4e8bd7ad3bdd307c7ab613e5c52a": 1,
+            "ecec6c13b8c5f34b2720a42df1b5e3aa39c2bfe13bde6dfa53a2acc92759a56c": 1
+        },
+        "packages/core/src/Filesystem/TemporaryWorkspaceManager.php": {
+            "8beaabe25ab7e0a80d1e25bada55a2f5a227101c2210eadf0b368d3c2be4a83f": 1,
+            "9fe5456dfaa37fdc3e371004e9fd9c950c1f9a24f372ad7c0dd6bd6fb848e1fa": 1,
+            "c015727510034e596a7efcf7ea894b65e2746b67a7bd9d6b4794601ce5a7e3dc": 1,
+            "c591389517fd87834c753fd9773e3ad375e72f06752a59223f21ff5da2f6af24": 1
+        },
+        "packages/core/src/Framework/FrameworkDetection.php": {
+            "c0125de9f284059ea93db5507ec1e78818fc99d43fdf7a412ff900d04b48c4d2": 1
+        },
+        "packages/core/src/Model/CandidateLockEvidence.php": {
+            "2f3e71f888767da320ca6782fa7373182290e9e873148ba15fbad9ebbac80847": 1,
+            "33542adf9a34c63485f97c59c862b7bc529a669c733651c05b7403c608e43047": 1,
+            "7ede35b097d1a65bba36f7dcd35c58b8ad0d5613cc4e1a86cd2a820d7d5c288d": 1
+        },
+        "packages/core/src/Model/CompatibilityFinding.php": {
+            "f753918970d25c055e2397dc949ab6de4ea5f8c9191d43749b8a737241291b08": 1
+        },
+        "packages/core/src/Model/ComposerDiagnostic.php": {
+            "7e2536dd6a994ecbb2a44b00c9a82701dc62054d632df73198ca600d020a00bd": 1
+        },
+        "packages/core/src/Model/ComposerJson.php": {
+            "14abeef234ff0d2974f1bcb331d3f8a49a19e881ac10e44b56d09f740cd11547": 1,
+            "c7221e1192cef51aa9d2ab86a2200fac852bd254ed01b295bd47b2923204ecc5": 1
+        },
+        "packages/core/src/Model/ComposerLock.php": {
+            "0bf37874b7af9907cc21dc845f1daf71d4f9392a2ca7a5b474c14db2db91e879": 2
+        },
+        "packages/core/src/Model/EffortEstimate.php": {
+            "35689f97fff10255dd133ef9a7ac12df3fa563fa169b8f1c8671440632e32448": 1,
+            "9b0e3fb816112566c39d373587095548e604a2eb567ce639c03cfcd2c6fbd761": 1
+        },
+        "packages/core/src/Model/Evidence.php": {
+            "8104222068ffe874b663451c60c89ccb113642a602528faebd53572f1b1223fb": 1,
+            "a53b2e3ab62194bfa7cfa90fd5d5abcc1f15aa5011ef8c4bcb9d661115b470ef": 1
+        },
+        "packages/core/src/Model/EvidenceLedger.php": {
+            "6644eb35f8fecb6dffc18cec874a88ccc2c515a24e612e923e3dd82c95cf4770": 1,
+            "8abce7ce53b1a0f7c72f539e99c3ad8b7c1987679e76a8e82cde674004c328b9": 1
+        },
+        "packages/core/src/Model/ExtensionAssumption.php": {
+            "02ac84afcbd68b8b1240313d7889b019c5aae2722fbfc4d769770063b4453ec6": 1,
+            "0c049cf1444bfb9b41131eea0a974d8ea4750a88dde275f3d9c18627e27dd09b": 2,
+            "119c49b8e49e452f41eca1872a23db548f7239306f516d2ab24ea98fac7d55aa": 1,
+            "158c72d49d15a18d5ba81c3808d2b1fa4e17c284184af7d9cc4dd4647374e67b": 1,
+            "38a30440f20648d7a5d36eb06f72903fc4aa7f528a18d814d494ea67a38d2e54": 1,
+            "57e6f724880722fcf05c83100c48320c0a915feb98501f2f7010bb0b69f5326e": 1,
+            "87c0f62668bfcaaf54341f1a802e6ee573599dd348e191107fe9622b331af84f": 1,
+            "8e2d223d4f4c73aa69b97e3b27de692307f21e2501c55e2af2cde1ef2cbc6ec9": 1,
+            "ae7106a7d37a3edad0b0ee23a54a70836e4e9c03f9e8e24a7a98ebe57df4ea16": 2,
+            "b3e034a6f4f1555d1e9e637a2c71ae6418f68d038b62382f9b3295207bdf4c24": 1,
+            "baa9505c6cac1b94000f8102c7b4f468497a3fbc3c2dd0ec663cc5f29ff8fc4c": 1,
+            "eef4a41ba2899a37e253992ebf84653198920d994777ed775b9de9aa56dc5582": 1
+        },
+        "packages/core/src/Model/ExtensionAssumptionSet.php": {
+            "0c049cf1444bfb9b41131eea0a974d8ea4750a88dde275f3d9c18627e27dd09b": 1,
+            "0d377ca6d116b0cf615f2b8f1a82cf439f9032b9b69eb8613295a6c2f74d4007": 1,
+            "67171624449c0a3ed10729465b46d069f764b143b47c63118d6fbe33e1d65923": 1,
+            "ae7106a7d37a3edad0b0ee23a54a70836e4e9c03f9e8e24a7a98ebe57df4ea16": 1
+        },
+        "packages/core/src/Model/FrameworkGuidance.php": {
+            "01149a28d7dbcd58fccf7584981ed839d08edefc6b0c76b329f05ba110e5da21": 1,
+            "0e148d948518c7cc4c2ede9c6cf48ef75ddd73047a426e2e2b561552bcd84e3e": 1,
+            "1b3a845c53b22909b8065c20eed6f475754b36c2330b822b327378c79fb4013d": 1,
+            "3e8bd32a3cfbab3b7b3fd3a3c6facd539b175a15c4708b17824da4fbbe08edc9": 1,
+            "48462947a79d8480b072a307322ad9dcad99b6edd3ef58fb4d58ba6548c9b864": 1,
+            "661cec9d0ba5ac019c379c0e8ab4c0a33b61e1901fc878f50ecb4b581166fa60": 1,
+            "6f3c07c70d31aee10f5eca98dad7ec1cc55466e55baf04a563076997c65cedf5": 1,
+            "812d8215f3f1ac1d172504ccaf0acf7414b4a195cc16c9f426a91284789ef046": 1,
+            "8d089fc6fd7f58667e241b400c67d6857a6d3c44c16845897070a434492a1ed9": 1,
+            "96022146636e8a2462bf512ae8c8703b6daf966c33f25533c6848af7ef8b2337": 1,
+            "b4a4ccb1abe5a8d96d68e2e79aa502ac72c6c7c8d32e48b4e720dd5a5023d110": 1,
+            "c9e30d739260a6e9ddfc06eb386febc8234d8b356b17fe1fd62bd594b976a7d3": 1,
+            "cdf9b5449567d5a7a010aa364fed8f5042e5e33fc14b363baff5c07105755f26": 1,
+            "ece5a99341cbd25f4d2755c24ebaae33cece7495f2ccedcbf4152b2f22f7e130": 1
+        },
+        "packages/core/src/Model/FrameworkHop.php": {
+            "1f09021a5f927bd6e4299cd87cc690e137b2cb1d1ccf8285e6da6fd5323813a6": 1,
+            "4d62ba1bf3579de3ec17bdfb3e7874dec506604967d52444a0fb220ffe3cdb77": 1,
+            "7948cddd25e0f44b212c7ba5c99169feed038fb149f607390ce63dc31ee3a027": 1,
+            "cbb46a4e8ae83deaff5669992a6094f092c9aeca0fe501739c3eeca4ef5c9859": 1
+        },
+        "packages/core/src/Model/HostExtension.php": {
+            "a059a3fc40e1862f7bd9f99a5026ec3fd645f7ad2ed5981581e5a2cf787be160": 1,
+            "fb5f451241fd2543ad6b2670de89162b752cb7aa4b4384868253679aba535e30": 1
+        },
+        "packages/core/src/Model/PackageChange.php": {
+            "3cd1cb3d5d350bc59df2b1a1754a9a1006276d25a32931e268a0d39f79aeea88": 1,
+            "7d1483fdf382229a451ba3682d670a9fafb87fa271c0deed006842aa8dc75d80": 1,
+            "8a5a7fa517929013616c5d472146661ab2ed260981f8a8658d35d34a0b1c19dc": 1,
+            "c6e759fa826c3f24eccb026d0ab2d28ed7bb9fccd079af3e42663ef945978140": 1,
+            "d6bdde16209baa4a234fb90c55f3837177e212acebb4e476825e6cab43507f1e": 1
+        },
+        "packages/core/src/Model/PlatformProvenance.php": {
+            "010508b6f8d12c123b73be939a2381daaa9e68f33bc551ee65905787bfe1d983": 1,
+            "75c87c69ca7f505e36a3fcf0288508cd5fb17857e7cf69215ab9a050cd6f5181": 1,
+            "9044a874e4b4cbeab09cde8eb886a3e0087e9d84800979d2baa27a8a59d91518": 1,
+            "bd35f529f170fef439acb1d88173bc529452754be82c440e682a36519eab7566": 1,
+            "fac4cdb61349190738b77a1e6841eb72317e6ddf245fcf4e451703dee3a37314": 1
+        },
+        "packages/core/src/Model/ReportMetadata.php": {
+            "928bb23e2f58b2e23cf33f1be785161b122d338f36af53c0d61079c10cb4e43a": 1,
+            "b25bbace931c52cba83fa9b80cc5dc302c442e78fc082bec1ebafbaace20054c": 1
+        },
+        "packages/core/src/Model/RootConstraintChange.php": {
+            "1fb56b51f830e38cfe6061ab87ac95385dfcced08768307e94ce387ef08e1871": 1
+        },
+        "packages/core/src/Model/ScenarioResult.php": {
+            "22d19b5dce72c07e893a36ef2f9b4f19b500cdf2aac3b1914309a18adf2f0e1a": 1,
+            "3edf8bd040e6442f5f77f0faaab7ba2cd5814440a5da4394abffa5d2bcf91bc9": 1,
+            "4a81b01a8cd6f253f426bb2cd12f28988491d5051c45547b0ea935a77471b4a7": 1,
+            "9e5e411d581940e22cc58b079370fa2c9d41d6728336a1174eacd4f735a8b8ef": 1,
+            "b9d867642d7377fee871045f5eaac08297e58993b27c82fff5356f880c6dd041": 1,
+            "ddb4a93573c99ecbb47420445987496558b293dcf602e5426252f7983d53d91a": 1,
+            "ecd62d70ffef006ceaa3d5b6d18873560fa5403a3db45a8258150e70292348b3": 1
+        },
+        "packages/core/src/Model/SourceImpactFinding.php": {
+            "252245f5751317e9aaebe19606b37b35721bbe92dcb3388fe811eaaace764fbf": 1,
+            "3815a9c1ee87706286a14f56043eec10db2b44b5e544f80a0e2b614543852f27": 1,
+            "4b20abd71df23a47bf2ec73f8231f91b9e9dcc40f2195f870584064f21c748c6": 1,
+            "6e54f0d589704bf29b04e37ee7381ba62c07f7e374a31e8b14f7cde08356da68": 1,
+            "a74e3de7ced560ef010b418e0bdd9c0e6bda8f4e820b90b227597703513178a2": 1,
+            "b5bb4bef682835985ec69fee366653a5c6d242121bc39ba4d411d002fe089514": 1
+        },
+        "packages/core/src/Model/TargetPlatform.php": {
+            "28b5e2136d8016d34ac4a25de6c09a1ca86ee06f4c090b2728cdc154d8347df6": 1,
+            "4ad2292cb6c5c2d31325739acfa4452421493ab7819e55fbaef0c55ac99bab33": 1,
+            "4b57edde9f7c50f81f5a8212e3b5ccef91e96a4520e3dd7ee9e96e58ed25988e": 1
+        },
+        "packages/core/src/Model/TestGuidance.php": {
+            "4b53cea3cbdafeef7f8339fb2fa53a58d1136122a3ee4905aa934de6e722e4a4": 1,
+            "50334d756ffc8f2f52fda51276b274479c08c501184c5649b20a853b9f743090": 1,
+            "677bb437e8b3e81bb3c5812b24fcf58a2c21db8f8a246cae37e36e6409c81f1d": 1
+        },
+        "packages/core/src/Model/UpgradeReport.php": {
+            "0c049cf1444bfb9b41131eea0a974d8ea4750a88dde275f3d9c18627e27dd09b": 1,
+            "0d377ca6d116b0cf615f2b8f1a82cf439f9032b9b69eb8613295a6c2f74d4007": 1,
+            "42eca4546312331d277fb589d26a8669ef7ffcaf8863df307dc9d6f0df8979fe": 1,
+            "467b5e1735f2547c234da46b7e603f34860f72e096aeb4b3af6c62c85999fba8": 1,
+            "7208ecff15c751831e376ff3daa2d18394314c4f16c7ff41b9b4c8a0992d27bf": 1,
+            "c4c5ef712c5864ddfc61f96f816076ed1e4206d6d63ce44fc9099510f764ca6c": 1
+        },
+        "packages/core/src/Model/UpgradeRequest.php": {
+            "18d38879168df84e29c1fb7eef4ff0e57076af92011b84195483c47f95deadce": 1,
+            "4e15bcd9a1c7c7f5e372877ff8778f2532c1de131cec00ca6f6afeebb77ca8cb": 1,
+            "ca36db8d234afca255fbe40351b4598153b04ff918f701d21de63a6b9b256fb0": 1
+        },
+        "packages/core/src/Reporting/MarkdownReportWriter.php": {
+            "0e9dc98b3bc25677deebce7e59120ab5cda61a104aac040785dcddf285689797": 1,
+            "2149ff93b9b1199ff38f543388ded3da72767e5153ca65125e7eb1654e85728c": 1,
+            "23cb85596686a1c0e2593c45b667108e57a2f7b8635cac5d77899df60a13a678": 1,
+            "39adecb688cbc2749a3bc0e974c5052acebb269d78aa413e3c640bf3a5a165d0": 1,
+            "bab63e3e46ed4153e3792552e60fa00306c3950135ea27480fefa142fbb44960": 1,
+            "d69f1d137cf788ad2aadd6e68e148d8da206699aa9c7c5b1ee9b2ff8664cd6fd": 1,
+            "dd371dd72ab47b3f49b7967cfbb1bfd5754ad97bbe155bd104dd0ed65dc992f6": 1
+        },
+        "packages/core/src/Reporting/ReportFileWriter.php": {
+            "2567a34780a6f6b94688e00ebcead59e893e8ab70f7157c3eb53719b43b41193": 1,
+            "3a52cc190dd7e14c93d807723a7a138e2e467b0c0c17e193f78a899b6ac21f1d": 1,
+            "64381e7deedbc5dc8848d827d406daaf03aec748c3696cf0657e85aba7529177": 1,
+            "73461680cd67684c1c4aa06bf6ed42b7bae2951a116dd864cfc9cc9f1eeca261": 1,
+            "9d49112a6de935f30af806219db244bb5a6f29311d4c23084c2c2d9f539258f0": 1,
+            "a437348d14451d09e336c03dcadf3f1da763427f623b0655634d4dc26c2fec66": 1,
+            "bdfd9285a1028bc45b1d6bdcb439119d93f527cb830f9f383379381b35b3826a": 1,
+            "ca36db8d234afca255fbe40351b4598153b04ff918f701d21de63a6b9b256fb0": 1
+        },
+        "packages/core/src/Source/AutoloadOwnershipIndexBuilder.php": {
+            "0bf37874b7af9907cc21dc845f1daf71d4f9392a2ca7a5b474c14db2db91e879": 2,
+            "10e0fa08a73f0cd151617165a96e7df8c8d14ecfc63d6f1f343559f16198939f": 2,
+            "14bd9da256cb590c7c6d16db69f6df246476b9e37629f65b980987652b77c427": 1,
+            "18d38879168df84e29c1fb7eef4ff0e57076af92011b84195483c47f95deadce": 1,
+            "1ded61bcb80f36fe6c5374693cff9be27521d6b2e99ac6466f376f4342b9808f": 1,
+            "327398bce738e09174d0564eaa2d343c896b4c313fd04bce488d4c2ef526220e": 1,
+            "43abe5a5d2e2c81202a4922f866b1096a2f5887e7a7263b2af554a889ad255ef": 1,
+            "4ad2292cb6c5c2d31325739acfa4452421493ab7819e55fbaef0c55ac99bab33": 1,
+            "4c6cb01cf39c42062a1178d65ff73822a8c1d16bdfa22be79d704feefb739069": 1,
+            "599bb25d2e6184ab462e93643fb3b1a00a7d6e643f7359d94ff32b2b1878df90": 1,
+            "64fc17677d0d9623dc63580bd6ba0218844b0bd1dd5bd18c9e5f87db824780ae": 1,
+            "812184f6daa5cde6a886c695d7a760df7e5ff568059f8bd350e27adf485fa6f0": 1,
+            "8beaabe25ab7e0a80d1e25bada55a2f5a227101c2210eadf0b368d3c2be4a83f": 6,
+            "8cf222eed72def73f76331d7c7e4f67c7cb9e805d2b54e9a0bde36cc6f97378f": 1,
+            "9a971e4e66ea5cfcbc6cfd6fd3980ca2b76d0bb05dd30e4b4688da0b0e7668f4": 1,
+            "a8d2044a3c458943d0e315b797006fb519e17c6d4e341bf8a0c5783fb76c80c8": 1,
+            "a9b9e398b41b5717564ed33a3767fb7b0da85b653cc7fdaec0789781ffb7ad66": 1,
+            "ac74125a9421749551b18358bd7f9813791f57569533a506f6ae858a914fb223": 1,
+            "c7221e1192cef51aa9d2ab86a2200fac852bd254ed01b295bd47b2923204ecc5": 2,
+            "c808a6ed5f8cdcab05cb39863324d02eab8adfb7521e0d017526e1256413666b": 1,
+            "ca36db8d234afca255fbe40351b4598153b04ff918f701d21de63a6b9b256fb0": 1,
+            "dabbdf16b8204c2b7217958e893ae2d600d2f01a226e3e0d8e7d1ef950819832": 2,
+            "f685340ee390a22a16f92b055507b759b3ab62f754dc6a8cedae4ed163c6ee40": 1
+        },
+        "packages/core/src/Source/ContextualSourceUsageVisitor.php": {
+            "03efb32eb56249a034705f0361f39bc040bf0209835cead74a004cd4d544506f": 1,
+            "0bf37874b7af9907cc21dc845f1daf71d4f9392a2ca7a5b474c14db2db91e879": 1,
+            "10e0fa08a73f0cd151617165a96e7df8c8d14ecfc63d6f1f343559f16198939f": 3,
+            "38c49581e86aaa4c099b6218c9e81804b0b30347f6056b06dadbe42879e7b866": 1,
+            "49478d5ac3f2aa07a17ce2e8023b615c2318a9484c8612386f5ecb59c5c6b6b1": 1,
+            "4ac9343c714cfed05fabbd6d65f768440526275ab765a0316a0a62407ca9fafd": 1,
+            "79a0bdfb3c0d9ba5f56755b7d04695b764ab5abe44ba4db98e5023de1d1f6006": 1,
+            "8beaabe25ab7e0a80d1e25bada55a2f5a227101c2210eadf0b368d3c2be4a83f": 4,
+            "95b9f3c8aa008e8f29ab01aa772d7cb9383e37a153ba41683a95563acd1756ed": 1,
+            "e7b0eb06cad090bcd548098f19307dd304bd7c885e47ea42b074ae84e9d93e8c": 1,
+            "feeefa2c9ff502edce7b0c74a13c09d42dc026e0603ec3cb8767faa09e029305": 1
+        },
+        "packages/core/src/Source/SourceUsageScanner.php": {
+            "0bf37874b7af9907cc21dc845f1daf71d4f9392a2ca7a5b474c14db2db91e879": 7,
+            "0c049cf1444bfb9b41131eea0a974d8ea4750a88dde275f3d9c18627e27dd09b": 1,
+            "0edd6f30e526b3737f444ba05b3e7c7ff7eaa5dc2e4202ab435ee1dada3a9fcb": 1,
+            "0f84b9022c116d1cb3084fe5e47a33ebcfc1d4300d9e8e9d329e19af0144d16e": 1,
+            "1097a1667cbb1ed51ea2a82949b1a14e46f84f6e2d1ff254e0e04ab34d5941f4": 1,
+            "1729736d513555f658f00289b5f01e9dcee3e0d7fa53eb6e1748aaadd00b832b": 1,
+            "18d38879168df84e29c1fb7eef4ff0e57076af92011b84195483c47f95deadce": 1,
+            "1cfb1fe9fabb2cc2897015de00c2b95a49d1df87541206809a20756e73e6bfa9": 1,
+            "2dad591f188f6cc4c1c1bb471df3064357d18a322793b3cfb132243ab2b503f5": 1,
+            "2edd6224e4cd13af9bf7eb4db83adec83e870d2a26549c5730196395012f314c": 1,
+            "55bef25291df2917fdf1cf57ba291d60760857a8f821baa88edf8e7134312b0d": 1,
+            "6974cd886685fb6779f9c7e93561ffcd7d162946aa13e5ece6540272cf32966b": 1,
+            "6a604c0cc37fca99462d429e23304f23268a475d34bdf7395cc2a74f7dea004f": 1,
+            "700ab5192d03ae55030c69a2ac9a94fb3ef58540796fe324f1cc2d98b6148e92": 1,
+            "7a3906c375d010e325c6c4554370673c3d96d72a3c6bb8438e7a4eee598ee9cc": 1,
+            "8cf222eed72def73f76331d7c7e4f67c7cb9e805d2b54e9a0bde36cc6f97378f": 1,
+            "9332298e500c95c43961579b7381e33db81430c63acd12e55ad9680264ccf0a0": 1,
+            "9849ae4328fec5855f708b0822bbaa743add8d5de4bdc82321c3ab3e4029e25a": 1,
+            "a3887239d3bd666917c64040dd4b66fc4582704efdd04fc49af8ebcb0e3d87b3": 1,
+            "a90ba621ec2c830200ee9864bd0224b0ce63f1be836d7b2f95dadedf7da32c5f": 1,
+            "ca36db8d234afca255fbe40351b4598153b04ff918f701d21de63a6b9b256fb0": 1,
+            "d7d4132418d56bbc86ebe5d8994577ef734b1d21694caa9ac56e341489427d8d": 1,
+            "ec71fc1812f0c20a2fc29e9da2bef6edeb4f6391794c504c1fdfd9871b296fac": 1,
+            "f0c0d3052f3ad5e1f81e8f2a23ff6e87b76893174393a4aec9ec614f29c741ea": 1,
+            "f86fcc6e63fd0901518120095f4f6f6e88ed4fd39551d35a2faa32cd96386bff": 1
+        },
+        "packages/core/src/Source/SourceUsageVisitor.php": {
+            "8beaabe25ab7e0a80d1e25bada55a2f5a227101c2210eadf0b368d3c2be4a83f": 1
+        },
+        "packages/core/src/Source/SymbolDeclarationVisitor.php": {
+            "8beaabe25ab7e0a80d1e25bada55a2f5a227101c2210eadf0b368d3c2be4a83f": 1
+        },
+        "packages/core/src/Source/SymbolOwnershipIndex.php": {
+            "0bf37874b7af9907cc21dc845f1daf71d4f9392a2ca7a5b474c14db2db91e879": 1,
+            "420c1bc8ea69999dcb8ebf5517676db50d17b625cc149233bb8af09def3d287a": 1,
+            "55c5ba7ed1264a9817b8a91a549a3dc499e9da21353260b36f694dd56fdada48": 1,
+            "8beaabe25ab7e0a80d1e25bada55a2f5a227101c2210eadf0b368d3c2be4a83f": 1,
+            "cf604642ccb59112f655ba153e9fa3136b1727f8da687fa3e62c0cf7dca58b46": 1
+        },
+        "packages/core/src/Support/OutputExcerpt.php": {
+            "d5e3297b5992bada2d8a755be5e52e2e197c166cf4335b3a67ad105add7a9ff2": 1
+        },
+        "packages/core/src/Support/PathExposurePolicy.php": {
+            "0563a0b08201707a19223a848b2db2ec5280e54a1eb49205b92c80454c173ade": 3,
+            "0bf37874b7af9907cc21dc845f1daf71d4f9392a2ca7a5b474c14db2db91e879": 2,
+            "41293580ff1131bcd66b6010e93d5585b00519b1d74fcec481e8fb83695f3034": 1,
+            "4ad2292cb6c5c2d31325739acfa4452421493ab7819e55fbaef0c55ac99bab33": 1,
+            "67571cbd9c7bea2a67943f7ebb5b986eaa625a65fd78239ed66b5734c9f06fb7": 1,
+            "68a93d84c7657f764799171be8e904d3a65083cb9552f453cebac6b1376aea9d": 1,
+            "82eebe2c3ef0fdae3208c53094e13da0941d0b37cb99c1c4a59e44a0934ae473": 1,
+            "87de34b67950e86c2b8b2cf8802d428d51392f7d2bb7f78948719c366bc70336": 1,
+            "9905c74cac2343e0f2334ca7bbf91e7f681e26dffa4035c3a75f96106d00bcc3": 1,
+            "a49cf60c21915b0b8d3d20a9905876a5dd74bd791158b057f7dd55afebbc11e5": 1,
+            "c7221e1192cef51aa9d2ab86a2200fac852bd254ed01b295bd47b2923204ecc5": 1,
+            "e2265bb65b74ce25b4d383002d0fdbdbaeb506b8353b5a6a8c4d43df2bb3c909": 1
+        },
+        "packages/core/src/Support/SensitiveOutputRedactor.php": {
+            "0088fc0e4afca056ea79949afc9d43c9751ddf2cc19b3ae9668d7e192454b961": 1,
+            "050eb5d8c7e5dbe71782c91c7164193cb8556d11076c50a8e06d20fdfc0fbe86": 1,
+            "0bf37874b7af9907cc21dc845f1daf71d4f9392a2ca7a5b474c14db2db91e879": 9,
+            "10e0fa08a73f0cd151617165a96e7df8c8d14ecfc63d6f1f343559f16198939f": 3,
+            "1b0ae1c320e76e574f8705872ee2ccdf720ad63bf3f94d2bebf20bf3c9be3038": 2,
+            "29c80fd66034b6b86303dc194f3a0fec09dba89487c6b850d58c2e44232a522c": 1,
+            "4dc73f6818655fbebde01c6261ede8ece216fd780180eb25524b08de4d9a3337": 3,
+            "5a591cf549605d1d62488621df389aa0b93871d6631a7a775dc76ddb27edad92": 1,
+            "625829cccccf60f16ed3aea8247e85464c07161e5bd7c69eac7dbeb1197e1a54": 1,
+            "9905c74cac2343e0f2334ca7bbf91e7f681e26dffa4035c3a75f96106d00bcc3": 1,
+            "9fc33933cb7569b51a9e541382ee2a8d59423fffe14d20e6369e276d1cc76066": 3,
+            "a929b50f2f0458199017bd04ad799d6562e8a0bb862b9120d3e1b9565d37af3d": 3,
+            "ace81f6cb7d765e2403a67a3fe0f003d2b88bb8d0241bf2a1c6997d54d7b4995": 1,
+            "c6ce8d613323d079f11e8316b31a92de97375471f3c60817cb1ec455290fe10c": 1,
+            "c82af32403740d530efe71cbc86d7d904800c46243403b78a1dd386640d8a17d": 1
+        },
+        "packages/laravel/src/Catalog/LaravelRuleCatalog.php": {
+            "4ad2292cb6c5c2d31325739acfa4452421493ab7819e55fbaef0c55ac99bab33": 1
+        },
+        "packages/laravel/src/Catalog/LaravelRuleCatalogValidator.php": {
+            "05a9a60131ec5281fde543696bbdd8fe60652df09dfd3a624e83027f0d8182f8": 1,
+            "2e6c896dab3cc4d201c348e1942e310a2936f204789b96b13534e9932bab4cee": 1,
+            "63fe5671e424df01b3699e902be86fb9bd0b2a53a4ebe4fe77e3fd116c0604ec": 1,
+            "6fa62cb6db4776c938378492c27652a1dd39cf511bd01e4c2f8de7677fbbac3f": 1,
+            "77a5fe2c6c1db7db2e3728ca781db9d48c5165951988b934fcacf1cc57f8cded": 1,
+            "7ab0e76c5461c25d608b7f9bc1a7ff5813592b1c8d5657268b913d5d7464fce9": 1,
+            "976a7ee41abeb72508342984015d1f28fbb080a87d17ddcaba114b87e5d57b23": 1,
+            "9c74010ed468f26c5ceb70bcb9d425f0c27852cca06c7301792a2eacd16f5c3f": 1,
+            "b0aa6b78e3fa99541ab6a43f55a51726d49c2083d8f0ce7dc0154b9293cceadf": 1,
+            "d654bc40a53796d7f5d19d6d93cc23a54fe1ab27e6a58de4c6d53f61df4c5389": 1,
+            "d67e5f1ca764756ee8c12abce7a1af0a7b379964815c0f381f340bafa5556286": 1,
+            "ee0b90a65117f80e43e2ab70a5276650f4fb004c8aaa962c2bc5db6e57c2da75": 1,
+            "f53d5afcde88b6fffbba92017424cca708671023b5c7e6416014d7d55c41b147": 1,
+            "fd3246e8d6e01815de77b83e782aca141c18441cf70c125f55a53024bc8fd089": 1
+        },
+        "packages/laravel/src/Commands/AnalyzeUpgradeCommand.php": {
+            "0c049cf1444bfb9b41131eea0a974d8ea4750a88dde275f3d9c18627e27dd09b": 1,
+            "381af2f9583cb0ce583078a8c949c381d60e6158b850fd40d5414dddb365631e": 1,
+            "3db99f5c54b6e9b920ddeb99c7af7d077b5249ecdad29500c630880a48833920": 1,
+            "583e0977342828c288fff44b07567149b4582f4cc75474c20b674335d1c8e1cb": 1,
+            "58bfe9dcd31dd7ca0d9cfc01ee0a9df18c590de237b39c6c1269349d57c03587": 1,
+            "5d06d87bbff164d36dcf9d9ffc3fa2ed750a64e19acdb2f8339bfba63ae25300": 1,
+            "7b8dc726e3f545d0356f43bf4777892615dc003ee3a70e789f039e2448383569": 1,
+            "ad94368e9e126eec1010883894c21797df69542c1d78a462c8ba5a30d326c020": 1,
+            "cb424047ade3c16d0f015e714718a50b33bf3fc12725a4884f1820ac95f5f2e4": 1,
+            "d168561937225877ce517bbba09ad919cb2a8fce9e759ee7b28041a1ca83554a": 1,
+            "e8d1f8ac8b119fd1542bffeb1c8f698c9207eb2b520891c3a33a0e6f3a4e5d5b": 1
+        },
+        "packages/laravel/src/LaravelFrameworkIntegration.php": {
+            "01f9dd703d41727acbda0f3a1e360491183424c0c028d22ad5fc24b438902584": 1,
+            "05dbecd31f4620a8983bd7544201c4b14758eab612ca26dfa9bec5f39818aebe": 1,
+            "09b8a4b4647c9e8cbafe5d75dff2a94d7368e380f6fdb21b9da61dc2ffe48689": 1,
+            "0e12585c5b464ac24483e1adde127045cb96387397a0b3202d3cffc7e50fbb9c": 1,
+            "1279d7dc7e0a7823cd05fdf98f13511ca9dd8acd4242e9192fcb14dc8f673622": 1,
+            "1c128ec2b8325e60d256ba230a87d56815537713fcc7fb2eaeaab1e11b9d313a": 1,
+            "1dbebeb8df1b5bd298753cb326aab5d694fb4e20b5fa9a9e60a676f0429c446a": 1,
+            "1e60c6b50470151a12335578fff5d34225be1db115cee1ba20760b0991a7daed": 3,
+            "22b654f5a9672e71c90ccead73e2b197e67e51d96e332f9123b0334b3ba64137": 1,
+            "2379f4453788c422e56d8f9956341928a5373892a59f0948c1aca44f549cd166": 1,
+            "245843abef9e72e7efac30138a994bf6301e7e1d7d7042a33d42e863d2638811": 1,
+            "2ef83771734070274e3036a691f665710355b6d6d4296d61756e1f073a775502": 1,
+            "320b3ec102395189a058329a7d6d31c96dab9ffb00b5978be0561f2fd586072a": 1,
+            "331d66898f751a9f3aa257e79a70bcfdff80f59453df1d033f13b566e405ed10": 1,
+            "3beff4e3d62b4e68219c55a1c38099e2f07857723a9baa0b33ad9ec44d1f1d42": 1,
+            "49ee6d2f9e8629cdd95bd1d5e1518528b097621d3f7981901be65721024cff45": 1,
+            "4ad2292cb6c5c2d31325739acfa4452421493ab7819e55fbaef0c55ac99bab33": 1,
+            "5350acb6b7da915a268c94fe7ee81dcd8e7993b3d40591508b864f5a1d413867": 1,
+            "5a546d6d73b013d197f03e49634d4027673b9c76b3c3d4802332b9c0fe187b05": 1,
+            "647076ce6e3326db67824fd209b5eb219bbfbaa2f5b131ce913b577b7021e930": 1,
+            "68aee51c216031f9261bf709e2fa1a208d24ecaa249d786feafd968748197352": 1,
+            "6bf43ca535dc2ff03c5e020d10d43a4b03bd9f6ca5c78bf63fd6f70cfecd0329": 2,
+            "6ca3e432a8fc0b66c82e68f67165541a5332f01a644ce431c918aba592e0ec46": 1,
+            "75e819bb225ec2f56c41b997681a8f4b23f1583b75869712720b78c6c4c6e760": 1,
+            "7638d574a2a540b3bdd250ddc830d90d0d4675ea8b7ec2b6db0db90a46e3f02a": 1,
+            "7e682cced3ffaec7307511ad0874a4a5162b0fdf045c8da185d5e15962c26dea": 3,
+            "7f75c15c0f1fbd1e7959df0047c1b88c735e6d5e384cfd8f62f4bcd98c4c0f98": 1,
+            "87af103d1fd802cc5eccb5c7c08dce8e5ce121b84cabcee2e6dfa6957cbe4e19": 1,
+            "92eb4e3352467d4f98f511e7ae946b66e331bae6491f3f9b919ec3860410dda2": 1,
+            "9d8b2b5670d18da8a99f6152f7ee75558019cd106d8032bf7c1117bd37273e37": 2,
+            "9e9c0072e8260b449fc404f903292baab96c9f90b23b5faee0411daacc149f16": 1,
+            "b468055e3f2c45a9c170c7cab025a95f1bfc9963dcc8e138949bc6d4d1e46e49": 1,
+            "b50a319a289ac36bd0dad89fd918ad66a78c8dc9e66328fcf521b82158756363": 1,
+            "b74c5d0fcd4b1328012e41b424fd67ff92a58a152671ef42a1364eb89eb49057": 1,
+            "b9d3814f1c68267c738230deaa296886b4ce61ac39febf4f677fd2b990f75de5": 1,
+            "ba5ec51d07a4ac0e951608704431d59a02b21a4e951acc10505a8dc407c501ee": 1,
+            "cfae0d4248f7142f7b17f826cd7a519280e312577690e957830d23dcf35a3fff": 1,
+            "d9882b4067b18abc146602a28d733c5002b052fed0bf631dd0353015c38c5704": 1,
+            "dabbdf16b8204c2b7217958e893ae2d600d2f01a226e3e0d8e7d1ef950819832": 1,
+            "e0ea77771deb97e782c4ac5ec2852eb1cfd9bfe538366e629c1f9a778a22f779": 1,
+            "ede523670d928b4aca90e920ecdaa2052ac86b3435e86eac361cbf6a6a5e7ee1": 1,
+            "f84b643b73818697a12560f18a14b2bbb1b96d63f295411a2c3c78168a1beff2": 1
+        },
+        "packages/laravel/src/Rules/LaravelCurlExtensionRule.php": {
+            "0bf37874b7af9907cc21dc845f1daf71d4f9392a2ca7a5b474c14db2db91e879": 1
+        },
+        "packages/laravel/src/Rules/LaravelHighSignalSourceRule.php": {
+            "09b8a4b4647c9e8cbafe5d75dff2a94d7368e380f6fdb21b9da61dc2ffe48689": 2,
+            "0b1d84afa8147c557f6421ec4023dfd1d02536df1830d0d710143625de44f182": 1,
+            "0ec652ceb8ee27b21560bd9a5c1368df26994cde6f559cf521c08985b8875597": 1,
+            "15d00073a2e454dd736e7db6c2fa0a93bec36d76d925007346b465b39e95a3ba": 2,
+            "1c128ec2b8325e60d256ba230a87d56815537713fcc7fb2eaeaab1e11b9d313a": 1,
+            "245843abef9e72e7efac30138a994bf6301e7e1d7d7042a33d42e863d2638811": 2,
+            "2bbbb07445778806a7c0e6aad2a8d70dfd495de4af6db91ab0398496575268b4": 3,
+            "2f3ba17bd8a62f304e49c5563a276b9efb0ca968610c1308559e2e899fb87f1b": 1,
+            "395a27a41cf1556a74cced4fbef6f6d51c5929ff92dc3b33d0be1d33f43dccf0": 1,
+            "39d4b54e0416be65f3fcb26963ff2c5c40153a3b4044179d7d7c8a6ca2f2bf87": 1,
+            "4c7fccd376647b22026504cf536f90b8dab7d40e0c01c8352f8cbee1636b4203": 2,
+            "4e5e0e12bc2dba670816bebe24ab5e01cb43ced37ac396033abdccee6bf2c808": 2,
+            "52bd7566e5857e63f5b40ada339ae766d4eb5e4e87d9275ae7073a240786e36a": 1,
+            "532256f4a2952450131ee6431b8b751008b0fd0b6fbfc402e3ae512028c23005": 1,
+            "566bad6ac201c4aec0e6d4836a7d643949f073cc6c2cf459aec368f60fb90706": 2,
+            "5983330cc721934e5ae1b53c8971b6221ea18e39cf4a4992f7fc67853cddb019": 1,
+            "670cd817766e401cca615252aa865e5e9d721d22f8a6228600eb5f2a95459137": 1,
+            "73980d436b00d09dc8ca0a6fe7e7a2bfead8d268393ca6c462060c8ebc35f3ec": 1,
+            "81a7095b786346d98c5e01fa137d89262dbdbfe2de13c9d06d7bb8f3f0cab0e9": 1,
+            "92eb4e3352467d4f98f511e7ae946b66e331bae6491f3f9b919ec3860410dda2": 2,
+            "930e65397bdb0675445f80722fe0d0de408b666030118cb37205f7ceafe625eb": 2,
+            "9d8b2b5670d18da8a99f6152f7ee75558019cd106d8032bf7c1117bd37273e37": 2,
+            "a046fe39b2a4441b7530e56bba63d9e8b811e33cce475bb2e6937be5c4aa1b5e": 1,
+            "a177a1f7904d89bd1d0e0857adbc09520322fb9985efce2a21515ca9c8641e11": 2,
+            "acf8181ea8b2062f32e4fa9f27c5cd3ef9b02220d45aa500ab15ac6a477570b1": 1,
+            "b7922c1949a97bedc3fdc93e234b59ef6ac95378e7e2863e531d5896d2847172": 1,
+            "bb01c44bd646ab29df9cea6459a3499be60c142a139c339492375eb110f5ea43": 2,
+            "be244b2d1ac766a25f6ad1d299fd3a6694637c29c4989a1322bb47eef85a5dbf": 1,
+            "c3220dcb855a514db39acecd960dc4eb8c35a33a6f762e2fb5ccc5eafe038ab8": 1,
+            "cfae0d4248f7142f7b17f826cd7a519280e312577690e957830d23dcf35a3fff": 2,
+            "e05ca6ede163775af443935f1d0b4999a1c2401e65dc455c1458baf4f3e098e5": 1,
+            "e9de0ba7be6ba10ce66587aec1132937da2a91c52ab9638d550242bf5ddd98e7": 2,
+            "eb23a60d3f28c76f869aa34d4d70121d1615fa78bf64569a60345348be69383b": 2,
+            "eb42b6b80636ce317a9c284f831cc26c274238994a434aeb61dffce7735aee04": 2,
+            "fa2fe3b820429604b9edd5c0a9cde93edb36597fa5375f04c97143e30b734eae": 2
+        },
+        "packages/laravel/src/Rules/LaravelPhpConstraintRule.php": {
+            "2352222084698991cc255cc6052f098d263289c7312d3a310a5e58bdff772102": 1,
+            "4ad2292cb6c5c2d31325739acfa4452421493ab7819e55fbaef0c55ac99bab33": 1,
+            "8a3382b611431e82ec5252ae52166e4c6646c3cbe94284e294f02444677c1b6d": 1,
+            "cea90b6126f5d31cf12be92053e400a7e65b21eb031a76088c40d47403143c1e": 1,
+            "eff5328f9361d8a0d5f1edfa2b6fbaeea3d37bf16ec4255b1655aa81d2d503d7": 1,
+            "ff230aa6f46decfeca302e948b91655d8a134d9c53f68b222aa4e48a682b2c8b": 1
+        },
+        "packages/laravel/src/Rules/LaravelSource.php": {
+            "01ea215599a9747127b395ed4ddc8c2b06b5ba35f11310043c5e9ffd21f0a2aa": 1,
+            "1ad56fa0d1754f2d4dae5c71c10876b4e3d3e2e209525850cdedc5a333b780da": 1,
+            "4ad2292cb6c5c2d31325739acfa4452421493ab7819e55fbaef0c55ac99bab33": 1,
+            "52cb584fce94088914c4b4eb882046d6362bb4a643b973f9d8a60cdb4b06a6f2": 1,
+            "54eeaf29a0c79f97a145b1bdd8100786d1bf673eaa71ff65bcf1a8c4bbceb1ad": 1,
+            "5c8650438368dcef0c6c58d66b0eeb94528eaadb04c7e554520b5f7f827d85d0": 1,
+            "66eca53eaea0628c90c8538cdb76ecc1c8931c7dd0f3fc49fe720e701f327709": 1,
+            "73fd5ecde625f79b44d5ad660c84915d2b7f119b48c2b7d7c91e2ed1518c09da": 1,
+            "760f0e777005383bd34f012dfd78cfb0ef5408836105a0c39a4541599bd4e57c": 1,
+            "8e6b7aa7ca0afec733bbd787ac70ced5a712be92c245a4c02b677251830ebe01": 1,
+            "9d8b2b5670d18da8a99f6152f7ee75558019cd106d8032bf7c1117bd37273e37": 1,
+            "b468055e3f2c45a9c170c7cab025a95f1bfc9963dcc8e138949bc6d4d1e46e49": 1
+        },
+        "packages/laravel/src/Rules/LaravelTarget.php": {
+            "05bee1288cb438a543b411aac2a87a8c3e191a1e94616524f65f6515fe2004b5": 1,
+            "0bf37874b7af9907cc21dc845f1daf71d4f9392a2ca7a5b474c14db2db91e879": 1,
+            "4ad2292cb6c5c2d31325739acfa4452421493ab7819e55fbaef0c55ac99bab33": 3,
+            "6d07daa4aa99ed4c0677ce9c1f8638c292f7a5e7fd04f8d02c492f1dd67a481f": 1,
+            "dabbdf16b8204c2b7217958e893ae2d600d2f01a226e3e0d8e7d1ef950819832": 2,
+            "f6c9fa81e9065dcb42c1e8887749632451f59164b194dcc8aa68c38c94478ad1": 1,
+            "f86fcc6e63fd0901518120095f4f6f6e88ed4fd39551d35a2faa32cd96386bff": 3
+        },
+        "packages/laravel/src/Rules/LegacyLaravelPackageRule.php": {
+            "92cead085a755244da04eb0c862ee60caf828550d870b31b7faea3f780aeca17": 1
+        },
+        "packages/laravel/src/Rules/OldIlluminateSupportRule.php": {
+            "0bf37874b7af9907cc21dc845f1daf71d4f9392a2ca7a5b474c14db2db91e879": 1,
+            "4ad2292cb6c5c2d31325739acfa4452421493ab7819e55fbaef0c55ac99bab33": 2
+        },
+        "packages/laravel/src/Rules/PackageVersionRule.php": {
+            "0bf37874b7af9907cc21dc845f1daf71d4f9392a2ca7a5b474c14db2db91e879": 1,
+            "226cb8c5aa754e02fe9435db8e23b6382aaf871837fcb0c7a7b875c8b6cbefbe": 1,
+            "c7221e1192cef51aa9d2ab86a2200fac852bd254ed01b295bd47b2923204ecc5": 2,
+            "ee3f01d0a9d8bc0ed59f8b65d5c6ebc36284487dc48f57507c6ac11d57f817d1": 1,
+            "f6c9fa81e9065dcb42c1e8887749632451f59164b194dcc8aa68c38c94478ad1": 1
+        },
+        "packages/laravel/src/Rules/SymfonyComponentConstraintRule.php": {
+            "4ad2292cb6c5c2d31325739acfa4452421493ab7819e55fbaef0c55ac99bab33": 1
+        },
+        "packages/laravel/src/Rules/TargetedPackageAdvisoryRule.php": {
+            "226cb8c5aa754e02fe9435db8e23b6382aaf871837fcb0c7a7b875c8b6cbefbe": 1,
+            "42d077949c8df8a1dc984a054f5397de119130ef2dab74c740f97e44bf1e6213": 1,
+            "45c3912d4ad923fefe6c8390ad2c8861ff9aa685843f567fe1d940c14b044bf9": 1,
+            "46615a085fa2d6aaf7204215a8fefc85783fa860877cd1eb3fb9b6cfb50e2dde": 4,
+            "4ab22ee0c0963200e5752ba9632e44129c2d20abfc8a28d831c05b817d68b62c": 1,
+            "9d8b2b5670d18da8a99f6152f7ee75558019cd106d8032bf7c1117bd37273e37": 4,
+            "a44e9b939f6e3420d260f4a1722acc03d47a996596f490fc81dea36dcb5bc864": 1,
+            "b04aac282ac126e805213acfe14f584e08bcb145512a717700495c92c6f40405": 4,
+            "bfa1fa97ee97ba9aa5a012a61b357be53bfd9a90fbf6ddac9ecf20134ed983b2": 1,
+            "cc8cf57caf565e592206227f09bee0b11d158625d0edd9c9acd65f13373929ad": 1
+        },
+        "packages/laravel/src/UpgradePreflightServiceProvider.php": {
+            "29576b54e255e3c948eea5b5904fa38b81682fdd3cbd9ae841ff0e7bd80d394c": 1,
+            "5b30894c8b00c2b7099128c76b44a810d0deb28a621eb0ba7e7686c2bfd24211": 1,
+            "6253f384646708b2504a7f464ff51338e77f7d1c834b19005939fc7e2b4ffa8a": 1,
+            "742c3122dd2c62dffa9397c8c82d753da2d60ddbb6845c8ca282e191131a7e24": 1,
+            "9d50cbfb66e8d69b8050ba6723db4093fa7fdb78c78abfbd0f1de0a6f12e5c67": 1
+        },
+        "tools/CoverageVerifier.php": {
+            "0bf37874b7af9907cc21dc845f1daf71d4f9392a2ca7a5b474c14db2db91e879": 2,
+            "33d48b65199a7631afdac5d356f7bc5ae7c12a5697891bba6036611e02656a48": 1,
+            "b5b393bfe2cfa88e9a14cf1f1eae583aab75f3ded87a726996c87e3a27289ddf": 1
+        },
+        "tools/SecretLeakVerifier.php": {
+            "0bf37874b7af9907cc21dc845f1daf71d4f9392a2ca7a5b474c14db2db91e879": 3,
+            "13aca68f0a363a3716c68cd3f5ce80520e4b6f1e1cd2bbfb07aa9f89932b727d": 1,
+            "2db8b164cddfeb9c176a1dd607eba3815195a4154b07d8fb102c456b364c6ddc": 1,
+            "8beaabe25ab7e0a80d1e25bada55a2f5a227101c2210eadf0b368d3c2be4a83f": 2,
+            "964a881f5fc3ba4ee7a829163c8d0f0ebaf13fa30dd56287bab4cdaf15a97941": 1,
+            "e6ab12053c4948570546f73c26e0194099e8b5c779d1202cc2d6a22a502fdfe5": 1
+        }
+    }
+}

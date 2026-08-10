@@ -33,11 +33,28 @@ final class ReleaseVerifierTest extends TestCase
         self::assertSame([], (new ReleaseVerifier($this->root))->verify('0.1.0'));
     }
 
-    public function testRejectsInvalidVersionFormat(): void
+    /** @dataProvider invalidVersionProvider */
+    public function testRejectsInvalidVersionFormat(string $version): void
     {
         $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Release version must use MAJOR.MINOR.PATCH format.');
 
-        (new ReleaseVerifier($this->root))->verify('v0.1.0');
+        (new ReleaseVerifier($this->root))->verify($version);
+    }
+
+    /** @return list<array{string}> */
+    public function invalidVersionProvider(): array
+    {
+        return [
+            [''],
+            ['v0.1.0'],
+            ['0.1'],
+            ['0.1.0.0'],
+            ['00.1.0'],
+            ['0.01.0'],
+            ['0.1.00'],
+            ['0.1.0-beta'],
+        ];
     }
 
     public function testAcceptsAnotherPatchOnTheActiveReleaseLine(): void
@@ -65,76 +82,231 @@ final class ReleaseVerifierTest extends TestCase
         ];
     }
 
-    public function testRejectsMissingExpectedInternalDependency(): void
+    /** @dataProvider invalidMetadataProvider */
+    public function testRejectsEveryInconsistentReleaseMetadataBranch(string $case, string $expectedError): void
     {
-        $manifest = $this->readJson($this->root . '/packages/laravel/composer.json');
-        unset($manifest['require']['php-upgrade-preflight/core']);
-        $this->writeJson($this->root . '/packages/laravel/composer.json', $manifest);
+        $this->makeFixtureInvalid($case);
 
         $errors = (new ReleaseVerifier($this->root))->verify('0.1.0');
 
         self::assertStringContainsString(
-            "php-upgrade-preflight/laravel require.php-upgrade-preflight/core must be '^0.1'; found NULL",
-            implode("\n", $errors)
+            $expectedError,
+            implode("\n", $errors),
+            sprintf('The %s fixture did not exercise its expected verifier branch.', $case)
         );
     }
 
-    public function testRejectsWrongInternalConstraint(): void
+    public function testRejectsUnreadableReleaseNotes(): void
     {
-        $manifest = $this->readJson($this->root . '/packages/cli/composer.json');
-        $manifest['require']['php-upgrade-preflight/core'] = '^0.2';
-        $this->writeJson($this->root . '/packages/cli/composer.json', $manifest);
-
-        $errors = (new ReleaseVerifier($this->root))->verify('0.1.0');
-
-        self::assertStringContainsString(
-            "php-upgrade-preflight/cli require.php-upgrade-preflight/core must be '^0.1'; found '^0.2'",
-            implode("\n", $errors)
+        $notesPath = $this->root . '/docs/releases/v0.1.0.md';
+        $verifier = new ReleaseVerifier(
+            $this->root,
+            static fn (string $path) => $path === $notesPath ? false : file_get_contents($path)
         );
+
+        $errors = $verifier->verify('0.1.0');
+
+        self::assertStringContainsString('could not read release notes:', implode("\n", $errors));
     }
 
-    public function testRejectsUnexpectedInternalDependency(): void
+    /** @return list<array{string, string}> */
+    public function invalidMetadataProvider(): array
     {
-        $manifest = $this->readJson($this->root . '/packages/core/composer.json');
-        $manifest['require']['php-upgrade-preflight/laravel'] = '^0.1';
-        $this->writeJson($this->root . '/packages/core/composer.json', $manifest);
-
-        $errors = (new ReleaseVerifier($this->root))->verify('0.1.0');
-
-        self::assertStringContainsString(
-            'php-upgrade-preflight/core must not require unexpected internal package php-upgrade-preflight/laravel',
-            implode("\n", $errors)
-        );
+        return [
+            ['missing-root-manifest', 'composer.json: could not read file'],
+            ['invalid-root-json', 'composer.json: Syntax error'],
+            ['non-array-root-json', 'composer.json: root value is not an object'],
+            [
+                'wrong-root-requirement',
+                "root require.php-upgrade-preflight/core must be '0.1.x-dev'; found '0.2.x-dev'",
+            ],
+            [
+                'missing-root-repository',
+                "root path repository version for php-upgrade-preflight/cli must be '0.1.x-dev'; found NULL",
+            ],
+            ['missing-package-manifest', 'packages/core/composer.json: could not read file'],
+            ['invalid-package-json', 'packages/core/composer.json: Syntax error'],
+            [
+                'wrong-branch-alias',
+                "php-upgrade-preflight/laravel branch alias must be '0.1.x-dev'; found '0.2.x-dev'",
+            ],
+            [
+                'explicit-package-version',
+                'php-upgrade-preflight/core must not declare composer.json version',
+            ],
+            [
+                'non-array-requirements',
+                "php-upgrade-preflight/cli require.php-upgrade-preflight/core must be '^0.1'; found NULL",
+            ],
+            [
+                'missing-internal-dependency',
+                "php-upgrade-preflight/laravel require.php-upgrade-preflight/core must be '^0.1'; found NULL",
+            ],
+            [
+                'wrong-internal-constraint',
+                "php-upgrade-preflight/cli require.php-upgrade-preflight/core must be '^0.1'; found '^0.2'",
+            ],
+            [
+                'unexpected-internal-dependency',
+                'php-upgrade-preflight/core must not require unexpected internal package php-upgrade-preflight/laravel',
+            ],
+            ['missing-tool-version', 'could not find TOOL_VERSION'],
+            ['missing-tool-version-file', 'could not find TOOL_VERSION'],
+            [
+                'wrong-tool-version',
+                "ReportMetadata::TOOL_VERSION must be '0.1.0'; found '0.1.1'",
+            ],
+            ['missing-changelog-heading', 'CHANGELOG.md must contain a dated [0.1.0] release heading'],
+            ['missing-changelog-file', 'CHANGELOG.md must contain a dated [0.1.0] release heading'],
+            ['missing-release-notes', 'missing release notes:'],
+            [
+                'wrong-release-notes-heading',
+                "release notes heading must be '# PHP Upgrade Preflight v0.1.0'; found '# PHP Upgrade Preflight v0.2.0'",
+            ],
+            ['empty-release-notes-body', 'release notes must contain content after the heading'],
+        ];
     }
 
-    public function testRejectsReleaseNotesForAnotherVersion(): void
+    private function makeFixtureInvalid(string $case): void
     {
-        $this->filesystem->dumpFile(
-            $this->root . '/docs/releases/v0.1.0.md',
-            "# PHP Upgrade Preflight v0.2.0\n\nWrong release.\n"
-        );
+        if ($case === 'missing-root-manifest') {
+            $this->filesystem->remove($this->root . '/composer.json');
 
-        $errors = (new ReleaseVerifier($this->root))->verify('0.1.0');
+            return;
+        }
+        if ($case === 'invalid-root-json') {
+            $this->filesystem->dumpFile($this->root . '/composer.json', '{');
 
-        self::assertStringContainsString(
-            "release notes heading must be '# PHP Upgrade Preflight v0.1.0'; found '# PHP Upgrade Preflight v0.2.0'",
-            implode("\n", $errors)
-        );
-    }
+            return;
+        }
+        if ($case === 'non-array-root-json') {
+            $this->filesystem->dumpFile($this->root . '/composer.json', "\"invalid-root\"\n");
 
-    public function testRejectsReleaseNotesWithoutContent(): void
-    {
-        $this->filesystem->dumpFile(
-            $this->root . '/docs/releases/v0.1.0.md',
-            "# PHP Upgrade Preflight v0.1.0\n"
-        );
+            return;
+        }
+        if ($case === 'wrong-root-requirement') {
+            $manifest = $this->readJson($this->root . '/composer.json');
+            $manifest['require']['php-upgrade-preflight/core'] = '0.2.x-dev';
+            $this->writeJson($this->root . '/composer.json', $manifest);
 
-        $errors = (new ReleaseVerifier($this->root))->verify('0.1.0');
+            return;
+        }
+        if ($case === 'missing-root-repository') {
+            $manifest = $this->readJson($this->root . '/composer.json');
+            $manifest['repositories'] = array_values(array_filter(
+                $manifest['repositories'],
+                static fn (array $repository): bool => $repository['url'] !== 'packages/cli'
+            ));
+            $this->writeJson($this->root . '/composer.json', $manifest);
 
-        self::assertStringContainsString(
-            'release notes must contain content after the heading',
-            implode("\n", $errors)
-        );
+            return;
+        }
+        if ($case === 'missing-package-manifest') {
+            $this->filesystem->remove($this->root . '/packages/core/composer.json');
+
+            return;
+        }
+        if ($case === 'invalid-package-json') {
+            $this->filesystem->dumpFile($this->root . '/packages/core/composer.json', '{');
+
+            return;
+        }
+        if ($case === 'wrong-branch-alias') {
+            $manifest = $this->readJson($this->root . '/packages/laravel/composer.json');
+            $manifest['extra']['branch-alias']['dev-main'] = '0.2.x-dev';
+            $this->writeJson($this->root . '/packages/laravel/composer.json', $manifest);
+
+            return;
+        }
+        if ($case === 'explicit-package-version') {
+            $manifest = $this->readJson($this->root . '/packages/core/composer.json');
+            $manifest['version'] = '0.1.0';
+            $this->writeJson($this->root . '/packages/core/composer.json', $manifest);
+
+            return;
+        }
+        if ($case === 'non-array-requirements') {
+            $manifest = $this->readJson($this->root . '/packages/cli/composer.json');
+            $manifest['require'] = 'invalid';
+            $this->writeJson($this->root . '/packages/cli/composer.json', $manifest);
+
+            return;
+        }
+        if ($case === 'missing-internal-dependency') {
+            $manifest = $this->readJson($this->root . '/packages/laravel/composer.json');
+            unset($manifest['require']['php-upgrade-preflight/core']);
+            $this->writeJson($this->root . '/packages/laravel/composer.json', $manifest);
+
+            return;
+        }
+        if ($case === 'wrong-internal-constraint') {
+            $manifest = $this->readJson($this->root . '/packages/cli/composer.json');
+            $manifest['require']['php-upgrade-preflight/core'] = '^0.2';
+            $this->writeJson($this->root . '/packages/cli/composer.json', $manifest);
+
+            return;
+        }
+        if ($case === 'unexpected-internal-dependency') {
+            $manifest = $this->readJson($this->root . '/packages/core/composer.json');
+            $manifest['require']['php-upgrade-preflight/laravel'] = '^0.1';
+            $this->writeJson($this->root . '/packages/core/composer.json', $manifest);
+
+            return;
+        }
+        if ($case === 'missing-tool-version') {
+            $this->filesystem->dumpFile(
+                $this->root . '/packages/core/src/Model/ReportMetadata.php',
+                "<?php\nfinal class ReportMetadata {}\n"
+            );
+
+            return;
+        }
+        if ($case === 'missing-tool-version-file') {
+            $this->filesystem->remove($this->root . '/packages/core/src/Model/ReportMetadata.php');
+
+            return;
+        }
+        if ($case === 'wrong-tool-version') {
+            $this->filesystem->dumpFile(
+                $this->root . '/packages/core/src/Model/ReportMetadata.php',
+                "<?php\nfinal class ReportMetadata { public const TOOL_VERSION = '0.1.1'; }\n"
+            );
+
+            return;
+        }
+        if ($case === 'missing-changelog-heading') {
+            $this->filesystem->dumpFile($this->root . '/CHANGELOG.md', "# Changelog\n\nUnreleased.\n");
+
+            return;
+        }
+        if ($case === 'missing-changelog-file') {
+            $this->filesystem->remove($this->root . '/CHANGELOG.md');
+
+            return;
+        }
+        if ($case === 'missing-release-notes') {
+            $this->filesystem->remove($this->root . '/docs/releases/v0.1.0.md');
+
+            return;
+        }
+        if ($case === 'wrong-release-notes-heading') {
+            $this->filesystem->dumpFile(
+                $this->root . '/docs/releases/v0.1.0.md',
+                "# PHP Upgrade Preflight v0.2.0\n\nWrong release.\n"
+            );
+
+            return;
+        }
+        if ($case === 'empty-release-notes-body') {
+            $this->filesystem->dumpFile(
+                $this->root . '/docs/releases/v0.1.0.md',
+                "# PHP Upgrade Preflight v0.1.0\n"
+            );
+
+            return;
+        }
+
+        self::fail(sprintf('Unknown invalid release fixture case %s.', $case));
     }
 
     private function writeConsistentFixture(string $version = '0.1.0'): void

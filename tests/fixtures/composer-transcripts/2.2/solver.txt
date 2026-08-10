@@ -1,0 +1,5 @@
+Your requirements could not be resolved to an installable set of packages.
+
+  Problem 1
+    - Root composer.json requires vendor/framework ^3.0 -> satisfiable by vendor/framework[3.0.0].
+    - vendor/framework 3.0.0 requires ext-intl * -> it is missing from your system. Install or enable PHP's intl extension.
