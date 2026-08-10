@@ -150,7 +150,7 @@ final class ReleaseWorkflowTest extends TestCase
         self::assertStringContainsString('$manifest["scripts"] = $fixture["scripts"]', $workflow);
         foreach (['core', 'cli', 'laravel'] as $package) {
             self::assertStringContainsString(
-                sprintf('options\\":{\\"versions\\":{\\"php-upgrade-preflight/%s\\":\\"0.1.x-dev\\"', $package),
+                sprintf('options\\":{\\"versions\\":{\\"php-upgrade-preflight/%s\\":\\"0.2.x-dev\\"', $package),
                 $workflow
             );
         }
