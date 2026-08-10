@@ -41,6 +41,11 @@
     "branch-alias": {
       "dev-main": "0.2.x-dev"
     },
+    "php-upgrade-preflight": {
+      "framework-adapters": [
+        "PhpUpgradePreflight\\Laravel\\LaravelFrameworkIntegration"
+      ]
+    },
     "laravel": {
       "providers": [
         "PhpUpgradePreflight\\Laravel\\UpgradePreflightServiceProvider"

@@ -16,6 +16,8 @@ cd php-upgrade-tools
 composer require php-upgrade-preflight/cli php-upgrade-preflight/laravel
 ```
 
+This separate Composer tools-directory installation is the supported external execution path for v0.2. v0.2 does not ship or support a PHAR or a versioned container image; the repository Docker files are development tooling, not release artifacts.
+
 You can install both packages as development dependencies in a project that already runs PHP 8.0 or later:
 
 ```bash
@@ -76,10 +78,13 @@ Six application-shaped Laravel fixtures have approved JSON and Markdown snapshot
 - `php-upgrade-preflight/cli` provides `upgrade-intel analyze`.
 - `php-upgrade-preflight/laravel` provides Laravel detection, rules, and `upgrade:analyze`.
 
+Third-party adapter packages register themselves through Composer metadata, so they can provide detection, source paths, rules, and package-family classification without editing the CLI. See [Framework adapters](docs/adapters.md).
+
 ## Documentation
 
 - [Installation](docs/installation.md)
 - [External analysis](docs/external-analysis.md)
+- [Framework adapters](docs/adapters.md)
 - [CLI reference](docs/cli.md)
 - [Artisan reference](docs/artisan.md)
 - [JSON schema and compatibility](docs/schema.md)

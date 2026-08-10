@@ -163,6 +163,16 @@ final class ReleaseWorkflowTest extends TestCase
             $workflow
         );
         self::assertStringContainsString('vendor/bin/upgrade-intel --help', $workflow);
+        self::assertStringContainsString(
+            '"php-upgrade-preflight/cli:${RELEASE_VERSION}"' . " \\\n" .
+            '            "php-upgrade-preflight/laravel:${RELEASE_VERSION}"',
+            $workflow
+        );
+        self::assertStringContainsString('--framework=laravel', $workflow);
+        self::assertStringContainsString(
+            'Archive-installed Laravel adapter did not contribute findings.',
+            $workflow
+        );
         self::assertStringContainsString('--format=json', $workflow);
         self::assertStringContainsString('php tests/smoke.php', $workflow);
         self::assertStringContainsString('php tools/verify-secret-leaks.php dist', $workflow);

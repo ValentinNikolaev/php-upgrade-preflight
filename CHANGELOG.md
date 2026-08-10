@@ -17,6 +17,7 @@ This project follows [Semantic Versioning](https://semver.org/). Report schema v
 - Static symbol ownership from root and locked-package PSR-4, PSR-0, classmap, and files autoload metadata, with typed exact declarations, constant case sensitivity, bounded scanning, explicit ambiguity, and dynamic-loader uncertainty.
 - Adjacent Laravel 8→9, 9→10, 10→11, 11→12, and 12→13 rule packs with fixture coverage for target PHP, Composer metadata, curl availability, official dependency and first-party package migrations, PHPUnit/Pest requirements, Carbon 3, removed queue-dispatch APIs, legacy helper conflicts, and request-forgery middleware references.
 - Separate feasible and advisory-heavy or blocked full-analyzer fixtures for every approved adjacent Laravel path, with real offline Composer resolution against a committed path repository, plus modular Illuminate roots, ambiguous source and target evidence, missing-hop behavior, supported multi-major composition, evidence-class checks, and CLI/Artisan canonical JSON parity.
+- Composer-metadata framework-adapter discovery, with a test-only third-party package proving automatic detection, default source paths, compatibility rules, and package-family classification without CLI source registration.
 
 ### Changed
 
@@ -28,6 +29,7 @@ This project follows [Semantic Versioning](https://semver.org/). Report schema v
 - Repeated framework findings from composed adjacent rule packs are merged while retaining all hop references and evidence records.
 - Direct Symfony guidance now preserves component-specific constraints from pinned Laravel manifests instead of widening every component to one target-major range.
 - Deterministic Laravel transition fixtures now reject candidate locks that violate root package constraints or the simulated target PHP; modular and ambiguous-source feasible cases use ranges that genuinely admit their simulated Laravel 13 locks.
+- v0.2 supports one external execution path: Composer packages installed in a separate tools directory; no PHAR or versioned container image is shipped or supported.
 
 ### Security
 

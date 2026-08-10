@@ -27,6 +27,8 @@ Run `composer release:verify -- VERSION` to enforce the release-series, tool-ver
 - [ ] Run normal and `--prefer-lowest` clean dependency installs for each package subtree on its declared PHP floor.
 - [ ] Install the Laravel adapter against every advertised Illuminate host line and run the application-boot smoke.
 - [ ] Confirm every host-line smoke verifies provider discovery, analyzer binding, command registration, and a harmless invocation.
+- [ ] Confirm the test-only third-party adapter is discovered solely from Composer metadata and proves detection, default source paths, compatibility rules, and package-family classification without a CLI source registration.
+- [ ] Confirm adapter discovery tests cover deterministic ordering, malformed metadata, duplicate class and case-insensitive name collisions, unavailable classes/packages, and explicit `--framework` failures.
 - [ ] Confirm synthetic credentials are absent from JSON, Markdown, captured diagnostics, workflow logs, and generated ZIP entries.
 
 Historical host matrices may need Composer's `--no-security-blocking` option when a released old framework has advisories. Limit that flag to ephemeral compatibility consumers; installability is not a security endorsement.
@@ -36,7 +38,7 @@ Historical host matrices may need Composer's `--no-security-blocking` option whe
 - [ ] Clone the release candidate into a directory with no existing `vendor` tree.
 - [ ] Run `composer install` and `composer check` in the documented environment.
 - [ ] Install the CLI and framework adapters in a separate tools directory.
-- [ ] Analyze a copied documented fixture in JSON and Markdown modes.
+- [ ] Analyze the copied PHP 7.4 fixture from that tools installation in JSON and Markdown modes without installing anything into the target.
 - [ ] Hash the fixture before and after and confirm byte-for-byte equality.
 - [ ] Test an output path containing spaces on Windows and Unix.
 
@@ -45,6 +47,8 @@ The release workflow performs the clean install, deterministic gate, JSON and Ma
 ## Package distribution
 
 This repository is a monorepo. Packagist reads a package manifest from the root of each distribution repository, so publish `core`, `cli`, and `laravel` subtrees to their corresponding repositories before synchronization.
+
+For v0.2 these Composer packages are the only supported external distribution. The generated package ZIPs are Composer distribution artifacts, not a PHAR. Do not attach a PHAR or publish a project container image as a supported v0.2 runtime; the development Docker files are outside the release surface.
 
 - [ ] Split every package subtree with history preserved.
 - [ ] Confirm each split contains its manifest, source, schema resources where applicable, license, shared readme, changelog, security policy, and documentation.

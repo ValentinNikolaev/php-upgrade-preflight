@@ -61,6 +61,10 @@ vendor\bin\upgrade-intel.bat --help
 
 Run the external tool with PHP 8.0 or later. Model the target project's current PHP through `--from-php` and its requested runtime through `--target-php`. The target application does not need to boot.
 
+This Composer tools-directory installation is the only supported external delivery format for v0.2. Releases remain normal Composer packages, including checksum-verified package ZIPs used by release automation. Those ZIPs are Composer distribution artifacts; they are not a standalone PHAR. v0.2 does not publish or support a PHAR or a versioned container image. The repository `Dockerfile` and Compose configuration are for development and verification only.
+
+Install every desired framework adapter in the tools directory alongside the CLI. Adapter packages register their integration classes through Composer metadata; see [Framework adapters](adapters.md). Nothing needs to be installed in the target project.
+
 ## Source checkout
 
 Contributors can run the monorepo through Docker:

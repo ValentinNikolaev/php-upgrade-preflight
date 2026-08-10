@@ -1,0 +1,22 @@
+{
+  "name": "php-upgrade-preflight/test-adapter",
+  "description": "Test-only third-party framework adapter fixture for PHP Upgrade Preflight.",
+  "type": "library",
+  "license": "MIT",
+  "require": {
+    "php": "^8.0",
+    "php-upgrade-preflight/core": "^0.2"
+  },
+  "autoload": {
+    "psr-4": {
+      "PhpUpgradePreflight\\TestAdapter\\": "src/"
+    }
+  },
+  "extra": {
+    "php-upgrade-preflight": {
+      "framework-adapters": [
+        "PhpUpgradePreflight\\TestAdapter\\TestFrameworkIntegration"
+      ]
+    }
+  }
+}

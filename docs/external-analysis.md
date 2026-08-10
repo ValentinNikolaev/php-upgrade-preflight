@@ -2,6 +2,8 @@
 
 External installation separates the analyzer's runtime dependencies from the target application. Use it when the application runs PHP 7.4, when its Composer constraints reject the tool, or when an audit must leave the repository untouched.
 
+For v0.2, the supported external path is a Composer installation in a separate tools directory. There is no supported PHAR or published versioned container image. A user-supplied container may still isolate untrusted input, but it is an execution environment for the Composer-installed packages rather than a project release format.
+
 ## Directory layout
 
 Keep tools, targets, and reports separate:
@@ -12,7 +14,15 @@ Keep tools, targets, and reports separate:
 /work/upgrade-reports
 ```
 
-Run from the tools directory:
+Create the tools installation with PHP 8.0 or later, without changing into the target directory:
+
+```bash
+mkdir -p /work/php-upgrade-tools /work/upgrade-reports
+cd /work/php-upgrade-tools
+composer require php-upgrade-preflight/cli php-upgrade-preflight/laravel
+```
+
+Then run from the tools directory:
 
 ```bash
 vendor/bin/upgrade-intel analyze \
@@ -23,6 +33,8 @@ vendor/bin/upgrade-intel analyze \
   --framework=laravel \
   --output=/work/upgrade-reports/legacy-app.json
 ```
+
+The `composer require` operation occurs only in `/work/php-upgrade-tools`. The command reads `/work/legacy-app` as target input and writes the report under `/work/upgrade-reports`; it does not install the CLI, Laravel adapter, or any other dependency into the PHP 7.4 application.
 
 PowerShell accepts the same `--name=value` syntax:
 
@@ -55,3 +67,5 @@ git -C /work/legacy-app status --short
 ```
 
 The command should show the same output both times. Avoid shell redirection into the project. The application's `--output` validation cannot protect a file opened directly by the shell with `>`.
+
+Release CI exercises this boundary with `tests/fixtures/projects/laravel-7-to-9`: it installs the CLI and Laravel adapter together from release artifacts, requires `--framework=laravel`, verifies that the adapter contributes findings, runs with `--from-php=7.4`, places output outside the fixture, and compares a recursive SHA-256 digest before and after. The gate proves that an external PHP 8 analyzer can model a PHP 7.4 target without installing into or modifying that target.

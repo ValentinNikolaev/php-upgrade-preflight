@@ -1,0 +1,10 @@
+{
+  "name": "php-upgrade-preflight/third-party-adapter-fixture",
+  "description": "Fixture proving Composer-discovered third-party adapters participate in CLI analysis.",
+  "type": "project",
+  "license": "MIT",
+  "require": {
+    "php": "^8.0",
+    "test-vendor/framework": "1.0.0"
+  }
+}

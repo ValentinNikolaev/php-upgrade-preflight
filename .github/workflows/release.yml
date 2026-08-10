@@ -364,12 +364,17 @@ jobs:
             --update-no-dev \
             --no-interaction \
             --no-progress \
-            "php-upgrade-preflight/cli:${RELEASE_VERSION}"
+            "php-upgrade-preflight/cli:${RELEASE_VERSION}" \
+            "php-upgrade-preflight/laravel:${RELEASE_VERSION}"
           composer check-platform-reqs --no-dev
           assert_archive_source \
             "${cli_consumer}" \
             php-upgrade-preflight/cli \
             "php-upgrade-preflight-cli-v${RELEASE_VERSION}.zip"
+          assert_archive_source \
+            "${cli_consumer}" \
+            php-upgrade-preflight/laravel \
+            "php-upgrade-preflight-laravel-v${RELEASE_VERSION}.zip"
           vendor/bin/upgrade-intel --help
           echo "CLI_CONSUMER=${cli_consumer}" >> "${GITHUB_ENV}"
 
@@ -436,6 +441,7 @@ jobs:
             --from-php=7.4 \
             '--target=laravel/framework:^9.0' \
             --target-php=8.1 \
+            --framework=laravel \
             --format=json \
             "--output=${report}" \
             >"${log}" 2>&1
@@ -457,6 +463,10 @@ jobs:
             }
             if (($report["metadata"]["schema_version"] ?? null) !== "0.6") {
                 throw new RuntimeException("Unexpected schema version in archive-installed report.");
+            }
+            $frameworks = array_column($report["framework_findings"] ?? [], "framework");
+            if (!in_array("laravel", $frameworks, true)) {
+                throw new RuntimeException("Archive-installed Laravel adapter did not contribute findings.");
             }
           ' "${report}" "${RELEASE_VERSION}"
 

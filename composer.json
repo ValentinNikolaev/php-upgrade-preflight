@@ -43,6 +43,16 @@
           "php-upgrade-preflight/laravel": "0.2.x-dev"
         }
       }
+    },
+    {
+      "type": "path",
+      "url": "packages/test-adapter",
+      "options": {
+        "symlink": true,
+        "versions": {
+          "php-upgrade-preflight/test-adapter": "0.2.x-dev"
+        }
+      }
     }
   ],
   "require": {
@@ -55,6 +65,7 @@
     "friendsofphp/php-cs-fixer": "^3.64",
     "illuminate/container": "^8.0",
     "opis/json-schema": "^2.6",
+    "php-upgrade-preflight/test-adapter": "0.2.x-dev",
     "phpstan/phpstan": "^2.1",
     "phpunit/phpunit": "^9.6",
     "symfony/yaml": "^5.4 || ^6.0 || ^7.0"
@@ -72,7 +83,8 @@
       "@composer validate --strict",
       "@composer validate --strict packages/core/composer.json",
       "@composer validate --strict packages/cli/composer.json",
-      "@composer validate --strict packages/laravel/composer.json"
+      "@composer validate --strict packages/laravel/composer.json",
+      "@composer validate --strict packages/test-adapter/composer.json"
     ],
     "test": "@test:all",
     "test:unit": "phpunit --testsuite unit",

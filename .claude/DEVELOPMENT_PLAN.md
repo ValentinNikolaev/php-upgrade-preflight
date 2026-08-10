@@ -187,14 +187,16 @@ Status: passed on 2026-08-10. The offline `composer check` gate passes with 550 
 
 ## Milestone 7: Adapter Extensibility and External Execution
 
-- [ ] Replace the Laravel-specific CLI registry probe with a documented adapter registration or Composer-metadata discovery mechanism.
-- [ ] Add a test-only adapter package that proves third-party detection, default source paths, rules, and package-family classification work without editing CLI source.
-- [ ] Define collisions, ordering, duplicate adapter names, missing packages, and explicit `--framework` failure behavior.
-- [ ] Keep Laravel auto-detection behavior and CLI/Artisan parity unchanged while generalizing registration.
-- [ ] Decide whether v0.2 ships a signed PHAR, a versioned container image, or only the existing external Composer installation. Prefer one supported external path over several partially maintained paths.
-- [ ] If a new delivery format is approved, build it reproducibly, attach checksums and provenance, and analyze a PHP 7.4 fixture without installing anything into that target project.
+- [x] Replace the Laravel-specific CLI registry probe with a documented adapter registration or Composer-metadata discovery mechanism.
+- [x] Add a test-only adapter package that proves third-party detection, default source paths, rules, and package-family classification work without editing CLI source.
+- [x] Define collisions, ordering, duplicate adapter names, missing packages, and explicit `--framework` failure behavior.
+- [x] Keep Laravel auto-detection behavior and CLI/Artisan parity unchanged while generalizing registration.
+- [x] Decide whether v0.2 ships a signed PHAR, a versioned container image, or only the existing external Composer installation. Prefer one supported external path over several partially maintained paths.
+- [x] No new delivery format was approved, so PHAR or container artifact work is not applicable. The existing checksummed Composer archives retain provenance, and the archive-installed CLI plus Laravel adapter analyze a PHP 7.4 fixture without installing into or modifying that target project.
 
 Acceptance gate: a third-party adapter can register through the public mechanism, the deterministic core remains framework-neutral, and every advertised external delivery path has an automated installation and read-only analysis test.
+
+Status: passed on 2026-08-10. Composer metadata now discovers installed adapters without a CLI source registry; a test-only third-party package proves automatic detection, default source paths, rules, transition guidance, and package-family classification. Fail-closed unit coverage defines deterministic ordering, duplicate classes and names, malformed or unreadable metadata, missing packages and classes, constructor failures, conflicting install paths, and explicit `--framework` behavior. Laravel auto-detection and CLI/Artisan parity remain green. v0.2 supports only a separate Composer tools-directory installation: release automation installs the CLI and Laravel archives together, explicitly selects Laravel, verifies adapter findings, analyzes a copied PHP 7.4 fixture, and proves recursive target immutability. The complete `composer check` gate passes with 577 tests and 5,487 assertions; the PCOV ratchet passes at 6,470 of 7,012 executable lines, all 156 registry statements are covered, all six selective mutants are killed, and the locked dependency audit reports no known vulnerability advisories.
 
 ## Milestone 8: v0.2.0 Documentation, Hardening, and Release
 
@@ -220,4 +222,4 @@ Acceptance gate: v0.2.0 installs from published packages, validates against the 
 
 ## Recommended Next Work Session
 
-Start Milestone 7 by replacing the Laravel-specific CLI registry probe with a documented adapter registration or Composer-metadata discovery mechanism, then prove the mechanism with a test-only third-party adapter. Keep Laravel auto-detection, CLI/Artisan parity, the completed transition contracts, and v0.1 fixture approvals intact, and keep release automation on patch-only `0.1.x` increments until the v0.2.0 release candidate and its contract changes are explicitly approved.
+Start Milestone 8 by reconciling every public v0.2 document and release artifact with the completed schema, transition, adapter-discovery, privacy, and Composer-only external-execution contracts. Keep the completed deterministic, coverage, mutation, compatibility, audit, and read-only gates intact while coordinating the v0.2.0 version metadata and explicit release-policy unlock.

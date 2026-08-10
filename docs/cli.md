@@ -33,7 +33,9 @@ Extension names use Composer's `ext-name` form. An extension may appear only onc
 
 ## Framework selection
 
-The CLI activates installed adapters when Composer metadata detects their framework. Use `--framework=laravel` to request Laravel analysis explicitly. An explicit request fails with exit code `2` when the adapter package is not installed.
+The CLI discovers installed adapters from their `extra.php-upgrade-preflight.framework-adapters` Composer metadata. Without `--framework`, each discovered adapter performs automatic target detection. Laravel continues to detect `laravel/framework` or `illuminate/*` requirements and lock entries. Use `--framework=laravel` to request Laravel analysis explicitly and bypass detection.
+
+Explicit names are case-insensitive. An explicit request fails with exit code `2` when no installed adapter has that name. Invalid metadata and adapter name or class collisions fail the analysis rather than selecting a winner. The complete registration contract and deterministic ordering rules are documented in [Framework adapters](adapters.md).
 
 ## Streams and exit codes
 

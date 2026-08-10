@@ -8,6 +8,8 @@ php artisan upgrade:analyze [options]
 
 The command defaults `--path` to the Laravel application's base path and always enables the Laravel adapter. Its targets, source paths, formats, output validation, debug behavior, and exit policy match the standalone CLI.
 
+Composer-metadata discovery generalizes adapter registration for the standalone CLI only. Laravel package discovery still registers this Artisan command through the service provider. Both entry points use the same Laravel integration and analyzer pipeline, so Laravel detection, rules, default source paths, package-family classification, report content, and exit semantics remain in parity.
+
 ## Options
 
 | Option | Meaning |

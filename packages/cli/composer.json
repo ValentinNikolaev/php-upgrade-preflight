@@ -21,6 +21,7 @@
     "source": "https://github.com/ValentinNikolaev/php-upgrade-preflight/tree/main/packages/cli"
   },
   "require": {
+    "composer-runtime-api": "^2.0",
     "php": "^8.0",
     "php-upgrade-preflight/core": "^0.2"
   },

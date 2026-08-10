@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ab1a5b290b8ffd8bcdd2d0b0a93e2d17",
+    "content-hash": "b81aa0fc10aa8060bb90f8681e455c35",
     "packages": [
         {
             "name": "carbonphp/carbon-doctrine-types",
@@ -688,9 +688,10 @@
             "dist": {
                 "type": "path",
                 "url": "packages/cli",
-                "reference": "34a86702590cdd83545a7ae2a74c0304ad110047"
+                "reference": "d2e7295afe9446cd823260dbe09b2a6c93c5be01"
             },
             "require": {
+                "composer-runtime-api": "^2.0",
                 "php": "^8.0",
                 "php-upgrade-preflight/core": "^0.2"
             },
@@ -806,7 +807,7 @@
             "dist": {
                 "type": "path",
                 "url": "packages/laravel",
-                "reference": "d3c9ba76be4bd009451a1fddf9c17323aad67090"
+                "reference": "71b88600813e6e7097131431bef0d0c9026cb0f7"
             },
             "require": {
                 "composer/semver": "^3.4",
@@ -819,6 +820,11 @@
             "extra": {
                 "branch-alias": {
                     "dev-main": "0.2.x-dev"
+                },
+                "php-upgrade-preflight": {
+                    "framework-adapters": [
+                        "PhpUpgradePreflight\\Laravel\\LaravelFrameworkIntegration"
+                    ]
                 },
                 "laravel": {
                     "providers": [
@@ -3266,6 +3272,40 @@
                 "source": "https://github.com/phar-io/version/tree/3.2.1"
             },
             "time": "2022-02-21T01:04:05+00:00"
+        },
+        {
+            "name": "php-upgrade-preflight/test-adapter",
+            "version": "0.2.x-dev",
+            "dist": {
+                "type": "path",
+                "url": "packages/test-adapter",
+                "reference": "00a525a1e14e11ed6ad072edcc793b1b7a1a34fe"
+            },
+            "require": {
+                "php": "^8.0",
+                "php-upgrade-preflight/core": "^0.2"
+            },
+            "type": "library",
+            "extra": {
+                "php-upgrade-preflight": {
+                    "framework-adapters": [
+                        "PhpUpgradePreflight\\TestAdapter\\TestFrameworkIntegration"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "PhpUpgradePreflight\\TestAdapter\\": "src/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "description": "Test-only third-party framework adapter fixture for PHP Upgrade Preflight.",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
         },
         {
             "name": "phpstan/phpstan",
@@ -5972,7 +6012,8 @@
     "stability-flags": {
         "php-upgrade-preflight/cli": 20,
         "php-upgrade-preflight/core": 20,
-        "php-upgrade-preflight/laravel": 20
+        "php-upgrade-preflight/laravel": 20,
+        "php-upgrade-preflight/test-adapter": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,
