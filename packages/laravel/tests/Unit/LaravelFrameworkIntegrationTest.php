@@ -32,7 +32,7 @@ final class LaravelFrameworkIntegrationTest extends TestCase
         self::assertSame('laravel', $integration->name());
         self::assertTrue($detection->isDetected());
         self::assertSame('v8.83.27', $detection->version());
-        self::assertCount(59, iterator_to_array($integration->rules()));
+        self::assertCount(66, iterator_to_array($integration->rules()));
         self::assertSame(['src', 'app', 'bootstrap', 'config', 'database', 'routes', 'tests'], $integration->defaultSourcePaths($project));
         self::assertSame(['laravel'], $integration->packageFamilies('laravel/framework'));
     }
@@ -280,7 +280,7 @@ final class LaravelFrameworkIntegrationTest extends TestCase
         self::assertNotSame([], $guidance->toArray()['uncertainties']);
     }
 
-    public function testItResolvesOneSourceMajorAndStopsAtTheUnimplementedLaravel13Hop(): void
+    public function testItComposesTheImplementedAdjacentPathThroughLaravel13(): void
     {
         $project = new ProjectState(
             __DIR__,
@@ -308,16 +308,16 @@ final class LaravelFrameworkIntegrationTest extends TestCase
         self::assertNotNull($guidance);
         self::assertSame(10, $guidance->sourceMajor());
         self::assertSame(13, $guidance->targetMajor());
-        self::assertSame(FrameworkGuidance::PARTIALLY_SUPPORTED, $guidance->status());
+        self::assertSame(FrameworkGuidance::SUPPORTED, $guidance->status());
         self::assertSame([
             [10, 11, 'supported'],
             [11, 12, 'supported'],
-            [12, 13, 'unsupported'],
+            [12, 13, 'supported'],
         ], array_map(
             static fn ($hop): array => [$hop->fromMajor(), $hop->toMajor(), $hop->status()],
             $guidance->hops()
         ));
-        self::assertCount(1, $guidance->toArray()['uncertainties']);
+        self::assertSame([], $guidance->toArray()['uncertainties']);
     }
 
     public function testItReportsInconsistentRootedIlluminateLockedMajorsAsUncertainty(): void

@@ -88,6 +88,22 @@ final class LaterLaravelUpgradeFixtureTest extends TestCase
             ['root laravel/framework constraint', 'nesbot/carbon 2.72.6 is outside the encoded Laravel 12 review range `^3.0`', 'nunomaduro/collision', 'pestphp/pest', 'phpunit/phpunit'],
             [],
         ];
+        yield 'Laravel 12 to 13' => [
+            'laravel-12-to-13',
+            '^13.0',
+            '8.3.0',
+            [
+                'root laravel/framework constraint',
+                'laravel/boost',
+                'laravel/tinker',
+                'phpunit/phpunit',
+                'pestphp/pest',
+                'direct Symfony component constraints',
+                'laravel/helpers',
+                'PreventRequestForgery',
+            ],
+            ['nunomaduro/collision'],
+        ];
     }
 
     /** @param list<string> $haystack */

@@ -1,0 +1,6 @@
+{
+  "name": "laravel/framework",
+  "version": "11.0.0",
+  "type": "metapackage",
+  "require": {"php": "^8.2"}
+}

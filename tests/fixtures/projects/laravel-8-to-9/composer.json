@@ -1,5 +1,9 @@
 {
   "name": "fixture/laravel-8-to-9",
+  "repositories": [
+    {"type": "path", "url": "../../path-repository/laravel-transition/*", "options": {"symlink": false}},
+    {"packagist.org": false}
+  ],
   "require": {
     "php": "^7.4",
     "laravel/framework": "^8.0",
@@ -11,5 +15,10 @@
   "require-dev": {
     "nunomaduro/collision": "^5.0",
     "phpunit/phpunit": "^8.0"
+  },
+  "extra": {
+    "php-upgrade-preflight-transition-fixture": "laravel-8-to-9",
+    "php-upgrade-preflight-resolution": "blocked",
+    "php-upgrade-preflight-composer-mode": "real"
   }
 }

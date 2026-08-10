@@ -15,7 +15,8 @@ This project follows [Semantic Versioning](https://semver.org/). Report schema v
 - Offline Composer fixtures for required, missing, disabled, compatible, and incompatible extension-platform scenarios, including request provenance and immutable path-repository coverage.
 - A seeded report-privacy verifier for canonical JSON, Markdown, evidence, exception rendering, debug output, command diagnostics, and CI logs on Linux and Windows quality jobs.
 - Static symbol ownership from root and locked-package PSR-4, PSR-0, classmap, and files autoload metadata, with typed exact declarations, constant case sensitivity, bounded scanning, explicit ambiguity, and dynamic-loader uncertainty.
-- Adjacent Laravel 8→9, 9→10, 10→11, and 11→12 rule packs with fixture coverage for target PHP, Composer metadata, curl availability, official dependency and first-party package migrations, PHPUnit/Pest requirements, Carbon 3, and removed queue-dispatch APIs.
+- Adjacent Laravel 8→9, 9→10, 10→11, 11→12, and 12→13 rule packs with fixture coverage for target PHP, Composer metadata, curl availability, official dependency and first-party package migrations, PHPUnit/Pest requirements, Carbon 3, removed queue-dispatch APIs, legacy helper conflicts, and request-forgery middleware references.
+- Separate feasible and advisory-heavy or blocked full-analyzer fixtures for every approved adjacent Laravel path, with real offline Composer resolution against a committed path repository, plus modular Illuminate roots, ambiguous source and target evidence, missing-hop behavior, supported multi-major composition, evidence-class checks, and CLI/Artisan canonical JSON parity.
 
 ### Changed
 
@@ -24,6 +25,9 @@ This project follows [Semantic Versioning](https://semver.org/). Report schema v
 - Release workflow, contributor guidance, and project instructions now agree on the `0.1.x` maintenance line and later `main` releases.
 - Default shareable reports replace project, output, local-repository, and analyzer-workspace roots with stable policy markers; exact sanitized workspace paths require explicit non-shareable debug mode.
 - Source-change plans, risk, and effort now use weighted actionable package/framework correlations rather than every raw scanner observation.
+- Repeated framework findings from composed adjacent rule packs are merged while retaining all hop references and evidence records.
+- Direct Symfony guidance now preserves component-specific constraints from pinned Laravel manifests instead of widening every component to one target-major range.
+- Deterministic Laravel transition fixtures now reject candidate locks that violate root package constraints or the simulated target PHP; modular and ambiguous-source feasible cases use ranges that genuinely admit their simulated Laravel 13 locks.
 
 ### Security
 

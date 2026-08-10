@@ -95,18 +95,18 @@ final class SymfonyComponentConstraintRule implements CompatibilityRule, HopAwar
             return null;
         }
 
-        $compatibleRange = $targetDefinition->symfonyConstraint();
-        if ($compatibleRange === null) {
-            return null;
-        }
         $incompatible = [];
+        $compatibleRanges = [];
         foreach ($project->composerJson()->rootRequirements() as $package => $constraint) {
+            $compatibleRange = $targetDefinition->symfonyConstraintFor($package);
             if (!in_array($package, self::COMPONENTS, true)
+                || $compatibleRange === null
                 || LaravelTarget::constraintsIntersect($constraint, $compatibleRange)) {
                 continue;
             }
 
             $incompatible[$package] = $constraint;
+            $compatibleRanges[$package] = $compatibleRange;
         }
 
         if ($incompatible === []) {
@@ -114,37 +114,53 @@ final class SymfonyComponentConstraintRule implements CompatibilityRule, HopAwar
         }
 
         ksort($incompatible);
+        ksort($compatibleRanges);
+        $uniqueRanges = array_values(array_unique(array_values($compatibleRanges)));
+        $compatibleContext = count($uniqueRanges) === 1
+            ? ['compatible_symfony_constraint' => $uniqueRanges[0]]
+            : ['compatible_symfony_constraints' => $compatibleRanges];
         $metadataId = $evidence->add(
             'laravel-symfony-constraints',
             Evidence::E2_PACKAGE_METADATA,
             'Root Symfony component constraints exclude the component major used by the Laravel target.',
             'high',
-            [
+            array_merge([
                 'root_constraints' => $incompatible,
                 'target_laravel_major' => $target->major(),
-                'compatible_symfony_constraint' => $compatibleRange,
-            ]
+            ], $compatibleContext)
         )->id();
         $documentationId = $evidence->add(
             'laravel-symfony-guidance',
             Evidence::E4_MAINTAINER_DOCUMENTATION,
-            sprintf('Laravel %d maps its core Symfony components to `%s`.', $target->major(), $compatibleRange),
+            count($uniqueRanges) === 1
+                ? sprintf('Laravel %d maps its core Symfony components to `%s`.', $target->major(), $uniqueRanges[0])
+                : sprintf('Laravel %d maps its core Symfony components to package-specific constraints.', $target->major()),
             'medium',
-            [
-                'target_laravel_major' => $target->major(),
-                'compatible_symfony_constraint' => $compatibleRange,
-                'source' => $targetDefinition->symfonySources()[0],
-            ]
+            array_merge(
+                ['target_laravel_major' => $target->major()],
+                $compatibleContext,
+                ['source' => $targetDefinition->symfonySources()[0]]
+            )
         )->id();
+
+        $expected = count($uniqueRanges) === 1
+            ? sprintf('`%s` expected', $uniqueRanges[0])
+            : 'package-specific constraints expected';
+        $packages = count($uniqueRanges) === 1
+            ? array_keys($incompatible)
+            : array_map(
+                static fn (string $package): string => sprintf('%s (`%s`)', $package, $compatibleRanges[$package]),
+                array_keys($incompatible)
+            );
 
         return new CompatibilityFinding(
             'laravel',
             'high',
             sprintf(
-                'Review direct Symfony component constraints for Laravel %d (`%s` expected): %s.',
+                'Review direct Symfony component constraints for Laravel %d (%s): %s.',
                 $target->major(),
-                $compatibleRange,
-                implode(', ', array_keys($incompatible))
+                $expected,
+                implode(', ', $packages)
             ),
             [$metadataId, $documentationId]
         );

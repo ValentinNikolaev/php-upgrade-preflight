@@ -1,0 +1,11 @@
+{
+  "name": "fixture/laravel-missing-hop",
+  "require": {
+    "php": "^8.1",
+    "laravel/framework": "^10.0"
+  },
+  "extra": {
+    "php-upgrade-preflight-transition-fixture": "laravel-missing-hop",
+    "php-upgrade-preflight-resolution": "feasible"
+  }
+}

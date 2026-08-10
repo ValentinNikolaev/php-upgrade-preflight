@@ -1,0 +1,16 @@
+{
+  "name": "fixture/laravel-10-to-11-feasible",
+  "repositories": [
+    {"type": "path", "url": "../../path-repository/laravel-transition/*", "options": {"symlink": false}},
+    {"packagist.org": false}
+  ],
+  "require": {
+    "php": "^8.1|^8.2",
+    "laravel/framework": "^10.0"
+  },
+  "extra": {
+    "php-upgrade-preflight-transition-fixture": "laravel-10-to-11-feasible",
+    "php-upgrade-preflight-resolution": "feasible",
+    "php-upgrade-preflight-composer-mode": "real"
+  }
+}

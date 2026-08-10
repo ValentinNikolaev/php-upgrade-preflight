@@ -1,0 +1,9 @@
+{
+  "content-hash": "illuminate-12-to-13",
+  "packages": [
+    {"name": "illuminate/console", "version": "v12.20.0"},
+    {"name": "illuminate/support", "version": "v12.20.0"}
+  ],
+  "packages-dev": [],
+  "plugin-api-version": "2.2.0"
+}

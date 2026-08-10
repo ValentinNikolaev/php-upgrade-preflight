@@ -154,18 +154,20 @@ Status: passed on 2026-08-10. Evidence is recorded in the typed source/target an
 
 Implement the matrix approved in Milestone 1. The recommended baseline is:
 
-- [ ] Retain and regression-test Laravel 7 to 8/9 behavior.
-- [ ] Add Laravel 8 to 9 rules and fixtures.
-- [ ] Add Laravel 9 to 10 rules and fixtures, including PHP, Composer dependency, test-tool, and high-signal source checks from the official guide.
-- [ ] Add Laravel 10 to 11 rules and fixtures, including PHP and extension requirements, first-party package migrations, and the distinction between optional new skeleton structure and required upgrade work.
-- [ ] Add Laravel 11 to 12 rules and fixtures, including testing dependencies and Carbon compatibility.
-- [ ] Decide and record whether Laravel 12 to 13 belongs in v0.2.0. If approved, add Laravel 13 host installability and a 12 to 13 rule/fixture slice; otherwise name it as the first v0.3 candidate.
-- [ ] Cover first-party packages, common test tools, direct Symfony constraints, replaced or removed packages, and source patterns only where exact metadata, source, or maintainer guidance supports the claim.
-- [ ] Compose adjacent rule packs for supported multi-major requests and deduplicate repeated findings without hiding hop-specific evidence.
-- [ ] Add blocked, feasible, modular Illuminate, ambiguous source, ambiguous target, missing-hop, and multi-major fixture cases.
-- [ ] Keep CLI and Artisan canonical JSON parity for every new transition fixture.
+- [x] Retain and regression-test Laravel 7 to 8/9 behavior.
+- [x] Add Laravel 8 to 9 rules and fixtures.
+- [x] Add Laravel 9 to 10 rules and fixtures, including PHP, Composer dependency, test-tool, and high-signal source checks from the official guide.
+- [x] Add Laravel 10 to 11 rules and fixtures, including PHP and extension requirements, first-party package migrations, and the distinction between optional new skeleton structure and required upgrade work.
+- [x] Add Laravel 11 to 12 rules and fixtures, including testing dependencies and Carbon compatibility.
+- [x] Decide and record whether Laravel 12 to 13 belongs in v0.2.0. If approved, add Laravel 13 host installability and a 12 to 13 rule/fixture slice; otherwise name it as the first v0.3 candidate.
+- [x] Cover first-party packages, common test tools, direct Symfony constraints, replaced or removed packages, and source patterns only where exact metadata, source, or maintainer guidance supports the claim.
+- [x] Compose adjacent rule packs for supported multi-major requests and deduplicate repeated findings without hiding hop-specific evidence.
+- [x] Add blocked, feasible, modular Illuminate, ambiguous source, ambiguous target, missing-hop, and multi-major fixture cases.
+- [x] Keep CLI and Artisan canonical JSON parity for every new transition fixture.
 
 Acceptance gate: each approved adjacent path has one feasible and one blocked or advisory-heavy deterministic fixture, multi-major plans preserve hop order, and every finding links to exact project, package, solver, or maintainer evidence.
+
+Status: passed on 2026-08-10. Evidence is recorded in the commit-pinned transition matrix, component-specific Symfony catalog regressions, separate feasible and advisory-heavy or blocked full-analyzer fixtures for every approved adjacent path, real offline Composer resolution for every adjacent acceptance case, multi-major and missing-hop integration tests, evidence-class assertions, and CLI/Artisan parity for every transition case. The complete `composer check` gate passes with 490 tests and 5,135 assertions. Disposable PHP 8.3 consumers also install the adapter with Laravel 13 at normal (`v13.24.0`) and lowest (`v13.0.0`) dependency resolution.
 
 ## Milestone 6: Test, Quality, and Supply-Chain Hardening
 
@@ -216,4 +218,4 @@ Acceptance gate: v0.2.0 installs from published packages, validates against the 
 
 ## Recommended Next Work Session
 
-Continue Milestone 4 by moving version-specific PHP requirements, package guidance, official sources, skeleton patterns, and rule applicability into a validated Laravel rule catalog. Keep rule execution and source matching typed, preserve the completed transition-model behavior and v0.1 fixture approvals, and keep release automation on patch-only `0.1.x` increments until the v0.2.0 release candidate and its contract changes are explicitly approved.
+Start Milestone 6 by adding the documented deterministic and networked test commands, then record a coverage baseline before setting changed-code or critical-module ratchets. Keep the completed Laravel transition contracts and v0.1 fixture approvals intact, and keep release automation on patch-only `0.1.x` increments until the v0.2.0 release candidate and its contract changes are explicitly approved.

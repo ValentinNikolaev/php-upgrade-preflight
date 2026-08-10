@@ -1,0 +1,9 @@
+{
+  "content-hash": "laravel-10-to-13",
+  "packages": [
+    {"name": "laravel/framework", "version": "v10.48.28"},
+    {"name": "laravel/tinker", "version": "v2.10.1"}
+  ],
+  "packages-dev": [{"name": "phpunit/phpunit", "version": "10.5.58"}],
+  "plugin-api-version": "2.2.0"
+}

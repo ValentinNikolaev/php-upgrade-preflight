@@ -1,0 +1,16 @@
+{
+  "content-hash": "laravel-12-to-13",
+  "packages": [
+    {"name": "laravel/framework", "version": "v12.20.0"},
+    {"name": "laravel/helpers", "version": "v1.7.0"},
+    {"name": "laravel/tinker", "version": "v2.10.1"},
+    {"name": "symfony/http-foundation", "version": "v7.2.0"}
+  ],
+  "packages-dev": [
+    {"name": "laravel/boost", "version": "v1.8.0"},
+    {"name": "nunomaduro/collision", "version": "v8.6.1"},
+    {"name": "pestphp/pest", "version": "v3.8.4"},
+    {"name": "phpunit/phpunit", "version": "11.5.50"}
+  ],
+  "plugin-api-version": "2.2.0"
+}

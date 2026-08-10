@@ -1,0 +1,9 @@
+{
+  "content-hash": "laravel-12-to-13-blocked",
+  "packages": [
+    {"name": "laravel/framework", "version": "v12.20.0"},
+    {"name": "fixture/laravel-12-consumer", "version": "1.0.0", "require": {"laravel/framework": "^12.0"}}
+  ],
+  "packages-dev": [],
+  "plugin-api-version": "2.2.0"
+}

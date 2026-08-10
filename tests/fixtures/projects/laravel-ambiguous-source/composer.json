@@ -1,0 +1,12 @@
+{
+  "name": "fixture/laravel-ambiguous-source",
+  "require": {
+    "php": "^8.2",
+    "illuminate/console": "^11.0|^13.0",
+    "illuminate/support": "^12.0|^13.0"
+  },
+  "extra": {
+    "php-upgrade-preflight-transition-fixture": "laravel-ambiguous-source",
+    "php-upgrade-preflight-resolution": "feasible"
+  }
+}

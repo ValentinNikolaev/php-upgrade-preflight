@@ -1,5 +1,9 @@
 {
   "name": "fixture/laravel-9-to-10",
+  "repositories": [
+    {"type": "path", "url": "../../path-repository/laravel-transition/*", "options": {"symlink": false}},
+    {"packagist.org": false}
+  ],
   "require": {
     "php": "^8.0",
     "laravel/framework": "^9.0",
@@ -10,5 +14,10 @@
   "require-dev": {
     "nunomaduro/collision": "^6.0",
     "phpunit/phpunit": "^9.0"
+  },
+  "extra": {
+    "php-upgrade-preflight-transition-fixture": "laravel-9-to-10",
+    "php-upgrade-preflight-resolution": "feasible",
+    "php-upgrade-preflight-composer-mode": "real"
   }
 }

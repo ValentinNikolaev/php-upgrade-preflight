@@ -161,6 +161,11 @@ final class TargetedPackageAdvisoryRule implements CompatibilityRule, HopAwareCo
                     'Replace league/flysystem-sftp with league/flysystem-sftp-v3:^3.0 for the Laravel %d target.',
                     $targetMajor
                 );
+            case PackageAdvisoryDefinition::REVIEW_LEGACY_HELPERS:
+                return sprintf(
+                    'Review laravel/helpers and custom global array helpers before targeting Laravel %d; prefer Illuminate\\Support\\Arr replacements to avoid documented polyfill conflicts.',
+                    $targetMajor
+                );
         }
 
         throw new \LogicException(sprintf('Unsupported Laravel package advisory action: %s.', $this->definition->action()));

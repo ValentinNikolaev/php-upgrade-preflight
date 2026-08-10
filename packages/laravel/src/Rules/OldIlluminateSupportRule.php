@@ -53,19 +53,34 @@ final class OldIlluminateSupportRule implements CompatibilityRule, HopAwareCompa
         ?string $composerVersion = null,
         array $sourceUsages = []
     ): ?CompatibilityFinding {
-        $target = LaravelTarget::fromRequest($request);
-        if ($target === null || $target->major() !== $hop->toMajor()) {
+        if (LaravelTarget::fromRequest($request) === null) {
             return null;
         }
 
-        return $this->evaluateTransition($project, $evidence, $hop->fromMajor(), $target);
+        $earlierTargets = [];
+        $sourceMajor = LaravelSource::fromProject($project)->major();
+        if ($sourceMajor !== null && $hop->toMajor() === $hop->fromMajor() + 1) {
+            for ($major = $sourceMajor + 1; $major < $hop->toMajor(); ++$major) {
+                $earlierTargets[] = LaravelTarget::forMajor($major);
+            }
+        }
+
+        return $this->evaluateTransition(
+            $project,
+            $evidence,
+            $hop->fromMajor(),
+            LaravelTarget::forMajor($hop->toMajor()),
+            $earlierTargets
+        );
     }
 
+    /** @param list<LaravelTarget> $earlierTargets */
     private function evaluateTransition(
         ProjectState $project,
         EvidenceLedger $evidence,
         int $sourceMajor,
-        LaravelTarget $target
+        LaravelTarget $target,
+        array $earlierTargets = []
     ): ?CompatibilityFinding {
         if (!$this->definition->appliesTo($sourceMajor, $target->major())) {
             return null;
@@ -76,7 +91,8 @@ final class OldIlluminateSupportRule implements CompatibilityRule, HopAwareCompa
         $rootConstraint = $project->composerJson()->rootRequirements()['illuminate/support'] ?? null;
 
         if ($rootConstraint !== null
-            && !$target->intersectsRequestedFrameworkRange($rootConstraint)) {
+            && !$target->intersectsRequestedFrameworkRange($rootConstraint)
+            && !$this->excludedByAnyTarget($rootConstraint, $earlierTargets)) {
             $blockingPackages['illuminate/support'] = $rootConstraint;
             $references[] = $evidence->add(
                 'old-illuminate-support',
@@ -103,7 +119,8 @@ final class OldIlluminateSupportRule implements CompatibilityRule, HopAwareCompa
             $requirements = $package['require'] ?? [];
             $constraint = is_array($requirements) ? ($requirements['illuminate/support'] ?? null) : null;
             if (!is_string($constraint)
-                || $target->intersectsRequestedFrameworkRange($constraint)) {
+                || $target->intersectsRequestedFrameworkRange($constraint)
+                || $this->excludedByAnyTarget($constraint, $earlierTargets)) {
                 continue;
             }
 
@@ -138,6 +155,18 @@ final class OldIlluminateSupportRule implements CompatibilityRule, HopAwareCompa
             ),
             $references
         );
+    }
+
+    /** @param list<LaravelTarget> $targets */
+    private function excludedByAnyTarget(string $constraint, array $targets): bool
+    {
+        foreach ($targets as $target) {
+            if (!$target->intersectsRequestedFrameworkRange($constraint)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /** @return list<array<string, mixed>> */

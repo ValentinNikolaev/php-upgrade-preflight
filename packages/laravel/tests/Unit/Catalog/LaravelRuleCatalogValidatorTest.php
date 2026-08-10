@@ -23,6 +23,11 @@ final class LaravelRuleCatalogValidatorTest extends TestCase
 
         self::assertSame('0.2', $catalog->version());
         self::assertSame([], (new LaravelRuleCatalogValidator())->validate($catalog));
+        self::assertSame(
+            '^7.4.13|^8.0.13',
+            $catalog->target(13)->symfonyConstraintFor('symfony/http-foundation')
+        );
+        self::assertSame('^7.4.0|^8.0.0', $catalog->target(13)->symfonyConstraintFor('symfony/console'));
     }
 
     public function testItReportsDuplicateKeysMissingSourcesInvalidConstraintsGapsAndContradictoryAdvice(): void

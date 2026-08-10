@@ -55,6 +55,11 @@ jobs:
             package: php-upgrade-preflight/laravel:@dev
             framework: laravel/framework:^12.0
             smoke: laravel
+          - name: Laravel 13 / PHP 8.3
+            php: '8.3'
+            package: php-upgrade-preflight/laravel:@dev
+            framework: laravel/framework:^13.0
+            smoke: laravel
     steps:
       - name: Check out repository
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4

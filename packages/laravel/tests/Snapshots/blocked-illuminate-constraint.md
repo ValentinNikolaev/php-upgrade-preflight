@@ -166,8 +166,8 @@ Resolution: **blocked** | Schema: `0.7` | Tool: `php-upgrade-preflight 0.2.0-dev
 ## Framework Findings
 - `laravel` `high`: Update the root laravel/framework constraint from `^7.0` to a constraint compatible with Laravel 9. (evidence: `laravel-framework-constraint-1`)
   - applies to hops: `8 -> 9`
-- `laravel` `high`: Update or replace incompatible illuminate/support constraints before targeting Laravel 9: fixture/illuminate-consumer. (evidence: `old-illuminate-consumer-1`)
-  - applies to hops: `8 -> 9`
+- `laravel` `high`: Update or replace incompatible illuminate/support constraints before targeting Laravel 8: fixture/illuminate-consumer. (evidence: `old-illuminate-consumer-1`)
+  - applies to hops: `7 -> 8`
 
 ## Staged Plan
 1. **constraints** — Prepare the requested root constraint changes before dependency resolution. (evidence: `plan-1`, `root-constraint-1`)
@@ -215,6 +215,6 @@ Resolution: **blocked** | Schema: `0.7` | Tool: `php-upgrade-preflight 0.2.0-dev
 - `laravel-transition-1` (`E4`, medium confidence): The retained Laravel 7 to 8 rule pack covers this requested transition. Context: `{"source_major":7,"target_major":8,"rule_pack":"laravel-7-to-8","source":"https://laravel.com/docs/8.x/upgrade"}`
 - `laravel-transition-2` (`E4`, medium confidence): The implemented Laravel 8 to 9 rule pack covers this requested transition. Context: `{"source_major":8,"target_major":9,"rule_pack":"laravel-8-to-9","source":"https://laravel.com/docs/9.x/upgrade"}`
 - `laravel-framework-constraint-1` (`E2`, high confidence): The root Laravel framework constraint does not include the requested target major. Context: `{"package":"laravel/framework","root_constraint":"^7.0","target_constraint":"^9.0","target_laravel_major":9}`
-- `old-illuminate-consumer-1` (`E2`, high confidence): fixture/illuminate-consumer declares an illuminate/support constraint that excludes the requested Laravel 9 range. Context: `{"package":"fixture/illuminate-consumer","locked_version":"1.0.0","illuminate_support_constraint":"^7.0","target_laravel_major":9}`
+- `old-illuminate-consumer-1` (`E2`, high confidence): fixture/illuminate-consumer declares an illuminate/support constraint that excludes the requested Laravel 8 range. Context: `{"package":"fixture/illuminate-consumer","locked_version":"1.0.0","illuminate_support_constraint":"^7.0","target_laravel_major":8}`
 - `root-constraint-1` (`E2`, high confidence): Compared the root requirement for laravel/framework with the requested target. Context: `{"package":"laravel/framework","from_constraint":"^7.0","to_constraint":"^9.0"}`
 - `plan-1` (`E5`, low confidence): Generated conservative staged actions from the requested targets and detected findings. Context: `{"target_count":2,"root_constraint_change_count":1,"blocker_count":1,"source_finding_count":0,"framework_finding_count":2}`

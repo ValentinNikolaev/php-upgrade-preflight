@@ -460,11 +460,11 @@
         {
             "framework": "laravel",
             "severity": "high",
-            "summary": "Update or replace incompatible illuminate/support constraints before targeting Laravel 9: fixture/illuminate-consumer.",
+            "summary": "Update or replace incompatible illuminate/support constraints before targeting Laravel 8: fixture/illuminate-consumer.",
             "applies_to_hops": [
                 {
-                    "from_major": 8,
-                    "to_major": 9
+                    "from_major": 7,
+                    "to_major": 8
                 }
             ],
             "evidence": [
@@ -884,13 +884,13 @@
         {
             "id": "old-illuminate-consumer-1",
             "class": "E2",
-            "summary": "fixture/illuminate-consumer declares an illuminate/support constraint that excludes the requested Laravel 9 range.",
+            "summary": "fixture/illuminate-consumer declares an illuminate/support constraint that excludes the requested Laravel 8 range.",
             "confidence": "high",
             "context": {
                 "package": "fixture/illuminate-consumer",
                 "locked_version": "1.0.0",
                 "illuminate_support_constraint": "^7.0",
-                "target_laravel_major": 9
+                "target_laravel_major": 8
             }
         },
         {

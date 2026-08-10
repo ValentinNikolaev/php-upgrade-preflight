@@ -61,6 +61,17 @@ final class LaravelHighSignalSourceRule implements CompatibilityRule, HopAwareCo
             return null;
         }
 
+        if ($sourceMajor === 12 && $targetMajor === 13) {
+            return $this->requestForgeryFinding($evidence, $sourceUsages);
+        }
+
+        return $this->queueDispatchFinding($evidence, $sourceUsages);
+    }
+
+    /** @param list<SourceUsage> $sourceUsages */
+    private function queueDispatchFinding(EvidenceLedger $evidence, array $sourceUsages): ?CompatibilityFinding
+    {
+
         $matched = array_values(array_filter(
             $sourceUsages,
             static fn (SourceUsage $usage): bool => (
@@ -92,6 +103,53 @@ final class LaravelHighSignalSourceRule implements CompatibilityRule, HopAwareCo
             'high',
             sprintf(
                 'Replace %d detected Bus::dispatchNow or dispatch_now call%s with Bus::dispatchSync or dispatch_sync before targeting Laravel 10.',
+                count($matched),
+                count($matched) === 1 ? '' : 's'
+            ),
+            array_values(array_unique($references))
+        );
+    }
+
+    /** @param list<SourceUsage> $sourceUsages */
+    private function requestForgeryFinding(EvidenceLedger $evidence, array $sourceUsages): ?CompatibilityFinding
+    {
+        $legacyMiddleware = [
+            'illuminate\\foundation\\http\\middleware\\verifycsrftoken',
+            'illuminate\\foundation\\http\\middleware\\validatecsrftoken',
+        ];
+        $matched = array_values(array_filter(
+            $sourceUsages,
+            static fn (SourceUsage $usage): bool => $usage->usageType() === 'middleware_reference'
+                && in_array(strtolower($usage->symbol()), $legacyMiddleware, true)
+        ));
+        if ($matched === []) {
+            return null;
+        }
+
+        $documentationId = $evidence->add(
+            'laravel-request-forgery-guidance',
+            Evidence::E4_MAINTAINER_DOCUMENTATION,
+            'Laravel 13 renames the CSRF middleware to PreventRequestForgery and deprecates the previous aliases.',
+            'high',
+            [
+                'legacy_symbols' => [
+                    'Illuminate\\Foundation\\Http\\Middleware\\VerifyCsrfToken',
+                    'Illuminate\\Foundation\\Http\\Middleware\\ValidateCsrfToken',
+                ],
+                'replacement_symbol' => 'Illuminate\\Foundation\\Http\\Middleware\\PreventRequestForgery',
+                'source' => 'https://github.com/laravel/docs/blob/9c5a062c14069bab9054b558829e282f9593a065/upgrade.md',
+            ]
+        )->id();
+        $references = [$documentationId];
+        foreach ($matched as $usage) {
+            $references = array_merge($references, $usage->evidence());
+        }
+
+        return new CompatibilityFinding(
+            'laravel',
+            'high',
+            sprintf(
+                'Replace %d detected direct reference%s to VerifyCsrfToken or ValidateCsrfToken with PreventRequestForgery before targeting Laravel 13.',
                 count($matched),
                 count($matched) === 1 ? '' : 's'
             ),

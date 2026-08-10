@@ -12,6 +12,7 @@ final class PackageAdvisoryDefinition implements RuleDefinition
     public const PUBLISH_MIGRATIONS = 'publish_migrations';
     public const REVIEW_DBAL_REMOVAL = 'review_dbal_removal';
     public const REPLACE_FLYSYSTEM_SFTP = 'replace_flysystem_sftp';
+    public const REVIEW_LEGACY_HELPERS = 'review_legacy_helpers';
 
     private string $key;
     private string $package;
@@ -71,6 +72,8 @@ final class PackageAdvisoryDefinition implements RuleDefinition
                 return 'doctrine/dbal';
             case self::REPLACE_FLYSYSTEM_SFTP:
                 return 'league/flysystem-sftp';
+            case self::REVIEW_LEGACY_HELPERS:
+                return 'laravel/helpers';
         }
 
         return null;

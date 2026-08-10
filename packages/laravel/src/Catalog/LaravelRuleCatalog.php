@@ -51,12 +51,25 @@ final class LaravelRuleCatalog
         $applies9To10 = new RuleApplicability(9, 10);
         $applies10To11 = new RuleApplicability(10, 11);
         $applies11To12 = new RuleApplicability(11, 12);
-        $implemented = array_merge($retainedV01, [$applies8To9, $applies9To10, $applies10To11, $applies11To12]);
+        $applies12To13 = new RuleApplicability(12, 13);
+        $implemented = array_merge($retainedV01, [
+            $applies8To9,
+            $applies9To10,
+            $applies10To11,
+            $applies11To12,
+            $applies12To13,
+        ]);
         $laravel8Upgrade = 'https://laravel.com/docs/8.x/upgrade';
         $laravel9Upgrade = 'https://laravel.com/docs/9.x/upgrade';
         $laravel10Upgrade = 'https://laravel.com/docs/10.x/upgrade';
         $laravel11Upgrade = 'https://laravel.com/docs/11.x/upgrade';
         $laravel12Upgrade = 'https://laravel.com/docs/12.x/upgrade';
+        $laravel13Upgrade = 'https://github.com/laravel/docs/blob/9c5a062c14069bab9054b558829e282f9593a065/upgrade.md';
+        $laravel10Framework = 'https://github.com/laravel/framework/blob/61cad00bdaf0f710da070e1596c9ca6d567f4d12/composer.json';
+        $laravel11Framework = 'https://github.com/laravel/framework/blob/e353708c960ec5066d76b0da4b81c8a68d183b93/composer.json';
+        $laravel12Framework = 'https://github.com/laravel/framework/blob/5260836df1b953a558d9b810880f20db15568c01/composer.json';
+        $laravel13Framework = 'https://github.com/laravel/framework/blob/8df67f9d176d1d0375a866d8c6780be95ce0336e/composer.json';
+        $laravel13Skeleton = 'https://github.com/laravel/laravel/blob/c926b8ca7fa01e71852e19141f2bdd7fabfb6ade/composer.json';
         $laravel8Skeleton = 'https://github.com/laravel/laravel/blob/8.x/composer.json';
         $laravel9Skeleton = 'https://github.com/laravel/laravel/blob/9.x/composer.json';
 
@@ -67,17 +80,22 @@ final class LaravelRuleCatalog
             new TargetDefinition('target-9', 9, '^8.0.2', [$laravel9Upgrade], '^6.0', [
                 'https://github.com/laravel/framework/blob/9.x/composer.json',
             ]),
-            new TargetDefinition('target-10', 10, '^8.1', [$laravel10Upgrade,
-                'https://github.com/laravel/framework/blob/10.x/composer.json',
+            new TargetDefinition('target-10', 10, '^8.1', [$laravel10Upgrade, $laravel10Framework], '^6.2', [$laravel10Framework], [
+                'symfony/http-client' => '^6.2.4',
+                'symfony/http-foundation' => '^6.4',
             ]),
-            new TargetDefinition('target-11', 11, '^8.2', [$laravel11Upgrade,
-                'https://github.com/laravel/framework/blob/11.x/composer.json',
+            new TargetDefinition('target-11', 11, '^8.2', [$laravel11Upgrade, $laravel11Framework], '^7.0.3', [$laravel11Framework], [
+                'symfony/http-foundation' => '^7.2.0',
             ]),
-            new TargetDefinition('target-12', 12, '^8.2', [$laravel12Upgrade,
-                'https://github.com/laravel/framework/blob/12.x/composer.json',
-            ]),
-            new TargetDefinition('target-13', 13, '^8.3', [
-                'https://github.com/laravel/framework/blob/13.x/composer.json',
+            new TargetDefinition('target-12', 12, '^8.2', [$laravel12Upgrade, $laravel12Framework], '^7.2.0', [$laravel12Framework]),
+            new TargetDefinition('target-13', 13, '^8.3', [$laravel13Upgrade, $laravel13Framework], '^7.4.0|^8.0.0', [$laravel13Framework], [
+                'symfony/cache' => '^7.4.12|^8.0.12',
+                'symfony/http-foundation' => '^7.4.13|^8.0.13',
+                'symfony/http-kernel' => '^7.4.12|^8.0.12',
+                'symfony/mailer' => '^7.4.12|^8.0.12',
+                'symfony/mime' => '^7.4.12|^8.0.12',
+                'symfony/process' => '^7.4.5|^8.0.5',
+                'symfony/routing' => '^7.4.13|^8.0.13',
             ]),
         ];
 
@@ -87,7 +105,7 @@ final class LaravelRuleCatalog
             new TransitionDefinition('adjacent-9-10', 9, 10, TransitionDefinition::ADJACENT, 'laravel-9-to-10', [$laravel10Upgrade]),
             new TransitionDefinition('adjacent-10-11', 10, 11, TransitionDefinition::ADJACENT, 'laravel-10-to-11', [$laravel11Upgrade]),
             new TransitionDefinition('adjacent-11-12', 11, 12, TransitionDefinition::ADJACENT, 'laravel-11-to-12', [$laravel12Upgrade]),
-            new TransitionDefinition('adjacent-12-13', 12, 13, TransitionDefinition::ADJACENT, null, ['https://laravel.com/docs/13.x/upgrade']),
+            new TransitionDefinition('adjacent-12-13', 12, 13, TransitionDefinition::ADJACENT, 'laravel-12-to-13', [$laravel13Upgrade]),
             new TransitionDefinition('direct-7-9', 7, 9, TransitionDefinition::DIRECT, 'laravel-7-to-9-direct', [$laravel9Upgrade]),
         ];
 
@@ -114,7 +132,7 @@ final class LaravelRuleCatalog
             ]),
             self::packageRule('rule-package-phpunit', 'phpunit/phpunit', $appliesTo8, '^9.0', 'medium', [$laravel8Upgrade, $laravel8Skeleton], false, $appliesTo9, '^9.5.10', [$laravel9Skeleton]),
             self::packageRule('rule-package-mockery', 'mockery/mockery', $appliesTo8, '^1.4', 'low', [$laravel8Skeleton], false, $appliesTo9, '^1.4', [$laravel9Skeleton]),
-            new BuiltinRuleDefinition('rule-symfony-constraint', BuiltinRuleDefinition::SYMFONY_CONSTRAINT, array_merge($retainedV01, [$applies8To9])),
+            new BuiltinRuleDefinition('rule-symfony-constraint', BuiltinRuleDefinition::SYMFONY_CONSTRAINT, $implemented),
             new BuiltinRuleDefinition('rule-illuminate-support', BuiltinRuleDefinition::ILLUMINATE_SUPPORT, $implemented),
             new PackageRuleDefinition('rule-package-facade-ignition', [
                 new PackageConstraintDefinition('package-facade-ignition-7-8', 'facade/ignition', $appliesTo8, '>=2.3.6 <3.0', 'medium', [$laravel8Upgrade]),
@@ -181,6 +199,21 @@ final class LaravelRuleCatalog
             self::singlePackageRule('rule-package-pest-11-12', 'pestphp/pest', $applies11To12, '^3.0', 'high', [$laravel12Upgrade]),
             self::singlePackageRule('rule-package-carbon-11-12', 'nesbot/carbon', $applies11To12, '^3.0', 'medium', [$laravel12Upgrade]),
             self::singlePackageRule('rule-package-collision-11-12', 'nunomaduro/collision', $applies11To12, '^8.6', 'medium', ['https://github.com/laravel/laravel/blob/12.x/composer.json']),
+
+            self::singlePackageRule('rule-package-boost-12-13', 'laravel/boost', $applies12To13, '^2.0', 'high', [$laravel13Upgrade]),
+            self::singlePackageRule('rule-package-tinker-12-13', 'laravel/tinker', $applies12To13, '^3.0', 'high', [$laravel13Upgrade]),
+            self::singlePackageRule('rule-package-phpunit-12-13', 'phpunit/phpunit', $applies12To13, '^12.0', 'high', [$laravel13Upgrade, $laravel13Skeleton]),
+            self::singlePackageRule('rule-package-pest-12-13', 'pestphp/pest', $applies12To13, '^4.0', 'high', [$laravel13Upgrade]),
+            self::singlePackageRule('rule-package-collision-12-13', 'nunomaduro/collision', $applies12To13, '^8.6', 'medium', [$laravel13Skeleton]),
+            new PackageAdvisoryDefinition(
+                'advisory-laravel-helpers-12-13',
+                'laravel/helpers',
+                $applies12To13,
+                PackageAdvisoryDefinition::REVIEW_LEGACY_HELPERS,
+                'medium',
+                [$laravel13Upgrade]
+            ),
+            new BuiltinRuleDefinition('rule-high-signal-source-12-13', BuiltinRuleDefinition::HIGH_SIGNAL_SOURCE, [$applies12To13]),
         ];
 
         return new self('0.2', 7, 13, $targets, $transitions, $rules, [

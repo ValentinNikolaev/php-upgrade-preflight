@@ -1,0 +1,9 @@
+{
+  "content-hash": "laravel-ambiguous-source",
+  "packages": [
+    {"name": "illuminate/console", "version": "v11.44.7"},
+    {"name": "illuminate/support", "version": "v12.20.0"}
+  ],
+  "packages-dev": [],
+  "plugin-api-version": "2.2.0"
+}

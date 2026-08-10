@@ -1,0 +1,11 @@
+{
+  "name": "fixture/laravel-ambiguous-target",
+  "require": {
+    "php": "^8.2",
+    "laravel/framework": "^12.0"
+  },
+  "extra": {
+    "php-upgrade-preflight-transition-fixture": "laravel-ambiguous-target",
+    "php-upgrade-preflight-resolution": "feasible"
+  }
+}

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace PhpUpgradePreflight\Tests\Release;
 
+use PhpUpgradePreflight\Laravel\Catalog\LaravelRuleCatalog;
 use PHPUnit\Framework\TestCase;
 
 final class LaravelV02TransitionMatrixTest extends TestCase
@@ -127,6 +128,89 @@ final class LaravelV02TransitionMatrixTest extends TestCase
         self::assertSame('^8.3', $laravel13['framework_manifest']['require']['php']);
         self::assertSame('^8.3', $laravel13['application_manifest']['require']['php']);
         self::assertSame('^12.5.12', $laravel13['application_manifest']['require-dev']['phpunit/phpunit']);
+    }
+
+    public function testCatalogUsesThePinnedComponentSpecificSymfonyConstraints(): void
+    {
+        $catalog = LaravelRuleCatalog::v0_2();
+        foreach ($this->matrix['reviewed_targets'] as $target) {
+            self::assertIsArray($target);
+            $major = $target['major'];
+            if ($major < 10) {
+                continue;
+            }
+
+            $definition = $catalog->target($major);
+            self::assertNotNull($definition);
+            $requirements = array_merge(
+                $target['framework_manifest']['require'],
+                $target['framework_manifest']['require-dev']
+            );
+            foreach ($requirements as $package => $constraint) {
+                if (!str_starts_with($package, 'symfony/')) {
+                    continue;
+                }
+
+                self::assertSame(
+                    str_replace(' || ', '|', $constraint),
+                    $definition->symfonyConstraintFor($package),
+                    sprintf('Laravel %d %s', $major, $package)
+                );
+            }
+        }
+    }
+
+    public function testLaravel13HostInstallabilityIsDeclaredAndGatedAtNormalAndLowestResolution(): void
+    {
+        $root = dirname(__DIR__, 2);
+        $contents = file_get_contents($root . '/packages/laravel/composer.json');
+        self::assertIsString($contents);
+        $manifest = json_decode($contents, true, 512, JSON_THROW_ON_ERROR);
+        self::assertIsArray($manifest);
+        $range = '^8.0|^9.0|^10.0|^11.0|^12.0|^13.0';
+        self::assertSame($range, $manifest['require']['illuminate/console']);
+        self::assertSame($range, $manifest['require']['illuminate/support']);
+
+        $workflow = file_get_contents($root . '/.github/workflows/compatibility.yml');
+        self::assertIsString($workflow);
+        self::assertStringContainsString('- normal', $workflow);
+        self::assertStringContainsString('- lowest', $workflow);
+        self::assertStringContainsString('name: Laravel 13 / PHP 8.3', $workflow);
+        self::assertStringContainsString('framework: laravel/framework:^13.0', $workflow);
+    }
+
+    public function testEveryApprovedAdjacentPathHasFullAnalyzerFeasibleAndAdvisoryOrBlockedCases(): void
+    {
+        $contents = file_get_contents(
+            dirname(__DIR__, 2) . '/tests/fixtures/contracts/laravel-v0.2-transition-cases.json'
+        );
+        self::assertIsString($contents);
+        $contract = json_decode($contents, true, 512, JSON_THROW_ON_ERROR);
+        self::assertIsArray($contract);
+        self::assertIsArray($contract['cases']);
+
+        $rolesByTransition = [];
+        foreach ($contract['cases'] as $case) {
+            self::assertIsArray($case);
+            if (!is_int($case['source_major'] ?? null)
+                || !is_int($case['target_major'] ?? null)
+                || $case['target_major'] !== $case['source_major'] + 1
+                || !is_string($case['fixture_role'] ?? null)) {
+                continue;
+            }
+
+            $key = $case['source_major'] . '-' . $case['target_major'];
+            $rolesByTransition[$key][] = $case['fixture_role'];
+        }
+
+        foreach (['8-9', '9-10', '10-11', '11-12', '12-13'] as $transition) {
+            self::assertContains('feasible', $rolesByTransition[$transition] ?? [], $transition);
+            self::assertNotSame(
+                [],
+                array_intersect(['advisory_heavy', 'blocked'], $rolesByTransition[$transition] ?? []),
+                $transition
+            );
+        }
     }
 
     /** @param array<string, mixed> $source */

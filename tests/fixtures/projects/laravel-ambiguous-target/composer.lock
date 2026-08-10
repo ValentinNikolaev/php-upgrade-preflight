@@ -1,0 +1,6 @@
+{
+  "content-hash": "laravel-ambiguous-target",
+  "packages": [{"name": "laravel/framework", "version": "v12.20.0"}],
+  "packages-dev": [],
+  "plugin-api-version": "2.2.0"
+}

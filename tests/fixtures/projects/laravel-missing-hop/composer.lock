@@ -1,0 +1,6 @@
+{
+  "content-hash": "laravel-missing-hop",
+  "packages": [{"name": "laravel/framework", "version": "v10.48.28"}],
+  "packages-dev": [],
+  "plugin-api-version": "2.2.0"
+}

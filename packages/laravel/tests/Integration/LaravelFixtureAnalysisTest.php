@@ -50,7 +50,7 @@ final class LaravelFixtureAnalysisTest extends TestCase
         self::assertSame('blocked', $report->resolutionStatus());
         $this->assertFrameworkFindings($report, [
             'Update the root laravel/framework constraint from `^7.0` to a constraint compatible with Laravel 9.',
-            'Update or replace incompatible illuminate/support constraints before targeting Laravel 9: fixture/illuminate-consumer.',
+            'Update or replace incompatible illuminate/support constraints before targeting Laravel 8: fixture/illuminate-consumer.',
         ]);
         self::assertSame(
             ['transitive-package-conflict'],

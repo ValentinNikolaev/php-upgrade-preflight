@@ -1,0 +1,28 @@
+{
+  "name": "fixture/laravel-12-to-13",
+  "repositories": [
+    {"type": "path", "url": "../../path-repository/laravel-transition/*", "options": {"symlink": false}},
+    {"packagist.org": false}
+  ],
+  "require": {
+    "php": "~8.2.0",
+    "laravel/framework": "^12.0",
+    "laravel/helpers": "^1.7",
+    "laravel/tinker": "^2.9",
+    "symfony/http-foundation": "7.2.0"
+  },
+  "require-dev": {
+    "laravel/boost": "^1.0",
+    "nunomaduro/collision": "^8.6",
+    "pestphp/pest": "^3.0",
+    "phpunit/phpunit": "^11.0"
+  },
+  "autoload-dev": {
+    "psr-4": {"Tests\\": "tests/"}
+  },
+  "extra": {
+    "php-upgrade-preflight-transition-fixture": "laravel-12-to-13",
+    "php-upgrade-preflight-resolution": "blocked",
+    "php-upgrade-preflight-composer-mode": "real"
+  }
+}

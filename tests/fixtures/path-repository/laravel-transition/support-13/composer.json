@@ -1,0 +1,6 @@
+{
+  "name": "illuminate/support",
+  "version": "13.0.0",
+  "type": "metapackage",
+  "require": {"php": "^8.3"}
+}

@@ -1,0 +1,8 @@
+{
+  "content-hash": "laravel-10-to-11-feasible",
+  "packages": [
+    {"name": "laravel/framework", "version": "v10.48.29"}
+  ],
+  "packages-dev": [],
+  "plugin-api-version": "2.2.0"
+}

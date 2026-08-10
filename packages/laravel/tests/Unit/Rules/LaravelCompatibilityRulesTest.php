@@ -115,6 +115,65 @@ final class LaravelCompatibilityRulesTest extends TestCase
         self::assertSame('^7.0', $consumerEvidence[0]->context()['illuminate_support_constraint']);
     }
 
+    public function testMultiMajorIlluminateConsumerIsAttributedToTheFirstIncompatibleHop(): void
+    {
+        $project = $this->project(
+            ['laravel/framework' => '^10.0'],
+            [
+                $this->package('laravel/framework', 'v10.48.0'),
+                $this->package('legacy/package', '1.0.0', ['illuminate/support' => '^10.0']),
+            ]
+        );
+
+        $findings = $this->evaluate(
+            $project,
+            $this->request('^13.0', '8.3'),
+            new EvidenceLedger(),
+            [],
+            true
+        );
+        $legacy = array_values(array_filter(
+            $findings,
+            static fn ($finding): bool => stripos($finding->summary(), 'legacy/package') !== false
+        ));
+
+        self::assertNotSame([], $legacy);
+        self::assertSame(
+            [['from_major' => 10, 'to_major' => 11]],
+            $legacy[0]->appliesToHops()
+        );
+        self::assertStringContainsString('Laravel 11', $legacy[0]->summary());
+    }
+
+    public function testMultiMajorIlluminateConsumerRemainsOnTheFirstHopItsRangeExcludes(): void
+    {
+        $project = $this->project(
+            ['laravel/framework' => '^10.0'],
+            [
+                $this->package('laravel/framework', 'v10.48.0'),
+                $this->package('legacy/package', '1.0.0', ['illuminate/support' => '^10.0|^11.0']),
+            ]
+        );
+
+        $legacy = array_values(array_filter(
+            $this->evaluate(
+                $project,
+                $this->request('^13.0', '8.3'),
+                new EvidenceLedger(),
+                [],
+                true
+            ),
+            static fn ($finding): bool => stripos($finding->summary(), 'legacy/package') !== false
+        ));
+
+        self::assertNotSame([], $legacy);
+        self::assertSame(
+            [['from_major' => 11, 'to_major' => 12]],
+            $legacy[0]->appliesToHops()
+        );
+        self::assertStringContainsString('Laravel 12', $legacy[0]->summary());
+    }
+
     public function testSkeletonReviewUsesExactSourceEvidenceAndSeparateHeuristicGuidance(): void
     {
         $project = $this->project(
@@ -496,6 +555,41 @@ final class LaravelCompatibilityRulesTest extends TestCase
 
         self::assertTrue($this->contains($summaries, 'laravel/passport'));
         self::assertTrue($this->contains($summaries, 'framework constraints that exclude Laravel 8'));
+    }
+
+    public function testLaravel13SymfonyGuidanceUsesExactComponentSpecificMinimums(): void
+    {
+        $project = $this->project(
+            [
+                'laravel/framework' => '^12.0',
+                'symfony/console' => '7.4.0',
+                'symfony/http-foundation' => '7.4.0',
+                'symfony/process' => '7.4.4',
+            ],
+            [
+                $this->package('laravel/framework', 'v12.20.0'),
+                $this->package('symfony/console', 'v7.4.0'),
+                $this->package('symfony/http-foundation', 'v7.4.0'),
+                $this->package('symfony/process', 'v7.4.4'),
+            ]
+        );
+
+        $summaries = $this->summaries($this->evaluate(
+            $project,
+            $this->request('^13.0', '8.3'),
+            new EvidenceLedger(),
+            [],
+            true
+        ));
+        $symfony = array_values(array_filter(
+            $summaries,
+            static fn (string $summary): bool => strpos($summary, 'direct Symfony component constraints') !== false
+        ));
+
+        self::assertCount(1, $symfony);
+        self::assertStringContainsString('symfony/http-foundation (`^7.4.13|^8.0.13`)', $symfony[0]);
+        self::assertStringContainsString('symfony/process (`^7.4.5|^8.0.5`)', $symfony[0]);
+        self::assertStringNotContainsString('symfony/console', $symfony[0]);
     }
 
     /**

@@ -4,7 +4,7 @@
     "decision": {
         "laravel_13": "included",
         "planned_adapter_illuminate_range": "^8.0|^9.0|^10.0|^11.0|^12.0|^13.0",
-        "note": "This is approved implementation scope, not a claim that the current v0.1 rule pack or adapter already supports every listed target."
+        "note": "Laravel 13 is approved v0.2.0 scope; implementation and host-installability claims are verified by the rule catalog, transition fixtures, and compatibility workflow."
     },
     "retained_v0_1_transitions": [
         {
@@ -124,7 +124,10 @@
                 "require": {
                     "php": "^8.1",
                     "composer-runtime-api": "^2.2",
-                    "nesbot/carbon": "^2.67"
+                    "nesbot/carbon": "^2.67",
+                    "symfony/console": "^6.2",
+                    "symfony/http-client": "^6.2.4",
+                    "symfony/http-foundation": "^6.4"
                 },
                 "require-dev": {
                     "phpunit/phpunit": "^10.0.7"
@@ -176,7 +179,9 @@
                 "require": {
                     "php": "^8.2",
                     "composer-runtime-api": "^2.2",
-                    "nesbot/carbon": "^2.72.6|^3.8.4"
+                    "nesbot/carbon": "^2.72.6|^3.8.4",
+                    "symfony/console": "^7.0.3",
+                    "symfony/http-foundation": "^7.2.0"
                 },
                 "require-dev": {
                     "phpunit/phpunit": "^10.5.35|^11.3.6|^12.0.1"
@@ -214,7 +219,9 @@
                 "require": {
                     "php": "^8.2",
                     "composer-runtime-api": "^2.2",
-                    "nesbot/carbon": "^3.8.4"
+                    "nesbot/carbon": "^3.8.4",
+                    "symfony/console": "^7.2.0",
+                    "symfony/http-foundation": "^7.2.0"
                 },
                 "require-dev": {
                     "phpunit/phpunit": "^10.5.35|^11.5.3|^12.0.1"
@@ -254,10 +261,18 @@
                 "require": {
                     "php": "^8.3",
                     "composer-runtime-api": "^2.2",
-                    "nesbot/carbon": "^3.8.4"
+                    "nesbot/carbon": "^3.8.4",
+                    "symfony/console": "^7.4.0 || ^8.0.0",
+                    "symfony/http-foundation": "^7.4.13 || ^8.0.13",
+                    "symfony/http-kernel": "^7.4.12 || ^8.0.12",
+                    "symfony/mailer": "^7.4.12 || ^8.0.12",
+                    "symfony/mime": "^7.4.12 || ^8.0.12",
+                    "symfony/process": "^7.4.5 || ^8.0.5",
+                    "symfony/routing": "^7.4.13 || ^8.0.13"
                 },
                 "require-dev": {
-                    "phpunit/phpunit": "^11.5.50 || ^12.5.8 || ^13.0.3"
+                    "phpunit/phpunit": "^11.5.50 || ^12.5.8 || ^13.0.3",
+                    "symfony/cache": "^7.4.12 || ^8.0.12"
                 }
             },
             "application_manifest": {

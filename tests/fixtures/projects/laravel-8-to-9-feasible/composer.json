@@ -1,0 +1,16 @@
+{
+  "name": "fixture/laravel-8-to-9-feasible",
+  "repositories": [
+    {"type": "path", "url": "../../path-repository/laravel-transition/*", "options": {"symlink": false}},
+    {"packagist.org": false}
+  ],
+  "require": {
+    "php": "^7.4|^8.0",
+    "laravel/framework": "^8.0"
+  },
+  "extra": {
+    "php-upgrade-preflight-transition-fixture": "laravel-8-to-9-feasible",
+    "php-upgrade-preflight-resolution": "feasible",
+    "php-upgrade-preflight-composer-mode": "real"
+  }
+}

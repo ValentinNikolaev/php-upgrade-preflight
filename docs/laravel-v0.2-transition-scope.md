@@ -1,6 +1,6 @@
 # Laravel v0.2 transition scope
 
-This document records the approved Laravel transition rule packs for v0.2.0. Milestone 5 implements the retained Laravel 7 to 8/9 behavior and adjacent rule packs from Laravel 8 to Laravel 12. Laravel 12 to 13 remains approved follow-up scope and is not implemented by this milestone.
+This document records the approved Laravel transition rule packs for v0.2.0. The implementation retains Laravel 7 to 8/9 behavior and provides one gapless adjacent path from Laravel 8 through Laravel 13.
 
 The machine-readable decision and its exact upstream evidence are in [`laravel-v0.2-transition-matrix.json`](../tests/fixtures/contracts/laravel-v0.2-transition-matrix.json). Every reviewed upstream file is pinned to the official Git commit observed on 2026-08-08 so later branch edits cannot silently change the basis for this scope.
 
@@ -16,7 +16,7 @@ The machine-readable decision and its exact upstream evidence are in [`laravel-v
 
 Laravel 7 to 8 and Laravel 7 to 9 remain frozen v0.1 compatibility paths. The latter is a retained direct path, not an adjacent rule pack. Multi-major support and the separation between direct Composer feasibility and hop guidance are defined in the [v0.2 contract](v0.2-contract.md).
 
-The planned Laravel adapter host range after implementation is `^8.0|^9.0|^10.0|^11.0|^12.0|^13.0` for `illuminate/console` and `illuminate/support`. That range is deliberately not present in the v0.1 package manifest yet; it must land with Laravel 13 host installation and application-boot coverage.
+The Laravel adapter host range is `^8.0|^9.0|^10.0|^11.0|^12.0|^13.0` for `illuminate/console` and `illuminate/support`. Normal and lowest-dependency Laravel 13 application boots are part of the dependency-compatibility workflow.
 
 ## Evidence reviewed
 
@@ -40,4 +40,6 @@ Laravel 12 to 13 is included in v0.2.0 scope because all three evidence layers a
 - the exact framework and application manifests require PHP `^8.3`;
 - the guide and application manifest provide concrete test-tool migrations, including PHPUnit 12, while the guide adds implementable package and source checks.
 
-This approval creates implementation obligations; it is not evidence that current code can analyze or host Laravel 13. Milestone 5 must add the rule pack and fixtures, and the compatibility workflow must prove normal and lowest-dependency Laravel 13 application boots before public support is claimed.
+The implemented 12 to 13 pack is deliberately bounded to these sources. It covers the target PHP and framework constraints, Boost 2, Tinker 3, PHPUnit 12, Pest 4, the application skeleton's Collision constraint, component-specific direct Symfony constraints from the pinned framework manifest, the documented legacy helper conflict, and exact references to the renamed request-forgery middleware. Distinct Symfony patch floors such as HTTP Foundation 7.4.13/8.0.13 and Process 7.4.5/8.0.5 remain distinct catalog facts. It does not turn every guide paragraph into a speculative source heuristic.
+
+The fixture contract in [`laravel-v0.2-transition-cases.json`](../tests/fixtures/contracts/laravel-v0.2-transition-cases.json) assigns separate feasible and advisory-heavy or blocked full-analyzer cases to every approved adjacent path. Every adjacent acceptance case runs real Composer with networking disabled against a committed local path repository; the synthetic runner remains limited to ambiguity, missing-hop, and multi-major guidance cases that do not claim ecosystem feasibility. Synthetic candidate locks also reject target PHP or selected package versions that violate root constraints. Every framework finding is checked for exact hop attribution plus E1-E4 evidence, and CLI and Artisan entry points must render equivalent canonical JSON for every listed case.

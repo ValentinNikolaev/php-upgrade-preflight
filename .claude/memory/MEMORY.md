@@ -4,10 +4,14 @@ description: Durable architecture, constraints, and current-state context for PH
 type: project
 related:
   - ../DEVELOPMENT_PLAN.md
-last_updated: 2026-08-09
+last_updated: 2026-08-10
 ---
 
 # Project Memory
+
+## Focused Memories
+
+- [windows-git-signing.md](windows-git-signing.md) — project — Windows OpenSSH override required for agent-backed signed commits
 
 ## Product
 

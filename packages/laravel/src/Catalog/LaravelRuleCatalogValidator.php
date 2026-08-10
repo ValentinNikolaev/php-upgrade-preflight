@@ -29,6 +29,9 @@ final class LaravelRuleCatalogValidator
                 $this->validateConstraint($target->symfonyConstraint(), $target->key() . ' Symfony', $errors);
                 $this->validateSources($target->symfonySources(), $target->key() . ' Symfony', $errors);
             }
+            foreach ($target->symfonyComponentConstraints() as $package => $constraint) {
+                $this->validateConstraint($constraint, $target->key() . ' ' . $package, $errors);
+            }
         }
 
         foreach ($catalog->transitions() as $transition) {
@@ -113,6 +116,7 @@ final class LaravelRuleCatalogValidator
                     PackageAdvisoryDefinition::PUBLISH_MIGRATIONS,
                     PackageAdvisoryDefinition::REVIEW_DBAL_REMOVAL,
                     PackageAdvisoryDefinition::REPLACE_FLYSYSTEM_SFTP,
+                    PackageAdvisoryDefinition::REVIEW_LEGACY_HELPERS,
                 ], true)) {
                     $errors[] = sprintf('Unsupported package advisory action for %s: %s.', $rule->key(), $rule->action());
                 }
