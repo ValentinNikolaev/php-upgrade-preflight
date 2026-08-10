@@ -46,7 +46,7 @@ final class TargetedPackageAdvisoryRule implements CompatibilityRule
         $rootConstraint = $project->composerJson()->rootRequirements()[$this->package] ?? null;
 
         if ($target === null
-            || !LaravelTarget::isLaravel7Project($project)
+            || LaravelSource::fromProject($project)->major() !== 7
             || !in_array($target->major(), $this->targetMajors, true)
             || ($locked === null && $rootConstraint === null)) {
             return null;

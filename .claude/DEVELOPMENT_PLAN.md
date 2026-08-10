@@ -1,6 +1,6 @@
 # PHP Upgrade Preflight Development Plan
 
-Last updated: 2026-08-08
+Last updated: 2026-08-10
 
 This roadmap supersedes the [v0.1.0 implementation plan](DEVELOPMENT_PLAN_0.1.0.md). It records the completed v0.1.0 release, a short v0.1.x stabilization line, and the v0.2.0 feature line.
 
@@ -8,6 +8,7 @@ This roadmap supersedes the [v0.1.0 implementation plan](DEVELOPMENT_PLAN_0.1.0.
 
 - Continue the first unchecked item in the earliest incomplete milestone unless repository evidence requires a safer order.
 - Mark work `[~]` only while someone is implementing it. Mark it `[x]` only after the acceptance evidence passes.
+- Reconcile this plan in the same change whenever roadmap work is completed, partially completed, reopened, or reverted; commits and handoffs must not leave checklist or status text stale.
 - Keep fixes and release hardening compatible with `0.1.x`. Put new report fields, public behavior, and broader framework intelligence in `0.2.0`.
 - Keep release automation locked to `0.1.x` patch increments until the v0.2.0 release candidate is explicitly approved. Do not use an interim minor version while executing this roadmap.
 - Recheck external release state before acting. Local Git state cannot prove whether a distribution repository or Packagist changed later.
@@ -136,16 +137,18 @@ Status: passed on 2026-08-10. Evidence is recorded in the typed autoload-ownersh
 
 ## Milestone 4: Generalize Laravel Transition Modeling
 
-- [ ] Replace the Laravel-7-only predicate with a typed source detection that conservatively resolves one current major from locked framework or rooted Illuminate packages.
-- [ ] Generalize target parsing beyond majors 8 and 9 while rejecting cross-major target constraints that do not identify one target major.
-- [ ] Model a Laravel transition as source major, target major, adjacent hops, and support status.
-- [ ] Preserve modular Illuminate detection and report inconsistent rooted component versions as uncertainty.
+- [x] Replace the Laravel-7-only predicate with a typed source detection that conservatively resolves one current major from locked framework or rooted Illuminate packages.
+- [x] Generalize target parsing beyond majors 8 and 9 while rejecting cross-major target constraints that do not identify one target major.
+- [x] Model a Laravel transition as source major, target major, adjacent hops, and support status.
+- [x] Preserve modular Illuminate detection and report inconsistent rooted component versions as uncertainty.
 - [ ] Move PHP requirements, package guidance, official sources, skeleton patterns, and rule applicability into a versioned Laravel rule catalog.
 - [ ] Validate the catalog at test time for duplicate keys, missing evidence sources, invalid SemVer constraints, unsupported gaps, and contradictory package advice.
 - [ ] Keep rule execution and source matching in typed rule classes. Do not turn the catalog into unvalidated prose or move Laravel concepts into core.
-- [ ] Prove that v0.1 Laravel 7 to 8/9 fixtures retain their approved findings unless a documented correction requires a snapshot change.
+- [x] Prove that v0.1 Laravel 7 to 8/9 fixtures retain their approved findings unless a documented correction requires a snapshot change.
 
 Acceptance gate: the adapter identifies supported source and target majors without a Laravel-7 special case, constructs deterministic adjacent hops, and refuses ambiguous transitions with evidence-backed uncertainty.
+
+Status: in progress on 2026-08-10. Typed source and target detection, transition composition, modular Illuminate uncertainty, and v0.1 fixture regression coverage are complete. The versioned Laravel rule catalog, catalog validation, and catalog-backed typed rule execution remain before the milestone acceptance gate can pass. The implemented slice passes 435 tests with 4,005 assertions, PHPStan, PHP CS Fixer, and manifest validation.
 
 ## Milestone 5: Later Laravel Upgrade Intelligence
 
@@ -213,4 +216,4 @@ Acceptance gate: v0.2.0 installs from published packages, validates against the 
 
 ## Recommended Next Work Session
 
-Start Milestone 4 by replacing Laravel-7-only source detection with conservative typed major detection, then model adjacent transition hops and move version-specific requirements into a validated Laravel rule catalog. Keep release automation on patch-only `0.1.x` increments until the v0.2.0 release candidate and its contract changes are explicitly approved.
+Continue Milestone 4 by moving version-specific PHP requirements, package guidance, official sources, skeleton patterns, and rule applicability into a validated Laravel rule catalog. Keep rule execution and source matching typed, preserve the completed transition-model behavior and v0.1 fixture approvals, and keep release automation on patch-only `0.1.x` increments until the v0.2.0 release candidate and its contract changes are explicitly approved.

@@ -23,7 +23,8 @@ final class LaravelFrameworkConstraintRule implements CompatibilityRule
         $constraint = $project->composerJson()->rootRequirements()['laravel/framework'] ?? null;
 
         if ($target === null
-            || !LaravelTarget::isLaravel7Project($project)
+            || LaravelSource::fromProject($project)->major() !== 7
+            || !in_array($target->major(), [8, 9], true)
             || $constraint === null
             || $target->intersectsRequestedFrameworkRange($constraint)) {
             return null;

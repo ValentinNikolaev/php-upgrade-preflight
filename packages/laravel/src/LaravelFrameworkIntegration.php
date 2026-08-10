@@ -17,6 +17,7 @@ use PhpUpgradePreflight\Core\Model\UpgradeRequest;
 use PhpUpgradePreflight\Laravel\Rules\LaravelFrameworkConstraintRule;
 use PhpUpgradePreflight\Laravel\Rules\LaravelPhpConstraintRule;
 use PhpUpgradePreflight\Laravel\Rules\LaravelSkeletonRule;
+use PhpUpgradePreflight\Laravel\Rules\LaravelSource;
 use PhpUpgradePreflight\Laravel\Rules\LaravelTarget;
 use PhpUpgradePreflight\Laravel\Rules\OldIlluminateSupportRule;
 use PhpUpgradePreflight\Laravel\Rules\PackageVersionRule;
@@ -25,6 +26,19 @@ use PhpUpgradePreflight\Laravel\Rules\TargetedPackageAdvisoryRule;
 
 final class LaravelFrameworkIntegration implements FrameworkIntegration, FrameworkTransitionProvider, PackageFamilyClassifier
 {
+    private const MINIMUM_CATALOG_MAJOR = 7;
+    private const MAXIMUM_CATALOG_MAJOR = 13;
+
+    /** @var array<string, string> */
+    private const ADJACENT_RULE_PACKS = [
+        '7:8' => 'laravel-7-to-8',
+    ];
+
+    /** @var array<string, string> */
+    private const DIRECT_RULE_PACKS = [
+        '7:9' => 'laravel-7-to-9-direct',
+    ];
+
     private LaravelPackageFamilyClassifier $packageFamilyClassifier;
 
     public function __construct(?LaravelPackageFamilyClassifier $packageFamilyClassifier = null)
@@ -162,7 +176,8 @@ final class LaravelFrameworkIntegration implements FrameworkIntegration, Framewo
             return null;
         }
 
-        $sourceMajor = LaravelTarget::isLaravel7Project($project) ? 7 : null;
+        $source = LaravelSource::fromProject($project);
+        $sourceMajor = $source->major();
         $target = LaravelTarget::fromRequest($request);
         $targetMajor = $target === null ? null : $target->major();
 
@@ -175,9 +190,22 @@ final class LaravelFrameworkIntegration implements FrameworkIntegration, Framewo
                 [
                     'source_major' => $sourceMajor,
                     'target_major' => $targetMajor,
+                    'source_observations' => $source->observations(),
+                    'target_constraints' => $target === null
+                        ? $this->laravelTargetConstraints($request)
+                        : $target->requestedConstraints(),
                     'root_requirements' => $project->composerJson()->rootRequirements(),
                 ]
             )->id();
+
+            $uncertainties = $sourceMajor === null ? $source->uncertainties() : [];
+            if ($targetMajor === null) {
+                $uncertainties[] = 'The requested Laravel package constraints do not identify exactly one target major.';
+            }
+            $uncertainties = array_map(
+                static fn (string $uncertainty): string => sprintf('%s (%s)', $uncertainty, $evidenceId),
+                $uncertainties
+            );
 
             return new FrameworkGuidance(
                 'laravel',
@@ -185,15 +213,47 @@ final class LaravelFrameworkIntegration implements FrameworkIntegration, Framewo
                 $targetMajor,
                 FrameworkGuidance::UNSUPPORTED,
                 [],
-                [sprintf(
-                    'Laravel framework guidance is unsupported because the source and target do not each resolve to one implemented major (%s).',
-                    $evidenceId
-                )],
+                $uncertainties,
                 [$evidenceId]
             );
         }
 
-        $rulePack = sprintf('laravel-%d-to-%d%s', $sourceMajor, $targetMajor, $targetMajor === 9 ? '-direct' : '');
+        if ($sourceMajor >= $targetMajor) {
+            return $this->unsupportedTransition(
+                $sourceMajor,
+                $targetMajor,
+                'Laravel framework guidance is unsupported because the requested target is not a major-version upgrade.',
+                $evidence
+            );
+        }
+
+        $directRulePack = self::DIRECT_RULE_PACKS[$this->transitionKey($sourceMajor, $targetMajor)] ?? null;
+        if ($directRulePack !== null && !$this->hasCompleteAdjacentPath($sourceMajor, $targetMajor)) {
+            return $this->supportedDirectTransition($sourceMajor, $targetMajor, $directRulePack, $evidence);
+        }
+
+        if ($sourceMajor < self::MINIMUM_CATALOG_MAJOR || $targetMajor > self::MAXIMUM_CATALOG_MAJOR) {
+            return $this->unsupportedTransition(
+                $sourceMajor,
+                $targetMajor,
+                sprintf(
+                    'Laravel framework guidance is unsupported outside the modeled Laravel %d through %d transition catalog.',
+                    self::MINIMUM_CATALOG_MAJOR,
+                    self::MAXIMUM_CATALOG_MAJOR
+                ),
+                $evidence
+            );
+        }
+
+        return $this->adjacentTransition($sourceMajor, $targetMajor, $evidence);
+    }
+
+    private function supportedDirectTransition(
+        int $sourceMajor,
+        int $targetMajor,
+        string $rulePack,
+        EvidenceLedger $evidence
+    ): FrameworkGuidance {
         $source = sprintf('https://laravel.com/docs/%d.x/upgrade', $targetMajor);
         $evidenceId = $evidence->add(
             'laravel-transition',
@@ -226,6 +286,139 @@ final class LaravelFrameworkIntegration implements FrameworkIntegration, Framewo
         );
     }
 
+    private function adjacentTransition(
+        int $sourceMajor,
+        int $targetMajor,
+        EvidenceLedger $evidence
+    ): FrameworkGuidance {
+        $hops = [];
+        $evidenceIds = [];
+        $uncertainties = [];
+        $coveredPrefix = true;
+        $supportedCount = 0;
+
+        for ($fromMajor = $sourceMajor; $fromMajor < $targetMajor; ++$fromMajor) {
+            $toMajor = $fromMajor + 1;
+            $implementedRulePack = self::ADJACENT_RULE_PACKS[$this->transitionKey($fromMajor, $toMajor)] ?? null;
+            $rulePack = $coveredPrefix ? $implementedRulePack : null;
+
+            if ($rulePack !== null) {
+                $evidenceId = $evidence->add(
+                    'laravel-transition',
+                    Evidence::E4_MAINTAINER_DOCUMENTATION,
+                    sprintf('The retained Laravel %d to %d rule pack covers this requested transition.', $fromMajor, $toMajor),
+                    'medium',
+                    [
+                        'source_major' => $fromMajor,
+                        'target_major' => $toMajor,
+                        'rule_pack' => $rulePack,
+                        'source' => sprintf('https://laravel.com/docs/%d.x/upgrade', $toMajor),
+                    ]
+                )->id();
+                $hops[] = new FrameworkHop(
+                    $fromMajor,
+                    $toMajor,
+                    FrameworkHop::SUPPORTED,
+                    $rulePack,
+                    [$evidenceId]
+                );
+                $evidenceIds[] = $evidenceId;
+                ++$supportedCount;
+
+                continue;
+            }
+
+            $ignoredAfterGap = $implementedRulePack !== null;
+            $coveredPrefix = false;
+            $evidenceId = $evidence->add(
+                'laravel-transition',
+                Evidence::E4_MAINTAINER_DOCUMENTATION,
+                $ignoredAfterGap
+                    ? sprintf('The Laravel %d to %d adjacent rule pack is ignored after an earlier coverage gap.', $fromMajor, $toMajor)
+                    : sprintf('No implemented Laravel %d to %d adjacent rule pack is available.', $fromMajor, $toMajor),
+                'medium',
+                [
+                    'source_major' => $fromMajor,
+                    'target_major' => $toMajor,
+                    'rule_pack' => $implementedRulePack,
+                    'implemented' => $ignoredAfterGap,
+                    'ignored_after_gap' => $ignoredAfterGap,
+                    'source' => sprintf('https://laravel.com/docs/%d.x/upgrade', $toMajor),
+                ]
+            )->id();
+            $hops[] = new FrameworkHop(
+                $fromMajor,
+                $toMajor,
+                FrameworkHop::UNSUPPORTED,
+                null,
+                [$evidenceId]
+            );
+            $evidenceIds[] = $evidenceId;
+            $uncertainties[] = $ignoredAfterGap
+                ? sprintf(
+                    'Laravel %d to %d guidance is ignored because coverage cannot continue after an earlier missing hop (%s).',
+                    $fromMajor,
+                    $toMajor,
+                    $evidenceId
+                )
+                : sprintf(
+                    'Laravel %d to %d guidance is unavailable because its adjacent rule pack is not implemented (%s).',
+                    $fromMajor,
+                    $toMajor,
+                    $evidenceId
+                );
+        }
+
+        if ($supportedCount === count($hops)) {
+            $status = FrameworkGuidance::SUPPORTED;
+        } elseif ($supportedCount > 0) {
+            $status = FrameworkGuidance::PARTIALLY_SUPPORTED;
+        } else {
+            $status = FrameworkGuidance::UNSUPPORTED;
+            $hops = [];
+        }
+
+        return new FrameworkGuidance(
+            'laravel',
+            $sourceMajor,
+            $targetMajor,
+            $status,
+            $hops,
+            $uncertainties,
+            $evidenceIds
+        );
+    }
+
+    private function unsupportedTransition(
+        int $sourceMajor,
+        int $targetMajor,
+        string $uncertainty,
+        EvidenceLedger $evidence
+    ): FrameworkGuidance {
+        $evidenceId = $evidence->add(
+            'laravel-transition',
+            Evidence::E2_PACKAGE_METADATA,
+            $uncertainty,
+            'high',
+            [
+                'source_major' => $sourceMajor,
+                'target_major' => $targetMajor,
+                'catalog_minimum_major' => self::MINIMUM_CATALOG_MAJOR,
+                'catalog_maximum_major' => self::MAXIMUM_CATALOG_MAJOR,
+            ]
+        )->id();
+
+        return new FrameworkGuidance(
+            'laravel',
+            $sourceMajor,
+            $targetMajor,
+            FrameworkGuidance::UNSUPPORTED,
+            [],
+            [sprintf('%s (%s)', $uncertainty, $evidenceId)],
+            [$evidenceId]
+        );
+    }
+
     public function defaultSourcePaths(ProjectState $project): array
     {
         return ['src', 'app', 'bootstrap', 'config', 'database', 'routes', 'tests'];
@@ -246,5 +439,36 @@ final class LaravelFrameworkIntegration implements FrameworkIntegration, Framewo
         }
 
         return false;
+    }
+
+    private function transitionKey(int $sourceMajor, int $targetMajor): string
+    {
+        return $sourceMajor . ':' . $targetMajor;
+    }
+
+    private function hasCompleteAdjacentPath(int $sourceMajor, int $targetMajor): bool
+    {
+        for ($fromMajor = $sourceMajor; $fromMajor < $targetMajor; ++$fromMajor) {
+            if (!isset(self::ADJACENT_RULE_PACKS[$this->transitionKey($fromMajor, $fromMajor + 1)])) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /** @return array<string, string> */
+    private function laravelTargetConstraints(UpgradeRequest $request): array
+    {
+        $constraints = [];
+        foreach ($request->targets()->packageTargets() as $target) {
+            $package = strtolower($target->package());
+            if ($package === 'laravel/framework' || str_starts_with($package, 'illuminate/')) {
+                $constraints[$package] = $target->constraint();
+            }
+        }
+        ksort($constraints);
+
+        return $constraints;
     }
 }

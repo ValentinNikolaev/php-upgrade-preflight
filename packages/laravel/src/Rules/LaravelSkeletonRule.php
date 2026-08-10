@@ -21,7 +21,9 @@ final class LaravelSkeletonRule implements CompatibilityRule
         array $sourceUsages = []
     ): ?CompatibilityFinding {
         $target = LaravelTarget::fromRequest($request);
-        if ($target === null || !LaravelTarget::isLaravel7Project($project)) {
+        if ($target === null
+            || LaravelSource::fromProject($project)->major() !== 7
+            || !in_array($target->major(), [8, 9], true)) {
             return null;
         }
 

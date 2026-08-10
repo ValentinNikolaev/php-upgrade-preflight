@@ -232,6 +232,22 @@ final class LaravelCompatibilityRulesTest extends TestCase
         self::assertTrue($this->contains($summaries, 'phpunit/phpunit'));
     }
 
+    public function testRulesDoNotProjectRetainedLaravel7GuidanceOntoANewerUnsupportedTarget(): void
+    {
+        $project = $this->project(
+            ['laravel/framework' => '^7.0', 'phpunit/phpunit' => '^8.0'],
+            [
+                $this->package('laravel/framework', 'v7.30.7'),
+                $this->package('phpunit/phpunit', '8.5.21'),
+            ]
+        );
+
+        self::assertSame(
+            [],
+            $this->evaluate($project, $this->request('^10.0', '8.1'), new EvidenceLedger())
+        );
+    }
+
     public function testLaravel9PackageGuidanceUsesLaravel9Sources(): void
     {
         $project = $this->project(

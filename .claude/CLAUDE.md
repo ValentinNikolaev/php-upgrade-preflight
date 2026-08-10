@@ -96,6 +96,7 @@ CI runs `composer check` on PHP 8.0 through 8.5. Changes must pass on the PHP 8.
 
 - Mark a `.claude/DEVELOPMENT_PLAN.md` item `[x]` only after its behavior and acceptance evidence are implemented and verified.
 - Use `[~]` only for genuinely active work; do not mark an entire milestone complete from partial coverage.
+- Reconcile `.claude/DEVELOPMENT_PLAN.md` in the same change whenever work completes, partially completes, reopens, or reverts a roadmap item. Do not commit or hand off roadmap work with stale checklist or status text.
 - Update `.claude/memory/MEMORY.md` only for durable architecture, constraints, or decisions. Do not record session logs, temporary failures, or facts cheaply derived from code.
 - Keep the plan directional. Preserve milestone order unless concrete dependencies justify a change, and document that reason.
 

@@ -50,7 +50,7 @@ final class PackageVersionRule implements CompatibilityRule
         $rootConstraint = $project->composerJson()->rootRequirements()[$this->package] ?? null;
 
         if ($target === null
-            || !LaravelTarget::isLaravel7Project($project)
+            || LaravelSource::fromProject($project)->major() !== 7
             || ($locked === null && $rootConstraint === null)
             || !isset($this->compatibleRanges[$target->major()])) {
             return null;
