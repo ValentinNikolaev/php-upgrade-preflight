@@ -9,7 +9,7 @@ on:
       version:
         description: Exact v0.2 release version to verify and package without publishing
         required: true
-        default: 0.2.0
+        default: 0.2.1
         type: string
 
 concurrency:
@@ -621,6 +621,16 @@ jobs:
 
           composer show "php-upgrade-preflight/cli" "${version}" --locked
           composer show "php-upgrade-preflight/laravel" "${version}" --locked
+          expected_references=()
+          for package in core cli laravel; do
+            repository="ValentinNikolaev/php-upgrade-preflight-${package}"
+            tag_object="$(gh api "repos/${repository}/git/ref/tags/v${version}" --jq '.object.sha')"
+            expected_references+=("$(gh api "repos/${repository}/git/tags/${tag_object}" --jq '.object.sha')")
+          done
+          php "${GITHUB_WORKSPACE}/tools/verify-installed-package-references.php" \
+            "${version}" \
+            composer.lock \
+            "${expected_references[@]}"
           vendor/bin/upgrade-intel --help
 
           target="${RUNNER_TEMP}/published quick start target"

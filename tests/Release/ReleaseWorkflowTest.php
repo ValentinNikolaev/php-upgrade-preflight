@@ -265,6 +265,10 @@ final class ReleaseWorkflowTest extends TestCase
         self::assertStringContainsString('Packagist did not expose all', $workflow);
         self::assertStringContainsString('php-upgrade-preflight/cli:${version}', $workflow);
         self::assertStringContainsString('php-upgrade-preflight/laravel:${version}', $workflow);
+        self::assertStringContainsString('verify-installed-package-references.php', $workflow);
+        self::assertStringContainsString('git/ref/tags/v${version}', $workflow);
+        self::assertStringContainsString('git/tags/${tag_object}', $workflow);
+        self::assertStringContainsString('"${expected_references[@]}"', $workflow);
         self::assertStringContainsString('published quick start target', $workflow);
         self::assertStringContainsString('before="$(fixture_digest "${target}")"', $workflow);
         self::assertStringContainsString('after="$(fixture_digest "${target}")"', $workflow);

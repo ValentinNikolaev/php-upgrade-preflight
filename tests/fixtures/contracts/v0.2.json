@@ -127,7 +127,7 @@
         }
     },
     "development_version": {
-        "report_tool_version": "0.2.0",
+        "report_tool_version": "0.2.1",
         "composer_development_version": "0.2.x-dev",
         "internal_constraint": "^0.2",
         "active_release_series": "0.2",
