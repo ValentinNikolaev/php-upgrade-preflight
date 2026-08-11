@@ -26,6 +26,23 @@ use PHPUnit\Framework\TestCase;
 
 final class SensitiveOutputPublicationTest extends TestCase
 {
+    public function testReleasePackageSourcesDoNotEmbedSyntheticCanaries(): void
+    {
+        $fixture = $this->fixture();
+        $packageRoot = dirname(__DIR__, 2) . '/packages';
+        $files = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($packageRoot));
+
+        foreach ($files as $file) {
+            if (!$file->isFile()) {
+                continue;
+            }
+
+            $contents = file_get_contents($file->getPathname());
+            self::assertNotFalse($contents, 'Unable to inspect release package source ' . $file->getPathname());
+            $this->assertNoCanaries($fixture['canaries'], $contents, $file->getPathname());
+        }
+    }
+
     public function testSyntheticComposerSecretsCannotReachReportsEvidenceOrCapturedLogs(): void
     {
         $fixture = $this->fixture();
