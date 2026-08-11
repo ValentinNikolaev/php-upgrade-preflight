@@ -328,6 +328,45 @@ final class ReleaseWorkflowTest extends TestCase
         self::assertStringContainsString('- published-quick-start', $publish);
     }
 
+    public function testPublishedReferenceVerificationRunsInsideThePackagistRetryCondition(): void
+    {
+        $release = $this->parseYamlFile('.github/workflows/release.yml');
+        $steps = $release['jobs']['published-quick-start']['steps'] ?? null;
+        self::assertIsArray($steps);
+
+        $installSteps = array_values(array_filter(
+            $steps,
+            static fn (array $step): bool => ($step['name'] ?? null)
+                === 'Install the published packages and verify the quick start'
+        ));
+        self::assertCount(1, $installSteps);
+        $run = $installSteps[0]['run'] ?? null;
+        self::assertIsString($run);
+
+        self::assertMatchesRegularExpression(
+            '~"php-upgrade-preflight/laravel:\$\{version\}" &&\R\s+'
+                . 'php "\$\{GITHUB_WORKSPACE\}/tools/verify-installed-package-references\.php"~',
+            $run
+        );
+
+        $loopStart = $this->requireSubstringPosition($run, 'for attempt in 1 2 3 4 5 6; do');
+        $require = $this->requireSubstringPosition($run, 'if composer require', $loopStart);
+        $verify = $this->requireSubstringPosition($run, 'verify-installed-package-references.php', $require);
+        $conditionEnd = $this->requireSubstringPosition($run, '; then', $verify);
+        $break = $this->requireSubstringPosition($run, 'break', $conditionEnd);
+        $cleanup = $this->requireSubstringPosition($run, 'rm -rf composer.lock vendor', $break);
+        $loopEnd = $this->requireSubstringPosition($run, "\ndone", $cleanup);
+
+        $positions = [$loopStart, $require, $verify, $conditionEnd, $break, $cleanup, $loopEnd];
+        $sortedPositions = $positions;
+        sort($sortedPositions, SORT_NUMERIC);
+        self::assertSame(
+            $positions,
+            $sortedPositions,
+            'Published-reference verification must remain inside the retry condition before break and cleanup.'
+        );
+    }
+
     public function testLaravelCompatibilityBootsTheDiscoveredProviderAndCommandHarness(): void
     {
         $workflow = $this->parseYamlFile('.github/workflows/compatibility.yml');
@@ -396,6 +435,16 @@ final class ReleaseWorkflowTest extends TestCase
         self::assertNotFalse($contents);
 
         return $contents;
+    }
+
+    private function requireSubstringPosition(string $haystack, string $needle, int $offset = 0): int
+    {
+        $position = strpos($haystack, $needle, $offset);
+        if ($position === false) {
+            self::fail(sprintf('Expected workflow command to contain %s.', $needle));
+        }
+
+        return $position;
     }
 
     /**
