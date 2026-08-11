@@ -7,9 +7,9 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 0.1.x patch version to verify and package without publishing
+        description: Exact v0.2 release version to verify and package without publishing
         required: true
-        default: 0.1.0
+        default: 0.2.0
         type: string
 
 concurrency:
@@ -97,6 +97,55 @@ jobs:
     name: Dependency vulnerability gate
     uses: ./.github/workflows/security.yml
 
+  distribution-preflight:
+    name: Matching distribution tags
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Set up PHP 8.0
+        uses: shivammathur/setup-php@b604ade2a87db23f8871b7182e69ec5e75effb45 # v2
+        with:
+          php-version: '8.0'
+          coverage: none
+
+      - name: Verify signed distribution tags and package manifests
+        if: github.event_name == 'push' && github.ref_type == 'tag'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          for package in core cli laravel; do
+            repository="ValentinNikolaev/php-upgrade-preflight-${package}"
+            endpoint="repos/${repository}/git/ref/tags/${GITHUB_REF_NAME}"
+            object_type="$(gh api "${endpoint}" --jq '.object.type')"
+            if [[ "${object_type}" != 'tag' ]]; then
+              echo "${repository} must publish ${GITHUB_REF_NAME} as an annotated, signed tag." >&2
+              exit 1
+            fi
+
+            tag_sha="$(gh api "${endpoint}" --jq '.object.sha')"
+            verified="$(gh api "repos/${repository}/git/tags/${tag_sha}" --jq '.verification.verified')"
+            if [[ "${verified}" != 'true' ]]; then
+              echo "${repository} tag ${GITHUB_REF_NAME} does not have a verified signature." >&2
+              exit 1
+            fi
+
+            expected="${RUNNER_TEMP}/expected-${package}"
+            actual="${RUNNER_TEMP}/actual-${package}"
+            archive="${RUNNER_TEMP}/distribution-${package}.tar.gz"
+            mkdir -p "${expected}" "${actual}"
+            cp -R "packages/${package}/." "${expected}/"
+            cp LICENSE README.md CHANGELOG.md SECURITY.md "${expected}/"
+            cp -R docs "${expected}/docs"
+
+            gh api "repos/${repository}/tarball/${GITHUB_REF_NAME}" > "${archive}"
+            tar -xzf "${archive}" --strip-components=1 -C "${actual}"
+            php tools/verify-distribution-payload.php "${expected}" "${actual}"
+          done
+
   fresh-clone-audit:
     name: Fresh clone / ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
@@ -129,6 +178,7 @@ jobs:
         run: |
           $freshClone = Join-Path $env:RUNNER_TEMP 'fresh clone'
           git clone --no-local $env:GITHUB_WORKSPACE $freshClone
+          git -C $freshClone checkout --detach $env:GITHUB_SHA
           "FRESH_CLONE=$freshClone" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
       - name: Clean install and manifest validation
@@ -137,6 +187,12 @@ jobs:
           Set-Location -LiteralPath $env:FRESH_CLONE
           composer install --prefer-dist --no-interaction --no-progress
           composer validate:all
+
+      - name: Run deterministic fixture gate
+        shell: pwsh
+        run: |
+          Set-Location -LiteralPath $env:FRESH_CLONE
+          composer test:fixtures
 
       - name: Audit read-only analysis with spaced output paths
         shell: pwsh
@@ -206,6 +262,7 @@ jobs:
       - runtime-quality
       - compatibility
       - dependency-audit
+      - distribution-preflight
       - fresh-clone-audit
     runs-on: ubuntu-latest
     env:
@@ -247,8 +304,22 @@ jobs:
               --dir="${GITHUB_WORKSPACE}/dist" \
               --file="php-upgrade-preflight-${package}-v${RELEASE_VERSION}"
           done
-          cd dist
-          sha256sum ./*.zip > SHA256SUMS
+          php tools/release-artifact-metadata.php generate \
+            "--version=${RELEASE_VERSION}" \
+            --dist=dist \
+            "--repository=https://github.com/${GITHUB_REPOSITORY}" \
+            "--commit=${GITHUB_SHA}" \
+            "--ref=${GITHUB_REF}" \
+            --workflow=.github/workflows/release.yml \
+            "--run-uri=https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/attempts/${GITHUB_RUN_ATTEMPT}"
+          php tools/release-artifact-metadata.php verify \
+            "--version=${RELEASE_VERSION}" \
+            --dist=dist \
+            "--repository=https://github.com/${GITHUB_REPOSITORY}" \
+            "--commit=${GITHUB_SHA}" \
+            "--ref=${GITHUB_REF}" \
+            --workflow=.github/workflows/release.yml \
+            "--run-uri=https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/attempts/${GITHUB_RUN_ATTEMPT}"
 
       - name: Scan release archives for synthetic secrets
         run: php tools/verify-secret-leaks.php dist
@@ -261,10 +332,16 @@ jobs:
           if-no-files-found: error
 
   artifact-consumer:
-    name: Install and exercise release archives
+    name: Install and exercise release archives / ${{ matrix.os }}
     needs:
       - package
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
     env:
       RELEASE_VERSION: ${{ github.event_name == 'push' && github.ref_type == 'tag' && github.ref_name || inputs.version }}
     steps:
@@ -296,10 +373,20 @@ jobs:
           for package in core cli laravel; do
             test -f "dist/php-upgrade-preflight-${package}-v${RELEASE_VERSION}.zip"
           done
+          test -f dist/DEPENDENCY-INVENTORY.json
+          test -f dist/ARTIFACT-PROVENANCE.json
           test -f dist/SHA256SUMS
           test "$(find dist -maxdepth 1 -type f -name '*.zip' | wc -l)" -eq 3
-          test "$(wc -l < dist/SHA256SUMS)" -eq 3
+          test "$(wc -l < dist/SHA256SUMS)" -eq 5
           (cd dist && sha256sum --check --strict SHA256SUMS)
+          php tools/release-artifact-metadata.php verify \
+            "--version=${RELEASE_VERSION}" \
+            --dist=dist \
+            "--repository=https://github.com/${GITHUB_REPOSITORY}" \
+            "--commit=${GITHUB_SHA}" \
+            "--ref=${GITHUB_REF}" \
+            --workflow=.github/workflows/release.yml \
+            "--run-uri=https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/attempts/${GITHUB_RUN_ATTEMPT}"
           php tools/verify-secret-leaks.php dist
 
       - name: Install all archives in clean consumers
@@ -307,7 +394,8 @@ jobs:
         run: |
           set -euo pipefail
           export COMPOSER_ROOT_VERSION=1.0.0
-          artifact_repository="{\"type\":\"artifact\",\"url\":\"${GITHUB_WORKSPACE}/dist\",\"canonical\":true}"
+          artifact_path="${GITHUB_WORKSPACE}/dist"
+          artifact_repository="{\"type\":\"artifact\",\"url\":\"${artifact_path}\",\"canonical\":true}"
 
           configure_consumer() {
             local directory="$1"
@@ -461,8 +549,8 @@ jobs:
             if (($report["metadata"]["tool"]["version"] ?? null) !== $argv[2]) {
                 throw new RuntimeException("Unexpected tool version in archive-installed report.");
             }
-            if (($report["metadata"]["schema_version"] ?? null) !== "0.6") {
-                throw new RuntimeException("Unexpected schema version in archive-installed report.");
+            if (($report["metadata"]["schema_version"] ?? null) !== "0.7") {
+              throw new RuntimeException("Unexpected schema version in archive-installed report.");
             }
             $frameworks = array_column($report["framework_findings"] ?? [], "framework");
             if (!in_array("laravel", $frameworks, true)) {
@@ -475,11 +563,102 @@ jobs:
           echo "Fixture SHA-256 before: ${before}"
           echo "Fixture SHA-256 after:  ${after}"
 
+  published-quick-start:
+    name: Published Packagist quick start
+    needs:
+      - artifact-consumer
+      - distribution-preflight
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Set up PHP 8.3
+        if: github.event_name == 'push' && github.ref_type == 'tag'
+        uses: shivammathur/setup-php@b604ade2a87db23f8871b7182e69ec5e75effb45 # v2
+        with:
+          php-version: '8.3'
+          coverage: none
+          extensions: zip
+
+      - name: Install the published packages and verify the quick start
+        if: github.event_name == 'push' && github.ref_type == 'tag'
+        shell: bash
+        env:
+          RELEASE_VERSION: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          version="${RELEASE_VERSION#v}"
+          consumer="${RUNNER_TEMP}/published quick start"
+          mkdir -p "${consumer}"
+          cd "${consumer}"
+          composer init --no-interaction --name=php-upgrade-preflight/published-smoke --license=proprietary
+
+          for attempt in 1 2 3 4 5 6; do
+            if composer require \
+              --prefer-dist \
+              --no-interaction \
+              --no-progress \
+              "php-upgrade-preflight/cli:${version}" \
+              "php-upgrade-preflight/laravel:${version}"; then
+              break
+            fi
+            rm -rf composer.lock vendor
+            composer clear-cache
+            if [[ "${attempt}" -eq 6 ]]; then
+              echo "Packagist did not expose all v${version} packages after the synchronization window." >&2
+              exit 1
+            fi
+            sleep 20
+          done
+
+          composer show "php-upgrade-preflight/cli" "${version}" --locked
+          composer show "php-upgrade-preflight/laravel" "${version}" --locked
+          vendor/bin/upgrade-intel --help
+
+          target="${RUNNER_TEMP}/published quick start target"
+          cp -R "${GITHUB_WORKSPACE}/tests/fixtures/projects/laravel-7-to-9" "${target}"
+          fixture_digest() {
+            (
+              cd "$1"
+              find . -type f -print0 | LC_ALL=C sort -z | xargs -0 sha256sum
+            ) | sha256sum | cut -d ' ' -f 1
+          }
+
+          before="$(fixture_digest "${target}")"
+          report="${RUNNER_TEMP}/published quick start.json"
+          vendor/bin/upgrade-intel analyze \
+            "--path=${target}" \
+            --from-php=7.4 \
+            '--target=laravel/framework:^9.0' \
+            --target-php=8.1 \
+            --framework=laravel \
+            --format=json \
+            "--output=${report}"
+          # Embedded PHP variables must not be expanded by Bash.
+          # shellcheck disable=SC2016
+          php -r '
+            $report = json_decode(file_get_contents($argv[1]), true, 512, JSON_THROW_ON_ERROR);
+            if (($report["metadata"]["tool"]["version"] ?? null) !== $argv[2]
+                || ($report["metadata"]["schema_version"] ?? null) !== "0.7") {
+                throw new RuntimeException("Published quick start returned unexpected report metadata.");
+              }
+          ' "${report}" "${version}"
+
+          after="$(fixture_digest "${target}")"
+          if [[ "${before}" != "${after}" ]]; then
+            echo 'The published quick start modified the analyzed target.' >&2
+            exit 1
+          fi
+          echo "Published fixture SHA-256 before: ${before}"
+          echo "Published fixture SHA-256 after:  ${after}"
+
   publish:
     name: Publish GitHub release
     if: github.event_name == 'push' && github.ref_type == 'tag'
     needs:
       - artifact-consumer
+      - published-quick-start
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -499,9 +678,9 @@ jobs:
             --name release-archives \
             --dir dist
           test "$(find dist -maxdepth 1 -type f -name '*.zip' | wc -l)" -eq 3
-          test "$(find dist -maxdepth 1 -type f | wc -l)" -eq 4
+          test "$(find dist -maxdepth 1 -type f | wc -l)" -eq 6
           test -f dist/SHA256SUMS
-          test "$(wc -l < dist/SHA256SUMS)" -eq 3
+          test "$(wc -l < dist/SHA256SUMS)" -eq 5
           (cd dist && sha256sum --check --strict SHA256SUMS)
 
           gh api \

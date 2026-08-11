@@ -10,7 +10,7 @@
       "options": {
         "symlink": true,
         "versions": {
-          "php-upgrade-preflight/core": "0.1.x-dev"
+          "php-upgrade-preflight/core": "0.2.x-dev"
         }
       }
     },
@@ -20,7 +20,7 @@
       "options": {
         "symlink": true,
         "versions": {
-          "php-upgrade-preflight/laravel": "0.1.x-dev"
+          "php-upgrade-preflight/laravel": "0.2.x-dev"
         }
       }
     }
@@ -28,7 +28,7 @@
   "require": {
     "php": "^8.1",
     "laravel/framework": "^10.0",
-    "php-upgrade-preflight/laravel": "0.1.x-dev"
+    "php-upgrade-preflight/laravel": "0.2.x-dev"
   },
   "autoload": {
     "psr-4": {

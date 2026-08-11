@@ -2,11 +2,14 @@
 
 Run this checklist from a clean release-candidate commit. Set `VERSION` to an exact `MAJOR.MINOR.PATCH` value and derive `TAG=v$VERSION`, `SERIES=MAJOR.MINOR`, and `DEV_VERSION=$SERIES.x-dev`. Record command output and CI links in `docs/releases/v$VERSION.md` instead of writing release-specific values into this checklist.
 
+The active `0.2.x` release line is prepared from `main`. Historical `0.1.x` maintenance requires a separate, explicit release-policy change.
+
 ## Version and contract
 
 - [ ] Confirm the requested release series is enabled by `ReleaseVerifier::ACTIVE_RELEASE_SERIES`.
 - [ ] Confirm the approved release branch exists on `origin`, is protected, and contains the release-candidate commit (`0.1.x` for `0.1.x`; `main` for later approved series).
 - [ ] Confirm `ReportMetadata::TOOL_VERSION` is the exact `VERSION` and the release notes describe `ReportMetadata::SCHEMA_VERSION`.
+- [ ] Confirm the active release schema matches `ReleaseVerifier::ACTIVE_SCHEMA_VERSION`.
 - [ ] Confirm every package dependency on another project package uses `^$SERIES`.
 - [ ] Confirm root path versions, root requirements, and every `dev-main` branch alias use `DEV_VERSION`.
 - [ ] Move releasable changelog entries under a dated `[VERSION]` heading.
@@ -21,6 +24,7 @@ Run `composer release:verify -- VERSION` to enforce the release-series, tool-ver
 - [ ] Confirm the required Windows and Ubuntu jobs pass.
 - [ ] Confirm the coverage, changed-code, selective-mutation, and representative-corpus budget gates pass.
 - [ ] Confirm the release dependency audit reports no vulnerable locked packages.
+- [ ] Export a machine-readable inventory of the locked release dependencies (CycloneDX/SPDX SBOM or `composer show --locked --format=json`) and retain it with the release evidence.
 - [ ] Run `composer test:fixtures` and review every JSON and Markdown snapshot pair.
 - [ ] Confirm fixture immutability assertions pass and `git status --short` shows no fixture changes.
 - [ ] Enforce the representative-corpus report-size, runtime, memory, redaction, and ordering budgets in [the v0.2 contract](v0.2-contract.md), when applicable to the release line.
@@ -52,6 +56,7 @@ For v0.2 these Composer packages are the only supported external distribution. T
 
 - [ ] Split every package subtree with history preserved.
 - [ ] Confirm each split contains its manifest, source, schema resources where applicable, license, shared readme, changelog, security policy, and documentation.
+- [ ] Record each split commit, source monorepo commit, archive filename, SHA-256 digest, and dependency-inventory digest as artifact provenance.
 - [ ] Run `composer validate --strict` at every split root.
 - [ ] Create matching signed `TAG` tags on the monorepo and all distribution repositories from the approved commit.
 - [ ] Update all Packagist packages and confirm GitHub synchronization.
@@ -60,7 +65,7 @@ For v0.2 these Composer packages are the only supported external distribution. T
 
 Do not submit the monorepo root package to Packagist. Its path repositories exist only for development.
 
-The workflow stamps the exact release version only into temporary archive manifests, verifies `SHA256SUMS`, scans archives for seeded secrets, and installs every package ZIP in clean consumers. Distribution-repository updates and Packagist synchronization remain explicit maintainer actions.
+The workflow stamps the exact release version only into temporary archive manifests, verifies every checksum against the attached asset bytes, validates the dependency inventory and source-bound provenance, scans archives for seeded secrets, and installs every package ZIP in clean consumers. For a tag release it also downloads each matching signed distribution tag and compares the complete extracted payload with the expected split package, including shared documentation. The published quick-start check hashes a copied target before and after analysis so a successful command cannot hide target mutation. Distribution-repository updates and Packagist synchronization remain explicit maintainer actions.
 
 ## Publish
 
@@ -68,6 +73,6 @@ The workflow stamps the exact release version only into temporary archive manife
 - [ ] Confirm Packagist shows the expected metadata and exact version for every package.
 - [ ] Run the README quick start using only published packages.
 - [ ] Announce supported transitions, schema migration requirements, and known limitations.
-- [ ] Record the workflow run, approved commit, archive checksum, immutable-fixture checksum, release URL, and Packagist evidence in `docs/releases/v$VERSION.md`.
+- [ ] Record the workflow run, approved commit, signed tag verification, distribution split commits, archive checksums, dependency-inventory checksum, immutable-fixture checksum, release URL, and Packagist evidence in `docs/releases/v$VERSION.md`.
 
 A manual `Release` run verifies and packages without publishing. A matching annotated tag publishes only after GitHub verifies its signature, confirms its commit is on `main` or (for `0.1.x`) the protected `0.1.x` maintenance line, and all release gates pass. Historical v0.1.0 evidence is retained in [`docs/releases/v0.1.0.md`](releases/v0.1.0.md).

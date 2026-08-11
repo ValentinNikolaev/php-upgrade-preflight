@@ -4,6 +4,8 @@ This project follows [Semantic Versioning](https://semver.org/). Report schema v
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-08-11
+
 ### Added
 
 - A machine-checked v0.1 compatibility contract covering the public PHP operation, generic CLI arguments and defaults, exit policy, schema `0.6`, and all six Laravel JSON/Markdown report approvals archived from the signed `v0.1.0` release.
@@ -21,9 +23,10 @@ This project follows [Semantic Versioning](https://semver.org/). Report schema v
 
 ### Changed
 
-- Development reports now identify `main` as tool `0.2.0-dev`; path packages and branch aliases use the `0.2.x-dev` line.
+- Reports identify the released tool as `0.2.0`; path packages and branch aliases remain on the `0.2.x-dev` development line, with internal package constraints on `^0.2`.
 - The release checklist is version-neutral; release-specific values and evidence live in versioned release notes.
-- Release workflow, contributor guidance, and project instructions now agree on the `0.1.x` maintenance line and later `main` releases.
+- Release verification now enables the `0.2.x` line from `main` and checks the exact tool version, schema `0.7`, branch aliases, root path versions, internal constraints, changelog, and release notes together.
+- Release publication verifies exact artifact checksums and source-bound provenance, compares the complete signed distribution-tag payloads with their expected package splits, and proves that the published quick start does not mutate its analyzed target.
 - Default shareable reports replace project, output, local-repository, and analyzer-workspace roots with stable policy markers; exact sanitized workspace paths require explicit non-shareable debug mode.
 - Source-change plans, risk, and effort now use weighted actionable package/framework correlations rather than every raw scanner observation.
 - Repeated framework findings from composed adjacent rule packs are merged while retaining all hop references and evidence records.
@@ -53,5 +56,6 @@ This project follows [Semantic Versioning](https://semver.org/). Report schema v
 - Checksum-verified release-archive consumers that install all three ZIPs, run the CLI, analyze an immutable fixture, and boot Laravel package discovery before publication.
 - Composer-installed CLI entry-point discovery for both generated proxy and standard `vendor/` package layouts.
 
-[Unreleased]: https://github.com/ValentinNikolaev/php-upgrade-preflight/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/ValentinNikolaev/php-upgrade-preflight/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/ValentinNikolaev/php-upgrade-preflight/releases/tag/v0.2.0
 [0.1.0]: https://github.com/ValentinNikolaev/php-upgrade-preflight/releases/tag/v0.1.0

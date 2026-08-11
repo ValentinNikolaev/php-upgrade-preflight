@@ -176,6 +176,12 @@ final class ReleaseWorkflowTest extends TestCase
         self::assertStringContainsString('--format=json', $workflow);
         self::assertStringContainsString('php tests/smoke.php', $workflow);
         self::assertStringContainsString('php tools/verify-secret-leaks.php dist', $workflow);
+        self::assertStringContainsString('DEPENDENCY-INVENTORY.json', $workflow);
+        self::assertStringContainsString('ARTIFACT-PROVENANCE.json', $workflow);
+        self::assertStringContainsString('php tools/release-artifact-metadata.php generate', $workflow);
+        self::assertStringContainsString('php tools/release-artifact-metadata.php verify', $workflow);
+        self::assertStringContainsString('"0.7"', $workflow);
+        self::assertStringNotContainsString('!== "0.6"', $workflow);
         self::assertStringContainsString('php tools/mask-secret-canaries.php', $workflow);
         self::assertStringContainsString('php tools/render-markdown-report.php', $workflow);
         self::assertStringContainsString("needs:\n      - artifact-consumer", $workflow);
@@ -190,9 +196,66 @@ final class ReleaseWorkflowTest extends TestCase
         self::assertIsString($freshClone);
 
         self::assertStringContainsString('composer validate:all', $freshClone);
+        self::assertStringContainsString('composer test:fixtures', $freshClone);
+        self::assertStringContainsString('checkout --detach $env:GITHUB_SHA', $freshClone);
         self::assertStringNotContainsString('composer check', $freshClone);
         self::assertSame(1, substr_count($freshClone, "'analyze',"));
         self::assertStringContainsString('php tools/render-markdown-report.php', $freshClone);
+    }
+
+    public function testReleaseHardeningCoversSupportedRuntimesAndBothConsumerPlatforms(): void
+    {
+        $quality = $this->parseYamlFile('.github/workflows/quality.yml');
+        $includes = $quality['jobs']['quality']['strategy']['matrix']['include'] ?? null;
+        self::assertIsArray($includes);
+
+        $linuxPhp = [];
+        $windowsPhp = [];
+        foreach ($includes as $case) {
+            self::assertIsArray($case);
+            if (($case['os'] ?? null) === 'ubuntu-latest') {
+                $linuxPhp[] = $case['php'] ?? null;
+            }
+            if (($case['os'] ?? null) === 'windows-latest') {
+                $windowsPhp[] = $case['php'] ?? null;
+            }
+        }
+        self::assertSame(['8.0', '8.1', '8.2', '8.3', '8.4', '8.5'], $linuxPhp);
+        self::assertContains('8.3', $windowsPhp);
+
+        $release = $this->parseYamlFile('.github/workflows/release.yml');
+        self::assertSame(
+            ['ubuntu-latest', 'windows-latest'],
+            $release['jobs']['fresh-clone-audit']['strategy']['matrix']['os'] ?? null
+        );
+        self::assertSame(
+            ['ubuntu-latest', 'windows-latest'],
+            $release['jobs']['artifact-consumer']['strategy']['matrix']['os'] ?? null
+        );
+    }
+
+    public function testPublishingRequiresSignedDistributionTagsAndPublishedPackageSmoke(): void
+    {
+        $workflow = $this->readRootFile('.github/workflows/release.yml');
+
+        self::assertStringContainsString('distribution-preflight:', $workflow);
+        self::assertStringContainsString('php-upgrade-preflight-${package}', $workflow);
+        self::assertStringContainsString('.verification.verified', $workflow);
+        self::assertStringContainsString('repos/${repository}/tarball/${GITHUB_REF_NAME}', $workflow);
+        self::assertStringContainsString('verify-distribution-payload.php', $workflow);
+        self::assertStringContainsString('cp -R "packages/${package}/."', $workflow);
+        self::assertStringContainsString('published-quick-start:', $workflow);
+        self::assertStringContainsString('Packagist did not expose all', $workflow);
+        self::assertStringContainsString('php-upgrade-preflight/cli:${version}', $workflow);
+        self::assertStringContainsString('php-upgrade-preflight/laravel:${version}', $workflow);
+        self::assertStringContainsString('published quick start target', $workflow);
+        self::assertStringContainsString('before="$(fixture_digest "${target}")"', $workflow);
+        self::assertStringContainsString('after="$(fixture_digest "${target}")"', $workflow);
+        self::assertStringContainsString('The published quick start modified the analyzed target.', $workflow);
+
+        $publish = strstr($workflow, "\n  publish:");
+        self::assertIsString($publish);
+        self::assertStringContainsString('- published-quick-start', $publish);
     }
 
     public function testLaravelCompatibilityBootsTheDiscoveredProviderAndCommandHarness(): void

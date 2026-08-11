@@ -1,6 +1,6 @@
 # Installation
 
-PHP Upgrade Preflight v0.1 requires PHP `^8.0` (PHP 8.0 through PHP 8.x) and Composer 2. Composer 2.2 or later is required when simulating an absent extension because earlier releases cannot hide platform packages through `config.platform`. On Composer 2.0 or 2.1, those target scenarios stop before workspace creation and report an operational uncertainty. Composer 2.4 or later enables locked `composer prohibits` diagnostics; older Composer 2 releases still run supported primary scenarios and record that the locked diagnostic is unavailable.
+PHP Upgrade Preflight v0.2.0 requires PHP `^8.0` (PHP 8.0 through PHP 8.x) and Composer 2. Composer 2.2 or later is required when simulating an absent extension because earlier releases cannot hide platform packages through `config.platform`. On Composer 2.0 or 2.1, those target scenarios stop before workspace creation and report an operational uncertainty. Composer 2.4 or later enables locked `composer prohibits` diagnostics; older Composer 2 releases still run supported primary scenarios and record that the locked diagnostic is unavailable.
 
 ## Runtime compatibility
 
@@ -15,20 +15,22 @@ The three analyzer packages have a PHP 8.0 runtime floor. Composer selects compa
 | Laravel adapter with Laravel 11 or 12 | PHP 8.2        | Clean temporary-application boot test       |
 | Laravel adapter with Laravel 13       | PHP 8.3        | Clean temporary-application boot test       |
 
-Laravel's own PHP requirement determines the effective floor when it is higher than the analyzer's PHP 8.0 floor. The transition catalog covers Laravel 7→8, every adjacent transition from 8→9 through 12→13, and the documented direct 7→9 path. Installability is checked independently: the networked compatibility workflow creates a clean temporary application and boots package discovery plus the Artisan command on every Laravel 8–13 host line, at normal and lowest dependency resolution.
+Laravel's own PHP requirement determines the effective floor when it is higher than the analyzer's PHP 8.0 floor. The adapter is host-installable on Laravel 8–13; analyze Laravel 7 from an external tools directory. Installability is checked independently from guidance coverage: the networked compatibility workflow creates a clean temporary application and boots package discovery plus the Artisan command on every Laravel 8–13 host line, at normal and lowest dependency resolution.
+
+The transition catalog covers Laravel 7→8, the retained direct 7→9 path, and every adjacent transition from 8→9 through 12→13. Gapless adjacent packs can compose a multi-major guidance path within Laravel 7–13. Same-major requests, downgrades, ambiguous or unknown majors, targets outside that range, and requests whose first required hop is absent are unsupported. If a future or third-party catalog covers only a contiguous prefix, the report is `partially_supported` and guidance stops before the gap.
 
 ## Choose the packages
 
 Install `php-upgrade-preflight/cli` for the standalone `upgrade-intel` executable. Add `php-upgrade-preflight/laravel` when you need Laravel detection and rules:
 
 ```bash
-composer require --dev php-upgrade-preflight/cli php-upgrade-preflight/laravel
+composer require --dev php-upgrade-preflight/cli:^0.2 php-upgrade-preflight/laravel:^0.2
 ```
 
 Install only the Laravel package when you need the Artisan command and do not need the generic executable:
 
 ```bash
-composer require --dev php-upgrade-preflight/laravel
+composer require --dev php-upgrade-preflight/laravel:^0.2
 ```
 
 Install `php-upgrade-preflight/core` directly only when you are building another adapter or calling the PHP API.
@@ -46,7 +48,7 @@ Use a separate tools directory for PHP 7 projects, dependency-constrained applic
 ```bash
 mkdir php-upgrade-tools
 cd php-upgrade-tools
-composer require php-upgrade-preflight/cli php-upgrade-preflight/laravel
+composer require php-upgrade-preflight/cli:^0.2 php-upgrade-preflight/laravel:^0.2
 vendor/bin/upgrade-intel --help
 ```
 
@@ -55,7 +57,7 @@ PowerShell:
 ```powershell
 New-Item -ItemType Directory php-upgrade-tools
 Set-Location php-upgrade-tools
-composer require php-upgrade-preflight/cli php-upgrade-preflight/laravel
+composer require php-upgrade-preflight/cli:^0.2 php-upgrade-preflight/laravel:^0.2
 vendor\bin\upgrade-intel.bat --help
 ```
 

@@ -29,13 +29,25 @@ The parser accepts only the documented forms. Write `--path=value`, not `--path 
 
 By default, canonical JSON and Markdown replace absolute local roots with `[PROJECT_ROOT]`, `[REPORT_OUTPUT]`, `[LOCAL_REPOSITORY]`, and `[ANALYZER_WORKSPACE]`. The analyzer still uses exact project and source paths internally, while reported source files remain project-relative. A cleanup failure reports only `[ANALYZER_WORKSPACE]` unless `--debug` was supplied. Explicit debug mode preserves workspaces and exposes exact `temp_path` values, so debug reports and retained workspaces are non-shareable. Credential redaction remains active in every mode.
 
+Redaction applies to report fields, bounded Composer output, and diagnostics. It does not prevent Composer from reading host credentials or contacting repositories, and it does not sanitize copied manifests in a retained debug workspace. Treat redaction as a last publication boundary and inspect artifacts before sharing them.
+
 Extension names use Composer's `ext-name` form. An extension may appear only once across `--with-extension` and `--without-extension`; repeated or contradictory assumptions are rejected. Exact versions and absences are written only to analyzer-owned temporary Composer manifests. Absence simulation requires Composer 2.2 or newer; older detected versions stop the affected target scenarios before a workspace is created and leave resolution unknown. Presence without a version uses a conservative temporary presence sentinel. A constraint failure involving that sentinel is reported as the non-blocking `extension-version-unknown` advisory, not as reproducible evidence that the extension is missing. Unlisted extensions still come from the analyzer runtime and are labeled as host-dependent in `platform.extensions` and `uncertainties`.
+
+`platform` preserves the provenance of analyzer, current, target, and extension values. Request extension assumptions override same-name entries from the target's original `config.platform`, but they model only the names supplied. In v0.2, the CLI has no complete-extension-inventory option: any listed assumptions therefore produce `extensions.completeness: partial` and `unmodeled_provenance: analyzer_runtime`.
 
 ## Framework selection
 
 The CLI discovers installed adapters from their `extra.php-upgrade-preflight.framework-adapters` Composer metadata. Without `--framework`, each discovered adapter performs automatic target detection. Laravel continues to detect `laravel/framework` or `illuminate/*` requirements and lock entries. Use `--framework=laravel` to request Laravel analysis explicitly and bypass detection.
 
 Explicit names are case-insensitive. An explicit request fails with exit code `2` when no installed adapter has that name. Invalid metadata and adapter name or class collisions fail the analysis rather than selecting a winner. The complete registration contract and deterministic ordering rules are documented in [Framework adapters](adapters.md).
+
+The v0.2 Laravel catalog supports 7→8, the retained direct 7→9 path, and adjacent 8→9 through 12→13 packs. Gapless adjacent packs compose multi-major guidance; ambiguous or unknown majors, same-major requests, downgrades, catalog boundaries, and a missing first hop are unsupported. A covered prefix followed by a missing hop is `partially_supported`, and findings never cross that gap. These guidance statuses do not change `resolution.status`, which describes only final-target Composer scenarios.
+
+## Report interpretation
+
+Schema `0.7` separates observations from conclusions. `source_inventory` is the deterministic raw AST inventory. `source_impact` contains only inventory uses correlated with a package selected as changed by the successful final-target scenario, an applicable framework rule, or both. Each finding records ownership confidence, relevance, severity, exact occurrences, and evidence. An unknown owner stays `null`; it must not be inferred by a consumer.
+
+Read `resolution.status` and `transition.framework_guidance[].status` independently. A valid report can be Composer-blocked with supported framework guidance, or Composer-feasible with partial or unsupported guidance. See [JSON schema and compatibility](schema.md) for the schema 0.6→0.7 migration.
 
 ## Streams and exit codes
 

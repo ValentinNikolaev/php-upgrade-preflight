@@ -19,7 +19,7 @@ Create the tools installation with PHP 8.0 or later, without changing into the t
 ```bash
 mkdir -p /work/php-upgrade-tools /work/upgrade-reports
 cd /work/php-upgrade-tools
-composer require php-upgrade-preflight/cli php-upgrade-preflight/laravel
+composer require php-upgrade-preflight/cli:^0.2 php-upgrade-preflight/laravel:^0.2
 ```
 
 Then run from the tools directory:
@@ -57,6 +57,14 @@ The executable uses the PHP interpreter and `composer` command available in the 
 Composer scripts and plugins stay disabled in every scenario and diagnostic. Composer still uses its normal global configuration, credentials, network access, platform extensions, and repository access. Run the tool in a container or restricted account when the target manifest is untrusted.
 
 `--from-php` records the known current runtime and enables staged probes. `--target-php` changes Composer's simulated platform in the temporary manifest. Neither option changes the PHP interpreter that runs the analyzer.
+
+Schema `0.7` records those distinctions in `platform`: analyzer PHP always has `runtime` provenance; current PHP comes from `--from-php`, the target's original `config.platform.php`, or remains `unknown`; target PHP comes from the request or remains `unknown`. Extension assumptions come from the target's original `config.platform` and the request, with request values taking precedence. Listed assumptions are deterministic, but every unlisted extension still comes from the analyzer host. Because the CLI cannot describe a complete extension inventory, `--with-extension` and `--without-extension` produce `completeness: partial`, not a claim of full host independence.
+
+## Redaction boundary
+
+Before canonical JSON or Markdown is rendered, known project, output, local-repository, and temporary-workspace roots are replaced with stable path markers. Structured report values and bounded Composer output are then filtered for credential-bearing URLs, authorization values, named credential fields, and recognized token formats. The same credential filter protects CLI diagnostics, including debug diagnostics.
+
+This boundary protects published output; it does not remove credentials from Composer's process environment or global configuration, block network access, or sanitize the target before its manifest is copied. `--debug` deliberately preserves those copied manifests and exposes exact temporary paths, so retained workspaces and debug reports are non-shareable. Pattern-based redaction cannot guarantee recognition of an unknown credential format. Use short-lived read-only credentials, isolate untrusted manifests, and inspect every artifact before sharing it.
 
 ## Verify immutability
 

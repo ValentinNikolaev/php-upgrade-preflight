@@ -97,12 +97,12 @@ By contributing, you agree that your contribution is licensed under the reposito
 
 ## Releases and versions
 
-Run the release workflow manually to exercise the release gates and build archives without publishing. A matching annotated, GitHub-verified `vMAJOR.MINOR.PATCH` tag on the approved release line reruns the gates and publishes the GitHub release only after the quality, compatibility, and fresh-clone audit jobs succeed. Until the v0.2 release candidate is approved, `0.1.x` tags must be reachable from the protected `0.1.x` maintenance branch; later approved series use `main`.
+Run the release workflow manually to exercise the release gates and build archives without publishing. A matching annotated, GitHub-verified `vMAJOR.MINOR.PATCH` tag on the approved release line reruns the gates and publishes the GitHub release only after the quality, compatibility, fresh-clone, and artifact-consumer jobs succeed. The active `0.2.x` release line publishes from `main`; the signed v0.1 compatibility contract remains frozen and is not regenerated during v0.2 work.
 
 Before tagging, run:
 
 ```bash
-composer release:verify -- 0.1.0
+composer release:verify -- 0.2.0
 ```
 
-See [Versioning](docs/versioning.md) for the `0.x` policy and current `0.1.x` patch-only release lock, and [the release checklist](docs/release-checklist.md) for distribution-repository and Packagist steps.
+See [Versioning](docs/versioning.md) for the `0.x` policy and active `0.2.x` release line, and [the release checklist](docs/release-checklist.md) for dependency-inventory, provenance, distribution-repository, and Packagist steps.

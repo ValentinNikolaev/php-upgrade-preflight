@@ -1,6 +1,6 @@
 # PHP Upgrade Preflight Development Plan
 
-Last updated: 2026-08-10
+Last updated: 2026-08-11
 
 This roadmap supersedes the [v0.1.0 implementation plan](DEVELOPMENT_PLAN_0.1.0.md). It records the completed v0.1.0 release, a short v0.1.x stabilization line, and the v0.2.0 feature line.
 
@@ -10,7 +10,7 @@ This roadmap supersedes the [v0.1.0 implementation plan](DEVELOPMENT_PLAN_0.1.0.
 - Mark work `[~]` only while someone is implementing it. Mark it `[x]` only after the acceptance evidence passes.
 - Reconcile this plan in the same change whenever roadmap work is completed, partially completed, reopened, or reverted; commits and handoffs must not leave checklist or status text stale.
 - Keep fixes and release hardening compatible with `0.1.x`. Put new report fields, public behavior, and broader framework intelligence in `0.2.0`.
-- Keep release automation locked to `0.1.x` patch increments until the v0.2.0 release candidate is explicitly approved. Do not use an interim minor version while executing this roadmap.
+- Keep release automation on the approved `0.2.x` line from `main`. The signed v0.1.0 contract remains immutable; reopening `0.1.x` maintenance requires an explicit coordinated policy change.
 - Recheck external release state before acting. Local Git state cannot prove whether a distribution repository or Packagist changed later.
 - Update public documentation in the same change as behavior, commands, report semantics, supported versions, or release policy.
 
@@ -200,16 +200,18 @@ Status: passed on 2026-08-10. Composer metadata now discovers installed adapters
 
 ## Milestone 8: v0.2.0 Documentation, Hardening, and Release
 
-- [ ] Update README, installation, external-analysis, CLI, Artisan, schema, limitations, troubleshooting, versioning, contribution, security, and release documentation for the approved v0.2 behavior.
-- [ ] Document schema `0.6` to `0.7` migration, source-impact semantics, platform provenance, redaction boundaries, supported Laravel transitions, and unsupported hops.
-- [ ] Update tool version, branch aliases, root path versions, internal package constraints, changelog, release notes, and release-verifier expectations together.
+- [x] Update README, installation, external-analysis, CLI, Artisan, schema, limitations, troubleshooting, versioning, contribution, security, and release documentation for the approved v0.2 behavior.
+- [x] Document schema `0.6` to `0.7` migration, source-impact semantics, platform provenance, redaction boundaries, supported Laravel transitions, and unsupported hops.
+- [x] Update tool version, branch aliases, root path versions, internal package constraints, changelog, release notes, and release-verifier expectations together.
 - [ ] Run the deterministic gate across every supported PHP runtime and Windows coverage required by CI.
 - [ ] Run normal and lowest-dependency consumer installs for every advertised Laravel host line, including Laravel 13 only if Milestone 5 approved it.
 - [ ] Run fresh-clone and release-artifact consumer audits on Windows and Linux.
-- [ ] Produce an SBOM or equivalent dependency inventory and artifact provenance for release archives.
+- [x] Produce an SBOM or equivalent dependency inventory and artifact provenance for release archives.
 - [ ] Create matching verified signed tags, publish all three distribution repositories, synchronize Packagist, and verify the published quick start.
 
 Acceptance gate: v0.2.0 installs from published packages, validates against the documented schema, produces deterministic and redacted reports, supports the approved transition matrix, and preserves every read-only guarantee.
+
+Status: release-candidate implementation completed locally on 2026-08-11. Documentation, schema migration guidance, exact v0.2.0 metadata, archive inventory and source-bound provenance, complete distribution-payload comparison, published-target immutability enforcement, and fail-closed fresh coverage evidence are implemented with deterministic tests. The final local `composer check` passes with 527 unit tests and 3,605 assertions, 64 integration tests and 1,987 assertions, 2 smoke tests, both PHPStan configurations, and all 206 CS Fixer targets. The fresh PCOV ratchet passes at 6,479 of 7,021 executable lines, all six selective mutants are killed, actionlint and report-privacy verification pass, and the locked dependency audit reports no known advisories. The acceptance gate remains open until the final GitHub PHP/Windows, compatibility, fresh-clone, and artifact-consumer jobs pass and matching signed distribution tags plus Packagist publication are externally verified.
 
 ## Deferred Until After v0.2.0
 
@@ -222,4 +224,4 @@ Acceptance gate: v0.2.0 installs from published packages, validates against the 
 
 ## Recommended Next Work Session
 
-Start Milestone 8 by reconciling every public v0.2 document and release artifact with the completed schema, transition, adapter-discovery, privacy, and Composer-only external-execution contracts. Keep the completed deterministic, coverage, mutation, compatibility, audit, and read-only gates intact while coordinating the v0.2.0 version metadata and explicit release-policy unlock.
+Run the final v0.2.0 release workflow, review every PHP/Windows, compatibility, fresh-clone, dependency-audit, and artifact-consumer job, then create and verify matching signed distribution tags, Packagist synchronization, and the published immutable-target quick start before marking Milestone 8 complete.

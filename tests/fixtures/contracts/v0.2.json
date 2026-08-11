@@ -127,11 +127,11 @@
         }
     },
     "development_version": {
-        "report_tool_version": "0.2.0-dev",
+        "report_tool_version": "0.2.0",
         "composer_development_version": "0.2.x-dev",
         "internal_constraint": "^0.2",
-        "maintenance_release_series": "0.1",
-        "minor_release_locked_until_candidate_approval": true
+        "active_release_series": "0.2",
+        "release_candidate_approved": true
     },
     "budgets": {
         "corpus": [

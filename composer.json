@@ -96,6 +96,7 @@
       "@test:smoke"
     ],
     "test:coverage": [
+      "php -r \"if (is_file('build/coverage/clover.xml') && !unlink('build/coverage/clover.xml')) { exit(1); }\"",
       "phpunit --testsuite unit --coverage-clover build/coverage/clover.xml",
       "php tools/verify-coverage.php build/coverage/clover.xml"
     ],

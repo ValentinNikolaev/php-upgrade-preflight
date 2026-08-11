@@ -2,7 +2,7 @@
 
 ## Supported versions
 
-The project accepts security fixes for the latest `0.1.x` release line. Development branches may change without a compatibility guarantee.
+The project accepts security fixes for the latest `0.2.x` release line. The signed v0.1.x artifacts remain available for historical compatibility verification but are no longer the actively supported line. Development branches may change without a compatibility guarantee.
 
 ## Report a vulnerability
 

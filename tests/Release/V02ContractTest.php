@@ -100,9 +100,11 @@ final class V02ContractTest extends TestCase
         self::assertFileExists($this->root . '/packages/core/resources/schema/upgrade-report-v0.7.schema.json');
     }
 
-    public function testMainUsesTheV02DevelopmentIdentityAcrossPackagesAndReports(): void
+    public function testRepositoryUsesTheV020ReleaseIdentityAcrossPackagesAndReports(): void
     {
         $policy = $this->contract['development_version'];
+        self::assertSame('0.2', $policy['active_release_series']);
+        self::assertTrue($policy['release_candidate_approved']);
         self::assertSame($policy['report_tool_version'], ReportMetadata::TOOL_VERSION);
         self::assertSame('0.7', ReportMetadata::SCHEMA_VERSION);
 
@@ -143,22 +145,37 @@ final class V02ContractTest extends TestCase
         self::assertStringNotContainsString('- [x]', $checklist);
     }
 
+    public function testCoverageGateCannotReuseAStaleReport(): void
+    {
+        $root = $this->readJson($this->root . '/composer.json');
+        $commands = $root['scripts']['test:coverage'];
+
+        self::assertCount(3, $commands);
+        self::assertStringContainsString("unlink('build/coverage/clover.xml')", $commands[0]);
+        self::assertStringContainsString('--coverage-clover build/coverage/clover.xml', $commands[1]);
+        self::assertSame('php tools/verify-coverage.php build/coverage/clover.xml', $commands[2]);
+    }
+
     public function testReleaseLinePolicyIsConsistentAcrossRepositoryInstructions(): void
     {
         $contributing = file_get_contents($this->root . '/CONTRIBUTING.md');
         $agentRules = file_get_contents($this->root . '/.claude/CLAUDE.md');
+        $plan = file_get_contents($this->root . '/.claude/DEVELOPMENT_PLAN.md');
         $memory = file_get_contents($this->root . '/.claude/memory/MEMORY.md');
         $checklist = file_get_contents($this->root . '/docs/release-checklist.md');
+        $versioning = file_get_contents($this->root . '/docs/versioning.md');
 
-        foreach ([$contributing, $agentRules, $memory, $checklist] as $contents) {
+        foreach ([$contributing, $agentRules, $plan, $memory, $checklist, $versioning] as $contents) {
             self::assertIsString($contents);
-            self::assertStringContainsString('0.1.x', $contents);
+            self::assertStringContainsString('0.2.x', $contents);
             self::assertStringContainsString('main', $contents);
         }
-        self::assertStringContainsString('protected `0.1.x` maintenance branch', $contributing);
-        self::assertStringContainsString('approved release line', $agentRules);
-        self::assertStringContainsString('approved release line', $memory);
+        self::assertStringContainsString('v0.1 compatibility', $contributing);
+        self::assertStringContainsString('active `0.2.x` series', $agentRules);
+        self::assertStringContainsString('release-candidate implementation completed locally', $plan);
+        self::assertStringContainsString('published quick start that proves target immutability', $memory);
         self::assertStringContainsString('approved release branch exists on `origin`', $checklist);
+        self::assertStringContainsString('active `0.2.x` release line', $versioning);
     }
 
     public function testRepresentativeReportSnapshotsStayInsideSizeAndRedactionBudgets(): void

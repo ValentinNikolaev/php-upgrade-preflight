@@ -6,7 +6,8 @@ namespace PhpUpgradePreflight\Tools;
 
 final class ReleaseVerifier
 {
-    private const ACTIVE_RELEASE_SERIES = '0.1';
+    private const ACTIVE_RELEASE_SERIES = '0.2';
+    private const ACTIVE_SCHEMA_VERSION = '0.7';
 
     /** @var array<string, string> */
     private const PACKAGE_NAMES = [
@@ -44,7 +45,7 @@ final class ReleaseVerifier
         $series = $matches[1] . '.' . $matches[2];
         if ($series !== self::ACTIVE_RELEASE_SERIES) {
             return [sprintf(
-                'Release series %s.x is locked; only %s.x patch releases are allowed until v0.2.0 is explicitly approved',
+                'Release series %s.x is locked; only %s.x releases are currently allowed',
                 $series,
                 self::ACTIVE_RELEASE_SERIES
             )];
@@ -119,7 +120,7 @@ final class ReleaseVerifier
             }
         }
 
-        $this->verifyToolVersion($version, $errors);
+        $this->verifyReportMetadata($version, $errors);
         $this->verifyChangelog($version, $errors);
         $this->verifyReleaseNotes($version, $errors);
 
@@ -164,7 +165,7 @@ final class ReleaseVerifier
     }
 
     /** @param list<string> $errors */
-    private function verifyToolVersion(string $version, array &$errors): void
+    private function verifyReportMetadata(string $version, array &$errors): void
     {
         $metadataPath = $this->root . '/packages/core/src/Model/ReportMetadata.php';
         $metadata = $this->readFile($metadataPath);
@@ -175,6 +176,19 @@ final class ReleaseVerifier
         }
 
         $this->expectSame('ReportMetadata::TOOL_VERSION', $version, $toolVersion[1], $errors);
+
+        if (!preg_match("/SCHEMA_VERSION\s*=\s*'([^']+)'/", $metadata, $schemaVersion)) {
+            $errors[] = $metadataPath . ': could not find SCHEMA_VERSION';
+
+            return;
+        }
+
+        $this->expectSame(
+            'ReportMetadata::SCHEMA_VERSION',
+            self::ACTIVE_SCHEMA_VERSION,
+            $schemaVersion[1],
+            $errors
+        );
     }
 
     /** @param list<string> $errors */
