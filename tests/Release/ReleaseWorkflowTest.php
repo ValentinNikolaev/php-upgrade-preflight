@@ -232,6 +232,16 @@ final class ReleaseWorkflowTest extends TestCase
             ['ubuntu-latest', 'windows-latest'],
             $release['jobs']['artifact-consumer']['strategy']['matrix']['os'] ?? null
         );
+
+        $artifactConsumer = $release['jobs']['artifact-consumer']['steps'] ?? null;
+        self::assertIsArray($artifactConsumer);
+        $artifactConsumerRuns = implode(
+            "\n",
+            array_values(array_filter(array_column($artifactConsumer, 'run'), 'is_string'))
+        );
+        self::assertStringContainsString('artifact_repository="$(php -r', $artifactConsumerRuns);
+        self::assertStringContainsString('str_replace("\\\\", "/", $argv[1])', $artifactConsumerRuns);
+        self::assertStringContainsString('JSON_THROW_ON_ERROR', $artifactConsumerRuns);
     }
 
     public function testPublishingRequiresSignedDistributionTagsAndPublishedPackageSmoke(): void

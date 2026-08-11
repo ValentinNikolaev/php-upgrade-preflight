@@ -394,8 +394,15 @@ jobs:
         run: |
           set -euo pipefail
           export COMPOSER_ROOT_VERSION=1.0.0
-          artifact_path="${GITHUB_WORKSPACE}/dist"
-          artifact_repository="{\"type\":\"artifact\",\"url\":\"${artifact_path}\",\"canonical\":true}"
+          # PHP variables are intentionally single-quoted from Bash.
+          # shellcheck disable=SC2016
+          artifact_repository="$(php -r '
+            echo json_encode([
+                "type" => "artifact",
+                "url" => str_replace("\\", "/", $argv[1]),
+                "canonical" => true,
+            ], JSON_THROW_ON_ERROR);
+          ' "${GITHUB_WORKSPACE}/dist")"
 
           configure_consumer() {
             local directory="$1"
