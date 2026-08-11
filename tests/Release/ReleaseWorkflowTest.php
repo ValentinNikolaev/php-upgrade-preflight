@@ -139,10 +139,11 @@ final class ReleaseWorkflowTest extends TestCase
         self::assertStringContainsString("if: runner.os == 'Windows'", $workflow);
         self::assertStringContainsString("if: runner.os != 'Windows'", $workflow);
         self::assertStringContainsString('composer install --prefer-dist --no-interaction --no-progress', $workflow);
-        self::assertStringContainsString('run: composer test', $workflow);
+        self::assertStringContainsString('run: ${{ matrix.test_command }}', $workflow);
+        self::assertStringContainsString('if: matrix.privacy', $workflow);
         self::assertStringContainsString('run: php tools/verify-report-privacy.php', $workflow);
         self::assertGreaterThan(
-            strpos($workflow, 'run: composer test'),
+            strpos($workflow, 'run: ${{ matrix.test_command }}'),
             strpos($workflow, 'run: php tools/verify-report-privacy.php')
         );
         self::assertStringNotContainsString('composer check', $workflow);
@@ -211,6 +212,9 @@ final class ReleaseWorkflowTest extends TestCase
 
         $linuxPhp = [];
         $windowsPhp = [];
+        $windowsSuites = [];
+        $windowsCommands = [];
+        $windowsPrivacySuites = [];
         foreach ($includes as $case) {
             self::assertIsArray($case);
             if (($case['os'] ?? null) === 'ubuntu-latest') {
@@ -218,10 +222,49 @@ final class ReleaseWorkflowTest extends TestCase
             }
             if (($case['os'] ?? null) === 'windows-latest') {
                 $windowsPhp[] = $case['php'] ?? null;
+                $windowsSuites[] = $case['suite'] ?? null;
+                $windowsCommands[$case['suite'] ?? ''] = $case['test_command'] ?? null;
+                if (($case['privacy'] ?? null) === true) {
+                    $windowsPrivacySuites[] = $case['suite'] ?? null;
+                }
             }
         }
         self::assertSame(['8.0', '8.1', '8.2', '8.3', '8.4', '8.5'], $linuxPhp);
-        self::assertContains('8.3', $windowsPhp);
+        self::assertSame(['8.3', '8.3', '8.3', '8.3', '8.3'], $windowsPhp);
+        self::assertSame([
+            'unit-smoke',
+            'parity-a',
+            'parity-b',
+            'integration-heavy',
+            'integration-rest',
+        ], $windowsSuites);
+        self::assertSame([
+            'unit-smoke' => 'composer test:unit-smoke',
+            'parity-a' => 'composer test:integration:windows-parity-a',
+            'parity-b' => 'composer test:integration:windows-parity-b',
+            'integration-heavy' => 'composer test:integration:windows-heavy',
+            'integration-rest' => 'composer test:integration:windows-rest',
+        ], $windowsCommands);
+        self::assertSame(['unit-smoke'], $windowsPrivacySuites);
+
+        $composer = json_decode($this->readRootFile('composer.json'), true, 512, JSON_THROW_ON_ERROR);
+        self::assertIsArray($composer);
+        self::assertSame(
+            'phpunit --testsuite integration --group windows-parity-a',
+            $composer['scripts']['test:integration:windows-parity-a'] ?? null
+        );
+        self::assertSame(
+            'phpunit --testsuite integration --group windows-parity-b',
+            $composer['scripts']['test:integration:windows-parity-b'] ?? null
+        );
+        self::assertSame(
+            'phpunit --testsuite integration --group windows-integration-heavy',
+            $composer['scripts']['test:integration:windows-heavy'] ?? null
+        );
+        self::assertSame(
+            'phpunit --testsuite integration --exclude-group windows-parity-a,windows-parity-b,windows-integration-heavy',
+            $composer['scripts']['test:integration:windows-rest'] ?? null
+        );
 
         $release = $this->parseYamlFile('.github/workflows/release.yml');
         self::assertSame(
@@ -263,12 +306,18 @@ final class ReleaseWorkflowTest extends TestCase
         self::assertStringContainsString('cp -R "packages/${package}/."', $workflow);
         self::assertStringContainsString('published-quick-start:', $workflow);
         self::assertStringContainsString('Packagist did not expose all', $workflow);
+        self::assertStringContainsString('at their verified signed-tag references', $workflow);
+        self::assertStringContainsString('GH_TOKEN: ${{ github.token }}', $workflow);
         self::assertStringContainsString('php-upgrade-preflight/cli:${version}', $workflow);
         self::assertStringContainsString('php-upgrade-preflight/laravel:${version}', $workflow);
         self::assertStringContainsString('verify-installed-package-references.php', $workflow);
         self::assertStringContainsString('git/ref/tags/v${version}', $workflow);
         self::assertStringContainsString('git/tags/${tag_object}', $workflow);
         self::assertStringContainsString('"${expected_references[@]}"', $workflow);
+        self::assertLessThan(
+            strpos($workflow, 'for attempt in 1 2 3 4 5 6; do'),
+            strpos($workflow, 'expected_references=()')
+        );
         self::assertStringContainsString('published quick start target', $workflow);
         self::assertStringContainsString('before="$(fixture_digest "${target}")"', $workflow);
         self::assertStringContainsString('after="$(fixture_digest "${target}")"', $workflow);

@@ -203,15 +203,15 @@ Status: passed on 2026-08-10. Composer metadata now discovers installed adapters
 - [x] Update README, installation, external-analysis, CLI, Artisan, schema, limitations, troubleshooting, versioning, contribution, security, and release documentation for the approved v0.2 behavior.
 - [x] Document schema `0.6` to `0.7` migration, source-impact semantics, platform provenance, redaction boundaries, supported Laravel transitions, and unsupported hops.
 - [x] Update tool version, branch aliases, root path versions, internal package constraints, changelog, release notes, and release-verifier expectations together.
-- [ ] Run the deterministic gate across every supported PHP runtime and Windows coverage required by CI.
-- [ ] Run normal and lowest-dependency consumer installs for every advertised Laravel host line, including Laravel 13 only if Milestone 5 approved it.
-- [ ] Run fresh-clone and release-artifact consumer audits on Windows and Linux.
+- [x] Run the deterministic gate across every supported PHP runtime and Windows coverage required by CI.
+- [x] Run normal and lowest-dependency consumer installs for every advertised Laravel host line, including Laravel 13 only if Milestone 5 approved it.
+- [x] Run fresh-clone and release-artifact consumer audits on Windows and Linux.
 - [x] Produce an SBOM or equivalent dependency inventory and artifact provenance for release archives.
-- [ ] Create matching verified signed tags, publish all three distribution repositories, synchronize Packagist, and verify the published quick start.
+- [x] Create matching verified signed tags, publish all three distribution repositories, synchronize Packagist, and verify the published quick start.
 
 Acceptance gate: v0.2.0 installs from published packages, validates against the documented schema, produces deterministic and redacted reports, supports the approved transition matrix, and preserves every read-only guarantee.
 
-Status: release-candidate implementation completed locally on 2026-08-11. Documentation, schema migration guidance, exact v0.2.0 metadata, archive inventory and source-bound provenance, complete distribution-payload comparison, published-target immutability enforcement, and fail-closed fresh coverage evidence are implemented with deterministic tests. The final local `composer check` passes with 527 unit tests and 3,605 assertions, 64 integration tests and 1,987 assertions, 2 smoke tests, both PHPStan configurations, and all 206 CS Fixer targets. The fresh PCOV ratchet passes at 6,479 of 7,021 executable lines, all six selective mutants are killed, actionlint and report-privacy verification pass, and the locked dependency audit reports no known advisories. The acceptance gate remains open until the final GitHub PHP/Windows, compatibility, fresh-clone, and artifact-consumer jobs pass and matching signed distribution tags plus Packagist publication are externally verified.
+Status: passed on 2026-08-11. The v0.2.0 release workflow completed all 36 jobs, including PHP 8.0 through 8.5, Windows PHP 8.3, normal and lowest Laravel 8 through 13 consumers, Windows and Linux fresh-clone and archive-consumer audits, dependency inventory, artifact provenance, signed distribution verification, and the published quick start. GitHub publishes the final release with six verified assets. Core, CLI, and Laravel are published from matching verified signed v0.2.1 hotfix tags after Packagist's immutable v0.2.0 Core reference required a patch release; an independent clean consumer resolves all three v0.2.1 packages to the exact signed-tag commits, produces schema 0.7/tool 0.2.1 output, and preserves the analyzed fixture byte-for-byte. The published release and current package line therefore satisfy the acceptance gate.
 
 ## Deferred Until After v0.2.0
 
@@ -224,4 +224,4 @@ Status: release-candidate implementation completed locally on 2026-08-11. Docume
 
 ## Recommended Next Work Session
 
-Run the final v0.2.0 release workflow, review every PHP/Windows, compatibility, fresh-clone, dependency-audit, and artifact-consumer job, then create and verify matching signed distribution tags, Packagist synchronization, and the published immutable-target quick start before marking Milestone 8 complete.
+Monitor the v0.2 patch line for real-world reports and start v0.3 planning only from evidence that does not fit the documented v0.2 compatibility and schema contracts.

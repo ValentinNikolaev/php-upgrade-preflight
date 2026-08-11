@@ -90,6 +90,14 @@
     "test:unit": "phpunit --testsuite unit",
     "test:integration": "phpunit --testsuite integration",
     "test:smoke": "phpunit --testsuite smoke",
+    "test:unit-smoke": [
+      "@test:unit",
+      "@test:smoke"
+    ],
+    "test:integration:windows-parity-a": "phpunit --testsuite integration --group windows-parity-a",
+    "test:integration:windows-parity-b": "phpunit --testsuite integration --group windows-parity-b",
+    "test:integration:windows-heavy": "phpunit --testsuite integration --group windows-integration-heavy",
+    "test:integration:windows-rest": "phpunit --testsuite integration --exclude-group windows-parity-a,windows-parity-b,windows-integration-heavy",
     "test:all": [
       "@test:unit",
       "@test:integration",

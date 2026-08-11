@@ -593,6 +593,7 @@ jobs:
         shell: bash
         env:
           RELEASE_VERSION: ${{ github.ref_name }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           version="${RELEASE_VERSION#v}"
@@ -601,19 +602,30 @@ jobs:
           cd "${consumer}"
           composer init --no-interaction --name=php-upgrade-preflight/published-smoke --license=proprietary
 
+          expected_references=()
+          for package in core cli laravel; do
+            repository="ValentinNikolaev/php-upgrade-preflight-${package}"
+            tag_object="$(gh api "repos/${repository}/git/ref/tags/v${version}" --jq '.object.sha')"
+            expected_references+=("$(gh api "repos/${repository}/git/tags/${tag_object}" --jq '.object.sha')")
+          done
+
           for attempt in 1 2 3 4 5 6; do
             if composer require \
               --prefer-dist \
               --no-interaction \
               --no-progress \
               "php-upgrade-preflight/cli:${version}" \
-              "php-upgrade-preflight/laravel:${version}"; then
+              "php-upgrade-preflight/laravel:${version}" &&
+              php "${GITHUB_WORKSPACE}/tools/verify-installed-package-references.php" \
+                "${version}" \
+                composer.lock \
+                "${expected_references[@]}"; then
               break
             fi
             rm -rf composer.lock vendor
             composer clear-cache
             if [[ "${attempt}" -eq 6 ]]; then
-              echo "Packagist did not expose all v${version} packages after the synchronization window." >&2
+              echo "Packagist did not expose all v${version} packages at their verified signed-tag references after the synchronization window." >&2
               exit 1
             fi
             sleep 20
@@ -621,16 +633,6 @@ jobs:
 
           composer show "php-upgrade-preflight/cli" "${version}" --locked
           composer show "php-upgrade-preflight/laravel" "${version}" --locked
-          expected_references=()
-          for package in core cli laravel; do
-            repository="ValentinNikolaev/php-upgrade-preflight-${package}"
-            tag_object="$(gh api "repos/${repository}/git/ref/tags/v${version}" --jq '.object.sha')"
-            expected_references+=("$(gh api "repos/${repository}/git/tags/${tag_object}" --jq '.object.sha')")
-          done
-          php "${GITHUB_WORKSPACE}/tools/verify-installed-package-references.php" \
-            "${version}" \
-            composer.lock \
-            "${expected_references[@]}"
           vendor/bin/upgrade-intel --help
 
           target="${RUNNER_TEMP}/published quick start target"

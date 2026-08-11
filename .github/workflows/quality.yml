@@ -83,7 +83,7 @@ jobs:
         run: composer test:mutation
 
   quality:
-    name: ${{ matrix.os }} / PHP ${{ matrix.php }}
+    name: ${{ matrix.os }} / PHP ${{ matrix.php }} / ${{ matrix.suite }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -91,18 +91,59 @@ jobs:
         include:
           - os: ubuntu-latest
             php: '8.0'
+            suite: all
+            test_command: composer test
+            privacy: true
           - os: ubuntu-latest
             php: '8.1'
+            suite: all
+            test_command: composer test
+            privacy: true
           - os: ubuntu-latest
             php: '8.2'
+            suite: all
+            test_command: composer test
+            privacy: true
           - os: ubuntu-latest
             php: '8.3'
+            suite: all
+            test_command: composer test
+            privacy: true
           - os: ubuntu-latest
             php: '8.4'
+            suite: all
+            test_command: composer test
+            privacy: true
           - os: ubuntu-latest
             php: '8.5'
+            suite: all
+            test_command: composer test
+            privacy: true
           - os: windows-latest
             php: '8.3'
+            suite: unit-smoke
+            test_command: composer test:unit-smoke
+            privacy: true
+          - os: windows-latest
+            php: '8.3'
+            suite: parity-a
+            test_command: composer test:integration:windows-parity-a
+            privacy: false
+          - os: windows-latest
+            php: '8.3'
+            suite: parity-b
+            test_command: composer test:integration:windows-parity-b
+            privacy: false
+          - os: windows-latest
+            php: '8.3'
+            suite: integration-heavy
+            test_command: composer test:integration:windows-heavy
+            privacy: false
+          - os: windows-latest
+            php: '8.3'
+            suite: integration-rest
+            test_command: composer test:integration:windows-rest
+            privacy: false
     steps:
       - name: Check out repository
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
@@ -128,7 +169,8 @@ jobs:
         run: composer install --prefer-dist --no-interaction --no-progress
 
       - name: Run test suite
-        run: composer test
+        run: ${{ matrix.test_command }}
 
       - name: Verify report privacy
+        if: matrix.privacy
         run: php tools/verify-report-privacy.php

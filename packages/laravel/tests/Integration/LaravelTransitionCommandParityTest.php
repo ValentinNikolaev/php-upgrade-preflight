@@ -15,8 +15,38 @@ use Symfony\Component\Console\Tester\CommandTester;
 
 final class LaravelTransitionCommandParityTest extends TestCase
 {
-    /** @dataProvider transitionCaseProvider */
-    public function testCliAndArtisanHaveCanonicalJsonParityForEveryTransitionFixture(array $case): void
+    /**
+     * @group windows-parity-a
+     * @dataProvider transitionCaseShardAProvider
+     */
+    public function testCliAndArtisanHaveCanonicalJsonParityForTransitionFixtureShardA(array $case): void
+    {
+        $this->assertCanonicalParity($case);
+    }
+
+    /**
+     * @group windows-parity-b
+     * @dataProvider transitionCaseShardBProvider
+     */
+    public function testCliAndArtisanHaveCanonicalJsonParityForTransitionFixtureShardB(array $case): void
+    {
+        $this->assertCanonicalParity($case);
+    }
+
+    /** @return iterable<string, array{array<string, mixed>}> */
+    public function transitionCaseShardAProvider(): iterable
+    {
+        yield from $this->transitionCasesForShard(0);
+    }
+
+    /** @return iterable<string, array{array<string, mixed>}> */
+    public function transitionCaseShardBProvider(): iterable
+    {
+        yield from $this->transitionCasesForShard(1);
+    }
+
+    /** @param array<string, mixed> $case */
+    private function assertCanonicalParity(array $case): void
     {
         $projectPath = dirname(__DIR__, 4) . '/tests/fixtures/projects/' . $case['fixture'];
         [$cliExit, $cliJson, $cliError] = $this->runCli($case, $projectPath);
@@ -35,7 +65,7 @@ final class LaravelTransitionCommandParityTest extends TestCase
     }
 
     /** @return iterable<string, array{array<string, mixed>}> */
-    public function transitionCaseProvider(): iterable
+    private function transitionCasesForShard(int $shard): iterable
     {
         $contents = file_get_contents(dirname(__DIR__, 4) . '/tests/fixtures/contracts/laravel-v0.2-transition-cases.json');
         if ($contents === false) {
@@ -46,7 +76,10 @@ final class LaravelTransitionCommandParityTest extends TestCase
             throw new \RuntimeException('Invalid Laravel transition fixture contract.');
         }
 
-        foreach ($contract['cases'] as $case) {
+        foreach (array_values($contract['cases']) as $index => $case) {
+            if ($index % 2 !== $shard) {
+                continue;
+            }
             yield $case['name'] => [$case];
         }
     }

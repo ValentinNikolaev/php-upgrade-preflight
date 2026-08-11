@@ -13,6 +13,7 @@ use PhpUpgradePreflight\Tests\Support\LaravelTransitionFixtureFactory;
 use PhpUpgradePreflight\Tests\Support\LaravelTransitionFixtureRunner;
 use PHPUnit\Framework\TestCase;
 
+/** @group windows-integration-heavy */
 final class LaravelV02TransitionFixtureTest extends TestCase
 {
     /** @dataProvider transitionCaseProvider */

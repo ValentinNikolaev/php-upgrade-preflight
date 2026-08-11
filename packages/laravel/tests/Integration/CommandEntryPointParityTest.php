@@ -11,6 +11,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Process\Process;
 
+/** @group windows-integration-heavy */
 final class CommandEntryPointParityTest extends TestCase
 {
     private string $temporaryDirectory;
