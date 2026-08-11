@@ -172,7 +172,7 @@ final class V02ContractTest extends TestCase
         }
         self::assertStringContainsString('v0.1 compatibility', $contributing);
         self::assertStringContainsString('active `0.2.x` series', $agentRules);
-        self::assertStringContainsString('release-candidate implementation completed locally', $plan);
+        self::assertStringContainsString('The v0.2.0 release workflow completed all 36 jobs', $plan);
         self::assertStringContainsString('published quick start that proves target immutability', $memory);
         self::assertStringContainsString('approved release branch exists on `origin`', $checklist);
         self::assertStringContainsString('active `0.2.x` release line', $versioning);
