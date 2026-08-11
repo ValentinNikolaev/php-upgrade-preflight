@@ -15,7 +15,7 @@ Before editing:
 3. Read `.claude/memory/MEMORY.md` for durable architecture and decisions.
 4. Run `git status --short` and preserve unrelated user changes.
 
-Unless the user requests different work, continue the first unchecked item in the earliest incomplete milestone of the active development plan. Treat `.claude/DEVELOPMENT_PLAN_0.1.0.md` as a historical record; do not use its completed checklist to sequence current work.
+Unless the user requests different work, continue the first unchecked item in the earliest incomplete milestone of the active development plan. Treat versioned `.claude/DEVELOPMENT_PLAN_*.md` files as historical records; do not use their completed checklists to sequence current work.
 
 The original architecture brief is at `I:/Development/Git/ValentinNikolaev/laravel-package-intelligence/ARCHITECTURE_PROMPT.md`. Re-read it before changing product scope or package boundaries.
 
@@ -30,7 +30,7 @@ The original architecture brief is at `I:/Development/Git/ValentinNikolaev/larav
 - JSON is the canonical report. Markdown must be a projection of the same `UpgradeReport`, with no independent analysis logic.
 - Every meaningful finding must reference evidence that exists in the report. Evidence IDs must be unique and deterministic within that report; orphaned evidence is invalid.
 - Effort estimates are ranges with assumptions and confidence, never precise promises.
-- Keep v0.1 local and read-only. Do not add automatic source edits, SaaS uploads, dashboards, pull-request creation, or AI-generated upgrade advice.
+- Keep the product local and read-only. Do not add automatic source edits, SaaS uploads, dashboards, pull-request creation, or AI-generated upgrade advice.
 
 ## Package Boundaries
 
