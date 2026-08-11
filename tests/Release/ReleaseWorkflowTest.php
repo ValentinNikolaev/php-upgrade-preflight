@@ -242,6 +242,13 @@ final class ReleaseWorkflowTest extends TestCase
         self::assertStringContainsString('artifact_repository="$(php -r', $artifactConsumerRuns);
         self::assertStringContainsString('str_replace("\\\\", "/", $argv[1])', $artifactConsumerRuns);
         self::assertStringContainsString('JSON_THROW_ON_ERROR', $artifactConsumerRuns);
+
+        $artifactConsumerSetup = array_values(array_filter(
+            $artifactConsumer,
+            static fn (array $step): bool => str_starts_with($step['uses'] ?? '', 'shivammathur/setup-php@')
+        ));
+        self::assertCount(1, $artifactConsumerSetup);
+        self::assertSame('zip, fileinfo', $artifactConsumerSetup[0]['with']['extensions'] ?? null);
     }
 
     public function testPublishingRequiresSignedDistributionTagsAndPublishedPackageSmoke(): void
