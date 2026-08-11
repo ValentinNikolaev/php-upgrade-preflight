@@ -63,6 +63,19 @@ final class CoverageVerifierTest extends TestCase
         self::assertContains('new_executable_lines_must_be_covered', $baseline['policy']);
     }
 
+    public function testCanonicalizesEquivalentRootAndCloverFilePaths(): void
+    {
+        $aliasedRoot = $this->root . '/src/..';
+        $verifier = new CoverageVerifier($aliasedRoot, ['src/Critical.php']);
+
+        $measurement = $verifier->measure($this->writeClover([2 => 1, 3 => 0], $aliasedRoot));
+
+        self::assertSame(
+            ['covered' => 1, 'executable' => 2],
+            $measurement['critical_modules']['src/Critical.php']
+        );
+    }
+
     public function testRejectsCoverageRatioDecrease(): void
     {
         $baseline = $this->measurement(2, 2);
@@ -177,13 +190,13 @@ final class CoverageVerifierTest extends TestCase
     }
 
     /** @param array<int, int> $lineCounts */
-    private function writeClover(array $lineCounts): string
+    private function writeClover(array $lineCounts, ?string $sourceRoot = null): string
     {
         $lines = '';
         foreach ($lineCounts as $line => $count) {
             $lines .= sprintf('<line num="%d" type="stmt" count="%d"/>', $line, $count);
         }
-        $source = htmlspecialchars($this->root . '/src/Critical.php', ENT_QUOTES | ENT_XML1);
+        $source = htmlspecialchars(($sourceRoot ?? $this->root) . '/src/Critical.php', ENT_QUOTES | ENT_XML1);
         $xml = sprintf(
             '<?xml version="1.0"?><coverage><project><file name="%s"><class/>%s</file></project></coverage>',
             $source,

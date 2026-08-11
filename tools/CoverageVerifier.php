@@ -13,7 +13,7 @@ final class CoverageVerifier
     /** @param list<string> $criticalModules */
     public function __construct(string $root, array $criticalModules)
     {
-        $this->root = str_replace('\\', '/', realpath($root) ?: $root);
+        $this->root = $this->normalizePath($root);
         $this->criticalModules = $criticalModules;
     }
 
@@ -43,7 +43,7 @@ final class CoverageVerifier
             if (!$fileNode instanceof \DOMElement) {
                 continue;
             }
-            $pathName = str_replace('\\', '/', $fileNode->getAttribute('name'));
+            $pathName = $this->normalizePath($fileNode->getAttribute('name'));
             $prefix = rtrim($this->root, '/') . '/';
             $relative = str_starts_with($pathName, $prefix) ? substr($pathName, strlen($prefix)) : $pathName;
             $fileCovered = 0;
@@ -87,6 +87,11 @@ final class CoverageVerifier
             'critical_modules' => $critical,
             'known_uncovered_fingerprints' => $knownUncovered,
         ];
+    }
+
+    private function normalizePath(string $path): string
+    {
+        return str_replace('\\', '/', realpath($path) ?: $path);
     }
 
     /** @param array<string, mixed> $measurement */
