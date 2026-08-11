@@ -2,6 +2,8 @@
 
 Contributions should keep target projects immutable, report uncertainty explicitly, and preserve the separation between generic core logic and framework adapters.
 
+PHP Upgrade Preflight is a source-available public beta, not an Open Source project. Noncommercial use is permitted under the repository's [PolyForm Noncommercial License 1.0.0](LICENSE); commercial use requires a separate license. Contributions do not change that licensing model. See [Project status and licensing](docs/project-status.md) before contributing.
+
 ## Set up the repository
 
 ```bash

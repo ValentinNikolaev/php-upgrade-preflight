@@ -1,8 +1,8 @@
 # Installation
 
-PHP Upgrade Preflight v0.2.1 requires PHP `^8.0` (PHP 8.0 through PHP 8.x) and Composer 2. Composer 2.2 or later is required when simulating an absent extension because earlier releases cannot hide platform packages through `config.platform`. On Composer 2.0 or 2.1, those target scenarios stop before workspace creation and report an operational uncertainty. Composer 2.4 or later enables locked `composer prohibits` diagnostics; older Composer 2 releases still run supported primary scenarios and record that the locked diagnostic is unavailable.
+The PHP Upgrade Preflight v0.2.1 analyzer packages require PHP `^8.0` (PHP 8.0 through PHP 8.x) and Composer 2. Composer 2.2 or later is required when simulating an absent extension because earlier releases cannot hide platform packages through `config.platform`. On Composer 2.0 or 2.1, those target scenarios stop before workspace creation and report an operational uncertainty. Composer 2.4 or later enables locked `composer prohibits` diagnostics; older Composer 2 releases still run supported primary scenarios and record that the locked diagnostic is unavailable.
 
-## Runtime compatibility
+## Analyzer host compatibility
 
 The three analyzer packages have a PHP 8.0 runtime floor. Composer selects compatible transitive versions at that floor; normal and `--prefer-lowest` consumer installs are checked separately from the deterministic test suite.
 

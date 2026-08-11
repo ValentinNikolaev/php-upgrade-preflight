@@ -2,6 +2,14 @@
 
 PHP Upgrade Preflight uses Semantic Versioning for tool and package releases, with all three packages released in lockstep. Report schemas have their own version and compatibility policy described in [Schema and compatibility](schema.md).
 
+## Public beta policy
+
+PHP Upgrade Preflight is a public beta while its public PHP API, CLI and Artisan contracts, adapter extension points, package boundaries, and report semantics are still being proven. Public beta is not a production-readiness claim. Analyzer output is decision-support evidence, not a guarantee that an upgraded application will run correctly or deploy successfully. See [Project status and licensing](project-status.md) and [Limitations and trust boundaries](limitations.md).
+
+Within the released v0.2.x line, patch releases preserve the public PHP operation, CLI and Artisan behavior, adapter metadata, exit policy, schema `0.7` compatibility, and supported transition claims. A patch may correct findings, evidence, diagnostics, security behavior, or documentation while retaining those contracts.
+
+The planned v0.3 line is a new `0.MINOR` release. It may make documented breaking changes to inputs, report shape, package constraints, and adapter extension points. Its planned schema `0.8`, target-platform profiles, and staged Composer results are not features of v0.2.x. Historical v0.2 schemas and signed compatibility artifacts remain immutable, and every intentional migration must be documented when v0.3 is released.
+
 ## The `0.x` phase
 
 The project will keep major version `0` while its public PHP API, CLI contract, package boundaries, and report semantics are still being proven. Before `1.0`:

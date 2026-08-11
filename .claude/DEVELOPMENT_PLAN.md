@@ -108,6 +108,7 @@ Out of scope:
 
 ## Inherited Product and Test Rules
 
+- Keep public positioning consistent: PHP Upgrade Preflight is a source-available public beta under PolyForm Noncommercial 1.0.0, not an Open Source or production-ready product. Reports provide decision-support evidence and never guarantee application runtime compatibility or deployment success.
 - Composer remains the dependency solver. Never infer a successful stage without running it.
 - Treat the analyzed project as immutable input. Run every mutation in an analyzer-owned temporary workspace.
 - Keep core framework-neutral. Framework packages own detection, targets, rule catalogs, source defaults, and package families.

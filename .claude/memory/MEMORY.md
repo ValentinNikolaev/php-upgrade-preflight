@@ -4,7 +4,7 @@ description: Durable architecture, constraints, and current-state context for PH
 type: project
 related:
   - ../DEVELOPMENT_PLAN.md
-last_updated: 2026-08-10
+last_updated: 2026-08-11
 ---
 
 # Project Memory
@@ -78,7 +78,7 @@ The separate compatibility workflow performs clean normal and lowest-dependency 
 
 ## Durable Decisions
 
-- PolyForm Noncommercial 1.0.0 for free noncommercial use; commercial use requires a separate paid license from Valentin Nikolaev.
+- PHP Upgrade Preflight is a source-available public beta, not an Open Source project. PolyForm Noncommercial 1.0.0 permits free noncommercial use; commercial use requires a separate paid license from Valentin Nikolaev. Public beta is not a production-readiness certification, and reports never guarantee application runtime compatibility or deployment success.
 - Product name: PHP Upgrade Preflight; repository: `php-upgrade-preflight`.
 - Command names: generic `upgrade-intel analyze`; Laravel `upgrade:analyze`.
 - CLI parsing remains dependency-light and custom until the command surface grows enough to justify a console component.

@@ -1,10 +1,21 @@
 # PHP Upgrade Preflight
 
+> [!IMPORTANT]
+> **Project status: Public beta.** PHP Upgrade Preflight is source-available software, free for noncommercial use under the [PolyForm Noncommercial License 1.0.0](LICENSE). Commercial use requires a separate license. It is not distributed as Open Source.
+
 PHP Upgrade Preflight analyzes Composer-based PHP upgrades before you change the target project. It copies `composer.json` and `composer.lock` into temporary workspaces, runs isolated Composer scenarios, scans source files, and produces a canonical JSON report or a Markdown projection.
 
-Version 0.2.1 supports PHP `^8.0` (PHP 8.0 through PHP 8.x). Its Laravel adapter retains Laravel 7 to 8 and direct 7 to 9 analysis and adds adjacent Laravel 8 to 9, 9 to 10, 10 to 11, 11 to 12, and 12 to 13 rule packs, including target-platform, official-package, test-tool, and selected high-signal source checks.
+The v0.2.1 analyzer packages run on PHP `^8.0` (PHP 8.0 through PHP 8.x). Its Laravel adapter retains Laravel 7 to 8 and direct 7 to 9 analysis and adds adjacent Laravel 8 to 9, 9 to 10, 10 to 11, 11 to 12, and 12 to 13 rule packs, including target-platform, official-package, test-tool, and selected high-signal source checks.
 
 The Laravel adapter can be installed alongside Laravel 8 on PHP 8.0, Laravel 9 on PHP 8.0.2, Laravel 10 on PHP 8.1, Laravel 11/12 on PHP 8.2, and Laravel 13 on PHP 8.3. Host installability and analyzed target requirements remain separate: an external analyzer may model a newer target through Composer platform simulation.
+
+## Public beta and compatibility
+
+The released v0.2.x line keeps the public PHP operation, CLI and Artisan behavior, adapter metadata, exit policy, schema `0.7` compatibility, and supported transition claims backward-compatible across patch releases. Bug fixes, security fixes, and evidence corrections may still change individual findings or diagnostics without changing those contracts.
+
+The planned v0.3 line is a new `0.MINOR` release and may introduce documented breaking changes to inputs, report shape, package constraints, and adapter extension points. Existing v0.2 schemas, signed artifacts, and compatibility evidence remain immutable; planned v0.3 behavior must not be inferred from a v0.2 report.
+
+Public beta is not a production-readiness claim. The analyzer provides decision-support evidence: it does not perform an upgrade, execute the analyzed application, prove runtime compatibility, or guarantee a successful deployment. Review every report and validate the resulting upgrade with the application's own test and deployment process. See [Project status and licensing](docs/project-status.md), [Versioning](docs/versioning.md), and [Limitations and trust boundaries](docs/limitations.md).
 
 ## Install
 
@@ -94,6 +105,7 @@ Third-party adapter packages register themselves through Composer metadata, so t
 - [CLI reference](docs/cli.md)
 - [Artisan reference](docs/artisan.md)
 - [JSON schema and compatibility](docs/schema.md)
+- [Project status and licensing](docs/project-status.md)
 - [v0.2 report and transition contract](docs/v0.2-contract.md)
 - [Laravel v0.2 transition scope](docs/laravel-v0.2-transition-scope.md)
 - [Limitations and trust boundaries](docs/limitations.md)
@@ -115,6 +127,6 @@ docker compose run --rm php composer check
 
 `composer check` is the offline, deterministic gate: it validates every package manifest, runs the unit, integration, and smoke PHPUnit suites, performs static analysis, and checks formatting. Live compatibility installs and dependency audits run in separate workflows. See [CONTRIBUTING.md](CONTRIBUTING.md) for the documented `test:unit`, `test:integration`, `test:smoke`, and `test:all` commands, focused package tests, and snapshot updates.
 
-## License
+## License and commercial use
 
-Copyright 2026 Valentin Nikolaev. The [PolyForm Noncommercial License 1.0.0](LICENSE) permits noncommercial use. Commercial use requires a separate license from the copyright holder.
+Copyright 2026 Valentin Nikolaev. PHP Upgrade Preflight is source-available software, free for noncommercial use under the [PolyForm Noncommercial License 1.0.0](LICENSE). Commercial use requires a separate license from the copyright holder. The project is not distributed as Open Source. The license text controls if this summary and the license differ.

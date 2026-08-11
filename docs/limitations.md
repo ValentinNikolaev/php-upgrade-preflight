@@ -1,12 +1,12 @@
 # Limitations and trust boundaries
 
-PHP Upgrade Preflight predicts dependency and source impact. It does not perform an upgrade or prove that the upgraded application works.
+PHP Upgrade Preflight is a public-beta planning tool that predicts dependency and source impact. It does not perform an upgrade, certify application compatibility, establish production readiness, or prove that the upgraded application works.
 
 ## Dependency resolution
 
 - Composer resolves scenarios against the repositories, credentials, and network available to the analyzer process. Explicit extension versions and absences override the named extensions in temporary workspaces; absence simulation requires Composer 2.2 or newer. Presence-only extension assumptions cannot prove versioned constraints, so sentinel-related failures remain non-blocking advisories. Every unlisted extension remains analyzer-host state and is reported as uncertainty. Version 0.2 has no input for declaring a complete extension inventory, so named assumptions remain `partial` platform coverage.
 - Scripts and plugins stay disabled. A project that depends on plugin behavior may resolve differently in its normal environment.
-- A successful candidate lock proves that Composer found one dependency solution. It does not prove runtime compatibility.
+- A successful candidate lock proves that Composer found one dependency solution. It does not prove runtime or production compatibility.
 - Partial platform and staged probes provide ordering evidence. Only full-target scenarios determine combined feasibility.
 - Composer output changes can reduce blocker parsing confidence. The report retains bounded, redacted excerpts and uncertainty. Redaction deliberately removes whole URLs and known credential forms, so diagnostic text may be less specific.
 
