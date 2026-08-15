@@ -21,7 +21,7 @@ Bug fixes, security fixes, dependency maintenance, evidence corrections, and doc
 
 ## v0.3 change boundary
 
-The planned v0.3 line is a new `0.MINOR` release during SemVer's initial-development phase. It may introduce documented breaking changes to request inputs, report shape, package constraints, and adapter extension points. Planned v0.3 work includes schema `0.8`, explicit target-platform profiles, and stage-scoped Composer evidence; none of those plans describes current v0.2.x behavior.
+The v0.3 development line is a new `0.MINOR` release during SemVer's initial-development phase. It may introduce documented breaking changes to request inputs, report shape, package constraints, and adapter extension points. Development now includes schema `0.8`, explicit target-platform profiles, and the first stage-scoped Composer evidence; none of that work describes current v0.2.x behavior.
 
 Every intentional v0.3 compatibility break must be identified in the changelog and migration documentation. Historical v0.2 schemas and signed compatibility artifacts remain available as immutable evidence rather than being rewritten for v0.3.
 

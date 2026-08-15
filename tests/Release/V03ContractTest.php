@@ -132,11 +132,26 @@ final class V03ContractTest extends TestCase
 
         $profile = $this->contract['target_platform_profile'];
         self::assertTrue($profile['versioned']);
+        self::assertSame('1.0', $profile['schema_version']);
+        self::assertSame('platform.profile', $profile['report_location']);
+        self::assertSame('request_summary.target_platform_profile', $profile['request_summary_location']);
         self::assertSame('2.2.0', $profile['composer_complete_minimum']);
         self::assertSame('unknown', $profile['older_composer_complete_result']);
         self::assertTrue($profile['conflicts_rejected_before_composer']);
-        self::assertContains('ext-*', $profile['supported_classes']);
-        self::assertContains('composer-platform', $profile['supported_classes']);
+        self::assertSame(['php', 'extension', 'library', 'php_subtype', 'composer_platform'], $profile['supported_classes']);
+        self::assertSame(
+            ['php', 'ext-*', 'lib-*', 'php-subtype', 'composer-platform'],
+            $profile['supported_package_patterns']
+        );
+        self::assertSame(['php_api', 'file'], $profile['profile_provenance']);
+        self::assertSame(['request', 'composer_config', 'profile', 'closed_world'], $profile['effective_provenance']);
+        self::assertSame(['composer_config', 'toolchain_bound'], $profile['simulation']);
+        self::assertTrue($profile['toolchain_bound_are_package_names']);
+        self::assertTrue($profile['effective_values_sorted_by_name']);
+        self::assertTrue($profile['profile_paths_forbidden_in_canonical_output']);
+        self::assertTrue($profile['complete_closed_world']);
+        self::assertTrue($profile['complete_closed_world_excludes_toolchain_bound']);
+        self::assertTrue($profile['partial_host_dependent']);
 
         foreach (['Symfony adapter', 'CodeIgniter adapter', 'PHAR delivery', 'versioned container delivery', 'runtime floor change'] as $nonGoal) {
             self::assertContains($nonGoal, $this->contract['non_goals']);
@@ -169,6 +184,10 @@ final class V03ContractTest extends TestCase
         self::assertSame('0.8', ReportMetadata::SCHEMA_VERSION);
         self::assertSame('0.3.0-dev', ReportMetadata::TOOL_VERSION);
         self::assertSame(['staged_resolution'], $schemaContract['new_required_top_level_fields']);
+        self::assertSame([
+            'request_summary.target_platform_profile',
+            'platform.profile',
+        ], $schemaContract['new_required_nested_fields']);
         self::assertTrue($schemaContract['migration_from_0_7']['historical_reports_immutable']);
         self::assertTrue($schemaContract['migration_from_0_7']['missing_staged_resolution_means_v0_7_not_empty_v0_8']);
         self::assertTrue($schemaContract['migration_from_0_7']['direct_resolution_meaning_unchanged']);
@@ -187,6 +206,42 @@ final class V03ContractTest extends TestCase
             self::fail(json_encode((new ErrorFormatter())->format($error), JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR));
         }
         self::assertTrue($result->isValid());
+    }
+
+    public function testTargetPlatformProfileMachineContractMatchesThePublishedSchema(): void
+    {
+        $profile = $this->contract['target_platform_profile'];
+        $schema = $this->readJson(
+            $this->root . '/packages/core/resources/schema/upgrade-report-v0.8.schema.json'
+        );
+
+        self::assertContains('target_platform_profile', $schema['$defs']['requestSummary']['required']);
+        self::assertContains('profile', $schema['$defs']['platformProvenance']['required']);
+        self::assertSame(
+            $profile['request_summary_fields'],
+            $schema['$defs']['targetPlatformProfileSummary']['oneOf'][0]['required']
+        );
+        self::assertSame(
+            $profile['report_fields'],
+            $schema['$defs']['targetPlatformProfileReport']['oneOf'][0]['required']
+        );
+        self::assertSame($profile['supported_classes'], $schema['$defs']['platformPackageClass']['enum']);
+        self::assertSame(
+            $profile['supported_classes'],
+            $schema['$defs']['targetPlatformProfileReport']['oneOf'][0]['properties']['supported_classes']['const']
+        );
+        self::assertSame(
+            $profile['effective_fields'],
+            $schema['$defs']['effectivePlatformDecision']['required']
+        );
+        self::assertSame(
+            $profile['effective_provenance'],
+            $schema['$defs']['effectivePlatformDecision']['properties']['provenance']['enum']
+        );
+        self::assertSame(
+            $profile['simulation'],
+            $schema['$defs']['effectivePlatformDecision']['properties']['simulation']['enum']
+        );
     }
 
     /** @return array<string, mixed> */

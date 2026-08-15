@@ -8,6 +8,7 @@ use Illuminate\Console\Command;
 use PhpUpgradePreflight\Core\Contracts\UpgradeAnalyzer;
 use PhpUpgradePreflight\Core\Model\ExtensionAssumptionSet;
 use PhpUpgradePreflight\Core\Model\ReportFormat;
+use PhpUpgradePreflight\Core\Model\TargetPlatformProfile;
 use PhpUpgradePreflight\Core\Model\UpgradeRequest;
 use PhpUpgradePreflight\Core\Model\UpgradeTarget;
 use PhpUpgradePreflight\Core\Reporting\JsonReportWriter;
@@ -25,6 +26,7 @@ final class AnalyzeUpgradeCommand extends Command
         {--path= : Project path to analyze}
         {--target=* : Target constraint using package:constraint syntax}
         {--target-php= : Explicit target PHP platform version}
+        {--target-platform-profile=* : JSON target-platform profile file; may be specified once}
         {--from-php= : Current project PHP version}
         {--with-extension=* : Assume an extension is present, optionally as ext-name:version}
         {--without-extension=* : Assume an extension is absent}
@@ -53,9 +55,12 @@ final class AnalyzeUpgradeCommand extends Command
                 array_values((array) $this->option('target'))
             );
             $targetPhp = $this->optionalString('target-php');
+            $targetPlatformProfile = $this->loadTargetPlatformProfile($this->targetPlatformProfilePath());
 
-            if ($targets === [] && $targetPhp === null) {
-                throw new \InvalidArgumentException('At least one --target=package:constraint or --target-php=VERSION option is required.');
+            if ($targets === [] && $targetPhp === null && $targetPlatformProfile === null) {
+                throw new \InvalidArgumentException(
+                    'At least one --target=package:constraint, --target-php=VERSION, or --target-platform-profile=PATH option is required.'
+                );
             }
 
             $format = ReportFormat::normalize((string) $this->option('format'));
@@ -73,7 +78,8 @@ final class AnalyzeUpgradeCommand extends Command
                 $format,
                 $this->optionalString('output'),
                 (bool) $this->option('debug'),
-                $extensionAssumptions
+                $extensionAssumptions,
+                $targetPlatformProfile
             );
 
             if ($request->outputPath() !== null) {
@@ -142,6 +148,33 @@ final class AnalyzeUpgradeCommand extends Command
         }
 
         return $value;
+    }
+
+    private function loadTargetPlatformProfile(?string $path): ?TargetPlatformProfile
+    {
+        if ($path === null) {
+            return null;
+        }
+
+        return TargetPlatformProfile::fromFile($path);
+    }
+
+    private function targetPlatformProfilePath(): ?string
+    {
+        $values = array_values((array) $this->option('target-platform-profile'));
+        if ($values === []) {
+            return null;
+        }
+
+        if (count($values) !== 1) {
+            throw new \InvalidArgumentException('Option "--target-platform-profile" may only be specified once.');
+        }
+
+        if (!is_string($values[0])) {
+            throw new \InvalidArgumentException('Option "--target-platform-profile" must be a string.');
+        }
+
+        return $values[0];
     }
 
     private function diagnostic(string $message): void

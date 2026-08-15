@@ -16,6 +16,7 @@ final class CommandLineParser
      *     path: string,
      *     target: list<string>,
      *     target-php: ?string,
+     *     target-platform-profile?: string,
      *     from-php: ?string,
      *     source: list<string>,
      *     framework: list<string>,
@@ -92,7 +93,7 @@ final class CommandLineParser
                 continue;
             }
 
-            if (!array_key_exists($name, $options)) {
+            if ($name !== 'target-platform-profile' && !array_key_exists($name, $options)) {
                 throw new \InvalidArgumentException('Unknown option.');
             }
 
@@ -104,8 +105,10 @@ final class CommandLineParser
             $options[$name] = $value;
         }
 
-        if ($options['target'] === [] && $options['target-php'] === null) {
-            throw new \InvalidArgumentException('At least one --target=package:constraint or --target-php=VERSION option is required.');
+        if ($options['target'] === [] && $options['target-php'] === null && !isset($options['target-platform-profile'])) {
+            throw new \InvalidArgumentException(
+                'At least one --target=package:constraint, --target-php=VERSION, or --target-platform-profile=PATH option is required.'
+            );
         }
 
         $options['format'] = ReportFormat::normalize((string) $options['format']);

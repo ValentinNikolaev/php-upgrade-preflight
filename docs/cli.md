@@ -13,6 +13,7 @@ upgrade-intel analyze --target=package:constraint [options]
 | `--path=PATH` | Project directory. Defaults to the current directory. |
 | `--target=PACKAGE:CONSTRAINT` | Requested package constraint. Repeat for multiple packages. |
 | `--target-php=VERSION` | Exact target PHP platform version. |
+| `--target-platform-profile=PATH` | JSON target-platform profile. May be supplied once. |
 | `--from-php=VERSION` | Known current PHP version used for staging analysis. |
 | `--with-extension=EXT[:VERSION]` | Assume `ext-name` is present, optionally at an exact version. Repeat as needed. |
 | `--without-extension=EXT` | Assume `ext-name` is absent. Repeat as needed. |
@@ -23,7 +24,7 @@ upgrade-intel analyze --target=package:constraint [options]
 | `--debug` | Preserve Composer workspaces and expose exact `temp_path` values; output is non-shareable. |
 | `-h`, `--help` | Print command help. |
 
-Supply at least one package target or `--target-php`. `--target=php:8.1` and `--target-php=8.1` are equivalent; if you use both, they must normalize to the same exact PHP version.
+Supply at least one package target, `--target-php`, or `--target-platform-profile`. `--target=php:8.1` and `--target-php=8.1` are equivalent; if you use both, they must normalize to the same exact PHP version. A profile with exact PHP may supply the target by itself.
 
 The parser accepts only the documented forms. Write `--path=value`, not `--path value`. The `--debug` flag takes no value.
 
@@ -31,9 +32,30 @@ By default, canonical JSON and Markdown replace absolute local roots with `[PROJ
 
 Redaction applies to report fields, bounded Composer output, and diagnostics. It does not prevent Composer from reading host credentials or contacting repositories, and it does not sanitize copied manifests in a retained debug workspace. Treat redaction as a last publication boundary and inspect artifacts before sharing them.
 
-Extension names use Composer's `ext-name` form. An extension may appear only once across `--with-extension` and `--without-extension`; repeated or contradictory assumptions are rejected. Exact versions and absences are written only to analyzer-owned temporary Composer manifests. Absence simulation requires Composer 2.2 or newer; older detected versions stop the affected target scenarios before a workspace is created and leave resolution unknown. Presence without a version uses a conservative temporary presence sentinel. A constraint failure involving that sentinel is reported as the non-blocking `extension-version-unknown` advisory, not as reproducible evidence that the extension is missing. Unlisted extensions still come from the analyzer runtime and are labeled as host-dependent in `platform.extensions` and `uncertainties`.
+Extension names use Composer's `ext-name` form. Matching repeated assumptions collapse deterministically; different versions or presence/absence for the same extension are contradictory and rejected. Exact versions and absences are written only to analyzer-owned temporary Composer manifests. Absence simulation requires Composer 2.2 or newer; older detected versions stop the affected target scenarios before a workspace is created and leave resolution unknown. Presence without a version uses a conservative temporary presence sentinel. A constraint failure involving that sentinel is reported as the non-blocking `extension-version-unknown` advisory, not as reproducible evidence that the extension is missing. Unlisted extensions still come from the analyzer runtime and are labeled as host-dependent in `platform.extensions` and `uncertainties`.
 
-`platform` preserves the provenance of analyzer, current, target, and extension values. Request extension assumptions override same-name entries from the target's original `config.platform`, but they model only the names supplied. In v0.2, the CLI has no complete-extension-inventory option: any listed assumptions therefore produce `extensions.completeness: partial` and `unmodeled_provenance: analyzer_runtime`.
+`--target-platform-profile` accepts a UTF-8 JSON object with schema version `1.0`, `partial` or `complete` completeness, and a `packages` object. Package values are exact versions or `false` for absence:
+
+```json
+{
+  "schema_version": "1.0",
+  "completeness": "complete",
+  "packages": {
+    "php": "8.3.0",
+    "ext-curl": "8.3.0",
+    "ext-xdebug": false,
+    "lib-curl": "8.6.0",
+    "php-64bit": "8.3.0",
+    "composer-plugin-api": "2.6.0"
+  }
+}
+```
+
+The supported classes are `php`, `ext-*`, `lib-*`, PHP subtypes such as `php-64bit`, and Composer platform packages. JSON object keys must be unique. The profile is parsed and request/profile conflicts are rejected before Composer runs. Precedence is request option, then profile, then the original `config.platform`: an equal request/profile value is accepted and reported with request provenance; matching same-layer duplicates collapse; contradictory values are rejected; and lower-priority project configuration is overridden, preserving the existing request-over-project behavior. Complete profiles are mutually exclusive with presence-only extension assumptions because those assumptions cannot satisfy an exact closed-world claim.
+
+`platform.profile` records the profile schema, `partial` or `complete` completeness, canonical SHA-256 digest, safe provenance (`file`, never the input path), modeled classes, closed-world flag, toolchain-bound package names, and every sorted effective decision. A complete profile treats every unlisted package in a supported safely simulated class as absent. A partial profile retains analyzer-host values for unlisted packages and is visibly host-dependent. Composer packages tied to the executable itself, including `composer`, `composer-plugin-api`, and `composer-runtime-api`, are reported as `toolchain_bound`; the profile records them but does not claim that `config.platform` safely simulates them.
+
+Composer 2.2 or newer is required for complete closed-world profiles. With Composer 2.0 or 2.1, analysis stops before workspace creation with an operationally unknown result; the analyzer never downgrades a complete request to partial. Profile completeness covers only the declared platform-package classes. Repository contents, network access, credentials, and the Composer executable remain separate inputs and can still change resolution.
 
 ## Framework selection
 
@@ -78,6 +100,15 @@ upgrade-intel analyze \
   --with-extension=ext-intl:72.1 \
   --with-extension=ext-json \
   --without-extension=ext-xdebug
+```
+
+Complete target-platform profile:
+
+```bash
+upgrade-intel analyze \
+  --path=/work/app \
+  --target=laravel/framework:^12.0 \
+  --target-platform-profile=/work/profiles/php-8.3-production.json
 ```
 
 Multiple package targets and Markdown output:

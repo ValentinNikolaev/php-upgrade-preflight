@@ -32,9 +32,41 @@ final class ComposerJson
 
     public function platformPhp(): ?string
     {
-        $platform = $this->data['config']['platform']['php'] ?? null;
+        $platform = $this->configuredPlatformPackages()['php'] ?? null;
 
         return is_string($platform) ? $platform : null;
+    }
+
+    /** @return array<string, string|false> */
+    public function configuredPlatformPackages(): array
+    {
+        $platform = $this->data['config']['platform'] ?? null;
+        if (!is_array($platform)) {
+            return [];
+        }
+
+        $packages = [];
+        foreach ($platform as $name => $value) {
+            if (!is_string($name) || (!is_string($value) && $value !== false)) {
+                continue;
+            }
+
+            $name = strtolower(trim($name));
+            if (array_key_exists($name, $packages)) {
+                if ($packages[$name] !== $value) {
+                    throw new \InvalidArgumentException(
+                        'Project config.platform contains contradictory duplicate package names.'
+                    );
+                }
+
+                continue;
+            }
+
+            $packages[$name] = $value;
+        }
+        ksort($packages, SORT_STRING);
+
+        return $packages;
     }
 
     public function packageName(): ?string
@@ -68,16 +100,11 @@ final class ComposerJson
     /** @return list<array{name: string, state: string, version: ?string, provenance: string}> */
     public function configuredExtensions(): array
     {
-        $platform = $this->data['config']['platform'] ?? null;
-        if (!is_array($platform)) {
-            return [];
-        }
-
         $extensions = [];
-        foreach ($platform as $name => $value) {
-            if (is_string($name) && str_starts_with(strtolower($name), 'ext-') && (is_string($value) || $value === false)) {
+        foreach ($this->configuredPlatformPackages() as $name => $value) {
+            if (str_starts_with($name, 'ext-')) {
                 $extensions[] = [
-                    'name' => strtolower($name),
+                    'name' => $name,
                     'state' => $value === false ? 'absent' : 'present',
                     'version' => is_string($value) ? $value : null,
                     'provenance' => 'composer_config',

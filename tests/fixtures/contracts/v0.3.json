@@ -132,20 +132,74 @@
     },
     "target_platform_profile": {
         "versioned": true,
+        "schema_version": "1.0",
+        "report_location": "platform.profile",
+        "request_summary_location": "request_summary.target_platform_profile",
+        "request_summary_fields": [
+            "schema_version",
+            "completeness",
+            "sha256",
+            "provenance"
+        ],
+        "report_fields": [
+            "schema_version",
+            "completeness",
+            "sha256",
+            "provenance",
+            "supported_classes",
+            "closed_world",
+            "toolchain_bound",
+            "effective"
+        ],
         "semantics": {
             "partial": "Unlisted platform packages may still come from analyzer runtime state.",
-            "complete": "Unlisted supported platform packages are modeled absent."
+            "complete": "Unlisted safely simulated platform packages are modeled absent; toolchain-bound Composer packages remain tied to the executable."
         },
         "supported_classes": [
+            "php",
+            "extension",
+            "library",
+            "php_subtype",
+            "composer_platform"
+        ],
+        "supported_package_patterns": [
             "php",
             "ext-*",
             "lib-*",
             "php-subtype",
             "composer-platform"
         ],
+        "profile_provenance": [
+            "php_api",
+            "file"
+        ],
+        "effective_fields": [
+            "name",
+            "class",
+            "state",
+            "version",
+            "provenance",
+            "simulation"
+        ],
+        "effective_provenance": [
+            "request",
+            "composer_config",
+            "profile",
+            "closed_world"
+        ],
+        "simulation": [
+            "composer_config",
+            "toolchain_bound"
+        ],
+        "toolchain_bound_are_package_names": true,
+        "effective_values_sorted_by_name": true,
+        "profile_paths_forbidden_in_canonical_output": true,
         "composer_complete_minimum": "2.2.0",
         "older_composer_complete_result": "unknown",
-        "conflicts_rejected_before_composer": true
+        "conflicts_rejected_before_composer": true,
+        "complete_closed_world": true,
+        "complete_closed_world_excludes_toolchain_bound": true,
+        "partial_host_dependent": true
     },
     "budgets": {
         "max_hops": 6,
@@ -171,6 +225,10 @@
         "minimal_fixture": "tests/fixtures/contracts/v0.3/minimal-report-v0.8.json",
         "new_required_top_level_fields": [
             "staged_resolution"
+        ],
+        "new_required_nested_fields": [
+            "request_summary.target_platform_profile",
+            "platform.profile"
         ],
         "migration_from_0_7": {
             "dispatch_on": "metadata.schema_version",

@@ -16,6 +16,7 @@ final class CommandLineParserTest extends TestCase
             'analyze',
             '--target=vendor/package:^2.0',
             '--target-php=8.2',
+            '--target-platform-profile=target-platform.json',
             '--source=src',
             '--source=tests',
             '--framework=laravel',
@@ -27,6 +28,7 @@ final class CommandLineParserTest extends TestCase
 
         self::assertSame(['vendor/package:^2.0'], $options['target']);
         self::assertSame('8.2', $options['target-php']);
+        self::assertSame('target-platform.json', $options['target-platform-profile']);
         self::assertSame(['src', 'tests'], $options['source']);
         self::assertSame(['laravel'], $options['framework']);
         self::assertSame(['ext-intl', 'ext-json', 'ext-xdebug'], array_map(
@@ -42,6 +44,19 @@ final class CommandLineParserTest extends TestCase
 
         self::assertSame([], $options['target']);
         self::assertSame('8.2', $options['target-php']);
+    }
+
+    public function testTargetPlatformProfileAloneIsAValidTargetSelection(): void
+    {
+        $options = (new CommandLineParser())->parse([
+            'upgrade-intel',
+            'analyze',
+            '--target-platform-profile=target-platform.json',
+        ]);
+
+        self::assertSame([], $options['target']);
+        self::assertNull($options['target-php']);
+        self::assertSame('target-platform.json', $options['target-platform-profile']);
     }
 
     /**
@@ -65,6 +80,12 @@ final class CommandLineParserTest extends TestCase
             [['upgrade-intel', 'analyze'], 'At least one --target'],
             [['upgrade-intel', 'analyze', '--target-php=8.2', '--format=yaml'], 'Unsupported report format'],
             [['upgrade-intel', 'analyze', '--target-php=8.2', '--target-php=8.3'], 'may only be specified once'],
+            [[
+                'upgrade-intel',
+                'analyze',
+                '--target-platform-profile=first.json',
+                '--target-platform-profile=second.json',
+            ], 'may only be specified once'],
             [['upgrade-intel', 'analyze', '--target-php=8.2', '--debug=false'], 'does not accept a value'],
             [[
                 'upgrade-intel',

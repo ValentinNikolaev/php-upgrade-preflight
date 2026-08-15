@@ -21,11 +21,11 @@ final class MarkdownReportWriter
 
         /** @var array{schema_version:string, tool:array{name:string, version:string}} $metadata */
         $metadata = $canonical['metadata'];
-        /** @var array{project_path:string, targets:list<array{package:string, constraint:string}>, from_php:?string, target_php:?string, source_paths:list<string>, frameworks:list<string>, format:string, output_path:?string} $request */
+        /** @var array{project_path:string, targets:list<array{package:string, constraint:string}>, from_php:?string, target_php:?string, source_paths:list<string>, frameworks:list<string>, format:string, output_path:?string, target_platform_profile?:?array{schema_version:string, completeness:string, sha256:string, provenance:string}} $request */
         $request = $canonical['request_summary'];
         /** @var array{path:string, platform_php:?string, root_requirements:array<string, string>|\stdClass, locked_packages:int} $project */
         $project = $canonical['project_state'];
-        /** @var array{analyzer:array{php_version:string, provenance:string}, current_php:array{version:?string, provenance:string}, target_php:array{version:?string, provenance:string}, extensions:array{provenance:string, explicitly_modeled:bool, completeness:string, unmodeled_provenance:?string, assumptions:list<array{name:string, state:string, version:?string, provenance:string}>}} $platform */
+        /** @var array{analyzer:array{php_version:string, provenance:string}, current_php:array{version:?string, provenance:string}, target_php:array{version:?string, provenance:string}, extensions:array{provenance:string, explicitly_modeled:bool, completeness:string, unmodeled_provenance:?string, assumptions:list<array{name:string, state:string, version:?string, provenance:string}>}, profile?:?array{schema_version:string, completeness:string, sha256:string, provenance:string, supported_classes:list<string>, closed_world:bool, toolchain_bound:list<string>, effective:list<array{name:string, class:string, state:string, version:?string, provenance:string, simulation:string}>}} $platform */
         $platform = $canonical['platform'];
         /** @var array{status:string, scenarios:list<array<string, mixed>>} $resolution */
         $resolution = $canonical['resolution'];
@@ -56,6 +56,7 @@ final class MarkdownReportWriter
             sprintf('- Target PHP: %s', $this->code($request['target_php'] ?? 'not requested')),
             sprintf('- Source paths: %s', $this->inlineList($request['source_paths'], 'default project paths')),
             sprintf('- Framework integrations: %s', $this->inlineList($request['frameworks'], 'automatic detection')),
+            sprintf('- Target platform profile: %s', $this->profileSummary($request['target_platform_profile'] ?? null)),
             sprintf('- Requested format: %s', $this->code($request['format'])),
             sprintf('- Output destination: %s', $this->code($request['output_path'] ?? 'stdout')),
             '- Targets:',
@@ -101,6 +102,40 @@ final class MarkdownReportWriter
                 $assumption['version'] === null ? '' : ' at ' . $this->code($assumption['version']),
                 $this->code($assumption['provenance'])
             );
+        }
+
+        $profile = $platform['profile'] ?? null;
+        if ($profile === null) {
+            $lines[] = '- Target platform profile: none; platform packages not explicitly modeled above remain analyzer-host dependent.';
+        } else {
+            $lines[] = sprintf(
+                '- Target platform profile: schema %s; completeness %s; SHA-256 %s; provenance %s',
+                $this->code($profile['schema_version']),
+                $this->code($profile['completeness']),
+                $this->code($profile['sha256']),
+                $this->code($profile['provenance'])
+            );
+            $lines[] = $profile['closed_world']
+                ? '  - Coverage guarantee: complete closed-world modeling; every unlisted safely simulated platform package is modeled absent. Toolchain-bound values remain tied to the Composer executable.'
+                : '  - Coverage guarantee: partial and host-dependent; unlisted platform packages may come from the analyzer runtime.';
+            $lines[] = sprintf('  - Supported classes: %s', $this->inlineList($profile['supported_classes'], 'none'));
+            $lines[] = sprintf('  - Toolchain-bound packages: %s', $this->inlineList($profile['toolchain_bound'], 'none'));
+            $lines[] = '  - Effective platform decisions:';
+            if ($profile['effective'] === []) {
+                $lines[] = '    - None.';
+            } else {
+                foreach ($profile['effective'] as $decision) {
+                    $lines[] = sprintf(
+                        '    - %s (%s): %s%s; provenance %s; simulation %s',
+                        $this->code($decision['name']),
+                        $this->code($decision['class']),
+                        $this->code($decision['state']),
+                        $decision['version'] === null ? '' : ' at ' . $this->code($decision['version']),
+                        $this->code($decision['provenance']),
+                        $this->code($decision['simulation'])
+                    );
+                }
+            }
         }
 
         $lines[] = '';
@@ -576,6 +611,22 @@ final class MarkdownReportWriter
         }
 
         return implode(PHP_EOL, $lines) . PHP_EOL;
+    }
+
+    /** @param ?array{schema_version:string, completeness:string, sha256:string, provenance:string} $profile */
+    private function profileSummary(?array $profile): string
+    {
+        if ($profile === null) {
+            return $this->code('not supplied');
+        }
+
+        return sprintf(
+            'schema %s, completeness %s, SHA-256 %s, provenance %s',
+            $this->code($profile['schema_version']),
+            $this->code($profile['completeness']),
+            $this->code($profile['sha256']),
+            $this->code($profile['provenance'])
+        );
     }
 
     /** @param list<string> $lines */

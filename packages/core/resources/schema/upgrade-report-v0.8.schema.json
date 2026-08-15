@@ -216,7 +216,8 @@
                 "source_paths",
                 "frameworks",
                 "format",
-                "output_path"
+                "output_path",
+                "target_platform_profile"
             ],
             "properties": {
                 "project_path": {
@@ -267,8 +268,32 @@
                         "string",
                         "null"
                     ]
+                },
+                "target_platform_profile": {
+                    "$ref": "#/$defs/targetPlatformProfileSummary"
                 }
             }
+        },
+        "targetPlatformProfileSummary": {
+            "oneOf": [
+                {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                        "schema_version",
+                        "completeness",
+                        "sha256",
+                        "provenance"
+                    ],
+                    "properties": {
+                        "schema_version": {"const": "1.0"},
+                        "completeness": {"enum": ["partial", "complete"]},
+                        "sha256": {"$ref": "#/$defs/sha256"},
+                        "provenance": {"enum": ["php_api", "file"]}
+                    }
+                },
+                {"type": "null"}
+            ]
         },
         "target": {
             "type": "object",
@@ -327,7 +352,8 @@
                 "analyzer",
                 "current_php",
                 "target_php",
-                "extensions"
+                "extensions",
+                "profile"
             ],
             "properties": {
                 "analyzer": {
@@ -369,6 +395,8 @@
                                 "analyzer_runtime",
                                 "composer_config",
                                 "request",
+                                "profile",
+                                "closed_world",
                                 "mixed"
                             ]
                         },
@@ -399,8 +427,201 @@
                             }
                         }
                     }
+                },
+                "profile": {
+                    "$ref": "#/$defs/targetPlatformProfileReport"
                 }
             }
+        },
+        "targetPlatformProfileReport": {
+            "oneOf": [
+                {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                        "schema_version",
+                        "completeness",
+                        "sha256",
+                        "provenance",
+                        "supported_classes",
+                        "closed_world",
+                        "toolchain_bound",
+                        "effective"
+                    ],
+                    "properties": {
+                        "schema_version": {"const": "1.0"},
+                        "completeness": {"enum": ["partial", "complete"]},
+                        "sha256": {"$ref": "#/$defs/sha256"},
+                        "provenance": {"enum": ["php_api", "file"]},
+                        "supported_classes": {
+                            "const": [
+                                "php",
+                                "extension",
+                                "library",
+                                "php_subtype",
+                                "composer_platform"
+                            ]
+                        },
+                        "closed_world": {"type": "boolean"},
+                        "toolchain_bound": {
+                            "const": [
+                                "composer",
+                                "composer-plugin-api",
+                                "composer-runtime-api"
+                            ]
+                        },
+                        "effective": {
+                            "type": "array",
+                            "uniqueItems": true,
+                            "items": {"$ref": "#/$defs/effectivePlatformDecision"}
+                        }
+                    },
+                    "allOf": [
+                        {
+                            "if": {
+                                "properties": {"completeness": {"const": "complete"}},
+                                "required": ["completeness"]
+                            },
+                            "then": {
+                                "properties": {
+                                    "closed_world": {"const": true},
+                                    "effective": {
+                                        "items": {
+                                            "not": {
+                                                "properties": {
+                                                    "state": {"const": "present"},
+                                                    "version": {"type": "null"}
+                                                },
+                                                "required": ["state", "version"]
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "else": {"properties": {"closed_world": {"const": false}}}
+                        }
+                    ]
+                },
+                {"type": "null"}
+            ]
+        },
+        "platformPackageClass": {
+            "enum": [
+                "php",
+                "extension",
+                "library",
+                "php_subtype",
+                "composer_platform"
+            ]
+        },
+        "effectivePlatformDecision": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "name",
+                "class",
+                "state",
+                "version",
+                "provenance",
+                "simulation"
+            ],
+            "properties": {
+                "name": {"type": "string", "minLength": 1},
+                "class": {"$ref": "#/$defs/platformPackageClass"},
+                "state": {"enum": ["present", "absent"]},
+                "version": {"type": ["string", "null"]},
+                "provenance": {
+                    "enum": ["request", "composer_config", "profile", "closed_world"]
+                },
+                "simulation": {"enum": ["composer_config", "toolchain_bound"]}
+            },
+            "allOf": [
+                {
+                    "if": {
+                        "properties": {"state": {"const": "absent"}},
+                        "required": ["state"]
+                    },
+                    "then": {"properties": {"version": {"type": "null"}}}
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "state": {"const": "present"},
+                            "version": {"type": "null"}
+                        },
+                        "required": ["state", "version"]
+                    },
+                    "then": {
+                        "properties": {
+                            "class": {"const": "extension"},
+                            "provenance": {"const": "request"},
+                            "simulation": {"const": "composer_config"}
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {"class": {"const": "php"}},
+                        "required": ["class"]
+                    },
+                    "then": {
+                        "properties": {
+                            "name": {"const": "php"},
+                            "state": {"const": "present"},
+                            "version": {"type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$"},
+                            "simulation": {"const": "composer_config"}
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {"class": {"const": "extension"}},
+                        "required": ["class"]
+                    },
+                    "then": {
+                        "properties": {
+                            "name": {"type": "string", "pattern": "^ext-[a-z0-9](?:[_.-]?[a-z0-9]+)*$"},
+                            "simulation": {"const": "composer_config"}
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {"class": {"const": "library"}},
+                        "required": ["class"]
+                    },
+                    "then": {
+                        "properties": {
+                            "name": {"type": "string", "pattern": "^lib-[a-z0-9](?:[_.-]?[a-z0-9]+)*$"},
+                            "simulation": {"const": "composer_config"}
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {"class": {"const": "php_subtype"}},
+                        "required": ["class"]
+                    },
+                    "then": {
+                        "properties": {
+                            "name": {"enum": ["php-64bit", "php-debug", "php-ipv6", "php-zts"]},
+                            "simulation": {"const": "composer_config"}
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {"class": {"const": "composer_platform"}},
+                        "required": ["class"]
+                    },
+                    "then": {
+                        "properties": {
+                            "name": {"enum": ["composer", "composer-plugin-api", "composer-runtime-api"]},
+                            "simulation": {"const": "toolchain_bound"}
+                        }
+                    }
+                }
+            ]
         },
         "phpProvenance": {
             "type": "object",
@@ -419,6 +640,7 @@
                 "provenance": {
                     "enum": [
                         "request",
+                        "profile",
                         "composer_config",
                         "unknown"
                     ]
@@ -437,7 +659,7 @@
             "properties": {
                 "name": {
                     "type": "string",
-                    "pattern": "^ext-[a-z0-9_.-]+$"
+                    "pattern": "^ext-[a-z0-9](?:[_.-]?[a-z0-9]+)*$"
                 },
                 "state": {
                     "enum": [
@@ -454,7 +676,9 @@
                 "provenance": {
                     "enum": [
                         "request",
-                        "composer_config"
+                        "composer_config",
+                        "profile",
+                        "closed_world"
                     ]
                 }
             }

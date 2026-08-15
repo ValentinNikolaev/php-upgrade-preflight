@@ -19,7 +19,8 @@
         "source_paths": [],
         "frameworks": [],
         "format": "json",
-        "output_path": null
+        "output_path": null,
+        "target_platform_profile": null
     },
     "project_state": {
         "path": "[PROJECT_ROOT]",
@@ -46,7 +47,8 @@
             "completeness": "none",
             "unmodeled_provenance": "analyzer_runtime",
             "assumptions": []
-        }
+        },
+        "profile": null
     },
     "resolution": {
         "status": "unknown",

@@ -8,7 +8,7 @@ PHP Upgrade Preflight is a public beta while its public PHP API, CLI and Artisan
 
 Within the released v0.2.x line, patch releases preserve the public PHP operation, CLI and Artisan behavior, adapter metadata, exit policy, schema `0.7` compatibility, and supported transition claims. A patch may correct findings, evidence, diagnostics, security behavior, or documentation while retaining those contracts.
 
-The active v0.3 development line is a new `0.MINOR` release. It introduces schema `0.8`, an optional stage-target provider, and staged Composer results; later milestones complete target-platform profiles and execution hardening. Historical v0.2 schemas and signed compatibility artifacts remain immutable, and every intentional migration is documented before v0.3 is released.
+The active v0.3 development line is a new `0.MINOR` release. It introduces schema `0.8`, an optional stage-target provider, staged Composer results, and schema `1.0` partial or complete target-platform profiles. Later milestones harden execution and generalize staged solving. Historical v0.2 schemas and signed compatibility artifacts remain immutable, and every intentional migration is documented before v0.3 is released.
 
 ## The `0.x` phase
 

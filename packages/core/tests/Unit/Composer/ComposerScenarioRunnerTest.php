@@ -125,7 +125,7 @@ final class ComposerScenarioRunnerTest extends TestCase
             },
             null,
             null,
-            static function (array $command) use (&$capturedCommand): array {
+            static function (array $command, string $_workingDirectory, array $_environment) use (&$capturedCommand): array {
                 $capturedCommand = $command;
 
                 return ['exit_code' => 0, 'stdout' => 'Composer version 2.8.12', 'stderr' => ''];
@@ -143,6 +143,33 @@ final class ComposerScenarioRunnerTest extends TestCase
             '--no-plugins',
             '--no-interaction',
         ], $capturedCommand);
+    }
+
+    public function testVersionProbeRemovesItsIsolatedDirectoryWhenTheProcessRunnerThrows(): void
+    {
+        $probeDirectory = null;
+        $runner = new ComposerScenarioRunner(
+            null,
+            null,
+            static fn (): array => [
+                'exit_code' => 1,
+                'stdout' => '',
+                'stderr' => 'Synthetic operational stop.',
+            ],
+            null,
+            null,
+            static function (array $_command, string $workingDirectory, array $_environment) use (&$probeDirectory): array {
+                $probeDirectory = $workingDirectory;
+
+                throw new \RuntimeException('Synthetic probe failure.');
+            }
+        );
+
+        $result = $this->runFixtureScenario($runner);
+
+        self::assertNull($result->composerVersion());
+        self::assertNotNull($probeDirectory);
+        self::assertDirectoryDoesNotExist($probeDirectory);
     }
 
     public function testItUpdatesTheLockWithoutInstallingDependencies(): void

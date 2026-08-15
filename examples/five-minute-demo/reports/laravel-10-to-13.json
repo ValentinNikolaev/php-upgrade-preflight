@@ -25,7 +25,8 @@
             "laravel"
         ],
         "format": "json",
-        "output_path": "[REPORT_OUTPUT]"
+        "output_path": "[REPORT_OUTPUT]",
+        "target_platform_profile": null
     },
     "project_state": {
         "path": "[PROJECT_ROOT]",
@@ -66,7 +67,8 @@
                     "provenance": "request"
                 }
             ]
-        }
+        },
+        "profile": null
     },
     "resolution": {
         "status": "blocked",

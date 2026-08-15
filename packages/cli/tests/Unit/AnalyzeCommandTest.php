@@ -98,6 +98,104 @@ final class AnalyzeCommandTest extends TestCase
         self::assertSame('', $this->streamContents($this->stderr));
     }
 
+    public function testItLoadsAProfileAndPassesItToTheAnalyzer(): void
+    {
+        $profilePath = dirname(__DIR__, 4) . '/tests/fixtures/platform-profiles/complete-php-83.json';
+        $exitCode = $this->command->run([
+            'upgrade-intel',
+            'analyze',
+            '--path=' . dirname(__DIR__, 4),
+            '--target-platform-profile=' . $profilePath,
+        ]);
+
+        self::assertSame(AnalyzeCommand::SUCCESS, $exitCode);
+        self::assertNotNull($this->analyzer->request);
+        self::assertNotNull($this->analyzer->request->targetPlatformProfile());
+        self::assertSame('file', $this->analyzer->request->targetPlatformProfile()->provenance());
+        self::assertSame('1.0', $this->analyzer->request->targetPlatformProfile()->schemaVersion());
+        self::assertSame('8.3.0', $this->analyzer->request->targetPhp());
+        self::assertSame('', $this->streamContents($this->stderr));
+    }
+
+    /** @dataProvider invalidProfileProvider */
+    public function testItRejectsInvalidProfilesWithoutDisclosingTheirPath(string $profilePath, string $message): void
+    {
+        $exitCode = $this->command->run([
+            'upgrade-intel',
+            'analyze',
+            '--path=' . dirname(__DIR__, 4),
+            '--target-platform-profile=' . $profilePath,
+        ]);
+        $diagnostic = $this->streamContents($this->stderr);
+
+        self::assertSame(AnalyzeCommand::INVALID, $exitCode);
+        self::assertNull($this->analyzer->request);
+        self::assertStringStartsWith('Invalid invocation:', $diagnostic);
+        self::assertStringContainsString($message, $diagnostic);
+        self::assertStringNotContainsString($profilePath, $diagnostic);
+    }
+
+    /** @return list<array{string, string}> */
+    public function invalidProfileProvider(): array
+    {
+        return [
+            [
+                dirname(__DIR__, 4) . '/tests/fixtures/platform-profiles/missing-secret-profile.json',
+                'Target platform profile file could not be read.',
+            ],
+            [
+                dirname(__DIR__, 4) . '/tests/fixtures/platform-profiles',
+                'Target platform profile file could not be read.',
+            ],
+            [
+                dirname(__DIR__, 4) . '/tests/fixtures/platform-profiles/malformed.json',
+                'Target platform profile contains invalid JSON.',
+            ],
+            [
+                dirname(__DIR__, 4) . '/tests/fixtures/platform-profiles/invalid-package-name.json',
+                'Target platform package name is unsupported.',
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider conflictingProfileInputProvider
+     * @param list<string> $profileArguments
+     */
+    public function testItRejectsProfileConflictsBeforeRunningAnalysis(
+        array $profileArguments,
+        string $message
+    ): void {
+        $exitCode = $this->command->run(array_merge(
+            ['upgrade-intel', 'analyze', '--path=' . dirname(__DIR__, 4)],
+            $profileArguments
+        ));
+
+        self::assertSame(AnalyzeCommand::INVALID, $exitCode);
+        self::assertNull($this->analyzer->request);
+        self::assertStringStartsWith('Invalid invocation:', $this->streamContents($this->stderr));
+        self::assertStringContainsString($message, $this->streamContents($this->stderr));
+    }
+
+    /** @return list<array{list<string>, string}> */
+    public function conflictingProfileInputProvider(): array
+    {
+        return [
+            [[
+                '--target-platform-profile=' . dirname(__DIR__, 4) . '/tests/fixtures/platform-profiles/partial-php-83-ext-json.json',
+                '--without-extension=ext-json',
+            ], 'contradicts the target platform profile'],
+            [[
+                '--target-platform-profile=' . dirname(__DIR__, 4) . '/tests/fixtures/platform-profiles/partial-php-83-ext-json.json',
+                '--with-extension=ext-json:8.2.0',
+            ], 'contradicts the target platform profile'],
+            [[
+                '--target-platform-profile=' . dirname(__DIR__, 4) . '/tests/fixtures/platform-profiles/complete-php-83.json',
+                '--with-extension=ext-json',
+            ], 'presence-only'],
+        ];
+    }
+
     public function testItReturnsFailureForInvalidInputWithoutCallingTheAnalyzer(): void
     {
         $exitCode = $this->command->run(['upgrade-intel', 'analyze']);
@@ -129,7 +227,9 @@ final class AnalyzeCommandTest extends TestCase
 
         self::assertSame(0, $exitCode);
         self::assertNull($this->analyzer->request);
-        self::assertStringStartsWith('Usage:', $this->streamContents($this->stdout));
+        $help = $this->streamContents($this->stdout);
+        self::assertStringStartsWith('Usage:', $help);
+        self::assertStringContainsString('--target-platform-profile=PATH', $help);
     }
 
     public function testItRejectsAnOutputPathInsideTheAnalyzedProject(): void
@@ -198,6 +298,11 @@ final class AnalyzeCommandTest extends TestCase
                 '--with-extension=ext-json',
                 '--without-extension=ext-json',
             ], 'may only be specified once'],
+            [[
+                '--path=' . $projectPath,
+                '--target-php=8.2',
+                '--with-extension=ext-a..b',
+            ], 'must use Composer ext-name syntax'],
         ];
     }
 

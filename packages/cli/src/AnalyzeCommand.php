@@ -6,6 +6,7 @@ namespace PhpUpgradePreflight\Cli;
 
 use PhpUpgradePreflight\Core\Contracts\UpgradeAnalyzer;
 use PhpUpgradePreflight\Core\Model\ReportFormat;
+use PhpUpgradePreflight\Core\Model\TargetPlatformProfile;
 use PhpUpgradePreflight\Core\Model\UpgradeRequest;
 use PhpUpgradePreflight\Core\Model\UpgradeTarget;
 use PhpUpgradePreflight\Core\Reporting\JsonReportWriter;
@@ -64,6 +65,7 @@ final class AnalyzeCommand
         try {
             $options = $this->parser->parse($argv);
             $targets = array_map(static fn (string $target): UpgradeTarget => UpgradeTarget::fromString($target), $options['target']);
+            $targetPlatformProfile = $this->loadTargetPlatformProfile($options['target-platform-profile'] ?? null);
             $request = new UpgradeRequest(
                 $options['path'],
                 $targets,
@@ -74,7 +76,8 @@ final class AnalyzeCommand
                 $options['format'],
                 $options['output'],
                 $options['debug'],
-                $options['extension-assumptions'] ?? []
+                $options['extension-assumptions'] ?? [],
+                $targetPlatformProfile
             );
             $this->frameworkIntegrations->assertAvailable($request->frameworks());
 
@@ -121,11 +124,14 @@ final class AnalyzeCommand
         return <<<'USAGE'
 Usage:
   upgrade-intel analyze --target=package:constraint [options]
+  upgrade-intel analyze --target-platform-profile=PATH [options]
 
 Options:
   --path=PATH             Project path to analyze (default: current directory)
   --target=PACKAGE:VALUE  Target package constraint; repeatable
   --target-php=VERSION    Explicit target PHP platform version
+  --target-platform-profile=PATH
+                          JSON target-platform profile file
   --from-php=VALUE        Current project PHP version
   --with-extension=EXT[:VERSION]
                           Assume an extension is present; repeatable
@@ -138,6 +144,15 @@ Options:
   -h, --help              Show this help
 
 USAGE;
+    }
+
+    private function loadTargetPlatformProfile(?string $path): ?TargetPlatformProfile
+    {
+        if ($path === null) {
+            return null;
+        }
+
+        return TargetPlatformProfile::fromFile($path);
     }
 
     private function diagnostic(string $message): void

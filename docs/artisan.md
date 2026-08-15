@@ -17,6 +17,7 @@ Composer-metadata discovery generalizes adapter registration for the standalone 
 | `--path=PATH` | Project directory. Defaults to the current Laravel application. |
 | `--target=PACKAGE:CONSTRAINT` | Requested package constraint. Repeat as needed. |
 | `--target-php=VERSION` | Exact target PHP platform version. |
+| `--target-platform-profile=PATH` | JSON target-platform profile. May be supplied once. |
 | `--from-php=VERSION` | Known current PHP version. |
 | `--with-extension=EXT[:VERSION]` | Assume `ext-name` is present, optionally at an exact version. Repeat as needed. |
 | `--without-extension=EXT` | Assume `ext-name` is absent. Repeat as needed. |
@@ -25,9 +26,9 @@ Composer-metadata discovery generalizes adapter registration for the standalone 
 | `--output=PATH` | Report file outside the analyzed project. |
 | `--debug` | Preserve temporary workspaces and expose exact `temp_path` values; output is non-shareable. |
 
-Extension options have the same validation and provenance semantics as the standalone CLI. A name may be supplied only once across both options. Exact versions and absences affect only temporary Composer workspaces. Absence simulation requires Composer 2.2 or newer and stops affected scenarios before workspace creation on an older detected version. Presence without a version remains visible as uncertainty; related constraint failures are non-blocking `extension-version-unknown` advisories. Every unlisted host extension also remains explicit uncertainty in the canonical report.
+Extension options have the same validation and provenance semantics as the standalone CLI. Matching duplicates collapse deterministically; contradictory versions or presence/absence are rejected. Exact versions and absences affect only temporary Composer workspaces. Absence simulation requires Composer 2.2 or newer and stops affected scenarios before workspace creation on an older detected version. Presence without a version remains visible as uncertainty; related constraint failures are non-blocking `extension-version-unknown` advisories. Every unlisted host extension also remains explicit uncertainty in the canonical report.
 
-Request assumptions override same-name entries from the application's original `config.platform`. In v0.2 they still form only a partial extension model: `platform.extensions` records `completeness: partial` and identifies the analyzer runtime as the source for every unlisted extension. No Artisan option claims a complete, host-independent extension inventory.
+`--target-platform-profile` has the same schema `1.0`, supported package classes, validation, precedence, and reporting contract as the standalone CLI. A `partial` profile leaves unlisted platform packages host-dependent. A `complete` profile is closed-world for its supported classes, models safely simulated unlisted packages absent, and requires Composer 2.2 or newer. Older Composer produces an operationally unknown result rather than silently weakening the profile. The report records only safe `file` provenance and a canonical digest; it does not expose the profile path. See the [CLI profile example and guarantee boundary](cli.md).
 
 By default, canonical JSON and Markdown replace absolute local roots with `[PROJECT_ROOT]`, `[REPORT_OUTPUT]`, `[LOCAL_REPOSITORY]`, and `[ANALYZER_WORKSPACE]`. The analyzer still uses exact project and source paths internally, while reported source files remain project-relative. A cleanup failure reports only `[ANALYZER_WORKSPACE]` unless `--debug` was supplied. Explicit debug mode preserves workspaces and exposes exact `temp_path` values, so debug reports and retained workspaces are non-shareable. Credential redaction remains active in every mode.
 

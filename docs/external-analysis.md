@@ -58,7 +58,9 @@ Composer scripts and plugins stay disabled in every scenario and diagnostic. Com
 
 `--from-php` records the known current runtime and enables staged probes. `--target-php` changes Composer's simulated platform in the temporary manifest. Neither option changes the PHP interpreter that runs the analyzer.
 
-Schema `0.7` records those distinctions in `platform`: analyzer PHP always has `runtime` provenance; current PHP comes from `--from-php`, the target's original `config.platform.php`, or remains `unknown`; target PHP comes from the request or remains `unknown`. Extension assumptions come from the target's original `config.platform` and the request, with request values taking precedence. Listed assumptions are deterministic, but every unlisted extension still comes from the analyzer host. Because the CLI cannot describe a complete extension inventory, `--with-extension` and `--without-extension` produce `completeness: partial`, not a claim of full host independence.
+For reproducible target-platform decisions, pass a schema `1.0` JSON profile with `--target-platform-profile=/work/profiles/production.json`. A `complete` profile is closed-world for supported safely simulated PHP, extension, library, and PHP-subtype packages: unlisted packages in those classes are modeled absent. Composer 2.2 or newer is required; an older executable yields operational uncertainty rather than weakening the request. A `partial` profile and legacy named assumptions leave unlisted packages dependent on the analyzer host.
+
+Schema `0.8` records analyzer, current, and target provenance plus the normalized profile under `platform.profile`. Canonical output includes the profile's SHA-256 digest and safe `file` provenance, never its local path. It also identifies Composer platform values bound to the actual executable as `toolchain_bound`. Profile completeness does not freeze repository metadata, downloads, credentials, network behavior, or the Composer executable, so isolate or pin those inputs separately when they matter.
 
 ## Redaction boundary
 

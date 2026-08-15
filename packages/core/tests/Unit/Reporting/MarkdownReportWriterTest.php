@@ -233,5 +233,80 @@ final class MarkdownReportWriterTest extends TestCase
             'Context: ``{"file":"src/Example.php","line":12,"detail":"keep  repeated spaces and `embedded code`"}``',
             $markdown
         );
+
+        $profile = [
+            'schema_version' => '1.0',
+            'completeness' => 'complete',
+            'sha256' => str_repeat('a', 64),
+            'provenance' => 'file',
+            'supported_classes' => ['php', 'extension', 'library', 'php_subtype', 'composer_platform'],
+            'closed_world' => true,
+            'toolchain_bound' => ['composer', 'composer-plugin-api', 'composer-runtime-api'],
+            'effective' => [
+                [
+                    'name' => 'composer',
+                    'class' => 'composer_platform',
+                    'state' => 'present',
+                    'version' => '2.8.12',
+                    'provenance' => 'profile',
+                    'simulation' => 'toolchain_bound',
+                ],
+                [
+                    'name' => 'composer-plugin-api',
+                    'class' => 'composer_platform',
+                    'state' => 'present',
+                    'version' => '2.6.0',
+                    'provenance' => 'profile',
+                    'simulation' => 'toolchain_bound',
+                ],
+                [
+                    'name' => 'composer-runtime-api',
+                    'class' => 'composer_platform',
+                    'state' => 'present',
+                    'version' => '2.2.2',
+                    'provenance' => 'profile',
+                    'simulation' => 'toolchain_bound',
+                ],
+                [
+                    'name' => 'ext-curl',
+                    'class' => 'extension',
+                    'state' => 'absent',
+                    'version' => null,
+                    'provenance' => 'closed_world',
+                    'simulation' => 'composer_config',
+                ],
+                [
+                    'name' => 'php',
+                    'class' => 'php',
+                    'state' => 'present',
+                    'version' => '8.3.0',
+                    'provenance' => 'profile',
+                    'simulation' => 'composer_config',
+                ],
+            ],
+        ];
+        $canonical = $report->toArray();
+        $canonical['request_summary']['target_platform_profile'] = array_intersect_key(
+            $profile,
+            array_flip(['schema_version', 'completeness', 'sha256', 'provenance'])
+        );
+        $canonical['platform']['profile'] = $profile;
+        $profileMarkdown = $writer->renderCanonical($canonical);
+
+        self::assertStringContainsString('completeness `complete`', $profileMarkdown);
+        self::assertStringContainsString('SHA-256 `' . str_repeat('a', 64) . '`', $profileMarkdown);
+        self::assertStringContainsString('complete closed-world modeling', $profileMarkdown);
+        self::assertStringContainsString('Toolchain-bound packages: `composer`, `composer-plugin-api`, `composer-runtime-api`', $profileMarkdown);
+        self::assertStringContainsString('`composer-plugin-api` (`composer_platform`): `present` at `2.6.0`; provenance `profile`; simulation `toolchain_bound`', $profileMarkdown);
+        self::assertStringContainsString('`ext-curl` (`extension`): `absent`; provenance `closed_world`; simulation `composer_config`', $profileMarkdown);
+        self::assertStringContainsString('`php` (`php`): `present` at `8.3.0`; provenance `profile`; simulation `composer_config`', $profileMarkdown);
+
+        $canonical['request_summary']['target_platform_profile']['completeness'] = 'partial';
+        $canonical['platform']['profile']['completeness'] = 'partial';
+        $canonical['platform']['profile']['closed_world'] = false;
+        self::assertStringContainsString(
+            'partial and host-dependent; unlisted platform packages may come from the analyzer runtime.',
+            $writer->renderCanonical($canonical)
+        );
     }
 }

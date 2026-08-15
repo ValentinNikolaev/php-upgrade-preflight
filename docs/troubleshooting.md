@@ -34,11 +34,17 @@ Do not use `resolution.status` to override this result. Composer feasibility and
 
 ## The report says extension provenance is partial
 
-This is expected when `config.platform` or `--with-extension` / `--without-extension` models only named extensions. Listed values are deterministic, while unlisted extensions still come from the analyzer runtime. Version 0.2 does not accept a complete extension inventory, so it cannot claim full host independence. Compare `platform.extensions.assumptions`, `completeness`, and `unmodeled_provenance` when two hosts disagree.
+This is expected when `config.platform`, `--with-extension` / `--without-extension`, or a `partial` target-platform profile models only named values. Listed decisions are deterministic, while unlisted values still come from the analyzer runtime. Compare `platform.profile`, `platform.extensions.assumptions`, completeness, and unmodeled provenance when two hosts disagree. Use a complete schema `1.0` profile only when you can enumerate the supported target platform accurately.
+
+## A complete profile produces an unknown result
+
+Check the Composer version used by the analyzer. Complete closed-world profiles require Composer 2.2 or newer. Composer 2.0 or 2.1 cannot hide all unlisted supported platform packages, so the analyzer stops before workspace creation and reports operational uncertainty instead of silently changing the request to partial. Also inspect the validation diagnostic for contradictory request/profile PHP or extension values and for presence-only extension assumptions, which are not compatible with completeness.
 
 ## A schema 0.6 consumer rejects a v0.2 report
 
 Version 0.2 writes schema `0.7`. Select the parser through `metadata.schema_version`, update raw-source reads from schema 0.6 `source_impact` to schema 0.7 `source_inventory`, and treat schema 0.7 `source_impact` as grouped actionable findings. Also accept the new required `platform` field and `transition.framework_guidance`. Historical schema 0.6 reports remain valid and are not rewritten.
+
+For schema `0.8`, also accept required `staged_resolution`, nullable `request_summary.target_platform_profile`, and nullable `platform.profile`. Field absence means an older schema; it is not equivalent to a schema 0.8 `null` profile.
 
 ## The output path is rejected
 

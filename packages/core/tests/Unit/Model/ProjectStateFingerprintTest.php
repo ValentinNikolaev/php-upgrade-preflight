@@ -1,0 +1,144 @@
+<?php
+
+declare(strict_types=1);
+
+namespace PhpUpgradePreflight\Core\Tests\Unit\Model;
+
+use PhpUpgradePreflight\Core\Model\ComposerJson;
+use PhpUpgradePreflight\Core\Model\ComposerLock;
+use PhpUpgradePreflight\Core\Model\HostExtension;
+use PhpUpgradePreflight\Core\Model\ProjectState;
+use PhpUpgradePreflight\Core\Model\ProjectStateFingerprint;
+use PhpUpgradePreflight\Core\Model\TargetPlatform;
+use PhpUpgradePreflight\Core\Model\TargetPlatformProfile;
+use PhpUpgradePreflight\Core\Model\UpgradeRequest;
+use PHPUnit\Framework\TestCase;
+
+final class ProjectStateFingerprintTest extends TestCase
+{
+    public function testCompleteProfileFingerprintIsIndependentOfHostExtensionInventory(): void
+    {
+        $profile = $this->profile('complete', ['php' => '8.3.4']);
+        $state = $this->projectState();
+        $request = new UpgradeRequest($this->projectPath(), [], null, null, [], [], 'json', null, false, [], $profile);
+        $jsonHost = TargetPlatform::fromRequest(
+            $request,
+            $state,
+            [new HostExtension('json', '8.3.4')],
+            '8.3.4'
+        );
+        $curlHost = TargetPlatform::fromRequest(
+            $request,
+            $state,
+            [new HostExtension('curl', '8.3.4')],
+            '8.3.4'
+        );
+
+        self::assertNotSame(
+            $jsonHost->composerPlatformOverrides(),
+            $curlHost->composerPlatformOverrides(),
+            'Execution overrides must still suppress the packages discovered on each analyzer host.'
+        );
+
+        $jsonFingerprint = $this->fingerprint($state, $jsonHost)->toArray();
+        $curlFingerprint = $this->fingerprint($state, $curlHost)->toArray();
+
+        self::assertSame($jsonFingerprint['platform_sha256'], $curlFingerprint['platform_sha256']);
+        self::assertSame($jsonFingerprint['state_sha256'], $curlFingerprint['state_sha256']);
+    }
+
+    public function testMeaningfulCompleteProfileDecisionChangesPlatformAndStateHashes(): void
+    {
+        $state = $this->projectState();
+        $first = $this->platform($state, $this->profile('complete', [
+            'php' => '8.3.4',
+            'lib-icu' => '73.2',
+        ]));
+        $second = $this->platform($state, $this->profile('complete', [
+            'php' => '8.3.4',
+            'lib-icu' => '74.1',
+        ]));
+
+        $firstFingerprint = $this->fingerprint($state, $first)->toArray();
+        $secondFingerprint = $this->fingerprint($state, $second)->toArray();
+
+        self::assertNotSame($firstFingerprint['platform_sha256'], $secondFingerprint['platform_sha256']);
+        self::assertNotSame($firstFingerprint['state_sha256'], $secondFingerprint['state_sha256']);
+    }
+
+    public function testCompleteProfileTreatsExplicitAndImplicitSafeAbsenceAsTheSameDecision(): void
+    {
+        $state = $this->projectState();
+        $implicitAbsence = $this->platform($state, $this->profile('complete', ['php' => '8.3.4']));
+        $explicitAbsence = $this->platform($state, $this->profile('complete', [
+            'php' => '8.3.4',
+            'ext-json' => false,
+        ]));
+
+        $implicitFingerprint = $this->fingerprint($state, $implicitAbsence)->toArray();
+        $explicitFingerprint = $this->fingerprint($state, $explicitAbsence)->toArray();
+
+        self::assertSame($implicitFingerprint['platform_sha256'], $explicitFingerprint['platform_sha256']);
+        self::assertSame($implicitFingerprint['state_sha256'], $explicitFingerprint['state_sha256']);
+    }
+
+    public function testPartialProfileFingerprintIncludesExplicitlyModeledDecisions(): void
+    {
+        $state = $this->projectState();
+        $first = $this->platform($state, $this->profile('partial', [
+            'php' => '8.3.4',
+            'ext-intl' => '8.3.0',
+        ]));
+        $second = $this->platform($state, $this->profile('partial', [
+            'php' => '8.3.4',
+            'ext-intl' => false,
+        ]));
+
+        $firstFingerprint = $this->fingerprint($state, $first)->toArray();
+        $secondFingerprint = $this->fingerprint($state, $second)->toArray();
+
+        self::assertNotSame($firstFingerprint['platform_sha256'], $secondFingerprint['platform_sha256']);
+        self::assertNotSame($firstFingerprint['state_sha256'], $secondFingerprint['state_sha256']);
+    }
+
+    private function platform(ProjectState $state, TargetPlatformProfile $profile): TargetPlatform
+    {
+        $request = new UpgradeRequest($this->projectPath(), [], null, null, [], [], 'json', null, false, [], $profile);
+
+        return TargetPlatform::fromRequest($request, $state, [], '8.3.4');
+    }
+
+    private function fingerprint(ProjectState $state, TargetPlatform $platform): ProjectStateFingerprint
+    {
+        return ProjectStateFingerprint::fromState(
+            $state,
+            $platform,
+            '8.3.4',
+            ['composer' => ['no_plugins' => true, 'no_scripts' => true]]
+        );
+    }
+
+    /** @param array<string, string|false> $packages */
+    private function profile(string $completeness, array $packages): TargetPlatformProfile
+    {
+        return TargetPlatformProfile::fromArray([
+            'schema_version' => '1.0',
+            'completeness' => $completeness,
+            'packages' => $packages,
+        ]);
+    }
+
+    private function projectState(): ProjectState
+    {
+        return new ProjectState(
+            $this->projectPath(),
+            new ComposerJson(['name' => 'fixture/fingerprint']),
+            new ComposerLock([])
+        );
+    }
+
+    private function projectPath(): string
+    {
+        return dirname(__DIR__, 5) . '/tests/fixtures/project-isolation';
+    }
+}

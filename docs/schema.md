@@ -18,7 +18,7 @@ Select a parser or validator through `metadata.schema_version`. Do not infer the
 
 ## Current contract
 
-The v0.3 development line writes the strict Draft 2020-12 [`upgrade-report-v0.8.schema.json`](../packages/core/resources/schema/upgrade-report-v0.8.schema.json). It rejects unknown properties and adds required staged execution, adjacent-stage attempts, selected-state fingerprints, and a lifecycle-preserving blocker registry to the schema 0.7 fields.
+The v0.3 development line writes the strict Draft 2020-12 [`upgrade-report-v0.8.schema.json`](../packages/core/resources/schema/upgrade-report-v0.8.schema.json). It rejects unknown properties and adds required staged execution, adjacent-stage attempts, selected-state fingerprints, a lifecycle-preserving blocker registry, and nullable target-platform-profile fields to the schema 0.7 shape.
 
 Historical schemas remain in the same directory for consumers that store older reports:
 
@@ -43,7 +43,7 @@ Historical reports are not rewritten. A multi-version consumer must retain separ
 
 ## Migrating from 0.7 to 0.8
 
-Schema 0.8 adds one required top-level object, `staged_resolution`. It does not change the meaning of `resolution.status`, `transition.framework_guidance`, direct-final `transition.package_changes`, or the schema 0.7 source fields.
+Schema 0.8 adds one required top-level object, `staged_resolution`, plus required nullable `request_summary.target_platform_profile` and `platform.profile` fields. It does not change the meaning of `resolution.status`, `transition.framework_guidance`, direct-final `transition.package_changes`, or the schema 0.7 source fields. A `null` profile preserves legacy named partial-platform behavior; it does not mean an empty complete profile.
 
 | 0.7 | 0.8 |
 | --- | --- |
@@ -51,6 +51,7 @@ Schema 0.8 adds one required top-level object, `staged_resolution`. It does not 
 | Final-target blockers only | `staged_resolution.blocker_registry[]` retains attempt- and stage-scoped lifecycle history |
 | No selected intermediate project state | Each stage links predecessor, input, and selected output manifest/lock/platform/execution-policy fingerprints |
 | Framework findings are hop-scoped | Executed stages also project applicable findings and source impact while explicitly naming `original_project` as the inspected snapshot |
+| No versioned target-platform profile | `request_summary.target_platform_profile` records safe input metadata and `platform.profile` records the normalized effective profile or `null` |
 
 For a 0.7/0.8 consumer:
 
@@ -59,7 +60,9 @@ For a 0.7/0.8 consumer:
 3. For 0.8 only, read `staged_resolution.execution_state` before interpreting its independent `status`.
 4. Treat `blocker_registry` as an ordered array even when empty or when it contains one entry.
 5. Advance through stages only when the stage has a selected attempt and its output fingerprint matches the next stage's input fingerprint.
-6. Do not infer an empty staged result for schema 0.7; the field's absence identifies the older contract.
+6. Read profile identity from its canonical SHA-256 digest and safe `php_api` or `file` provenance. A profile path is never part of canonical output.
+7. For a non-null profile, use `closed_world` and `effective[]`; do not infer completeness from the legacy `platform.extensions` projection.
+8. Do not infer an empty staged result or a null profile for schema 0.7; field absence identifies the older contract.
 
 The minimal canonical 0.8 fixture is [`tests/fixtures/contracts/v0.3/minimal-report-v0.8.json`](../tests/fixtures/contracts/v0.3/minimal-report-v0.8.json). The complete staged semantics are locked in the [v0.3 contract](v0.3-contract.md).
 
@@ -110,14 +113,59 @@ The `platform` object separates modeled target state from analyzer-host state:
 | --- | --- |
 | `analyzer` | PHP executing the analyzer; provenance is always `runtime`. |
 | `current_php` | `--from-php`, otherwise the original `config.platform.php`, otherwise `null`/`unknown`. |
-| `target_php` | Requested target PHP, otherwise `null`/`unknown`. |
-| `extensions.assumptions[]` | Ordered present/absent assumptions from `composer_config` or `request`; request input overrides the same configured name. |
-| `extensions.completeness` | `none`, `partial`, or schema-reserved `complete` coverage. |
-| `extensions.unmodeled_provenance` | Where values not covered by assumptions came from. |
+| `target_php` | Requested target PHP, otherwise exact profile PHP, otherwise `null`/`unknown`. |
+| `extensions.assumptions[]` | Ordered effective present/absent assumptions from `request`, `profile`, `composer_config`, or `closed_world` precedence. |
+| `extensions.completeness` | `none`, `partial`, or `complete` coverage. |
+| `extensions.unmodeled_provenance` | Where values not covered by assumptions came from; `null` for a complete profile. |
+| `profile` | Nullable versioned profile metadata, supported classes, closed-world flag, toolchain-bound package names, and sorted effective decisions. |
 
-Version 0.2 command-line and Artisan inputs can model named extensions only. With no assumptions, extension provenance is `analyzer_runtime` and completeness is `none`. With any manifest or request assumptions, provenance is `mixed`, completeness is `partial`, and unlisted extensions still use `unmodeled_provenance: analyzer_runtime`. The schema reserves `complete`, but v0.2 has no option that accepts a complete extension inventory; do not reinterpret partial input as host-independent.
+Without a target-platform profile, the legacy command-line and Artisan inputs model named extensions only. With no assumptions, extension provenance is `analyzer_runtime` and completeness is `none`. With manifest, request, or partial-profile assumptions, completeness is `partial` and unlisted extensions still use `unmodeled_provenance: analyzer_runtime`. A complete profile makes the extension projection `complete`, models unlisted safely simulated extensions as absent with `closed_world` provenance, and sets `unmodeled_provenance` to `null`.
 
-Extension assumptions are ordered by Composer extension name. `provenance: request` identifies CLI or Artisan `--with-extension` / `--without-extension` input; `provenance: composer_config` identifies the analyzed manifest's original `config.platform` entry. Request input overrides the same manifest entry, while duplicate request values are rejected. A present assumption with a `null` version models presence only and adds a version-compatibility uncertainty. Solver conflicts caused by its sentinel use the non-blocking `extension-version-unknown` blocker classification; exact modeled version conflicts use the blocking `extension-version-incompatible` classification. Reports never promote unlisted analyzer-host extension state to reproducible target evidence.
+Extension assumptions are ordered by Composer extension name. `provenance: request` identifies CLI or Artisan `--with-extension` / `--without-extension` input; `profile`, `composer_config`, and `closed_world` identify the other effective sources. Request input overrides the same profile or manifest entry. Matching request duplicates collapse deterministically; contradictory values are rejected. A present assumption with a `null` version models presence only and adds a version-compatibility uncertainty. Solver conflicts caused by its sentinel use the non-blocking `extension-version-unknown` blocker classification; exact modeled version conflicts use the blocking `extension-version-incompatible` classification. Reports never promote unlisted analyzer-host extension state to reproducible target evidence.
+
+### Target-platform profile projection
+
+`request_summary.target_platform_profile` contains only `schema_version`, `completeness`, canonical `sha256`, and safe `provenance`. `platform.profile` repeats those fields and adds `supported_classes`, `closed_world`, the fixed sorted `toolchain_bound` classification (`composer`, `composer-plugin-api`, and `composer-runtime-api`), and sorted `effective` decisions. Each decision has exactly `name`, `class`, `state`, nullable `version`, source `provenance`, and `simulation`:
+
+```json
+{
+  "schema_version": "1.0",
+  "completeness": "complete",
+  "sha256": "8dbb9d1a3f59085813bb56e2b339ede7893ed508933fed87c784e83cfcd218b5",
+  "provenance": "file",
+  "supported_classes": ["php", "extension", "library", "php_subtype", "composer_platform"],
+  "closed_world": true,
+  "toolchain_bound": ["composer", "composer-plugin-api", "composer-runtime-api"],
+  "effective": [
+    {
+      "name": "composer-plugin-api",
+      "class": "composer_platform",
+      "state": "present",
+      "version": "2.6.0",
+      "provenance": "profile",
+      "simulation": "toolchain_bound"
+    },
+    {
+      "name": "ext-curl",
+      "class": "extension",
+      "state": "absent",
+      "version": null,
+      "provenance": "closed_world",
+      "simulation": "composer_config"
+    },
+    {
+      "name": "php",
+      "class": "php",
+      "state": "present",
+      "version": "8.3.0",
+      "provenance": "profile",
+      "simulation": "composer_config"
+    }
+  ]
+}
+```
+
+Profile provenance is `php_api` or `file`; exact local paths stay behind the path-exposure boundary. Effective provenance is `request`, `composer_config`, `profile`, or `closed_world`. Simulation is `composer_config` when a decision is applied to an analyzer-owned manifest and `toolchain_bound` when the value is tied to the Composer executable and cannot be simulated safely. A present extension with `version: null` preserves a request's presence-only uncertainty; the internal Composer sentinel is never reported as an exact target version. Complete implies `closed_world: true`; partial implies `false` and remains analyzer-host dependent. Composer 2.2 or newer is required before a complete profile can be applied.
 
 Do not map `transition.framework_guidance[].status` onto `resolution.status`. `supported`, `partially_supported`, and `unsupported` describe rule-pack coverage only. Composer feasibility and framework guidance coverage are independent; [the v0.2 contract](v0.2-contract.md) defines their composition.
 

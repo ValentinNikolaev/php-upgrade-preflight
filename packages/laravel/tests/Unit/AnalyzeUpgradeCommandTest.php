@@ -56,6 +56,124 @@ final class AnalyzeUpgradeCommandTest extends TestCase
         self::assertSame('', $tester->getErrorOutput());
     }
 
+    public function testItLoadsAProfileAndPassesItToTheAnalyzer(): void
+    {
+        $analyzer = new RecordingUpgradeAnalyzer();
+        $tester = $this->commandTester($analyzer);
+        $profilePath = dirname(__DIR__, 4) . '/tests/fixtures/platform-profiles/complete-php-83.json';
+
+        $exitCode = $tester->execute([
+            '--target-platform-profile' => [$profilePath],
+        ], ['capture_stderr_separately' => true]);
+
+        self::assertSame(Command::SUCCESS, $exitCode);
+        self::assertNotNull($analyzer->request);
+        self::assertNotNull($analyzer->request->targetPlatformProfile());
+        self::assertSame('file', $analyzer->request->targetPlatformProfile()->provenance());
+        self::assertSame('1.0', $analyzer->request->targetPlatformProfile()->schemaVersion());
+        self::assertSame('8.3.0', $analyzer->request->targetPhp());
+        self::assertSame('', $tester->getErrorOutput());
+    }
+
+    /** @dataProvider invalidProfileProvider */
+    public function testItRejectsInvalidProfilesWithoutDisclosingTheirPath(string $profilePath, string $message): void
+    {
+        $analyzer = new RecordingUpgradeAnalyzer();
+        $tester = $this->commandTester($analyzer);
+
+        $exitCode = $tester->execute([
+            '--target-platform-profile' => [$profilePath],
+        ], ['capture_stderr_separately' => true]);
+        $diagnostic = $tester->getErrorOutput();
+
+        self::assertSame(Command::INVALID, $exitCode);
+        self::assertNull($analyzer->request);
+        self::assertStringStartsWith('Invalid invocation:', $diagnostic);
+        self::assertStringContainsString($message, $diagnostic);
+        self::assertStringNotContainsString($profilePath, $diagnostic);
+    }
+
+    /** @return list<array{string, string}> */
+    public function invalidProfileProvider(): array
+    {
+        return [
+            [
+                dirname(__DIR__, 4) . '/tests/fixtures/platform-profiles/missing-secret-profile.json',
+                'Target platform profile file could not be read.',
+            ],
+            [
+                dirname(__DIR__, 4) . '/tests/fixtures/platform-profiles',
+                'Target platform profile file could not be read.',
+            ],
+            [
+                dirname(__DIR__, 4) . '/tests/fixtures/platform-profiles/malformed.json',
+                'Target platform profile contains invalid JSON.',
+            ],
+            [
+                dirname(__DIR__, 4) . '/tests/fixtures/platform-profiles/invalid-package-name.json',
+                'Target platform package name is unsupported.',
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider conflictingProfileInputProvider
+     * @param array<string, mixed> $input
+     */
+    public function testItRejectsProfileConflictsBeforeRunningAnalysis(array $input, string $message): void
+    {
+        $analyzer = new RecordingUpgradeAnalyzer();
+        $tester = $this->commandTester($analyzer);
+
+        $exitCode = $tester->execute($input, ['capture_stderr_separately' => true]);
+
+        self::assertSame(Command::INVALID, $exitCode);
+        self::assertNull($analyzer->request);
+        self::assertStringStartsWith('Invalid invocation:', $tester->getErrorOutput());
+        self::assertStringContainsString($message, $tester->getErrorOutput());
+    }
+
+    /** @return list<array{array<string, mixed>, string}> */
+    public function conflictingProfileInputProvider(): array
+    {
+        return [
+            [[
+                '--target-platform-profile' => [
+                    dirname(__DIR__, 4) . '/tests/fixtures/platform-profiles/partial-php-83-ext-json.json',
+                ],
+                '--without-extension' => ['ext-json'],
+            ], 'contradicts the target platform profile'],
+            [[
+                '--target-platform-profile' => [
+                    dirname(__DIR__, 4) . '/tests/fixtures/platform-profiles/partial-php-83-ext-json.json',
+                ],
+                '--with-extension' => ['ext-json:8.2.0'],
+            ], 'contradicts the target platform profile'],
+            [[
+                '--target-platform-profile' => [
+                    dirname(__DIR__, 4) . '/tests/fixtures/platform-profiles/complete-php-83.json',
+                ],
+                '--with-extension' => ['ext-json'],
+            ], 'presence-only'],
+        ];
+    }
+
+    public function testItRejectsRepeatedProfileOptionsWithoutRunningAnalysis(): void
+    {
+        $analyzer = new RecordingUpgradeAnalyzer();
+        $tester = $this->commandTester($analyzer);
+
+        $exitCode = $tester->execute([
+            '--target-platform-profile' => ['first.json', 'second.json'],
+        ], ['capture_stderr_separately' => true]);
+
+        self::assertSame(Command::INVALID, $exitCode);
+        self::assertNull($analyzer->request);
+        self::assertStringContainsString('may only be specified once', $tester->getErrorOutput());
+        self::assertStringNotContainsString('first.json', $tester->getErrorOutput());
+        self::assertStringNotContainsString('second.json', $tester->getErrorOutput());
+    }
+
     /**
      * @dataProvider invalidInvocationProvider
      * @param array<string, mixed> $input
@@ -93,6 +211,11 @@ final class AnalyzeUpgradeCommandTest extends TestCase
                 '--with-extension' => ['ext-json'],
                 '--without-extension' => ['EXT-JSON'],
             ], 'may only be specified once'],
+            [[
+                '--path' => $projectPath,
+                '--target-php' => '8.2',
+                '--with-extension' => ['ext-a..b'],
+            ], 'must use Composer ext-name syntax'],
             [[
                 '--path' => $projectPath,
                 '--target-php' => '8.2',

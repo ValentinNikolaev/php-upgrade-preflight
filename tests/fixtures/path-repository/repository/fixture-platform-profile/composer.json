@@ -1,0 +1,12 @@
+{
+    "name": "fixture/platform-profile",
+    "description": "Offline target-platform profile fixture.",
+    "version": "1.0.0",
+    "type": "library",
+    "require": {
+        "php": ">=8.0",
+        "php-64bit": ">=8.0",
+        "ext-preflight-profile": ">=2.0",
+        "lib-icu": ">=70.0"
+    }
+}

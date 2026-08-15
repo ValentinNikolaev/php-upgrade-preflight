@@ -8,6 +8,7 @@ Resolution: **blocked** | Staged: **blocked** | Schema: `0.8` | Tool: `php-upgra
 - Target PHP: `8.3.0`
 - Source paths: `default project paths`
 - Framework integrations: `laravel`
+- Target platform profile: `not supplied`
 - Requested format: `markdown`
 - Output destination: `[REPORT_OUTPUT]`
 - Targets:
@@ -20,6 +21,7 @@ Resolution: **blocked** | Staged: **blocked** | Schema: `0.8` | Tool: `php-upgra
 - Target PHP: `8.3.0` (provenance: `request`)
 - Extensions: provenance `mixed`; explicitly modeled: yes; completeness: `partial`; unmodeled values: `analyzer_runtime`
   - `ext-preflight-stage`: `absent` (provenance: `request`)
+- Target platform profile: none; platform packages not explicitly modeled above remain analyzer-host dependent.
 
 ## Project State
 - Analyzed path: `[PROJECT_ROOT]`

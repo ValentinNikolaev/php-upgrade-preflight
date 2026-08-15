@@ -4,10 +4,11 @@ PHP Upgrade Preflight is a public-beta planning tool that predicts dependency an
 
 ## Dependency resolution
 
-- Composer resolves scenarios against the repositories, credentials, and network available to the analyzer process. Explicit extension versions and absences override the named extensions in temporary workspaces; absence simulation requires Composer 2.2 or newer. Presence-only extension assumptions cannot prove versioned constraints, so sentinel-related failures remain non-blocking advisories. Every unlisted extension remains analyzer-host state and is reported as uncertainty. Version 0.2 has no input for declaring a complete extension inventory, so named assumptions remain `partial` platform coverage.
+- Composer resolves scenarios against the repositories, credentials, network, and executable available to the analyzer process. A complete target-platform profile removes analyzer-host inheritance only for its supported safely simulated platform-package classes; unlisted values in those classes are modeled absent. It does not pin repository metadata, downloads, credentials, network behavior, or Composer executable behavior. Composer platform packages tied to the executable are labeled `toolchain_bound`, not claimed as safely simulated. Complete profiles and explicit absences require Composer 2.2 or newer.
+- A partial profile, original `config.platform`, and named `--with-extension` / `--without-extension` assumptions remain host-dependent for unlisted packages. Presence-only assumptions cannot prove versioned constraints, so sentinel-related failures remain non-blocking advisories. The canonical report states the profile completeness, closed-world status, toolchain-bound names, and every effective decision; consumers must not widen that guarantee.
 - Scripts and plugins stay disabled. A project that depends on plugin behavior may resolve differently in its normal environment.
 - A successful candidate lock proves that Composer found one dependency solution. It does not prove runtime or production compatibility.
-- Partial platform and staged probes provide ordering evidence. Only full-target scenarios determine combined feasibility.
+- Partial platform and staged probes provide ordering evidence. Only full-target scenarios determine combined feasibility, and only a complete profile can support the narrower cross-host platform-decision reproducibility claim.
 - Composer output changes can reduce blocker parsing confidence. The report retains bounded, redacted excerpts and uncertainty. Redaction deliberately removes whole URLs and known credential forms, so diagnostic text may be less specific.
 
 ## Source inspection

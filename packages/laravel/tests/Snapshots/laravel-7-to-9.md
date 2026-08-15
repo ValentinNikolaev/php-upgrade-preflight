@@ -8,6 +8,7 @@ Resolution: **feasible_with_changes** | Staged: **unknown** | Schema: `0.8` | To
 - Target PHP: `8.1.0`
 - Source paths: `default project paths`
 - Framework integrations: `automatic detection`
+- Target platform profile: `not supplied`
 - Requested format: `markdown`
 - Output destination: `stdout`
 - Targets:
@@ -19,6 +20,7 @@ Resolution: **feasible_with_changes** | Staged: **unknown** | Schema: `0.8` | To
 - Current project PHP: `7.4` (provenance: `request`)
 - Target PHP: `8.1.0` (provenance: `request`)
 - Extensions: provenance `analyzer_runtime`; explicitly modeled: no; completeness: `none`; unmodeled values: `analyzer_runtime`
+- Target platform profile: none; platform packages not explicitly modeled above remain analyzer-host dependent.
 
 ## Project State
 - Analyzed path: `<PROJECT_PATH>`

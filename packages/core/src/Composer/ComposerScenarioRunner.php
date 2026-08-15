@@ -18,6 +18,7 @@ use PhpUpgradePreflight\Core\Model\ScenarioResult;
 use PhpUpgradePreflight\Core\Model\TargetPlatform;
 use PhpUpgradePreflight\Core\Model\UpgradeRequest;
 use PhpUpgradePreflight\Core\Support\PathExposurePolicy;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Process\Exception\ProcessTimedOutException;
 use Symfony\Component\Process\Process;
@@ -25,7 +26,7 @@ use Symfony\Component\Process\Process;
 final class ComposerScenarioRunner
 {
     public const SCENARIO_TIMEOUT_SECONDS = 300;
-    private const ABSENT_EXTENSION_MIN_COMPOSER_VERSION = '2.2.0';
+    private const COMPLETE_PLATFORM_MIN_COMPOSER_VERSION = '2.2.0';
     private const LOCKED_DIAGNOSTIC_MIN_COMPOSER_VERSION = '2.4.0';
     /** @var list<string> */
     private const COMPOSER_SAFETY_OPTIONS = ['--no-scripts', '--no-plugins'];
@@ -36,12 +37,17 @@ final class ComposerScenarioRunner
     private \Closure $processRunner;
     /** @var \Closure(): ?string */
     private \Closure $composerVersionResolver;
-    /** @var \Closure(list<string>): array{exit_code: int, stdout: string, stderr: string} */
+    /** @var \Closure(list<string>, string, array<string, string|false>): array{exit_code: int, stdout: string, stderr: string} */
     private \Closure $composerVersionProcessRunner;
     /** @var \Closure(): float */
     private \Closure $clock;
+    /** @var \Closure(): ?array<string, string> */
+    private \Closure $platformPackageResolver;
     private bool $composerVersionResolved = false;
     private ?string $composerVersion = null;
+    private bool $platformPackagesResolved = false;
+    /** @var ?array<string, string> */
+    private ?array $platformPackages = null;
     /** @var array<string, ComposerDiagnostic> */
     private array $diagnosticCache = [];
 
@@ -49,7 +55,8 @@ final class ComposerScenarioRunner
      * @param null|callable(list<string>, string): array{exit_code: int, stdout: string, stderr: string} $processRunner
      * @param null|callable(): ?string $composerVersionResolver
      * @param null|callable(): float $clock
-     * @param null|callable(list<string>): array{exit_code: int, stdout: string, stderr: string} $composerVersionProcessRunner
+     * @param null|callable(list<string>, string, array<string, string|false>): array{exit_code: int, stdout: string, stderr: string} $composerVersionProcessRunner
+     * @param null|callable(): ?array<string, string> $platformPackageResolver
      */
     public function __construct(
         ?WorkspaceManager $workspaces = null,
@@ -57,7 +64,8 @@ final class ComposerScenarioRunner
         ?callable $processRunner = null,
         ?callable $composerVersionResolver = null,
         ?callable $clock = null,
-        ?callable $composerVersionProcessRunner = null
+        ?callable $composerVersionProcessRunner = null,
+        ?callable $platformPackageResolver = null
     ) {
         $this->workspaces = $workspaces ?? new TemporaryWorkspaceManager();
         $this->reader = $reader ?? new JsonFileReader();
@@ -75,6 +83,9 @@ final class ComposerScenarioRunner
         $this->clock = $clock === null
             ? static fn (): float => microtime(true)
             : \Closure::fromCallable($clock);
+        $this->platformPackageResolver = $platformPackageResolver === null
+            ? \Closure::fromCallable([$this, 'detectComposerPlatformPackages'])
+            : \Closure::fromCallable($platformPackageResolver);
     }
 
     public function run(
@@ -91,28 +102,35 @@ final class ComposerScenarioRunner
         );
         $command = $this->buildCommand($scenario);
         $composerVersion = $this->resolveComposerVersion();
-        if (!$scenario->isBaselineValidation()
-            && $platform->hasAbsentExtensionAssumptions()
-            && !$this->supportsAbsentExtensionOverrides($composerVersion)) {
-            return new ScenarioResult(
-                $scenario,
-                1,
-                '',
-                sprintf(
-                    'Composer %s cannot simulate absent extensions; Composer %s or newer is required.',
-                    $composerVersion,
-                    self::ABSENT_EXTENSION_MIN_COMPOSER_VERSION
-                ),
-                null,
-                null,
-                ScenarioResult::FAILURE_OPERATIONAL,
-                $composerVersion,
-                $command,
-                0,
-                null,
-                [],
-                ScenarioResult::OUTCOME_PROCESS_FAILURE
-            );
+        $analyzerPlatformPackages = null;
+        if (!$scenario->isBaselineValidation() || $platform->isCompleteProfile()) {
+            $capabilityFailure = $this->platformCapabilityFailure($platform, $composerVersion);
+            if ($capabilityFailure !== null) {
+                return $this->operationalResult($scenario, $composerVersion, $command, $capabilityFailure);
+            }
+
+            if ($platform->needsToolchainValidation()) {
+                $analyzerPlatformPackages = $this->resolvePlatformPackages();
+                if ($analyzerPlatformPackages === null) {
+                    return $this->operationalResult(
+                        $scenario,
+                        $composerVersion,
+                        $command,
+                        $platform->isCompleteProfile()
+                            ? 'Composer platform inventory could not be determined; the complete target-platform profile was not weakened to partial coverage.'
+                            : 'Composer platform inventory could not be determined, so toolchain-bound target-platform values could not be validated.'
+                    );
+                }
+                $toolchainFailure = $platform->toolchainValidationFailure($analyzerPlatformPackages);
+                if ($toolchainFailure !== null) {
+                    return $this->operationalResult(
+                        $scenario,
+                        $composerVersion,
+                        $command,
+                        $toolchainFailure
+                    );
+                }
+            }
         }
         $durationMs = 0;
         $startedAt = null;
@@ -129,7 +147,8 @@ final class ComposerScenarioRunner
                     $tempPath,
                     $project,
                     $scenario,
-                    $platform
+                    $platform,
+                    $analyzerPlatformPackages
                 );
             }
             $phase = 'process';
@@ -366,7 +385,7 @@ final class ComposerScenarioRunner
 
     private function detectComposerVersion(): ?string
     {
-        $process = ($this->composerVersionProcessRunner)(array_merge(
+        $process = $this->runComposerMetadataCommand(array_merge(
             ['composer', '--version', '--no-ansi'],
             self::COMPOSER_SAFETY_OPTIONS,
             ['--no-interaction']
@@ -384,13 +403,58 @@ final class ComposerScenarioRunner
         return $matches[1];
     }
 
+    /** @return ?array<string, string> */
+    private function detectComposerPlatformPackages(): ?array
+    {
+        $process = $this->runComposerMetadataCommand(array_merge(
+            ['composer', 'show', '--platform', '--format=json'],
+            self::COMPOSER_SAFETY_OPTIONS,
+            ['--no-interaction']
+        ));
+        if ($process['exit_code'] !== 0) {
+            return null;
+        }
+
+        try {
+            $decoded = json_decode($process['stdout'], true, 512, JSON_THROW_ON_ERROR);
+        } catch (\Throwable) {
+            return null;
+        }
+        if (!is_array($decoded)) {
+            return null;
+        }
+        $inventory = $decoded['platform'] ?? $decoded['installed'] ?? null;
+        if (!is_array($inventory)) {
+            return null;
+        }
+
+        $packages = [];
+        foreach ($inventory as $package) {
+            if (!is_array($package)
+                || !isset($package['name'], $package['version'])
+                || !is_string($package['name'])
+                || !is_string($package['version'])
+            ) {
+                return null;
+            }
+            $name = strtolower(trim($package['name']));
+            if (TargetPlatform::isSupportedPackageName($name)) {
+                $packages[$name] = trim($package['version']);
+            }
+        }
+        ksort($packages, SORT_STRING);
+
+        return $packages;
+    }
+
     /**
      * @param list<string> $command
+     * @param array<string, string|false> $environment
      * @return array{exit_code: int, stdout: string, stderr: string}
      */
-    private function runVersionProcess(array $command): array
+    private function runVersionProcess(array $command, string $workingDirectory, array $environment): array
     {
-        $process = new Process($command, null, ['COMPOSER_NO_INTERACTION' => '1'], null, 30);
+        $process = new Process($command, $workingDirectory, $environment, null, 30);
         $process->run();
 
         return [
@@ -398,6 +462,45 @@ final class ComposerScenarioRunner
             'stdout' => $process->getOutput(),
             'stderr' => $process->getErrorOutput(),
         ];
+    }
+
+    /**
+     * @param list<string> $command
+     * @return array{exit_code: int, stdout: string, stderr: string}
+     */
+    private function runComposerMetadataCommand(array $command): array
+    {
+        $workingDirectory = $this->createComposerProbeDirectory();
+
+        try {
+            return ($this->composerVersionProcessRunner)(
+                $command,
+                $workingDirectory,
+                [
+                    'COMPOSER_NO_INTERACTION' => '1',
+                    'COMPOSER' => false,
+                    'COMPOSER_HOME' => $workingDirectory,
+                ]
+            );
+        } finally {
+            (new Filesystem())->remove($workingDirectory);
+        }
+    }
+
+    private function createComposerProbeDirectory(): string
+    {
+        $temporaryRoot = rtrim(sys_get_temp_dir(), DIRECTORY_SEPARATOR);
+        for ($attempt = 0; $attempt < 10; ++$attempt) {
+            $path = $temporaryRoot
+                . DIRECTORY_SEPARATOR
+                . 'php-upgrade-preflight-composer-probe-'
+                . bin2hex(random_bytes(8));
+            if (@mkdir($path, 0700)) {
+                return $path;
+            }
+        }
+
+        throw new \RuntimeException('Unable to create an isolated Composer platform probe directory.');
     }
 
     private function resolveComposerVersion(): ?string
@@ -418,16 +521,50 @@ final class ComposerScenarioRunner
         return $this->composerVersion;
     }
 
+    /** @return ?array<string, string> */
+    private function resolvePlatformPackages(): ?array
+    {
+        if ($this->platformPackagesResolved) {
+            return $this->platformPackages;
+        }
+
+        $this->platformPackagesResolved = true;
+        try {
+            $packages = ($this->platformPackageResolver)();
+            if (!is_array($packages)) {
+                return $this->platformPackages = null;
+            }
+
+            $normalized = [];
+            foreach ($packages as $name => $version) {
+                if (!is_string($name) || !is_string($version)) {
+                    return $this->platformPackages = null;
+                }
+                $name = strtolower(trim($name));
+                if (TargetPlatform::isSupportedPackageName($name)) {
+                    $normalized[$name] = trim($version);
+                }
+            }
+            ksort($normalized, SORT_STRING);
+
+            return $this->platformPackages = $normalized;
+        } catch (\Throwable) {
+            return $this->platformPackages = null;
+        }
+    }
+
     private function elapsedMilliseconds(float $startedAt): int
     {
         return max(0, (int) round(((float) ($this->clock)() - $startedAt) * 1000));
     }
 
+    /** @param array<string, string>|null $analyzerPlatformPackages */
     private function applyTemporaryComposerChanges(
         string $tempPath,
         ProjectState $project,
         Scenario $scenario,
-        TargetPlatform $platform
+        TargetPlatform $platform,
+        ?array $analyzerPlatformPackages = null
     ): ComposerJson {
         $composerPath = $tempPath . DIRECTORY_SEPARATOR . 'composer.json';
         $data = $project->composerJson()->data();
@@ -450,8 +587,8 @@ final class ComposerScenarioRunner
             $data['config']['platform']['php'] = $scenario->targets()->targetPhp();
         }
 
-        foreach ($platform->composerPlatformOverrides() as $extension => $value) {
-            $data['config']['platform'][$extension] = $value;
+        foreach ($platform->composerPlatformOverrides($analyzerPlatformPackages ?? []) as $package => $value) {
+            $data['config']['platform'][$package] = $value;
         }
 
         $candidateManifest = new ComposerJson($data);
@@ -704,17 +841,54 @@ final class ComposerScenarioRunner
         return version_compare($this->composerVersion, self::LOCKED_DIAGNOSTIC_MIN_COMPOSER_VERSION, '>=');
     }
 
-    private function supportsAbsentExtensionOverrides(?string $composerVersion): bool
+    private function platformCapabilityFailure(TargetPlatform $platform, ?string $composerVersion): ?string
     {
-        if ($composerVersion === null
-            || preg_match('/^(\d+)\.(\d+)/', $composerVersion, $matches) !== 1) {
-            return true;
+        if (!$platform->isCompleteProfile() && !$platform->hasAbsentPlatformPackages()) {
+            return null;
         }
 
-        return version_compare(
-            sprintf('%d.%d.0', (int) $matches[1], (int) $matches[2]),
-            self::ABSENT_EXTENSION_MIN_COMPOSER_VERSION,
-            '>='
+        if ($composerVersion === null || preg_match('/^(\d+)\.(\d+)/', $composerVersion, $matches) !== 1) {
+            return $platform->isCompleteProfile()
+                ? 'Composer version could not be determined; Composer 2.2.0 or newer is required for a complete target-platform profile, which was not weakened to partial coverage.'
+                : null;
+        }
+
+        $normalized = sprintf('%d.%d.0', (int) $matches[1], (int) $matches[2]);
+        if (version_compare($normalized, self::COMPLETE_PLATFORM_MIN_COMPOSER_VERSION, '>=')) {
+            return null;
+        }
+
+        return sprintf(
+            'Composer %s cannot hide absent platform packages; Composer %s or newer is required%s.',
+            $composerVersion,
+            self::COMPLETE_PLATFORM_MIN_COMPOSER_VERSION,
+            $platform->isCompleteProfile()
+                ? ' for a complete target-platform profile, which was not weakened to partial coverage'
+                : ''
+        );
+    }
+
+    /** @param list<string> $command */
+    private function operationalResult(
+        Scenario $scenario,
+        ?string $composerVersion,
+        array $command,
+        string $message
+    ): ScenarioResult {
+        return new ScenarioResult(
+            $scenario,
+            1,
+            '',
+            $message,
+            null,
+            null,
+            ScenarioResult::FAILURE_OPERATIONAL,
+            $composerVersion,
+            $command,
+            0,
+            null,
+            [],
+            ScenarioResult::OUTCOME_PROCESS_FAILURE
         );
     }
 
@@ -736,6 +910,7 @@ final class ComposerScenarioRunner
                 static fn ($assumption): array => $assumption->toArray(),
                 $platform->extensionAssumptions()
             ),
+            $platform->profileDigest(),
         ]));
     }
 

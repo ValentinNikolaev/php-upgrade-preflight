@@ -174,20 +174,20 @@ Status: in progress. Implementation and verification are complete; GitHub branch
 
 Priority: P0.
 
-- [ ] Add immutable profile and platform-package models shared by the PHP API, CLI, Artisan command, scenario selection, report model, and writers.
-- [ ] Accept exact target PHP and supported `ext-*`, `lib-*`, PHP-subtype, and Composer-platform values or absences. Explicitly classify toolchain-bound values that cannot be simulated safely.
-- [ ] Retain the existing named partial assumptions and define deterministic precedence, matching-duplicate, contradiction, and mutual-exclusion behavior across profile input, request options, and project `config.platform`.
-- [ ] Make `complete` a closed-world claim for the approved package classes: an unlisted value must be absent in temporary Composer state, never inherited silently from the analyzer host.
-- [ ] Reject malformed, contradictory, or falsely complete profiles before running Composer.
-- [ ] Apply profiles only to analyzer-owned temporary manifests and record profile schema, completeness, digest, provenance, and every effective value in canonical output.
-- [ ] Keep exact profile paths behind the existing path-exposure policy and redact credentials or local roots in validation failures.
-- [ ] Add offline fixtures for complete and partial profiles, host-only extensions, explicit libraries, PHP subtypes, absent values, version conflicts, project/request/profile precedence, and the pre-Composer-2.2 capability failure.
-- [ ] Prove on Linux and Windows that equivalent complete profiles produce byte-identical normalized platform decisions despite different analyzer-host extensions.
-- [ ] Keep network, repository metadata, and Composer executable differences outside the platform-completeness claim and report them separately.
+- [x] Add immutable profile and platform-package models shared by the PHP API, CLI, Artisan command, scenario selection, report model, and writers.
+- [x] Accept exact target PHP and supported `ext-*`, `lib-*`, PHP-subtype, and Composer-platform values or absences. Explicitly classify toolchain-bound values that cannot be simulated safely.
+- [x] Retain the existing named partial assumptions and define deterministic precedence, matching-duplicate, contradiction, and mutual-exclusion behavior across profile input, request options, and project `config.platform`.
+- [x] Make `complete` a closed-world claim for the approved package classes: an unlisted value must be absent in temporary Composer state, never inherited silently from the analyzer host.
+- [x] Reject malformed, contradictory, or falsely complete profiles before running Composer.
+- [x] Apply profiles only to analyzer-owned temporary manifests and record profile schema, completeness, digest, provenance, and every effective value in canonical output.
+- [x] Keep exact profile paths behind the existing path-exposure policy and redact credentials or local roots in validation failures.
+- [x] Add offline fixtures for complete and partial profiles, host-only extensions, explicit libraries, PHP subtypes, absent values, version conflicts, project/request/profile precedence, and the pre-Composer-2.2 capability failure.
+- [x] Prove on Linux and Windows that equivalent complete profiles produce byte-identical normalized platform decisions despite different analyzer-host extensions.
+- [x] Keep network, repository metadata, and Composer executable differences outside the platform-completeness claim and report them separately.
 
 Acceptance gate: on Composer 2.2 or newer, a complete profile removes analyzer-host inheritance for every platform-package class it claims; a partial profile remains visibly host-dependent; older Composer produces operational uncertainty; and no report claims broader reproducibility than the cross-host tests prove.
 
-Status: not started.
+Status: complete.
 
 ## Milestone 2: Reproducible and Restricted Composer Execution
 
@@ -331,4 +331,4 @@ Status: not started.
 
 ## Recommended Next Work Session
 
-Complete GitHub reauthentication so the prepared `0.2.x` protection rule can be saved, then begin Milestone 1 target-platform profiles.
+Complete GitHub reauthentication so the prepared `0.2.x` protection rule can be saved, then begin Milestone 2 restricted Composer execution.

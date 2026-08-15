@@ -47,7 +47,8 @@ final class ProjectStateFingerprint
         $lock = self::digest($sanitized['lock']);
         $effectivePlatform = self::digest([
             'php' => $analysisPhp,
-            'composer_overrides' => $platform->composerPlatformOverrides(),
+            'closed_world' => $platform->isCompleteProfile(),
+            'explicit_decisions' => self::semanticPlatformDecisions($platform),
         ]);
         $policy = self::digest($executionPolicy);
 
@@ -88,6 +89,25 @@ final class ProjectStateFingerprint
         $encoded = json_encode(self::canonicalize($value), JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
 
         return hash('sha256', $encoded);
+    }
+
+    /** @return array<string, string|false> */
+    private static function semanticPlatformDecisions(TargetPlatform $platform): array
+    {
+        $decisions = [];
+        foreach ($platform->platformPackages() as $package) {
+            if ($package->name() === 'php') {
+                continue;
+            }
+            if ($platform->isCompleteProfile() && $package->isAbsent() && !$package->isToolchainBound()) {
+                continue;
+            }
+
+            $decisions[$package->name()] = $package->composerValue();
+        }
+        ksort($decisions, SORT_STRING);
+
+        return $decisions;
     }
 
     /**
