@@ -255,6 +255,7 @@ final class LaravelFrameworkIntegration implements FrameworkIntegration, Framewo
             return new FrameworkStagePlan('laravel', [], FrameworkStagePlan::REASON_MISSING_TARGET);
         }
 
+        $stageMetadata = [];
         for ($from = 10; $from < 13; ++$from) {
             $to = $from + 1;
             $definition = $this->catalog->target($to);
@@ -265,18 +266,12 @@ final class LaravelFrameworkIntegration implements FrameworkIntegration, Framewo
             if (!LaravelTarget::versionSatisfies($analysisPhp, $definition->phpConstraint())) {
                 return new FrameworkStagePlan('laravel', [], FrameworkStagePlan::REASON_MISSING_TARGET);
             }
+            $stageMetadata[] = [$from, $to, $definition, $transition];
         }
 
         $stages = [];
         $planEvidence = [];
-        for ($from = 10; $from < 13; ++$from) {
-            $to = $from + 1;
-            $definition = $this->catalog->target($to);
-            $transition = $this->catalog->transition($from, $to, TransitionDefinition::ADJACENT);
-            if ($definition === null || $transition === null) {
-                throw new \LogicException('Validated Laravel stage metadata became unavailable.');
-            }
-
+        foreach ($stageMetadata as [$from, $to, $definition, $transition]) {
             $stageId = sprintf('laravel-%d-to-%d', $from, $to);
             $stageEvidence = $evidence->add(
                 'laravel-stage-target',

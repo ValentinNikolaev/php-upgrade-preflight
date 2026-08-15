@@ -285,9 +285,7 @@ final class StagedUpgradeOrchestrator
                     : StagedResolution::FEASIBLE_WITH_CHANGES;
                 $hasChanges = $hasChanges || $packageChanges !== [];
             } elseif ($stageStopReason === null) {
-                $stageStopReason = $stageStatus === StagedResolution::BLOCKED
-                    ? 'blocking_registry_not_cleared'
-                    : 'no_selectable_candidate';
+                $stageStopReason = 'blocking_registry_not_cleared';
             }
 
             $stageAnalyses[] = new StageAnalysis(
@@ -384,13 +382,11 @@ final class StagedUpgradeOrchestrator
         bool $attemptProducedFeasibilityEvidence
     ): array {
         $observed = [];
-        $observedSupersessionKeys = [];
 
         foreach ($blockers as $blocker) {
             $candidate = StageBlockerEntry::detected($stage->id(), $attempt, $scenario, $blocker, [$attemptEvidence]);
             $identity = $candidate->identityKey();
             $observed[$identity] = true;
-            $observedSupersessionKeys[$candidate->supersessionKey()] = true;
 
             if (isset($registry[$identity])) {
                 $registry[$identity] = $registry[$identity]->isActive()
@@ -425,11 +421,8 @@ final class StagedUpgradeOrchestrator
                 if (isset($observed[$identity])) {
                     continue;
                 }
-                $lifecycle = isset($observedSupersessionKeys[$entry->supersessionKey()])
-                    ? StageBlockerEntry::SUPERSEDED
-                    : StageBlockerEntry::RESOLVED;
                 $registry[$identity] = $entry->withLifecycle(
-                    $lifecycle,
+                    StageBlockerEntry::RESOLVED,
                     $attempt,
                     $scenario,
                     [$attemptEvidence]

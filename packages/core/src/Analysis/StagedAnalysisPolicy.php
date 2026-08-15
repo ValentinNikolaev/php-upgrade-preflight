@@ -15,7 +15,4 @@ final class StagedAnalysisPolicy
     public const JSON_REPORT_BUDGET_BYTES = 524288;
     public const MARKDOWN_REPORT_BUDGET_BYTES = 262144;
 
-    private function __construct()
-    {
-    }
 }

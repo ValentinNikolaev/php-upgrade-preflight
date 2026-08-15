@@ -273,6 +273,88 @@ final class ComposerScenarioRunnerCompletePlatformTest extends TestCase
         ];
     }
 
+    /** @dataProvider unreadablePlatformInventoryProvider */
+    public function testUnreadablePlatformInventoryIsCachedAsAnOperationalStop(
+        int $exitCode,
+        string $stdout
+    ): void {
+        $probeCalls = 0;
+        $runner = new ComposerScenarioRunner(
+            null,
+            null,
+            static function (): array {
+                throw new \LogicException('Scenario execution must not start without a platform inventory.');
+            },
+            null,
+            null,
+            static function (array $command) use ($exitCode, $stdout, &$probeCalls): array {
+                ++$probeCalls;
+                if (in_array('--version', $command, true)) {
+                    return ['exit_code' => 0, 'stdout' => 'Composer version 2.8.12', 'stderr' => ''];
+                }
+
+                return ['exit_code' => $exitCode, 'stdout' => $stdout, 'stderr' => 'inventory failure'];
+            }
+        );
+        [$project, $request, $platform] = $this->context($this->completeProfile());
+        $scenario = new Scenario('unreadable-platform', $request->targets(), false);
+
+        $first = $runner->run($project, $request, $scenario, $platform);
+        $second = $runner->run($project, $request, $scenario, $platform);
+
+        self::assertSame(ScenarioResult::OUTCOME_PROCESS_FAILURE, $first->outcome());
+        self::assertSame(ScenarioResult::OUTCOME_PROCESS_FAILURE, $second->outcome());
+        self::assertSame(2, $probeCalls, 'Version and inventory should each be probed once, then cached.');
+    }
+
+    /** @return array<string, array{int, string}> */
+    public function unreadablePlatformInventoryProvider(): array
+    {
+        return [
+            'command failure' => [1, ''],
+            'invalid JSON' => [0, '{'],
+            'non-object JSON' => [0, 'false'],
+            'missing inventory collection' => [0, '{"other":[]}'],
+        ];
+    }
+
+    /** @dataProvider invalidInjectedPlatformResolverProvider */
+    public function testInvalidInjectedPlatformResolverResultsStopBeforeExecution(callable $resolver): void
+    {
+        $runner = new ComposerScenarioRunner(
+            null,
+            null,
+            static function (): array {
+                throw new \LogicException('Scenario execution must not start without a valid platform inventory.');
+            },
+            static fn (): string => '2.8.12',
+            null,
+            null,
+            $resolver
+        );
+        [$project, $request, $platform] = $this->context($this->completeProfile());
+
+        $result = $runner->run(
+            $project,
+            $request,
+            new Scenario('invalid-injected-platform', $request->targets(), false),
+            $platform
+        );
+
+        self::assertSame(ScenarioResult::OUTCOME_PROCESS_FAILURE, $result->outcome());
+    }
+
+    /** @return array<string, array{callable(): mixed}> */
+    public function invalidInjectedPlatformResolverProvider(): array
+    {
+        return [
+            'invalid entry types' => [static fn (): array => [0 => '2.8.12']],
+            'resolver exception' => [static function (): array {
+                throw new \RuntimeException('Inventory unavailable.');
+            }],
+        ];
+    }
+
     /** @return array{0: \PhpUpgradePreflight\Core\Model\ProjectState, 1: UpgradeRequest, 2: TargetPlatform} */
     private function context(TargetPlatformProfile $profile): array
     {

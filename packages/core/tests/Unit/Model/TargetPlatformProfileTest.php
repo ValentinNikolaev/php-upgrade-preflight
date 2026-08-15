@@ -189,4 +189,64 @@ final class TargetPlatformProfileTest extends TestCase
             new TargetPlatformPackage('ext-json', false),
         ]);
     }
+
+    public function testItRejectsInvalidPublicConstructorInputs(): void
+    {
+        foreach ([
+            static fn () => new TargetPlatformProfile('partial', [], 'invented'),
+            static fn () => new TargetPlatformProfile('partial', [new \stdClass()]), // @phpstan-ignore argument.type
+            static fn () => new TargetPlatformProfile('partial', [TargetPlatformPackage::fromPresenceOnlyExtension('ext-json')]),
+        ] as $construct) {
+            try {
+                $construct();
+                self::fail('Expected invalid target-platform profile input to be rejected.');
+            } catch (\InvalidArgumentException $exception) {
+                self::assertNotSame('', $exception->getMessage());
+            }
+        }
+    }
+
+    public function testLoadersRejectInvalidTopLevelTypesAndScanNestedJsonValues(): void
+    {
+        foreach (['[]', '"profile"', 'false'] as $json) {
+            try {
+                TargetPlatformProfile::fromJson($json);
+                self::fail('Expected a non-object profile to be rejected.');
+            } catch (\InvalidArgumentException $exception) {
+                self::assertSame('Target platform profile JSON must contain an object.', $exception->getMessage());
+            }
+        }
+
+        foreach ([
+            '{"schema_version":"1.0","completeness":"partial","packages":{},"extra":[]}',
+            '{"schema_version":"1.0","completeness":"partial","packages":{},"extra":["escaped\\tvalue","second"]}',
+        ] as $json) {
+            try {
+                TargetPlatformProfile::fromJson($json);
+                self::fail('Expected an extra profile field to be rejected.');
+            } catch (\InvalidArgumentException $exception) {
+                self::assertStringContainsString('exactly', $exception->getMessage());
+            }
+        }
+
+        try {
+            TargetPlatformProfile::fromArray([
+                'schema_version' => 1,
+                'completeness' => 'partial',
+                'packages' => [],
+            ]);
+            self::fail('Expected invalid field types to be rejected.');
+        } catch (\InvalidArgumentException $exception) {
+            self::assertStringContainsString('invalid field types', $exception->getMessage());
+        }
+
+        self::assertSame(
+            ['php', 'extension', 'library', 'php_subtype', 'composer_platform'],
+            TargetPlatformProfile::fromArray([
+                'schema_version' => '1.0',
+                'completeness' => 'partial',
+                'packages' => [],
+            ])->supportedClasses()
+        );
+    }
 }

@@ -141,11 +141,7 @@ final class TargetPlatformProfile
 
     public static function fromFile(string $path): self
     {
-        if (!is_file($path) || !is_readable($path)) {
-            throw new \InvalidArgumentException('Target platform profile file could not be read.');
-        }
-
-        $json = @file_get_contents($path);
+        $json = is_file($path) && is_readable($path) ? @file_get_contents($path) : false;
         if (!is_string($json)) {
             throw new \InvalidArgumentException('Target platform profile file could not be read.');
         }

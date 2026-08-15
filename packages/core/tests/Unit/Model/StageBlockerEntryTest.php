@@ -133,6 +133,21 @@ final class StageBlockerEntryTest extends TestCase
         self::assertSame($base->supersessionKey(), $newConstraint->supersessionKey());
     }
 
+    public function testItRejectsANonTerminalDirectLifecycleTransition(): void
+    {
+        $entry = StageBlockerEntry::detected(
+            'fixture-1-to-2',
+            1,
+            'attempt-1',
+            $this->blocker('^1.0', ['root/project', 'vendor/blocker', 'vendor/target'], 'solver-1')
+        );
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Only terminal blocker lifecycle transitions may be applied directly.');
+
+        $entry->withLifecycle(StageBlockerEntry::PERSISTS, 2, 'attempt-2', []);
+    }
+
     /** @param list<string> $path */
     private function blocker(
         string $constraint,

@@ -174,6 +174,20 @@ final class AnalyzeUpgradeCommandTest extends TestCase
         self::assertStringNotContainsString('second.json', $tester->getErrorOutput());
     }
 
+    public function testItRejectsANonStringProfileOptionWithoutRunningAnalysis(): void
+    {
+        $analyzer = new RecordingUpgradeAnalyzer();
+        $tester = $this->commandTester($analyzer);
+
+        $exitCode = $tester->execute([
+            '--target-platform-profile' => [123],
+        ], ['capture_stderr_separately' => true]);
+
+        self::assertSame(Command::INVALID, $exitCode);
+        self::assertNull($analyzer->request);
+        self::assertStringContainsString('must be a string', $tester->getErrorOutput());
+    }
+
     /**
      * @dataProvider invalidInvocationProvider
      * @param array<string, mixed> $input

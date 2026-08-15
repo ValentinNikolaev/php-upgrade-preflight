@@ -234,6 +234,80 @@ final class MarkdownReportWriterTest extends TestCase
             $markdown
         );
 
+        $stagedCanonical = $report->toArray();
+        $stagedCanonical['staged_resolution'] = [
+            'execution_state' => 'evaluated',
+            'status' => 'blocked',
+            'provider' => 'laravel',
+            'stop_reason' => 'blocking_registry_not_cleared',
+            'stages' => [[
+                'id' => 'laravel-10-to-11',
+                'from_major' => 10,
+                'to_major' => 11,
+                'execution_state' => 'evaluated',
+                'resolution_status' => 'blocked',
+                'selected_attempt' => null,
+                'analysis_php' => '8.3.0',
+                'source_snapshot' => 'original_project',
+                'predecessor_state' => ['state_sha256' => 'predecessor-sha'],
+                'input_state' => ['state_sha256' => 'input-sha'],
+                'output_state' => null,
+                'attempts' => [[
+                    'number' => 1,
+                    'strategy' => 'root_constraint_remediation',
+                    'scenario' => ['outcome' => 'solver_failure'],
+                    'selected' => false,
+                    'blocker_ids' => ['stage-blocker-1'],
+                    'root_constraint_changes' => [[
+                        'package' => 'phpunit/phpunit',
+                        'from_constraint' => '^10.0',
+                        'to_constraint' => '^11.0.1',
+                    ]],
+                ]],
+                'package_changes' => [[
+                    'name' => 'laravel/framework',
+                    'from_version' => '10.48.28',
+                    'to_version' => '11.44.7',
+                ]],
+                'source_findings' => [[
+                    'severity' => 'high',
+                    'summary' => 'Review the Laravel 11 application structure.',
+                ]],
+                'stop_reason' => 'blocking_registry_not_cleared',
+            ]],
+            'blocker_registry' => [[
+                'id' => 'stage-blocker-1',
+                'stage_id' => 'laravel-10-to-11',
+                'category' => 'package_conflict',
+                'subject' => 'phpunit/phpunit',
+                'lifecycle' => 'persists',
+                'lifecycle_history' => [
+                    ['status' => 'detected', 'attempt' => 1],
+                    ['status' => 'persists', 'attempt' => 2],
+                ],
+                'blocking_package' => 'vendor/testing-package',
+                'constraint' => '^10.0',
+                'dependency_path' => ['vendor/testing-package', 'phpunit/phpunit'],
+            ]],
+        ];
+        $stagedMarkdown = $writer->renderCanonical($stagedCanonical);
+
+        self::assertStringContainsString('**laravel-10-to-11** (`10` -> `11`)', $stagedMarkdown);
+        self::assertStringContainsString('state chain: predecessor `predecessor-sha`; input `input-sha`; output `none`', $stagedMarkdown);
+        self::assertStringContainsString('attempt `1` `root_constraint_remediation`: outcome `solver_failure`; selected no; blockers `stage-blocker-1`', $stagedMarkdown);
+        self::assertStringContainsString('analyzer-only root change `phpunit/phpunit`: `^10.0` -> `^11.0.1`', $stagedMarkdown);
+        self::assertStringContainsString('selected package change `laravel/framework`: `10.48.28` -> `11.44.7`', $stagedMarkdown);
+        self::assertStringContainsString('original-source finding (`high`): Review the Laravel 11 application structure.', $stagedMarkdown);
+        self::assertStringContainsString('lifecycle `persists` (detected@1 -> persists@2)', $stagedMarkdown);
+        self::assertStringContainsString('path `vendor/testing-package -> phpunit/phpunit`', $stagedMarkdown);
+
+        $pathlessCanonical = $report->toArray();
+        $pathlessCanonical['blockers'][0]['dependency_path'] = [];
+        self::assertStringContainsString(
+            'dependency path: unknown',
+            $writer->renderCanonical($pathlessCanonical)
+        );
+
         $profile = [
             'schema_version' => '1.0',
             'completeness' => 'complete',
@@ -300,6 +374,9 @@ final class MarkdownReportWriterTest extends TestCase
         self::assertStringContainsString('`composer-plugin-api` (`composer_platform`): `present` at `2.6.0`; provenance `profile`; simulation `toolchain_bound`', $profileMarkdown);
         self::assertStringContainsString('`ext-curl` (`extension`): `absent`; provenance `closed_world`; simulation `composer_config`', $profileMarkdown);
         self::assertStringContainsString('`php` (`php`): `present` at `8.3.0`; provenance `profile`; simulation `composer_config`', $profileMarkdown);
+
+        $canonical['platform']['profile']['effective'] = [];
+        self::assertStringContainsString('Effective platform decisions:' . PHP_EOL . '    - None.', $writer->renderCanonical($canonical));
 
         $canonical['request_summary']['target_platform_profile']['completeness'] = 'partial';
         $canonical['platform']['profile']['completeness'] = 'partial';

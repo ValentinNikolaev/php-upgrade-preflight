@@ -140,6 +140,100 @@ final class ComposerBlockerParserTranscriptTest extends TestCase
         return $rows;
     }
 
+    public function testEmptyDiagnosticOutputFallsBackWithoutInventingABlocker(): void
+    {
+        $scenario = new Scenario('diagnostic-empty', new UpgradeTargetSet([
+            new UpgradeTarget('fixture/dependency', '^2.0'),
+        ]));
+        $diagnostic = new ComposerDiagnostic('fixture/dependency', '^2.0', ['composer', 'prohibits'], 0, '', '');
+        $result = new ScenarioResult(
+            $scenario,
+            2,
+            '',
+            '',
+            null,
+            null,
+            ScenarioResult::FAILURE_SOLVER,
+            '2.8.12',
+            [],
+            0,
+            null,
+            [$diagnostic]
+        );
+
+        $blockers = (new ComposerBlockerParser())->parse($result, 'diagnostic-empty');
+
+        self::assertCount(1, $blockers);
+        self::assertSame('unknown-composer-failure', $blockers[0]->type());
+    }
+
+    public function testDiagnosticFallbackUsesTheFirstRelationWhenTheSubjectIsNotInTheTranscript(): void
+    {
+        $result = $this->diagnosticResult(
+            [new UpgradeTarget('fixture/dependency', '^2.0')],
+            'fixture/dependency',
+            'fixture/blocker 1.0.0 requires fixture/unrelated (^1.0)'
+        );
+
+        $blockers = (new ComposerBlockerParser())->parse($result, 'diagnostic-fallback');
+
+        self::assertCount(1, $blockers);
+        self::assertSame('fixture/unrelated', $blockers[0]->subject());
+    }
+
+    public function testDiagnosticDoesNotBlameAPackageExplicitlyIncludedInTheUpdate(): void
+    {
+        $result = $this->diagnosticResult(
+            [
+                new UpgradeTarget('fixture/dependency', '^2.0'),
+                new UpgradeTarget('fixture/blocker', '^2.0'),
+            ],
+            'fixture/dependency',
+            'fixture/blocker 1.0.0 requires fixture/dependency (^1.0)'
+        );
+
+        $blockers = (new ComposerBlockerParser())->parse($result, 'diagnostic-updated-blocker');
+
+        self::assertCount(1, $blockers);
+        self::assertSame('unknown-composer-failure', $blockers[0]->type());
+    }
+
+    public function testDiagnosticMayUseTheSubjectPackageAsTheDependencyRoot(): void
+    {
+        $result = $this->diagnosticResult(
+            [new UpgradeTarget('fixture/blocker', '^2.0')],
+            'fixture/blocker',
+            'fixture/blocker 1.0.0 requires fixture/dependency (^1.0)'
+        );
+
+        $blockers = (new ComposerBlockerParser())->parse($result, 'diagnostic-subject-root');
+
+        self::assertCount(1, $blockers);
+        self::assertSame('fixture/blocker', $blockers[0]->blocker());
+    }
+
+    /** @param list<UpgradeTarget> $targets */
+    private function diagnosticResult(array $targets, string $subject, string $output): ScenarioResult
+    {
+        $scenario = new Scenario('diagnostic-branches', new UpgradeTargetSet($targets));
+        $diagnostic = new ComposerDiagnostic($subject, '^2.0', ['composer', 'prohibits'], 0, $output, '');
+
+        return new ScenarioResult(
+            $scenario,
+            2,
+            '',
+            'Your requirements could not be resolved to an installable set of packages.',
+            null,
+            null,
+            ScenarioResult::FAILURE_SOLVER,
+            '2.8.12',
+            [],
+            0,
+            null,
+            [$diagnostic]
+        );
+    }
+
     private function fixtureRoot(): string
     {
         return dirname(__DIR__, 5) . '/tests/fixtures/composer-transcripts';

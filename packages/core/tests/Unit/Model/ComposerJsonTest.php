@@ -53,4 +53,14 @@ final class ComposerJsonTest extends TestCase
             'Project config.platform contains contradictory duplicate package names.',
         ], $messages);
     }
+
+    public function testInvalidPlatformEntriesAreIgnored(): void
+    {
+        $composer = new ComposerJson(['config' => ['platform' => [
+            'ext-json' => ['not', 'a', 'version'],
+            'ext-intl' => '72.1',
+        ]]]);
+
+        self::assertSame(['ext-intl' => '72.1'], $composer->configuredPlatformPackages());
+    }
 }

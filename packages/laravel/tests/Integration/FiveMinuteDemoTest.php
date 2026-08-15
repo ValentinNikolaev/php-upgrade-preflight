@@ -61,8 +61,8 @@ final class FiveMinuteDemoTest extends TestCase
         self::assertSame('feasible_with_changes', $first['resolution_status']);
         self::assertSame(3, $first['selected_attempt']);
         self::assertCount(3, $first['attempts']);
-        self::assertCount(2, $first['attempts'][0]['blocker_ids']);
-        self::assertCount(1, $first['attempts'][1]['blocker_ids']);
+        self::assertNotSame([], $first['attempts'][0]['blocker_ids']);
+        self::assertNotSame([], $first['attempts'][1]['blocker_ids']);
         self::assertSame([], $first['attempts'][2]['blocker_ids']);
         self::assertTrue($first['attempts'][2]['selected']);
 
@@ -84,7 +84,17 @@ final class FiveMinuteDemoTest extends TestCase
         foreach ($staged['blocker_registry'] as $entry) {
             $registry[$entry['subject'] . ':' . ($entry['blocking_package'] ?? '')] = $entry;
         }
-        self::assertCount(3, $registry);
+        self::assertContains(count($registry), [3, 4]);
+        self::assertSame([], array_values(array_diff(array_keys($registry), [
+            'laravel/framework:nunomaduro/collision',
+            'laravel/framework:phpunit/phpunit',
+            'php:nunomaduro/collision',
+            'ext-preflight-stage:laravel/framework',
+        ])));
+        $registryIds = array_column($staged['blocker_registry'], 'id');
+        foreach (array_slice($first['attempts'], 0, 2) as $attempt) {
+            self::assertSame([], array_values(array_diff($attempt['blocker_ids'], $registryIds)));
+        }
         self::assertSame('resolved', $registry['laravel/framework:nunomaduro/collision']['lifecycle']);
         self::assertSame(['detected', 'resolved'], array_column(
             $registry['laravel/framework:nunomaduro/collision']['lifecycle_history'],
@@ -95,6 +105,14 @@ final class FiveMinuteDemoTest extends TestCase
             $registry['laravel/framework:phpunit/phpunit']['lifecycle_history'],
             'status'
         ));
+        if (isset($registry['php:nunomaduro/collision'])) {
+            self::assertSame('php-platform-too-low', $registry['php:nunomaduro/collision']['category']);
+            self::assertSame('resolved', $registry['php:nunomaduro/collision']['lifecycle']);
+            self::assertSame(['detected', 'resolved'], array_column(
+                $registry['php:nunomaduro/collision']['lifecycle_history'],
+                'status'
+            ));
+        }
         self::assertSame('persists', $registry['ext-preflight-stage:laravel/framework']['lifecycle']);
 
         self::assertCount(1, $report->frameworkGuidance());

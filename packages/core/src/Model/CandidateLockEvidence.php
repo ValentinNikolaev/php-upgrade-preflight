@@ -25,18 +25,21 @@ final class CandidateLockEvidence
         $this->packageCount = $packageCount;
     }
 
+    /** Fingerprint LF-normalized lockfile bytes so evidence is stable across operating systems. */
     public static function fromFile(string $path, ComposerLock $lock): self
     {
         if (!is_file($path)) {
             throw new \RuntimeException('Unable to fingerprint the candidate Composer lockfile.');
         }
 
-        $sha256 = @hash_file('sha256', $path);
-        if ($sha256 === false) {
+        $contents = @file_get_contents($path);
+        if ($contents === false) {
             throw new \RuntimeException('Unable to fingerprint the candidate Composer lockfile.');
         }
 
-        return self::fromLock($lock, $sha256);
+        $normalizedContents = str_replace(["\r\n", "\r"], "\n", $contents);
+
+        return self::fromLock($lock, hash('sha256', $normalizedContents));
     }
 
     public static function fromLock(ComposerLock $lock, ?string $sha256 = null): self

@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace PhpUpgradePreflight\Core\Tests\Unit\Model;
 
+use PhpUpgradePreflight\Core\Model\ExtensionAssumption;
 use PhpUpgradePreflight\Core\Model\ExtensionAssumptionSet;
+use PhpUpgradePreflight\Core\Model\TargetPlatformPackage;
 use PHPUnit\Framework\TestCase;
 
 final class ExtensionAssumptionSetTest extends TestCase
@@ -59,5 +61,13 @@ final class ExtensionAssumptionSetTest extends TestCase
             ['ext-a._b'],
             ['ext-a--b'],
         ];
+    }
+
+    public function testOnlyExtensionPlatformPackagesBecomeAssumptions(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Only extension platform packages');
+
+        ExtensionAssumption::fromPlatformPackage(new TargetPlatformPackage('lib-icu', '73.2'));
     }
 }

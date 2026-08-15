@@ -23,13 +23,107 @@ use Symfony\Component\Process\Process;
 
 final class ComposerScenarioRunnerTest extends TestCase
 {
+    public function testProductionProcessAdaptersRunLocalComposerMetadataAndValidation(): void
+    {
+        $projectPath = dirname(__DIR__, 5) . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR
+            . 'fixtures' . DIRECTORY_SEPARATOR . 'project-isolation';
+        $project = (new ProjectStateBuilder())->build($projectPath);
+        $request = new UpgradeRequest($projectPath, [new UpgradeTarget('fixture/dependency', '^2.0')]);
+        $scenario = new Scenario('baseline-validation', $request->targets(), false, false, true);
+
+        $result = (new ComposerScenarioRunner())->run($project, $request, $scenario);
+
+        self::assertNotNull($result->composerVersion());
+        self::assertSame('composer', $result->command()[0]);
+        self::assertSame('validate', $result->command()[1]);
+    }
+
+    public function testWorkspaceSeedFailureIsReportedAndTheDebugPathIsRetained(): void
+    {
+        $path = tempnam(sys_get_temp_dir(), 'php-upgrade-preflight-seed-failure-');
+        self::assertIsString($path);
+        $workspaces = new class ($path) implements WorkspaceManager {
+            private string $path;
+
+            public function __construct(string $path)
+            {
+                $this->path = $path;
+            }
+
+            public function createFromProject(string $projectPath): string
+            {
+                return $this->path;
+            }
+
+            public function remove(string $path): void
+            {
+            }
+        };
+        $projectPath = dirname(__DIR__, 5) . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR
+            . 'fixtures' . DIRECTORY_SEPARATOR . 'project-isolation';
+        $project = (new ProjectStateBuilder())->build($projectPath);
+        $request = new UpgradeRequest(
+            $projectPath,
+            [new UpgradeTarget('fixture/dependency', '^2.0')],
+            null,
+            null,
+            [],
+            [],
+            'json',
+            null,
+            true
+        );
+        $runner = new ComposerScenarioRunner(
+            $workspaces,
+            null,
+            static function (): array {
+                throw new \LogicException('Process execution must not follow a seed failure.');
+            },
+            static fn (): string => '2.8.12'
+        );
+
+        try {
+            $result = $runner->run($project, $request, new Scenario('seed-failure', $request->targets()));
+
+            self::assertSame(ScenarioResult::OUTCOME_WORKSPACE_FAILURE, $result->outcome());
+            self::assertStringContainsString('Unable to seed the temporary composer.json.', $result->stderr());
+            self::assertSame($path, $result->tempPath());
+        } finally {
+            @unlink($path);
+        }
+    }
+
+    /** @dataProvider unavailableComposerVersionProvider */
+    public function testComposerVersionDetectionRejectsFailedOrUnparseableMetadata(int $exitCode, string $output): void
+    {
+        $runner = new ComposerScenarioRunner(
+            null,
+            null,
+            static fn (): array => ['exit_code' => 1, 'stdout' => '', 'stderr' => 'Synthetic stop.'],
+            null,
+            null,
+            static fn (): array => ['exit_code' => $exitCode, 'stdout' => $output, 'stderr' => '']
+        );
+
+        self::assertNull($this->runFixtureScenario($runner)->composerVersion());
+    }
+
+    /** @return array<string, array{int, string}> */
+    public function unavailableComposerVersionProvider(): array
+    {
+        return [
+            'metadata command failed' => [1, ''],
+            'metadata output was unparseable' => [0, 'version unavailable'],
+        ];
+    }
+
     public function testItCapturesExecutionMetadataAndCandidateLockEvidence(): void
     {
-        $lockContents = json_encode([
+        $lockContents = str_replace("\n", "\r\n", json_encode([
             'content-hash' => 'fixture-content-hash',
             'packages' => [['name' => 'fixture/dependency', 'version' => '2.0.0']],
             'packages-dev' => [['name' => 'fixture/dev-dependency', 'version' => '1.0.0']],
-        ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR) . PHP_EOL;
+        ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR) . "\n");
         $clockValues = [100.0, 100.125];
         $runner = new ComposerScenarioRunner(
             null,
@@ -75,7 +169,8 @@ final class ComposerScenarioRunnerTest extends TestCase
         self::assertSame('Resolved candidate.', $result->stdout());
         self::assertSame('Diagnostic note.', $result->stderr());
         self::assertNotNull($result->candidateLockEvidence());
-        self::assertSame(hash('sha256', $lockContents), $result->candidateLockEvidence()->sha256());
+        $canonicalLockContents = str_replace(["\r\n", "\r"], "\n", $lockContents);
+        self::assertSame(hash('sha256', $canonicalLockContents), $result->candidateLockEvidence()->sha256());
         self::assertSame('fixture-content-hash', $result->candidateLockEvidence()->contentHash());
         self::assertSame(2, $result->candidateLockEvidence()->packageCount());
         $lock = $result->lock();

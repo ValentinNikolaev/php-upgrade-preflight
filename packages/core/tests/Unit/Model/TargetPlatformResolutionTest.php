@@ -222,6 +222,81 @@ final class TargetPlatformResolutionTest extends TestCase
         );
     }
 
+    public function testPlatformQueriesCoverUnsupportedConfigAbsenceAndToolchainDecisions(): void
+    {
+        $project = new ProjectState(
+            $this->projectPath(),
+            new ComposerJson(['config' => ['platform' => ['vendor/package' => '1.0.0']]]),
+            new ComposerLock([])
+        );
+        $plainRequest = new UpgradeRequest(
+            $this->projectPath(),
+            [new UpgradeTarget('fixture/dependency', '^2.0')]
+        );
+        $plain = TargetPlatform::fromRequest($plainRequest, $project, []);
+
+        self::assertNull($plain->platformPackage('vendor/package'));
+        self::assertFalse($plain->hasAbsentExtensionAssumptions());
+        self::assertFalse($plain->hasAbsentPlatformPackages());
+
+        $absenceRequest = new UpgradeRequest(
+            $this->projectPath(),
+            [new UpgradeTarget('fixture/dependency', '^2.0')],
+            null,
+            null,
+            [],
+            [],
+            'json',
+            null,
+            false,
+            [ExtensionAssumption::fromAbsenceInput('ext-xdebug')]
+        );
+        $absence = TargetPlatform::fromRequest($absenceRequest, $project, []);
+        self::assertTrue($absence->hasAbsentExtensionAssumptions());
+        self::assertTrue($absence->hasAbsentPlatformPackages());
+
+        $toolchainProfile = $this->profile('partial', ['composer' => false]);
+        $toolchainRequest = new UpgradeRequest(
+            $this->projectPath(),
+            [new UpgradeTarget('fixture/dependency', '^2.0')],
+            null,
+            null,
+            [],
+            [],
+            'json',
+            null,
+            false,
+            [],
+            $toolchainProfile
+        );
+        $toolchain = TargetPlatform::fromRequest($toolchainRequest, $project, []);
+
+        self::assertStringContainsString(
+            'cannot be modeled absent',
+            (string) $toolchain->toolchainValidationFailure(['composer' => '2.8.12'])
+        );
+        self::assertNull($toolchain->toolchainValidationFailure([]));
+        self::assertStringContainsString(
+            'toolchain-bound',
+            implode(' ', (new PlatformProvenance($toolchainRequest, $project, $toolchain))->uncertainties())
+        );
+
+        $completeRequest = new UpgradeRequest(
+            $this->projectPath(),
+            [new UpgradeTarget('fixture/dependency', '^2.0')],
+            null,
+            null,
+            [],
+            [],
+            'json',
+            null,
+            false,
+            [],
+            $this->profile('complete', ['php' => '8.3.4'])
+        );
+        self::assertTrue(TargetPlatform::fromRequest($completeRequest, $project, [])->hasAbsentPlatformPackages());
+    }
+
     /** @param array<string, string|false> $packages */
     private function profile(string $completeness, array $packages): TargetPlatformProfile
     {

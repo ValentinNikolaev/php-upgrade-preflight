@@ -117,4 +117,23 @@ final class TargetPlatformPackageTest extends TestCase
         self::assertFalse(TargetPlatformPackage::isSupportedName('ext-a..b'));
         self::assertFalse(TargetPlatformPackage::isSupportedName('lib-a--b'));
     }
+
+    public function testItRejectsPresenceOnlyNonExtensionsAndUnsupportedProvenance(): void
+    {
+        try {
+            TargetPlatformPackage::fromPresenceOnlyExtension('lib-icu');
+            self::fail('Expected a presence-only library to be rejected.');
+        } catch (\InvalidArgumentException $exception) {
+            self::assertStringContainsString('Only an extension', $exception->getMessage());
+        }
+
+        try {
+            new TargetPlatformPackage('ext-json', '8.3.0', 'invented');
+            self::fail('Expected unsupported provenance to be rejected.');
+        } catch (\InvalidArgumentException $exception) {
+            self::assertStringContainsString('provenance', $exception->getMessage());
+        }
+
+        self::assertSame('present', (new TargetPlatformPackage('ext-json', '8.3.0'))->state());
+    }
 }

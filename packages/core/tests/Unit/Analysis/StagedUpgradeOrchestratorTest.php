@@ -10,6 +10,7 @@ use PhpUpgradePreflight\Core\Composer\ComposerScenarioRunner;
 use PhpUpgradePreflight\Core\Framework\FrameworkDetection;
 use PhpUpgradePreflight\Core\Framework\FrameworkIntegration;
 use PhpUpgradePreflight\Core\Framework\FrameworkStageTargetProvider;
+use PhpUpgradePreflight\Core\Model\Blocker;
 use PhpUpgradePreflight\Core\Model\ComposerJson;
 use PhpUpgradePreflight\Core\Model\ComposerLock;
 use PhpUpgradePreflight\Core\Model\Evidence;
@@ -18,6 +19,7 @@ use PhpUpgradePreflight\Core\Model\FrameworkStagePlan;
 use PhpUpgradePreflight\Core\Model\FrameworkStageTarget;
 use PhpUpgradePreflight\Core\Model\ProjectState;
 use PhpUpgradePreflight\Core\Model\StagedResolution;
+use PhpUpgradePreflight\Core\Model\StageBlockerEntry;
 use PhpUpgradePreflight\Core\Model\TargetPlatform;
 use PhpUpgradePreflight\Core\Model\UpgradeRequest;
 use PhpUpgradePreflight\Core\Model\UpgradeTarget;
@@ -246,6 +248,195 @@ final class StagedUpgradeOrchestratorTest extends TestCase
         self::assertSame('previous_stage_unknown', $canonical['stages'][1]['stop_reason']);
     }
 
+    public function testSuccessfulStagesCarryOnlyTheSelectedCandidateStateForward(): void
+    {
+        [$project, $request, $platform] = $this->context();
+        $ledger = new EvidenceLedger();
+        $firstEvidence = $ledger->add('stage-target', Evidence::E2_PACKAGE_METADATA, 'First successful stage.')->id();
+        $secondEvidence = $ledger->add('stage-target', Evidence::E2_PACKAGE_METADATA, 'Second successful stage.')->id();
+        $plan = new FrameworkStagePlan('fixture', [
+            $this->stage(0, 1, $firstEvidence),
+            $this->stage(1, 2, $secondEvidence),
+        ], null, [$firstEvidence, $secondEvidence]);
+
+        $resolution = $this->successfulOrchestrator()->analyze(
+            [$this->provider('fixture', $plan)],
+            $project,
+            $request,
+            $platform,
+            $ledger
+        );
+        $canonical = $resolution->toArray();
+
+        self::assertSame(StagedResolution::EVALUATED, $resolution->executionState());
+        self::assertSame(StagedResolution::FEASIBLE_WITH_CHANGES, $resolution->status());
+        self::assertNull($canonical['stop_reason']);
+        self::assertSame([1, 1], array_column($canonical['stages'], 'selected_attempt'));
+        self::assertSame(
+            [StagedResolution::FEASIBLE_WITH_CHANGES, StagedResolution::FEASIBLE_WITH_CHANGES],
+            array_column($canonical['stages'], 'resolution_status')
+        );
+        self::assertSame(
+            $canonical['stages'][0]['output_state']['state_sha256'],
+            $canonical['stages'][1]['predecessor_state']['state_sha256']
+        );
+        self::assertSame(['vendor/dependency', 'vendor/framework'], array_column(
+            $canonical['stages'][0]['package_changes'],
+            'name'
+        ));
+        self::assertTrue($canonical['stages'][0]['attempts'][0]['selected']);
+        self::assertSame([], $canonical['blocker_registry']);
+        $ledger->validateReferences($resolution->evidenceReferences());
+    }
+
+    public function testSuccessfulStageWithoutALockDiffRemainsFeasible(): void
+    {
+        [$project, $request, $platform] = $this->context();
+        $ledger = new EvidenceLedger();
+        $reference = $ledger->add('stage-target', Evidence::E2_PACKAGE_METADATA, 'No-diff stage.')->id();
+        $plan = new FrameworkStagePlan('fixture', [$this->stage(0, 1, $reference)], null, [$reference]);
+        $runner = new ComposerScenarioRunner(
+            null,
+            null,
+            static fn (): array => ['exit_code' => 0, 'stdout' => 'Resolved.', 'stderr' => ''],
+            static fn (): string => '2.8.12'
+        );
+
+        $resolution = (new StagedUpgradeOrchestrator($runner))->analyze(
+            [$this->provider('fixture', $plan)],
+            $project,
+            $request,
+            $platform,
+            $ledger
+        );
+
+        self::assertSame(StagedResolution::FEASIBLE, $resolution->status());
+        self::assertSame([], $resolution->toArray()['stages'][0]['package_changes']);
+    }
+
+    public function testConsecutiveBlockerObservationPersistsWithoutDuplicatingTheRegistry(): void
+    {
+        [$project, $request, $platform] = $this->context();
+        $ledger = new EvidenceLedger();
+        $reference = $ledger->add('stage-target', Evidence::E2_PACKAGE_METADATA, 'Persistent blocker stage.')->id();
+        $plan = new FrameworkStagePlan('fixture', [$this->stage(0, 1, $reference)], null, [$reference]);
+
+        $resolution = $this->solverFailureOrchestrator(['ext-repeat', 'ext-repeat'], [0.1, 0.1])->analyze(
+            [$this->provider('fixture', $plan)],
+            $project,
+            $request,
+            $platform,
+            $ledger
+        );
+        $registry = $resolution->toArray()['blocker_registry'];
+
+        self::assertCount(1, $registry);
+        self::assertSame(['detected', 'persists'], array_column($registry[0]['lifecycle_history'], 'status'));
+    }
+
+    public function testChangedConstraintSupersedesTheEarlierBlockerIdentity(): void
+    {
+        [$project, $request, $platform] = $this->context();
+        $ledger = new EvidenceLedger();
+        $reference = $ledger->add('stage-target', Evidence::E2_PACKAGE_METADATA, 'Superseded blocker stage.')->id();
+        $plan = new FrameworkStagePlan('fixture', [$this->stage(0, 1, $reference)], null, [$reference]);
+        $outputs = [
+            "Your requirements could not be resolved to an installable set of packages.\nProblem 1\n- vendor/blocker 1.0.0 requires vendor/framework ^0.0 -> found vendor/framework[0.0.0] but it conflicts with your root composer.json require (^1.0).",
+            "Your requirements could not be resolved to an installable set of packages.\nProblem 1\n- vendor/blocker 1.0.0 requires vendor/framework ^0.5 -> found vendor/framework[0.5.0] but it conflicts with your root composer.json require (^1.0).",
+        ];
+
+        $resolution = $this->rawSolverFailureOrchestrator($outputs)->analyze(
+            [$this->provider('fixture', $plan)],
+            $project,
+            $request,
+            $platform,
+            $ledger
+        );
+
+        self::assertSame(['superseded', 'detected'], array_column(
+            $resolution->toArray()['blocker_registry'],
+            'lifecycle'
+        ));
+    }
+
+    public function testDuplicateStageIdentifiersAreRejectedBeforeComposerRuns(): void
+    {
+        [$project, $request, $platform] = $this->context();
+        $ledger = new EvidenceLedger();
+        $reference = $ledger->add('stage-target', Evidence::E2_PACKAGE_METADATA, 'Duplicate stage.')->id();
+        $stage = $this->stage(0, 1, $reference);
+        $plan = new FrameworkStagePlan('fixture', [$stage, $stage], null, [$reference]);
+
+        $resolution = $this->orchestrator()->analyze(
+            [$this->provider('fixture', $plan)],
+            $project,
+            $request,
+            $platform,
+            $ledger
+        );
+
+        self::assertSame('invalid_stage_plan', $resolution->toArray()['stop_reason']);
+    }
+
+    public function testMatchingRootConstraintDoesNotProduceARecordedChange(): void
+    {
+        [$project, $request] = $this->context();
+        $project = new ProjectState(
+            $project->path(),
+            new ComposerJson(['name' => 'fixture/project', 'require' => ['vendor/framework' => '^1.0']]),
+            new ComposerLock(['packages' => []])
+        );
+        $platform = TargetPlatform::fromRequest($request, $project, [], '8.3.0');
+        $ledger = new EvidenceLedger();
+        $reference = $ledger->add('stage-target', Evidence::E2_PACKAGE_METADATA, 'Matching root stage.')->id();
+        $plan = new FrameworkStagePlan('fixture', [$this->stage(0, 1, $reference)], null, [$reference]);
+
+        $resolution = $this->solverFailureOrchestrator(['ext-blocked'], [0.1])->analyze(
+            [$this->provider('fixture', $plan)],
+            $project,
+            $request,
+            $platform,
+            $ledger
+        );
+
+        self::assertSame([], $resolution->toArray()['stages'][0]['attempts'][0]['root_constraint_changes']);
+    }
+
+    public function testSuccessfulCandidateIsNotSelectedWhileItsBlockingEntryRemainsActive(): void
+    {
+        $entry = StageBlockerEntry::detected(
+            'fixture-0-to-1',
+            1,
+            'fixture-attempt',
+            new Blocker(
+                'transitive-package-conflict',
+                'vendor/framework',
+                'A transitive package blocks the target.',
+                'high',
+                ['solver-evidence'],
+                '^1.0',
+                'vendor/blocker',
+                '1.0.0',
+                '^0.0',
+                ['vendor/blocker', 'vendor/framework'],
+                ['Upgrade vendor/blocker.']
+            )
+        );
+        $method = new \ReflectionMethod(StagedUpgradeOrchestrator::class, 'hasActiveBlockingEntries');
+        $method->setAccessible(true);
+
+        self::assertTrue($method->invoke(
+            $this->orchestrator(),
+            [$entry->identityKey() => $entry],
+            'fixture-0-to-1'
+        ));
+        self::assertFalse($method->invoke(
+            $this->orchestrator(),
+            [$entry->identityKey() => $entry],
+            'fixture-1-to-2'
+        ));
+    }
+
     private function orchestrator(): StagedUpgradeOrchestrator
     {
         return new StagedUpgradeOrchestrator(new ComposerScenarioRunner(
@@ -300,6 +491,26 @@ final class StagedUpgradeOrchestratorTest extends TestCase
         return new StagedUpgradeOrchestrator($runner);
     }
 
+    /** @param list<string> $outputs */
+    private function rawSolverFailureOrchestrator(array $outputs): StagedUpgradeOrchestrator
+    {
+        $runner = new ComposerScenarioRunner(
+            null,
+            null,
+            static function () use (&$outputs): array {
+                $output = array_shift($outputs);
+                if (!is_string($output)) {
+                    throw new \LogicException('No raw staged solver transcript remains.');
+                }
+
+                return ['exit_code' => 2, 'stdout' => '', 'stderr' => $output];
+            },
+            static fn (): string => '2.3.0'
+        );
+
+        return new StagedUpgradeOrchestrator($runner);
+    }
+
     private function timeoutOrchestrator(): StagedUpgradeOrchestrator
     {
         $process = new Process(['composer', 'update']);
@@ -318,6 +529,43 @@ final class StagedUpgradeOrchestratorTest extends TestCase
             'stdout' => '',
             'stderr' => 'Transport failed before dependency resolution.',
         ]);
+
+        return new StagedUpgradeOrchestrator($runner);
+    }
+
+    private function successfulOrchestrator(): StagedUpgradeOrchestrator
+    {
+        $runner = new ComposerScenarioRunner(
+            null,
+            null,
+            static function (array $command, string $workspace): array {
+                $contents = file_get_contents($workspace . '/composer.json');
+                if (!is_string($contents)) {
+                    throw new \RuntimeException('The staged manifest was not written.');
+                }
+                $manifest = json_decode($contents, true, 512, JSON_THROW_ON_ERROR);
+                $constraint = $manifest['require']['vendor/framework'] ?? null;
+                if (!is_string($constraint) || preg_match('/\^(\d+)\.0/', $constraint, $matches) !== 1) {
+                    throw new \RuntimeException('The staged framework constraint was not applied.');
+                }
+                $major = $matches[1];
+                $lock = [
+                    'content-hash' => hash('sha256', $contents),
+                    'packages' => [
+                        ['name' => 'vendor/dependency', 'version' => $major . '.0.0'],
+                        ['name' => 'vendor/framework', 'version' => $major . '.0.0'],
+                    ],
+                    'packages-dev' => [],
+                ];
+                file_put_contents(
+                    $workspace . '/composer.lock',
+                    json_encode($lock, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR)
+                );
+
+                return ['exit_code' => 0, 'stdout' => 'Lock file operations completed.', 'stderr' => ''];
+            },
+            static fn (): string => '2.8.12'
+        );
 
         return new StagedUpgradeOrchestrator($runner);
     }

@@ -375,6 +375,170 @@ final class LaravelFrameworkIntegrationTest extends TestCase
         self::assertSame(FrameworkStagePlan::REASON_GUIDANCE_GAP, $plan->unavailableReason());
     }
 
+    public function testItBuildsTheLaravelTenToThirteenStagePlanWithEvidenceBackedRemediations(): void
+    {
+        $project = new ProjectState(
+            __DIR__,
+            new ComposerJson([
+                'require' => [
+                    'laravel/framework' => '^10.0',
+                    'laravel/tinker' => '^2.9',
+                ],
+                'require-dev' => [
+                    'nunomaduro/collision' => '^8.6',
+                    'phpunit/phpunit' => '^10.0',
+                ],
+            ]),
+            new ComposerLock([
+                'packages' => [
+                    ['name' => 'laravel/framework', 'version' => 'v10.48.28'],
+                    ['name' => 'laravel/tinker', 'version' => 'v3.0.0'],
+                ],
+                'packages-dev' => [
+                    ['name' => 'phpunit/phpunit', 'version' => '10.5.58'],
+                ],
+            ])
+        );
+        $request = new UpgradeRequest(
+            __DIR__,
+            [new UpgradeTarget('laravel/framework', '^13.0')],
+            '8.1',
+            '8.3.0'
+        );
+        $ledger = new EvidenceLedger();
+
+        $plan = (new LaravelFrameworkIntegration())->planStages($project, $request, $ledger);
+
+        self::assertTrue($plan->isAvailable());
+        self::assertSame('laravel', $plan->provider());
+        self::assertNull($plan->unavailableReason());
+        self::assertSame(['laravel-10-to-11', 'laravel-11-to-12', 'laravel-12-to-13'], array_map(
+            static fn ($stage): string => $stage->id(),
+            $plan->stages()
+        ));
+        self::assertSame(['^11.0', '^12.0', '^13.0'], array_map(
+            static fn ($stage): string => $stage->targets()->packageTargets()[0]->constraint(),
+            $plan->stages()
+        ));
+        self::assertSame(['^11.0.1'], array_map(
+            static fn (UpgradeTarget $target): string => $target->constraint(),
+            $plan->stages()[0]->remediationTargets()
+        ));
+        self::assertSame(['^11.0'], array_map(
+            static fn (UpgradeTarget $target): string => $target->constraint(),
+            $plan->stages()[1]->remediationTargets()
+        ));
+        self::assertSame(['^12.0'], array_map(
+            static fn (UpgradeTarget $target): string => $target->constraint(),
+            $plan->stages()[2]->remediationTargets()
+        ));
+        self::assertNotSame([], $plan->stages()[0]->remediationEvidence('PHPUnit/PHPUnit'));
+        self::assertSame([], $plan->stages()[0]->remediationEvidence('vendor/absent'));
+        self::assertSame($plan->stages()[0]->evidence(), $plan->stages()[0]->toArray()['evidence']);
+        self::assertCount(6, $ledger->all());
+        $ledger->validateReferences(array_merge($plan->evidence(), ...array_map(
+            static fn ($stage): array => array_merge(
+                $stage->evidence(),
+                ...array_map(
+                    static fn (UpgradeTarget $target): array => $stage->remediationEvidence($target->package()),
+                    $stage->remediationTargets()
+                )
+            ),
+            $plan->stages()
+        )));
+    }
+
+    /** @dataProvider unavailableStagePlanProvider */
+    public function testItExplainsWhyAStagePlanCannotBeBuilt(
+        ProjectState $project,
+        UpgradeRequest $request,
+        string $reason
+    ): void {
+        $plan = (new LaravelFrameworkIntegration())->planStages($project, $request, new EvidenceLedger());
+
+        self::assertFalse($plan->isAvailable());
+        self::assertSame($reason, $plan->unavailableReason());
+        self::assertSame([], $plan->evidence());
+    }
+
+    /** @return iterable<string, array{ProjectState, UpgradeRequest, string}> */
+    public function unavailableStagePlanProvider(): iterable
+    {
+        $laravelTen = new ProjectState(
+            __DIR__,
+            new ComposerJson(['require' => ['laravel/framework' => '^10.0']]),
+            new ComposerLock(['packages' => [['name' => 'laravel/framework', 'version' => 'v10.48.28']]])
+        );
+
+        yield 'missing framework target' => [
+            $laravelTen,
+            new UpgradeRequest(__DIR__, [new UpgradeTarget('vendor/package', '^2.0')], '8.1', '8.3.0'),
+            FrameworkStagePlan::REASON_MISSING_TARGET,
+        ];
+        yield 'ambiguous target' => [
+            $laravelTen,
+            new UpgradeRequest(__DIR__, [new UpgradeTarget('laravel/framework', '^12.0|^13.0')], '8.1', '8.3.0'),
+            FrameworkStagePlan::REASON_AMBIGUOUS_TRANSITION,
+        ];
+        yield 'non-ascending transition' => [
+            $laravelTen,
+            new UpgradeRequest(__DIR__, [new UpgradeTarget('laravel/framework', '^10.0')], '8.1', '8.3.0'),
+            FrameworkStagePlan::REASON_UNSUPPORTED_TRANSITION,
+        ];
+        yield 'outside milestone slice' => [
+            $laravelTen,
+            new UpgradeRequest(__DIR__, [new UpgradeTarget('laravel/framework', '^12.0')], '8.1', '8.3.0'),
+            FrameworkStagePlan::REASON_GUIDANCE_GAP,
+        ];
+        yield 'missing target PHP' => [
+            $laravelTen,
+            new UpgradeRequest(__DIR__, [new UpgradeTarget('laravel/framework', '^13.0')]),
+            FrameworkStagePlan::REASON_MISSING_TARGET,
+        ];
+        yield 'incompatible target PHP' => [
+            $laravelTen,
+            new UpgradeRequest(__DIR__, [new UpgradeTarget('laravel/framework', '^13.0')], '8.1', '8.1.0'),
+            FrameworkStagePlan::REASON_MISSING_TARGET,
+        ];
+    }
+
+    public function testStagePlanningStopsWhenCatalogMetadataForAnAdjacentHopIsMissing(): void
+    {
+        $catalog = LaravelRuleCatalog::v0_2();
+        $targets = array_values(array_filter(
+            $catalog->targets(),
+            static fn ($target): bool => $target->major() !== 11
+        ));
+        $incomplete = new LaravelRuleCatalog(
+            $catalog->version(),
+            $catalog->minimumMajor(),
+            $catalog->maximumMajor(),
+            $targets,
+            $catalog->transitions(),
+            $catalog->rules(),
+            $catalog->skeletonPatterns()
+        );
+        $project = new ProjectState(
+            __DIR__,
+            new ComposerJson(['require' => ['laravel/framework' => '^10.0']]),
+            new ComposerLock(['packages' => [['name' => 'laravel/framework', 'version' => 'v10.48.28']]])
+        );
+        $request = new UpgradeRequest(
+            __DIR__,
+            [new UpgradeTarget('laravel/framework', '^13.0')],
+            '8.1',
+            '8.3.0'
+        );
+
+        $plan = (new LaravelFrameworkIntegration(null, $incomplete))->planStages(
+            $project,
+            $request,
+            new EvidenceLedger()
+        );
+
+        self::assertSame(FrameworkStagePlan::REASON_GUIDANCE_GAP, $plan->unavailableReason());
+    }
+
     public function testItReportsInconsistentRootedIlluminateLockedMajorsAsUncertainty(): void
     {
         $project = new ProjectState(
