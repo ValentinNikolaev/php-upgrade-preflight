@@ -14,6 +14,7 @@ use PhpUpgradePreflight\Core\Model\ProjectState;
 use PhpUpgradePreflight\Core\Model\RiskSummary;
 use PhpUpgradePreflight\Core\Model\ScenarioResult;
 use PhpUpgradePreflight\Core\Model\SourceUsage;
+use PhpUpgradePreflight\Core\Model\StagedResolution;
 use PhpUpgradePreflight\Core\Model\TargetPlatform;
 use PhpUpgradePreflight\Core\Model\UpgradeReport;
 use PhpUpgradePreflight\Core\Model\UpgradeRequest;
@@ -53,7 +54,8 @@ final class ReportAssembler
         EvidenceLedger $evidence,
         array $frameworkGuidance = [],
         ?TargetPlatform $platform = null,
-        ?array $actionableSourceImpact = null
+        ?array $actionableSourceImpact = null,
+        ?StagedResolution $stagedResolution = null
     ): UpgradeReport {
         $actionableSourceImpact = $actionableSourceImpact ?? $this->sourceImpactBuilder->build($sourceImpact, $frameworkFindings);
         $sections = $this->sectionBuilder->build(
@@ -85,7 +87,8 @@ final class ReportAssembler
             $sections->tests(),
             $actionableSourceImpact,
             $frameworkGuidance,
-            $platform
+            $platform,
+            $stagedResolution
         );
     }
 }

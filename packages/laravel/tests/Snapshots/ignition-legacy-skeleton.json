@@ -1,9 +1,9 @@
 {
     "metadata": {
-        "schema_version": "0.7",
+        "schema_version": "0.8",
         "tool": {
             "name": "php-upgrade-preflight",
-            "version": "0.2.1"
+            "version": "0.3.0-dev"
         }
     },
     "request_summary": {
@@ -79,7 +79,7 @@
                 "stdout_excerpt": "Fixture baseline is valid.",
                 "stderr_excerpt": "",
                 "candidate_lock": {
-                    "sha256": "ff4acbafded8f33cd64c19ffb5d943b24a4041a2ba81fa4b8aa0f5aef137703d",
+                    "sha256": "69022e490ecf9dbf9b0fb7a55f262af924a62fd239285431b744c8fbf85bfe69",
                     "content_hash": "ignition-legacy-skeleton",
                     "package_count": 2
                 },
@@ -364,6 +364,25 @@
                 "temp_path": null
             }
         ]
+    },
+    "staged_resolution": {
+        "execution_state": "skipped",
+        "status": "unknown",
+        "provider": "laravel",
+        "stages": [],
+        "blocker_registry": [],
+        "stop_reason": "guidance_gap",
+        "budgets": {
+            "max_hops": 6,
+            "max_attempts_per_stage": 3,
+            "max_scenarios": 18,
+            "scenario_timeout_seconds": 300,
+            "aggregate_timeout_seconds": 1800,
+            "memory_bytes": 268435456,
+            "json_report_bytes": 524288,
+            "markdown_report_bytes": 262144
+        },
+        "evidence": []
     },
     "transition": {
         "package_changes": [],

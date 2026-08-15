@@ -25,7 +25,7 @@
     "composer/semver": "^3.4",
     "illuminate/console": "^8.0|^9.0|^10.0|^11.0|^12.0|^13.0",
     "illuminate/support": "^8.0|^9.0|^10.0|^11.0|^12.0|^13.0",
-    "php-upgrade-preflight/core": "^0.2"
+    "php-upgrade-preflight/core": "^0.3"
   },
   "autoload": {
     "psr-4": {
@@ -39,7 +39,7 @@
   },
   "extra": {
     "branch-alias": {
-      "dev-main": "0.2.x-dev"
+      "dev-main": "0.3.x-dev"
     },
     "php-upgrade-preflight": {
       "framework-adapters": [

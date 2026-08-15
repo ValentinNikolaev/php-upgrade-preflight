@@ -92,11 +92,11 @@ jobs:
           composer config minimum-stability dev
           composer config prefer-stable true
           composer config repositories.core \
-            "{\"type\":\"path\",\"url\":\"${GITHUB_WORKSPACE}/packages/core\",\"options\":{\"versions\":{\"php-upgrade-preflight/core\":\"0.2.x-dev\"}}}"
+            "{\"type\":\"path\",\"url\":\"${GITHUB_WORKSPACE}/packages/core\",\"options\":{\"versions\":{\"php-upgrade-preflight/core\":\"0.3.x-dev\"}}}"
           composer config repositories.cli \
-            "{\"type\":\"path\",\"url\":\"${GITHUB_WORKSPACE}/packages/cli\",\"options\":{\"versions\":{\"php-upgrade-preflight/cli\":\"0.2.x-dev\"}}}"
+            "{\"type\":\"path\",\"url\":\"${GITHUB_WORKSPACE}/packages/cli\",\"options\":{\"versions\":{\"php-upgrade-preflight/cli\":\"0.3.x-dev\"}}}"
           composer config repositories.laravel \
-            "{\"type\":\"path\",\"url\":\"${GITHUB_WORKSPACE}/packages/laravel\",\"options\":{\"versions\":{\"php-upgrade-preflight/laravel\":\"0.2.x-dev\"}}}"
+            "{\"type\":\"path\",\"url\":\"${GITHUB_WORKSPACE}/packages/laravel\",\"options\":{\"versions\":{\"php-upgrade-preflight/laravel\":\"0.3.x-dev\"}}}"
 
           if [[ "${SMOKE}" == 'laravel' ]]; then
             cp -R "${GITHUB_WORKSPACE}/tests/fixtures/laravel-app/app" .

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace PhpUpgradePreflight\Tests\Release;
 
-use PhpUpgradePreflight\Core\Model\ReportMetadata;
 use PHPUnit\Framework\TestCase;
 
 final class V02ContractTest extends TestCase
@@ -100,82 +99,14 @@ final class V02ContractTest extends TestCase
         self::assertFileExists($this->root . '/packages/core/resources/schema/upgrade-report-v0.7.schema.json');
     }
 
-    public function testRepositoryUsesTheV020ReleaseIdentityAcrossPackagesAndReports(): void
+    public function testPublishedV02IdentityRemainsRecordedAsHistoricalPolicy(): void
     {
         $policy = $this->contract['development_version'];
         self::assertSame('0.2', $policy['active_release_series']);
         self::assertTrue($policy['release_candidate_approved']);
-        self::assertSame($policy['report_tool_version'], ReportMetadata::TOOL_VERSION);
-        self::assertSame('0.7', ReportMetadata::SCHEMA_VERSION);
-
-        $root = $this->readJson($this->root . '/composer.json');
-        foreach (['core', 'cli', 'laravel'] as $directory) {
-            $packageName = 'php-upgrade-preflight/' . $directory;
-            self::assertSame($policy['composer_development_version'], $root['require'][$packageName]);
-
-            $repositoryVersions = [];
-            foreach ($root['repositories'] as $repository) {
-                if (($repository['url'] ?? null) === 'packages/' . $directory) {
-                    $repositoryVersions = $repository['options']['versions'];
-                }
-            }
-            self::assertSame($policy['composer_development_version'], $repositoryVersions[$packageName]);
-
-            $package = $this->readJson($this->root . '/packages/' . $directory . '/composer.json');
-            self::assertSame(
-                $policy['composer_development_version'],
-                $package['extra']['branch-alias']['dev-main']
-            );
-            if ($directory !== 'core') {
-                self::assertSame($policy['internal_constraint'], $package['require']['php-upgrade-preflight/core']);
-            }
-        }
-    }
-
-    public function testReleaseChecklistUsesDerivedVersionPlaceholders(): void
-    {
-        $checklist = file_get_contents($this->root . '/docs/release-checklist.md');
-        self::assertIsString($checklist);
-        self::assertStringStartsWith('# Release checklist', $checklist);
-        self::assertStringContainsString('VERSION', $checklist);
-        self::assertStringContainsString('SERIES', $checklist);
-        self::assertStringContainsString('DEV_VERSION', $checklist);
-        self::assertStringNotContainsString('# v0.1 release checklist', $checklist);
-        self::assertStringNotContainsString('composer release:verify -- 0.1.0', $checklist);
-        self::assertStringNotContainsString('- [x]', $checklist);
-    }
-
-    public function testCoverageGateCannotReuseAStaleReport(): void
-    {
-        $root = $this->readJson($this->root . '/composer.json');
-        $commands = $root['scripts']['test:coverage'];
-
-        self::assertCount(3, $commands);
-        self::assertStringContainsString("unlink('build/coverage/clover.xml')", $commands[0]);
-        self::assertStringContainsString('--coverage-clover build/coverage/clover.xml', $commands[1]);
-        self::assertSame('php tools/verify-coverage.php build/coverage/clover.xml', $commands[2]);
-    }
-
-    public function testReleaseLinePolicyIsConsistentAcrossRepositoryInstructions(): void
-    {
-        $contributing = file_get_contents($this->root . '/CONTRIBUTING.md');
-        $agentRules = file_get_contents($this->root . '/.claude/CLAUDE.md');
-        $plan = file_get_contents($this->root . '/.claude/DEVELOPMENT_PLAN.md');
-        $memory = file_get_contents($this->root . '/.claude/memory/MEMORY.md');
-        $checklist = file_get_contents($this->root . '/docs/release-checklist.md');
-        $versioning = file_get_contents($this->root . '/docs/versioning.md');
-
-        foreach ([$contributing, $agentRules, $plan, $memory, $checklist, $versioning] as $contents) {
-            self::assertIsString($contents);
-            self::assertStringContainsString('0.2.x', $contents);
-            self::assertStringContainsString('main', $contents);
-        }
-        self::assertStringContainsString('v0.1 compatibility', $contributing);
-        self::assertStringContainsString('active `0.2.x` series', $agentRules);
-        self::assertStringContainsString('The v0.2.0 release workflow completed all 36 jobs', $plan);
-        self::assertStringContainsString('published quick start that proves target immutability', $memory);
-        self::assertStringContainsString('approved release branch exists on `origin`', $checklist);
-        self::assertStringContainsString('active `0.2.x` release line', $versioning);
+        self::assertSame('0.2.1', $policy['report_tool_version']);
+        self::assertSame('0.2.x-dev', $policy['composer_development_version']);
+        self::assertSame('^0.2', $policy['internal_constraint']);
     }
 
     public function testRepresentativeReportSnapshotsStayInsideSizeAndRedactionBudgets(): void
@@ -190,7 +121,7 @@ final class V02ContractTest extends TestCase
 
         foreach ($budgets['corpus'] as $fixture) {
             foreach (['json', 'md'] as $format) {
-                $path = sprintf('%s/packages/laravel/tests/Snapshots/%s.%s', $this->root, $fixture, $format);
+                $path = sprintf('%s/tests/fixtures/contracts/v0.2.1/laravel-reports/%s.%s', $this->root, $fixture, $format);
                 $size = filesize($path);
                 self::assertIsInt($size);
                 $combined += $size;
@@ -258,14 +189,4 @@ final class V02ContractTest extends TestCase
         self::assertSame(30, $budgets['runtime']['corpus_seconds']);
     }
 
-    /** @return array<string, mixed> */
-    private function readJson(string $path): array
-    {
-        $contents = file_get_contents($path);
-        self::assertIsString($contents);
-        $decoded = json_decode($contents, true, 512, JSON_THROW_ON_ERROR);
-        self::assertIsArray($decoded);
-
-        return $decoded;
-    }
 }

@@ -1,0 +1,135 @@
+{
+    "contract": "php-upgrade-preflight-v0.2.1",
+    "released_version": "0.2.1",
+    "signed_tag": "v0.2.1",
+    "released_commit": "679885ea2be38f4f33cd6f4b96ff1de09244b36d",
+    "public_php_operation": {
+        "interface": "PhpUpgradePreflight\\Core\\Contracts\\UpgradeAnalyzer",
+        "method": "analyzeUpgrade",
+        "parameters": [
+            "PhpUpgradePreflight\\Core\\Model\\UpgradeRequest"
+        ],
+        "return_type": "PhpUpgradePreflight\\Core\\Model\\UpgradeReport"
+    },
+    "cli": {
+        "binary": "upgrade-intel",
+        "command": "analyze",
+        "options": [
+            "--path=PATH",
+            "--target=PACKAGE:VALUE",
+            "--target-php=VERSION",
+            "--from-php=VALUE",
+            "--with-extension=EXT[:VERSION]",
+            "--without-extension=EXT",
+            "--source=PATH",
+            "--framework=NAME",
+            "--format=json|markdown",
+            "--output=PATH",
+            "--debug",
+            "-h, --help"
+        ]
+    },
+    "artisan": {
+        "command": "upgrade:analyze",
+        "options": [
+            "--path=",
+            "--target=*",
+            "--target-php=",
+            "--from-php=",
+            "--with-extension=*",
+            "--without-extension=*",
+            "--source=*",
+            "--format=json",
+            "--output=",
+            "--debug"
+        ]
+    },
+    "adapter_metadata": {
+        "key": "extra.php-upgrade-preflight.framework-adapters",
+        "laravel": "PhpUpgradePreflight\\Laravel\\LaravelFrameworkIntegration"
+    },
+    "exit_policy": {
+        "success": 0,
+        "failure": 1,
+        "invalid": 2,
+        "blocked_and_unknown_are_reports": true
+    },
+    "canonical_schema": {
+        "version": "0.7",
+        "path": "packages/core/resources/schema/upgrade-report-v0.7.schema.json",
+        "sha256": "331450a62a7c8ff78f451a8f52e7b1519ba893f6e79786d0706970f183617d93"
+    },
+    "laravel_transition_behavior": {
+        "direct_hops": [
+            "7-8",
+            "7-9"
+        ],
+        "adjacent_hops": [
+            "8-9",
+            "9-10",
+            "10-11",
+            "11-12",
+            "12-13"
+        ],
+        "statuses": [
+            "supported",
+            "partially_supported",
+            "unsupported"
+        ],
+        "composer_feasibility_independent": true
+    },
+    "canonical_reports": [
+        {
+            "path": "tests/fixtures/contracts/v0.2.1/core-reports/upgrade-report-v0.7.json",
+            "sha256": "d92cca919015214b5600b7b08d86c71fddaa269e404f2a7ee4f5587809557e73"
+        },
+        {
+            "path": "tests/fixtures/contracts/v0.2.1/laravel-reports/blocked-illuminate-constraint.json",
+            "sha256": "1269ca299ca76940b3b69038a04a7a5a8db5d135680c33da2d93fbc671a76eb3"
+        },
+        {
+            "path": "tests/fixtures/contracts/v0.2.1/laravel-reports/blocked-illuminate-constraint.md",
+            "sha256": "9bbe075ac43498c6713f568d098f2b4105df516bc3b0b902339d70ad4b5522f2"
+        },
+        {
+            "path": "tests/fixtures/contracts/v0.2.1/laravel-reports/ignition-legacy-skeleton.json",
+            "sha256": "0e40bc049a37bdc0683d3568da7bbd6b518c085544e626429ab646d4254c30c0"
+        },
+        {
+            "path": "tests/fixtures/contracts/v0.2.1/laravel-reports/ignition-legacy-skeleton.md",
+            "sha256": "3038e77271f32545afbc9431524b3fc5bbb38cc6f69edc44b46208861f4b9483"
+        },
+        {
+            "path": "tests/fixtures/contracts/v0.2.1/laravel-reports/laravel-7-to-8.json",
+            "sha256": "1b924c4b63d129b590818d5ea7335dcbcdd888f89d07faaa4ce26512c7e77599"
+        },
+        {
+            "path": "tests/fixtures/contracts/v0.2.1/laravel-reports/laravel-7-to-8.md",
+            "sha256": "dccbf8bb792a957f5751f37d0c397777d624eefe552ab1aa668a36cb0fb4caae"
+        },
+        {
+            "path": "tests/fixtures/contracts/v0.2.1/laravel-reports/laravel-7-to-9.json",
+            "sha256": "7e39b61e0e53712d34a1ff7406be9541e3053bcaa01cfc06445143fb762e5c29"
+        },
+        {
+            "path": "tests/fixtures/contracts/v0.2.1/laravel-reports/laravel-7-to-9.md",
+            "sha256": "81daec674b5afb22f31423f1efd1072d9ea3d6bd3bcd1d44b3601c8a5fc61033"
+        },
+        {
+            "path": "tests/fixtures/contracts/v0.2.1/laravel-reports/laravel-package-matrix.json",
+            "sha256": "be127b9837dc956c0b7eea7697c90ce45db29466805f41c329a2a203ce29c6c3"
+        },
+        {
+            "path": "tests/fixtures/contracts/v0.2.1/laravel-reports/laravel-package-matrix.md",
+            "sha256": "9409e24031b296810f0c9d5fd435591a0d3cea59a2588f80e29cf71abb85fd80"
+        },
+        {
+            "path": "tests/fixtures/contracts/v0.2.1/laravel-reports/php-extension-conflict.json",
+            "sha256": "765d79588e25d5e279b14e4c1ed695b6574da6864ee4c232c38ace0bf7cc7d5c"
+        },
+        {
+            "path": "tests/fixtures/contracts/v0.2.1/laravel-reports/php-extension-conflict.md",
+            "sha256": "d70dd430a9e8c43b58f72af24308f94c5042883ef1a12595c8f9270926d0ebab"
+        }
+    ]
+}

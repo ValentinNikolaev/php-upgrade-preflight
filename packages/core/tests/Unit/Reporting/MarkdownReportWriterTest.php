@@ -169,8 +169,9 @@ final class MarkdownReportWriterTest extends TestCase
         self::assertSame($markdown, $writer->renderCanonical($report->toArray()));
 
         self::assertStringContainsString('## Composer Scenarios', $markdown);
-        self::assertStringContainsString('Schema: `0.7`', $markdown);
-        self::assertStringContainsString('Tool: `php-upgrade-preflight 0.2.1`', $markdown);
+        self::assertStringContainsString('Schema: `0.8`', $markdown);
+        self::assertStringContainsString('Tool: `php-upgrade-preflight 0.3.0-dev`', $markdown);
+        self::assertStringContainsString('## Staged Composer Resolution', $markdown);
         self::assertStringContainsString('## Analysis Request', $markdown);
         self::assertStringContainsString('Current PHP: `7.4`', $markdown);
         self::assertStringContainsString('Target PHP: `8.2.0`', $markdown);
@@ -188,6 +189,7 @@ final class MarkdownReportWriterTest extends TestCase
         self::assertStringContainsString('```embedded fence```', $markdown);
         self::assertStringContainsString('after-fence', $markdown);
         self::assertStringContainsString('    ````text', $markdown);
+        self::assertDoesNotMatchRegularExpression('/[ \t]+$/m', $markdown);
         self::assertStringContainsString('temporary workspace: `C:\\temp\\php-upgrade-preflight-debug`', $markdown);
         self::assertStringContainsString('outcome `process_failure`', $markdown);
         self::assertStringContainsString('outcome `success`', $markdown);

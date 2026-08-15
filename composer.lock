@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b81aa0fc10aa8060bb90f8681e455c35",
+    "content-hash": "a477881d0703eb4296dfb738c9c367ee",
     "packages": [
         {
             "name": "carbonphp/carbon-doctrine-types",
@@ -684,16 +684,16 @@
         },
         {
             "name": "php-upgrade-preflight/cli",
-            "version": "0.2.x-dev",
+            "version": "0.3.x-dev",
             "dist": {
                 "type": "path",
                 "url": "packages/cli",
-                "reference": "d2e7295afe9446cd823260dbe09b2a6c93c5be01"
+                "reference": "d925bf0eb808676ceec32e2536c792ff86c6548e"
             },
             "require": {
                 "composer-runtime-api": "^2.0",
                 "php": "^8.0",
-                "php-upgrade-preflight/core": "^0.2"
+                "php-upgrade-preflight/core": "^0.3"
             },
             "suggest": {
                 "php-upgrade-preflight/laravel": "Enables Laravel detection and the --framework=laravel rule pack in generic CLI mode."
@@ -704,7 +704,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-main": "0.2.x-dev"
+                    "dev-main": "0.3.x-dev"
                 }
             },
             "autoload": {
@@ -745,11 +745,11 @@
         },
         {
             "name": "php-upgrade-preflight/core",
-            "version": "0.2.x-dev",
+            "version": "0.3.x-dev",
             "dist": {
                 "type": "path",
                 "url": "packages/core",
-                "reference": "24a6ea414bc8d84074a35a6a989345eaf60a377b"
+                "reference": "320fb5e02dbbb0b252d3c2a72b0028d22186eb2e"
             },
             "require": {
                 "composer/semver": "^3.4",
@@ -762,7 +762,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-main": "0.2.x-dev"
+                    "dev-main": "0.3.x-dev"
                 }
             },
             "autoload": {
@@ -803,23 +803,23 @@
         },
         {
             "name": "php-upgrade-preflight/laravel",
-            "version": "0.2.x-dev",
+            "version": "0.3.x-dev",
             "dist": {
                 "type": "path",
                 "url": "packages/laravel",
-                "reference": "71b88600813e6e7097131431bef0d0c9026cb0f7"
+                "reference": "e464146697000f02c212970ef15aff8d0fb93030"
             },
             "require": {
                 "composer/semver": "^3.4",
                 "illuminate/console": "^8.0|^9.0|^10.0|^11.0|^12.0|^13.0",
                 "illuminate/support": "^8.0|^9.0|^10.0|^11.0|^12.0|^13.0",
                 "php": "^8.0",
-                "php-upgrade-preflight/core": "^0.2"
+                "php-upgrade-preflight/core": "^0.3"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-main": "0.2.x-dev"
+                    "dev-main": "0.3.x-dev"
                 },
                 "php-upgrade-preflight": {
                     "framework-adapters": [
@@ -3275,15 +3275,15 @@
         },
         {
             "name": "php-upgrade-preflight/test-adapter",
-            "version": "0.2.x-dev",
+            "version": "0.3.x-dev",
             "dist": {
                 "type": "path",
                 "url": "packages/test-adapter",
-                "reference": "00a525a1e14e11ed6ad072edcc793b1b7a1a34fe"
+                "reference": "c8a9d92f586106e9e854af31c0e9ff07b6cc6b74"
             },
             "require": {
                 "php": "^8.0",
-                "php-upgrade-preflight/core": "^0.2"
+                "php-upgrade-preflight/core": "^0.3"
             },
             "type": "library",
             "extra": {

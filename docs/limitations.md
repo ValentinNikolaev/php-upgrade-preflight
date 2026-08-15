@@ -19,12 +19,13 @@ PHP Upgrade Preflight is a public-beta planning tool that predicts dependency an
 - Parse errors skip the malformed file and add evidence-linked uncertainty.
 - Default scans exclude dependencies and common generated, cache, and build directories. Explicit paths inside the project can opt into an excluded directory.
 - `source_inventory` is an observation list, not a change list. An item reaches `source_impact` only when it correlates with a selected final-target package change, an applicable framework rule, or both. Dynamic or unowned usages can therefore remain inventory-only, while a framework-correlated item may be actionable even when package ownership is unknown.
-- Source impact is tied to the selected successful final-target scenario. It does not predict package changes for intermediate framework hops that were not separately solved.
+- Direct `source_impact` remains tied to the selected successful final-target scenario. Schema 0.8 stages separately project applicable framework findings and source impact for executed hops, but always from the original project snapshot. The analyzer does not simulate or claim that source edits were applied between stages.
 
 ## Framework guidance
 
 - v0.2 retains Laravel 7→8 and direct 7→9 rules and adds every adjacent rule pack from 8→9 through 12→13. Gapless adjacent packs can compose multi-major guidance within Laravel 7–13. Same-major requests, downgrades, ambiguous or unknown majors, a source or target outside the catalog, and requests whose first hop is missing are unsupported. A covered prefix before a later gap is only `partially_supported`, and guidance never crosses the gap.
-- Framework support describes rule-pack coverage, not dependency feasibility. `transition.framework_guidance[].status` and `resolution.status` can disagree without either being an error.
+- Framework support describes rule-pack coverage, not dependency feasibility. In schema 0.8, `transition.framework_guidance[].status`, direct `resolution.status`, and `staged_resolution.status` are three independent dimensions and may disagree without error.
+- Milestone 0 staged Composer solving is deliberately limited to the committed rooted `laravel/framework` 10→13 vertical slice, a request whose only Laravel-family target is `laravel/framework`, and one active stage-target provider. Illuminate-component-only projects, mixed Laravel-family target sets, and other supported Laravel guidance paths remain honest `staged_resolution.execution_state: skipped` results until the production generalization milestone.
 - The Laravel 13 pack is limited to exact package metadata and explicit maintainer guidance; unencoded guide changes remain manual review work.
 - Encoded package ranges and maintainer links identify review work; they do not replace each package's upgrade guide.
 - Skeleton findings identify locations to compare and carry low confidence. They are not confirmed incompatibilities.

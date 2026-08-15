@@ -6,17 +6,23 @@ namespace PhpUpgradePreflight\Laravel;
 
 use PhpUpgradePreflight\Core\Framework\FrameworkDetection;
 use PhpUpgradePreflight\Core\Framework\FrameworkIntegration;
+use PhpUpgradePreflight\Core\Framework\FrameworkStageTargetProvider;
 use PhpUpgradePreflight\Core\Framework\FrameworkTransitionProvider;
 use PhpUpgradePreflight\Core\Framework\PackageFamilyClassifier;
 use PhpUpgradePreflight\Core\Model\Evidence;
 use PhpUpgradePreflight\Core\Model\EvidenceLedger;
 use PhpUpgradePreflight\Core\Model\FrameworkGuidance;
 use PhpUpgradePreflight\Core\Model\FrameworkHop;
+use PhpUpgradePreflight\Core\Model\FrameworkStagePlan;
+use PhpUpgradePreflight\Core\Model\FrameworkStageTarget;
 use PhpUpgradePreflight\Core\Model\ProjectState;
 use PhpUpgradePreflight\Core\Model\UpgradeRequest;
+use PhpUpgradePreflight\Core\Model\UpgradeTarget;
+use PhpUpgradePreflight\Core\Model\UpgradeTargetSet;
 use PhpUpgradePreflight\Laravel\Catalog\BuiltinRuleDefinition;
 use PhpUpgradePreflight\Laravel\Catalog\LaravelRuleCatalog;
 use PhpUpgradePreflight\Laravel\Catalog\PackageAdvisoryDefinition;
+use PhpUpgradePreflight\Laravel\Catalog\PackageConstraintDefinition;
 use PhpUpgradePreflight\Laravel\Catalog\PackageRuleDefinition;
 use PhpUpgradePreflight\Laravel\Catalog\TransitionDefinition;
 use PhpUpgradePreflight\Laravel\Rules\LaravelComposerVersionRule;
@@ -32,7 +38,7 @@ use PhpUpgradePreflight\Laravel\Rules\PackageVersionRule;
 use PhpUpgradePreflight\Laravel\Rules\SymfonyComponentConstraintRule;
 use PhpUpgradePreflight\Laravel\Rules\TargetedPackageAdvisoryRule;
 
-final class LaravelFrameworkIntegration implements FrameworkIntegration, FrameworkTransitionProvider, PackageFamilyClassifier
+final class LaravelFrameworkIntegration implements FrameworkIntegration, FrameworkTransitionProvider, FrameworkStageTargetProvider, PackageFamilyClassifier
 {
     private LaravelPackageFamilyClassifier $packageFamilyClassifier;
     private LaravelRuleCatalog $catalog;
@@ -214,6 +220,178 @@ final class LaravelFrameworkIntegration implements FrameworkIntegration, Framewo
         }
 
         return $this->adjacentTransition($sourceMajor, $targetMajor, $evidence);
+    }
+
+    public function planStages(
+        ProjectState $project,
+        UpgradeRequest $request,
+        EvidenceLedger $evidence
+    ): FrameworkStagePlan {
+        if (!$this->hasLaravelTarget($request)) {
+            return new FrameworkStagePlan('laravel', [], FrameworkStagePlan::REASON_MISSING_TARGET);
+        }
+
+        $sourceMajor = LaravelSource::fromProject($project)->major();
+        $target = LaravelTarget::fromRequest($request);
+        if ($sourceMajor === null || $target === null) {
+            return new FrameworkStagePlan('laravel', [], FrameworkStagePlan::REASON_AMBIGUOUS_TRANSITION);
+        }
+        $targetMajor = $target->major();
+        if (!$this->supportsMilestoneZeroStageSlice($project, $target)) {
+            return new FrameworkStagePlan('laravel', [], FrameworkStagePlan::REASON_GUIDANCE_GAP);
+        }
+        if ($sourceMajor >= $targetMajor) {
+            return new FrameworkStagePlan('laravel', [], FrameworkStagePlan::REASON_UNSUPPORTED_TRANSITION);
+        }
+
+        // Milestone 0 intentionally proves one production-shaped vertical slice.
+        // Milestone 3 expands this provider to every supported adjacent path.
+        if ($sourceMajor !== 10 || $targetMajor !== 13) {
+            return new FrameworkStagePlan('laravel', [], FrameworkStagePlan::REASON_GUIDANCE_GAP);
+        }
+
+        $analysisPhp = $request->targetPhp();
+        if ($analysisPhp === null) {
+            return new FrameworkStagePlan('laravel', [], FrameworkStagePlan::REASON_MISSING_TARGET);
+        }
+
+        for ($from = 10; $from < 13; ++$from) {
+            $to = $from + 1;
+            $definition = $this->catalog->target($to);
+            $transition = $this->catalog->transition($from, $to, TransitionDefinition::ADJACENT);
+            if ($definition === null || $transition === null || !$transition->isSupported()) {
+                return new FrameworkStagePlan('laravel', [], FrameworkStagePlan::REASON_GUIDANCE_GAP);
+            }
+            if (!LaravelTarget::versionSatisfies($analysisPhp, $definition->phpConstraint())) {
+                return new FrameworkStagePlan('laravel', [], FrameworkStagePlan::REASON_MISSING_TARGET);
+            }
+        }
+
+        $stages = [];
+        $planEvidence = [];
+        for ($from = 10; $from < 13; ++$from) {
+            $to = $from + 1;
+            $definition = $this->catalog->target($to);
+            $transition = $this->catalog->transition($from, $to, TransitionDefinition::ADJACENT);
+            if ($definition === null || $transition === null) {
+                throw new \LogicException('Validated Laravel stage metadata became unavailable.');
+            }
+
+            $stageId = sprintf('laravel-%d-to-%d', $from, $to);
+            $stageEvidence = $evidence->add(
+                'laravel-stage-target',
+                Evidence::E4_MAINTAINER_DOCUMENTATION,
+                sprintf('Laravel adapter metadata supplies the exact package target for stage %d to %d.', $from, $to),
+                'high',
+                [
+                    'stage_id' => $stageId,
+                    'package' => 'laravel/framework',
+                    'constraint' => '^' . $to . '.0',
+                    'analysis_php' => $analysisPhp,
+                    'minimum_php_constraint' => $definition->phpConstraint(),
+                    'analysis_php_provenance' => 'request_exact_value_checked_against_adapter_constraint',
+                    'sources' => array_values(array_unique(array_merge(
+                        $transition->sources(),
+                        $definition->phpSources()
+                    ))),
+                ]
+            )->id();
+            $planEvidence[] = $stageEvidence;
+
+            [$remediationTargets, $remediationEvidence] = $this->stageRemediations(
+                $project,
+                $from,
+                $to,
+                $stageId,
+                $evidence
+            );
+            $stages[] = new FrameworkStageTarget(
+                $stageId,
+                'laravel',
+                $from,
+                $to,
+                new UpgradeTargetSet(
+                    [new UpgradeTarget('laravel/framework', '^' . $to . '.0')],
+                    $analysisPhp
+                ),
+                $analysisPhp,
+                $remediationTargets,
+                $remediationEvidence,
+                [$stageEvidence]
+            );
+        }
+
+        return new FrameworkStagePlan('laravel', $stages, null, $planEvidence);
+    }
+
+    /**
+     * @return array{list<UpgradeTarget>, array<string, list<string>>}
+     */
+    private function stageRemediations(
+        ProjectState $project,
+        int $fromMajor,
+        int $toMajor,
+        string $stageId,
+        EvidenceLedger $evidence
+    ): array {
+        $requirements = $project->composerJson()->rootRequirements();
+        /** @var array<string, UpgradeTarget> $targets */
+        $targets = [];
+        /** @var array<string, list<string>> $references */
+        $references = [];
+
+        foreach ($this->catalog->rules() as $rule) {
+            if (!$rule instanceof PackageRuleDefinition) {
+                continue;
+            }
+            foreach ($rule->guidance() as $guidance) {
+                if (!$guidance->applicability()->matches($fromMajor, $toMajor)
+                    || !isset($requirements[$guidance->package()])
+                    || $this->packageAlreadyMatches($project, $guidance)) {
+                    continue;
+                }
+
+                $evidenceId = $evidence->add(
+                    'laravel-stage-remediation',
+                    Evidence::E4_MAINTAINER_DOCUMENTATION,
+                    sprintf(
+                        'Laravel adapter metadata permits an analyzer-only root constraint candidate for %s in stage %s.',
+                        $guidance->package(),
+                        $stageId
+                    ),
+                    'medium',
+                    [
+                        'stage_id' => $stageId,
+                        'package' => $guidance->package(),
+                        'constraint' => $guidance->compatibleConstraint(),
+                        'sources' => $guidance->sources(),
+                    ]
+                )->id();
+                $targets[$guidance->package()] = new UpgradeTarget(
+                    $guidance->package(),
+                    $guidance->compatibleConstraint()
+                );
+                $references[$guidance->package()] = [$evidenceId];
+            }
+        }
+
+        ksort($targets, SORT_STRING);
+        ksort($references, SORT_STRING);
+
+        return [array_values($targets), $references];
+    }
+
+    private function packageAlreadyMatches(ProjectState $project, PackageConstraintDefinition $guidance): bool
+    {
+        $locked = $project->composerLock()->package($guidance->package());
+        if ($locked !== null) {
+            return LaravelTarget::versionSatisfies($locked->version(), $guidance->compatibleConstraint());
+        }
+
+        $constraint = $project->composerJson()->rootRequirements()[$guidance->package()] ?? null;
+
+        return $constraint !== null
+            && LaravelTarget::constraintsIntersect($constraint, $guidance->compatibleConstraint());
     }
 
     private function supportedDirectTransition(
@@ -417,6 +595,16 @@ final class LaravelFrameworkIntegration implements FrameworkIntegration, Framewo
         }
 
         return false;
+    }
+
+    private function supportsMilestoneZeroStageSlice(ProjectState $project, LaravelTarget $target): bool
+    {
+        $requestedConstraints = $target->requestedConstraints();
+        $rootRequirements = $project->composerJson()->rootRequirements();
+
+        return count($requestedConstraints) === 1
+            && isset($requestedConstraints['laravel/framework'])
+            && isset($rootRequirements['laravel/framework']);
     }
 
     private function hasCompleteAdjacentPath(int $sourceMajor, int $targetMajor): bool

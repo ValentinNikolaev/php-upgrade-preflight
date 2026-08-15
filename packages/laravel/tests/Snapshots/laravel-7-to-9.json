@@ -1,9 +1,9 @@
 {
     "metadata": {
-        "schema_version": "0.7",
+        "schema_version": "0.8",
         "tool": {
             "name": "php-upgrade-preflight",
-            "version": "0.2.1"
+            "version": "0.3.0-dev"
         }
     },
     "request_summary": {
@@ -78,7 +78,7 @@
                 "stdout_excerpt": "Fixture baseline is valid.",
                 "stderr_excerpt": "",
                 "candidate_lock": {
-                    "sha256": "c69e486f887c9f57ee9199802d06393946ed7728c13c2e5c2476308e4703ef2e",
+                    "sha256": "b05db4687125561b2cc280b63daa68e8d2f14d318fa165eb408bfc71362f920d",
                     "content_hash": "laravel-7-to-9",
                     "package_count": 1
                 },
@@ -196,7 +196,7 @@
                 "stdout_excerpt": "Fixture target resolved.",
                 "stderr_excerpt": "",
                 "candidate_lock": {
-                    "sha256": "c69e486f887c9f57ee9199802d06393946ed7728c13c2e5c2476308e4703ef2e",
+                    "sha256": "b05db4687125561b2cc280b63daa68e8d2f14d318fa165eb408bfc71362f920d",
                     "content_hash": "laravel-7-to-9",
                     "package_count": 1
                 },
@@ -234,6 +234,25 @@
                 "temp_path": null
             }
         ]
+    },
+    "staged_resolution": {
+        "execution_state": "skipped",
+        "status": "unknown",
+        "provider": "laravel",
+        "stages": [],
+        "blocker_registry": [],
+        "stop_reason": "guidance_gap",
+        "budgets": {
+            "max_hops": 6,
+            "max_attempts_per_stage": 3,
+            "max_scenarios": 18,
+            "scenario_timeout_seconds": 300,
+            "aggregate_timeout_seconds": 1800,
+            "memory_bytes": 268435456,
+            "json_report_bytes": 524288,
+            "markdown_report_bytes": 262144
+        },
+        "evidence": []
     },
     "transition": {
         "package_changes": [

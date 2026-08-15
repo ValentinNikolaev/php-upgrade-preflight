@@ -1,6 +1,6 @@
 # PHP Upgrade Preflight Development Plan
 
-Last updated: 2026-08-11
+Last updated: 2026-08-14
 
 - Active tool/package target: `0.3.0`
 - Released baseline: `0.2.1`
@@ -9,7 +9,7 @@ Last updated: 2026-08-11
 
 This roadmap supersedes the archived [v0.2.0 implementation plan](DEVELOPMENT_PLAN_0.2.0.md), which also records the v0.2.1 release-hardening closeout. The archive was copied from the completed plan before this file was replaced.
 
-v0.3 turns the v0.2 final-target preflight into a reproducible staged analysis. It should accept an explicit target platform, run Composer for each evidence-backed framework hop, and tie package changes, blockers, source impact, risk, effort, and recommended actions to the stage that produced them. It remains an analyzer, not an upgrade executor.
+v0.3 turns the v0.2 final-target preflight into a reproducible staged analysis. It should accept an explicit target platform, run Composer for each evidence-backed framework hop, simulate bounded dependency remediations inside analyzer-owned workspaces, carry the selected candidate project state into the next hop, and tie package changes, every blocker, source impact, risk, effort, and recommended actions to the stage and attempt that produced them. It remains an analyzer, not an upgrade executor.
 
 ## How to Use This Plan
 
@@ -55,8 +55,9 @@ The current version values and release policy remain authoritative until Milesto
 | Gap | Repository evidence | Roadmap response |
 | --- | --- | --- |
 | Unlisted extensions still come from the analyzer host | [Schema platform provenance](../docs/schema.md) and [limitations](../docs/limitations.md) state that v0.2 inputs are only partial | Milestone 1 |
-| Composer solves the requested final target, not each framework hop | The [v0.2 contract](../docs/v0.2-contract.md) explicitly labels hops as guidance without feasibility | Milestone 3 |
-| Package changes and source impact describe only the selected final-target lock | [Limitations](../docs/limitations.md) exclude intermediate-hop package predictions | Milestone 4 |
+| Composer solves the requested final target, not each framework hop | The [v0.2 contract](../docs/v0.2-contract.md) explicitly labels hops as guidance without feasibility | Milestone 0 demo-blocking vertical slice, then Milestone 3 |
+| Package changes and source impact describe only the selected final-target lock | [Limitations](../docs/limitations.md) exclude intermediate-hop package predictions | Milestone 0 demo-blocking vertical slice, then Milestone 4 |
+| Blockers are a final-target collection without stage, attempt, or lifecycle identity | [`BlockerGrouper`](../packages/core/src/Analysis/BlockerGrouper.php) can merge equivalent scenario diagnostics, but schema `0.7` cannot show several blockers being discovered, partially remediated, resolved, or retained across a hop chain | Milestone 0 demo-blocking vertical slice, then Milestones 3 and 4 |
 | Framework adapters cannot contribute concrete staged Composer targets | [`FrameworkTransitionProvider`](../packages/core/src/Framework/FrameworkTransitionProvider.php) assesses guidance only | Milestones 0, 3, and 5 |
 | The v0.2 contract test also asserts live development and release identity | [`V02ContractTest`](../tests/Release/V02ContractTest.php) mixes historical compatibility with active-series policy | Milestone 0 |
 | More Composer processes increase host, network, credential, time, and report-size variance | [`ComposerScenarioRunner`](../packages/core/src/Composer/ComposerScenarioRunner.php) currently owns fixed executable, environment, and timeout behavior | Milestones 2 and 6 |
@@ -74,7 +75,7 @@ v0.3.0 should deliver reproducible staged upgrade analysis:
 - a versioned target-platform profile with honest partial and complete semantics;
 - explicit Composer execution provenance plus a restricted Composer mode with sanitized configuration and environment, best-effort offline behavior, and clearly stated residual process/OS boundaries;
 - actual isolated Composer evidence for every reported feasible framework stage;
-- stage-scoped package changes, blockers, source impact, risk, effort, and plan actions;
+- stage-scoped package changes, a multiple-blocker registry with remediation history, source impact, risk, effort, and plan actions;
 - an optional stage-target adapter contract that preserves the existing required interfaces and documents source-level migration across the `0.MINOR` boundary;
 - schema `0.8` with a documented `0.7` migration;
 - the existing PHP `^8.0` runtime floor and the three-package release set.
@@ -87,6 +88,8 @@ In scope:
 
 - complete and partial target-platform profiles;
 - framework-neutral stage planning and bounded sequential Composer scenarios;
+- bounded sandbox-only simulation of dependency-constraint and locked-package remediations between Composer attempts and framework stages;
+- a stage- and attempt-scoped blocker registry that retains multiple simultaneous, newly revealed, resolved, persistent, and superseded blockers;
 - Laravel stage targets for the already supported transition matrix;
 - global source inventory with stage-scoped actionable correlations;
 - source/interface compatibility for old-style adapter implementations re-released with a v0.3-compatible Composer constraint, plus new-adapter conformance tests;
@@ -94,8 +97,8 @@ In scope:
 
 Out of scope:
 
-- modifying application source, `composer.json`, `composer.lock`, or `vendor/`;
-- applying one stage's proposed changes before scanning later stages;
+- modifying the original analyzed application's source, `composer.json`, `composer.lock`, or `vendor/`;
+- applying source-code or configuration-file remediations to the original project, or claiming that a source blocker was resolved without new evidence;
 - pull-request creation, hosted uploads, dashboards, telemetry, or SaaS storage;
 - AI-generated compatibility claims or migration instructions;
 - booting or executing the analyzed application during deterministic analysis;
@@ -109,6 +112,7 @@ Out of scope:
 ## Inherited Product and Test Rules
 
 - Keep public positioning consistent: PHP Upgrade Preflight is a source-available public beta under PolyForm Noncommercial 1.0.0, not an Open Source or production-ready product. Reports provide decision-support evidence and never guarantee application runtime compatibility or deployment success.
+- Keep the public commercial-license contact on the canonical request form. Until the copyright holder adopts a legally reviewed contributor license agreement or another suitable inbound license grant, accept documentation-only contributions but not external code; continue to welcome bug reports, private security reports, and product feedback.
 - Composer remains the dependency solver. Never infer a successful stage without running it.
 - Treat the analyzed project as immutable input. Run every mutation in an analyzer-owned temporary workspace.
 - Keep core framework-neutral. Framework packages own detection, targets, rule catalogs, source defaults, and package families.
@@ -128,25 +132,43 @@ Maintain four test layers:
 
 Priority: P0. Complete before changing production report shape or active development identity.
 
-- [ ] Archive signed v0.2.1 canonical reports and the public PHP, CLI, Artisan, adapter-metadata, exit-policy, schema `0.7`, and Laravel-transition behavior needed for immutable compatibility checks.
-- [ ] Split historical v0.2 compatibility assertions from live development-version and release-policy assertions. Do not weaken or search-and-replace [`V02ContractTest`](../tests/Release/V02ContractTest.php).
-- [ ] Add a machine-readable v0.3 contract and dedicated tests for every new status, field, ordering rule, stop condition, compatibility promise, and budget.
-- [ ] Define direct final-target resolution, framework guidance coverage, and staged Composer resolution as separate report dimensions. None may silently upgrade another.
-- [ ] Define stage execution states such as `evaluated` and `skipped` separately from resolution statuses (`feasible`, `feasible_with_changes`, `blocked`, and `unknown`), including behavior after a missing target, ambiguous transition, guidance gap, solver blocker, timeout, or operational failure.
-- [ ] Lock how a stage receives exact package targets and an exact analysis PHP value from request evidence and adapter metadata. Never turn a minimum PHP constraint into an unexplained deployment claim.
-- [ ] Approve schema `0.8` and its `0.7` migration, then add the immutable schema file and minimal canonical serialization fixture before Milestone 1 emits new fields. Preserve every historical schema and report checksum.
-- [ ] Define a versioned target-platform-profile contract, its partial/complete semantics, supported Composer platform-package classes, conflict rules with existing PHP and extension inputs, and the Composer-version capability policy.
-- [ ] Require Composer 2.2 or newer for a complete closed-world profile. An older Composer must yield a canonical operationally unknown result and must not silently downgrade the request to partial coverage.
-- [ ] Define an optional stage-target provider contract without adding methods to the required v0.2 adapter interfaces.
-- [ ] Limit v0.3 staged solving to one active stage-target provider. If several active adapters provide stages, continue their ordinary rules but skip staged solving with deterministic conflict evidence.
-- [ ] Set maximum hop and scenario counts plus per-stage and aggregate runtime, memory, report-size, redaction, and deterministic-ordering budgets.
-- [ ] Record the decision to keep Symfony, CodeIgniter, PHAR, container, and runtime-floor changes out of v0.3.
+- [x] Archive signed v0.2.1 canonical reports and the public PHP, CLI, Artisan, adapter-metadata, exit-policy, schema `0.7`, and Laravel-transition behavior needed for immutable compatibility checks.
+- [x] Split historical v0.2 compatibility assertions from live development-version and release-policy assertions. Do not weaken or search-and-replace [`V02ContractTest`](../tests/Release/V02ContractTest.php).
+- [x] Add a machine-readable v0.3 contract and dedicated tests for every new status, field, ordering rule, stop condition, compatibility promise, and budget.
+- [x] Define direct final-target resolution, framework guidance coverage, and staged Composer resolution as separate report dimensions. None may silently upgrade another.
+- [x] Define a blocker registry as an ordered collection, never a singleton or nullable shortcut. Give every entry stable identity plus stage, attempt, scenario, category, subject, blocking package, constraint, dependency path, confidence, evidence, first-seen, last-seen, and lifecycle fields.
+- [x] Define blocker lifecycles for at least `detected`, `persists`, `resolved`, and `superseded`. A remediation may resolve zero, one, or several blockers and may reveal additional blockers; later success must retain the earlier records and the evidence-backed transition that closed them.
+- [x] Define deterministic de-duplication separately within an attempt, across remediation attempts in one stage, and across stages. Similar prose or package names must not collapse distinct constraints, dependency paths, platforms, or stages.
+- [x] Define bounded dependency-remediation simulation: which root constraints and locked direct/transitive packages may change, how candidates are ordered, how each attempted change is recorded, and how a selected successful candidate manifest and lock become the next stage's input without touching the analyzed project.
+- [x] Define the stage gate over the complete blocker set: a stage passes only when a full-target Composer scenario succeeds and every blocking registry entry for the selected attempt is resolved or explicitly non-blocking. Do not advance because one prominent blocker disappeared while others remain.
+- [x] Define stage execution states such as `evaluated` and `skipped` separately from resolution statuses (`feasible`, `feasible_with_changes`, `blocked`, and `unknown`), including behavior after a missing target, ambiguous transition, guidance gap, solver blocker, timeout, or operational failure.
+- [x] Lock how a stage receives exact package targets and an exact analysis PHP value from request evidence and adapter metadata. Never turn a minimum PHP constraint into an unexplained deployment claim.
+- [x] Define an optional stage-target provider contract without adding methods to the required v0.2 adapter interfaces.
+- [x] Approve schema `0.8` and its `0.7` migration, then add the immutable schema file and minimal canonical serialization fixture before Milestone 1 emits new fields. Preserve every historical schema and report checksum.
+
+### Demo-blocking staged vertical slice
+
+This slice is part of Milestone 0 and must be completed before refreshing or publishing the five-minute demo. It is deliberately placed before the broader platform-profile and restricted-execution work because a final-target-only demo would misrepresent the v0.3 product. Later milestones harden and generalize this slice; they must not postpone its core behavior.
+
+- [x] Add the minimal framework-neutral stage-target provider and Laravel implementation needed to turn a covered Laravel 10→13 path into stable adjacent stages with exact package targets and evidence-backed PHP values.
+- [x] Build the minimal sequential orchestrator: start from the original manifest and lock, solve one adjacent hop in an isolated workspace, run bounded remediation attempts when it is blocked, select an evidenced candidate state only after the whole blocker set clears, and feed that state into the next hop.
+- [x] Populate the multiple-blocker registry from every Composer attempt. Preserve blockers resolved by an intermediate dependency update, blockers that persist, and blockers newly exposed after another blocker is removed.
+- [x] Add one committed offline Laravel 10→13 fixture that proves all of the following in one run: multiple simultaneous blockers are retained; an intermediate dependency update resolves only a subset before a later attempt clears the hop; at least one middle hop becomes Composer-feasible; a later hop exposes a different package or platform blocker plus a source-level incompatibility; execution stops without claiming the unresolved source change was applied; and every original fixture byte remains unchanged.
+- [x] Emit the vertical slice through the schema `0.8` development model and JSON-first assertions. The report must distinguish direct-final resolution from staged resolution, list every stage and attempt, link predecessor/output state fingerprints, and project the same blocker lifecycle into Markdown.
+- [x] Gate the demo script, checked-in example reports, and terminal GIF on that fixture and its canonical report. Do not substitute hand-authored stage snapshots or presentation-only output for the sequential analyzer evidence.
+- [x] Keep the vertical slice deterministic and offline with committed path repositories. Do not make public reproducibility, restricted-execution, or complete-platform claims until Milestones 1, 2, 3, 4, and 6 supply their corresponding gates.
+
+- [x] Define a versioned target-platform-profile contract, its partial/complete semantics, supported Composer platform-package classes, conflict rules with existing PHP and extension inputs, and the Composer-version capability policy.
+- [x] Require Composer 2.2 or newer for a complete closed-world profile. An older Composer must yield a canonical operationally unknown result and must not silently downgrade the request to partial coverage.
+- [x] Limit v0.3 staged solving to one active stage-target provider. If several active adapters provide stages, continue their ordinary rules but skip staged solving with deterministic conflict evidence.
+- [x] Set maximum hop and scenario counts plus per-stage and aggregate runtime, memory, report-size, redaction, and deterministic-ordering budgets.
+- [x] Record the decision to keep Symfony, CodeIgniter, PHAR, container, and runtime-floor changes out of v0.3.
 - [ ] Create and protect the v0.2.x maintenance branch while the tree still carries its `0.2.x` verifier, aliases, and constraints.
-- [ ] Atomically switch `main` to the approved v0.3 development report identity, schema `0.8`, `0.3.x-dev` aliases, `^0.3` internal constraints, and a verifier/workflow that permits only `0.3.x` from `main`.
+- [x] Atomically switch `main` to the approved v0.3 development report identity, schema `0.8`, `0.3.x-dev` aliases, `^0.3` internal constraints, and a verifier/workflow that permits only `0.3.x` from `main`.
 
-Acceptance gate: immutable v0.2.1 evidence remains green, the maintenance branch can still verify `0.2.x`, and `main` identifies every subsequent feature build as v0.3 under schema `0.8` after a machine-checked contract defines the new input, execution, stage, compatibility, budget, and release policy.
+Acceptance gate: immutable v0.2.1 evidence remains green; the maintenance branch can still verify `0.2.x`; the offline Laravel 10→13 vertical slice carries candidate state across adjacent hops, retains and transitions multiple blockers without mutating the fixture, and prevents the demo from running on final-target-only evidence; and `main` identifies every subsequent feature build as v0.3 under schema `0.8` after a machine-checked contract defines the new input, execution, stage, compatibility, budget, and release policy.
 
-Status: not started.
+Status: in progress. Implementation and verification are complete; GitHub branch protection awaits maintainer reauthentication.
 
 ## Milestone 1: Complete Target-Platform Profiles
 
@@ -185,23 +207,23 @@ Acceptance gate: every report states enough non-secret execution context to inte
 
 Status: not started.
 
-## Milestone 3: Sequential Per-Stage Composer Solving
+## Milestone 3: Productionize Sequential Per-Stage Composer Solving
 
 Priority: P0.
 
-- [ ] Add the optional framework-neutral stage-target provider approved in Milestone 0 without changing the existing required interfaces. Old-style implementations remain source-compatible when re-released with a Core v0.3-compatible Composer constraint.
-- [ ] Adapt the Laravel catalog to expose concrete adjacent package targets, evidence-backed PHP requirements, and stable stage IDs for every already supported hop, including the retained 7→8 foundation.
-- [ ] Build a deterministic stage plan from the assessed contiguous framework path of the one active stage provider. Do not cross a provider conflict, ambiguous endpoint, missing hop, unsupported range, or post-gap rule pack.
+- [ ] Harden the Milestone 0 optional framework-neutral stage-target provider without changing the existing required interfaces. Old-style implementations remain source-compatible when re-released with a Core v0.3-compatible Composer constraint.
+- [ ] Extend the Laravel vertical-slice targets to every already supported hop, including the retained 7→8 foundation, with evidence-backed PHP requirements and stable stage IDs.
+- [ ] Generalize the Milestone 0 stage plan across the assessed contiguous framework path of the one active stage provider. Do not cross a provider conflict, ambiguous endpoint, missing hop, unsupported range, or post-gap rule pack.
 - [ ] Apply the approved exact-stage-PHP selection rule using current PHP, final target PHP, and adapter evidence; emit uncertainty instead of guessing when no safe exact value exists.
-- [ ] Run bounded isolated Composer strategies for the first stage from the original manifest, lock, effective platform, and execution policy, then build each later stage only from the preceding selected candidate project state.
+- [ ] Run bounded isolated Composer strategies and remediation rounds for the first stage from the original manifest, lock, effective platform, and execution policy, then build each later stage only from the preceding selected candidate project state.
 - [ ] Preserve the existing direct final-target resolution independently so consumers can compare direct feasibility with staged feasibility.
-- [ ] Stop at the first blocked, unknown, operationally failed, or unselectable stage and mark later stages skipped with evidence-backed reasons.
-- [ ] Record each stage's targets, scenarios, selected result, root changes relative to the preceding state, package changes, blockers, platform, execution policy, duration, and evidence. Fingerprint the canonical input and output manifest, lock, effective platform, and execution policy as one candidate-project-state chain.
-- [ ] Deduplicate diagnostics without merging evidence from different stages or allowing a later success to erase an earlier blocker.
-- [ ] Cover feasible single- and multi-hop chains, a blocked middle hop, timeout, cleanup failure, missing hop, ambiguous source and target, modular Illuminate, direct 7→9, and deterministic scenario-cap behavior.
+- [ ] Stop only after the bounded remediation policy leaves one or more blocking registry entries unresolved, or after an unknown, operationally failed, or unselectable stage; mark later stages skipped with evidence-backed reasons.
+- [ ] Record each stage's targets, remediation attempts, scenarios, selected result, root changes relative to the preceding state, package changes, complete blocker registry, platform, execution policy, duration, and evidence. Fingerprint the canonical input and output manifest, lock, effective platform, and execution policy as one candidate-project-state chain.
+- [ ] Deduplicate diagnostics without merging evidence from different attempts or stages, without collapsing multiple blockers into a primary blocker, and without allowing a later success to erase a resolved blocker's history.
+- [ ] Cover feasible single- and multi-hop chains, several simultaneous blockers, partial remediation, a newly revealed blocker, a blocked middle hop, timeout, cleanup failure, missing hop, ambiguous source and target, modular Illuminate, direct 7→9, and deterministic scenario/remediation-cap behavior.
 - [ ] Prove the original target fixture remains byte-for-byte unchanged for success, failure, timeout, and debug cleanup paths.
 
-Acceptance gate: every reported feasible stage has its own Composer evidence, every later manifest/lock/platform/execution input is digest-linked to the selected preceding output, direct and staged results remain independent, and no result appears after a provider conflict or unresolved gap.
+Acceptance gate: every reported feasible stage has its own Composer evidence; every later manifest/lock/platform/execution input is digest-linked to the selected preceding output; every blocker remains individually traceable through all attempts and lifecycle transitions; direct and staged results remain independent; and no result appears after a provider conflict, unresolved blocker set, or unresolved gap.
 
 Status: not started.
 
@@ -285,6 +307,7 @@ Status: not started.
 | Risk | Control |
 | --- | --- |
 | Scenario explosion across long transitions | Contract caps, early stop, diagnostic caching, and per-stage plus aggregate budgets |
+| Remediation branching or multiple blockers cause combinatorial growth | Deterministic candidate ordering, per-stage attempt caps, complete blocker-set gates, and explicit uncertainty when the bounded search cannot prove a path |
 | False confidence from a `complete` profile | Closed-world semantics, explicit modeled classes, cross-host proofs, and narrower claims when proof fails |
 | Corrupt sequential state | Canonical manifest, lock, platform, and execution-policy digests plus a strict selected-predecessor chain |
 | Schema consumer breakage | Immutable schema `0.7`, new schema `0.8`, dual-version fixtures, and migration documentation |
@@ -308,4 +331,4 @@ Status: not started.
 
 ## Recommended Next Work Session
 
-Start Milestone 0 by freezing signed v0.2.1 report and interface artifacts, then separate immutable v0.2 compatibility assertions from live release-series assertions before changing any version, schema, or production behavior.
+Complete GitHub reauthentication so the prepared `0.2.x` protection rule can be saved, then begin Milestone 1 target-platform profiles.

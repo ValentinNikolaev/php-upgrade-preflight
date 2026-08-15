@@ -24,8 +24,7 @@ final class ComposerBlockerParser
         $blockers = [];
 
         foreach ($result->diagnostics() as $diagnostic) {
-            $blocker = $this->fromDiagnostic($diagnostic, $evidenceId, $platform);
-            if ($blocker !== null) {
+            foreach ($this->fromDiagnostic($result, $diagnostic, $evidenceId, $platform) as $blocker) {
                 $blockers[] = $blocker;
             }
         }
@@ -42,50 +41,99 @@ final class ComposerBlockerParser
         );
     }
 
+    /** @return list<Blocker> */
     private function fromDiagnostic(
+        ScenarioResult $result,
         ComposerDiagnostic $diagnostic,
         string $evidenceId,
         ?TargetPlatform $platform
-    ): ?Blocker {
+    ): array {
         $output = trim($diagnostic->stdout() . "\n" . $diagnostic->stderr());
         if ($output === '') {
-            return null;
+            return [];
         }
 
         $relations = $this->relations($output);
         if ($relations === []) {
-            return null;
+            return [];
         }
 
         $subject = strtolower($diagnostic->package());
-        $relation = null;
+        $matchingRelations = [];
         foreach ($relations as $candidate) {
-            if ($candidate['dependency'] === $subject) {
-                $relation = $candidate;
-                break;
+            if ($candidate['dependency'] === $subject
+                && !$this->isExplicitlyUpdatedBlockingPackage($result, $candidate['package'], $subject)) {
+                $matchingRelations[] = $candidate;
             }
         }
-        $relation = $relation ?? $relations[0];
-        $subject = $relation['dependency'];
-        $type = $this->relationType(
-            $relation['operation'],
-            $subject,
-            $diagnostic->constraint(),
-            $relation['constraint'],
-            $platform
-        );
+        if ($matchingRelations === []) {
+            foreach ($relations as $candidate) {
+                if (!$this->isExplicitlyUpdatedBlockingPackage($result, $candidate['package'], $subject)) {
+                    $matchingRelations[] = $candidate;
+                    break;
+                }
+            }
+        }
+        if ($matchingRelations === []) {
+            return [];
+        }
 
-        return $this->blocker(
-            $type,
-            $subject,
-            $diagnostic->constraint(),
-            $relation['package'],
-            $relation['version'],
-            $relation['constraint'],
-            $this->dependencyPath($relations, $subject),
-            $evidenceId,
-            $type === 'extension-version-unknown' ? 'medium' : 'high'
-        );
+        $blockers = [];
+        $seen = [];
+        foreach ($matchingRelations as $relation) {
+            $relationSubject = $relation['dependency'];
+            $identity = preg_match('~^' . self::PLATFORM_PATTERN . '$~i', $relationSubject) === 1
+                ? serialize([$relationSubject, $relation['operation'], $relation['constraint']])
+                : serialize([
+                    $relationSubject,
+                    $relation['package'],
+                    $relation['version'],
+                    $relation['operation'],
+                    $relation['constraint'],
+                ]);
+            if (isset($seen[$identity])) {
+                continue;
+            }
+            $seen[$identity] = true;
+            $type = $this->relationType(
+                $relation['operation'],
+                $relationSubject,
+                $diagnostic->constraint(),
+                $relation['constraint'],
+                $platform
+            );
+            $blockers[] = $this->blocker(
+                $type,
+                $relationSubject,
+                $diagnostic->constraint(),
+                $relation['package'],
+                $relation['version'],
+                $relation['constraint'],
+                $this->dependencyPath($relations, $relationSubject),
+                $evidenceId,
+                $type === 'extension-version-unknown' ? 'medium' : 'high'
+            );
+        }
+
+        return $blockers;
+    }
+
+    private function isExplicitlyUpdatedBlockingPackage(
+        ScenarioResult $result,
+        string $blockingPackage,
+        string $subject
+    ): bool {
+        if ($blockingPackage === $subject) {
+            return false;
+        }
+
+        foreach ($result->scenario()->targets()->packageTargets() as $target) {
+            if ($target->package() === $blockingPackage) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private function fromOutput(
@@ -235,7 +283,7 @@ final class ComposerBlockerParser
     {
         $relations = [];
         $pattern = '~(' . self::PACKAGE_PATTERN . ')\s+([^\s]+)\s+(requires|conflicts with|replaces|provides)\s+(' . self::PLATFORM_PATTERN . '|' . self::PACKAGE_PATTERN . ')(?:\s+(.+))?~i';
-        $treePattern = '~(' . self::PACKAGE_PATTERN . ')(?:\s+([^\s(]+))?\s+\((requires|conflicts with|replaces|provides)\s+(' . self::PLATFORM_PATTERN . '|' . self::PACKAGE_PATTERN . ')(?:\s+(.+))?\)\s*$~i';
+        $treePattern = '~(' . self::PACKAGE_PATTERN . ')(?:\s+([^\s(]+))?\s+\((requires|conflicts(?: with)?|replaces|provides)\s+(' . self::PLATFORM_PATTERN . '|' . self::PACKAGE_PATTERN . ')(?:\s+(.+?))?\)\s*(?:\(circular dependency aborted here\))?\s*$~i';
 
         foreach (preg_split('/\R/', $output) ?: [] as $line) {
             if (preg_match($pattern, $line, $matches) !== 1
@@ -244,10 +292,11 @@ final class ComposerBlockerParser
             }
 
             $constraint = isset($matches[5]) ? preg_split('/\s+->\s+/', $matches[5], 2)[0] : null;
+            $operation = strtolower($matches[3]);
             $relations[] = [
                 'package' => strtolower($matches[1]),
                 'version' => $matches[2] === '' ? null : $matches[2],
-                'operation' => strtolower($matches[3]),
+                'operation' => $operation === 'conflicts' ? 'conflicts with' : $operation,
                 'dependency' => strtolower($matches[4]),
                 'constraint' => $constraint === null ? null : $this->cleanConstraint($constraint),
             ];
@@ -365,6 +414,7 @@ final class ComposerBlockerParser
     private function cleanConstraint(string $constraint): ?string
     {
         $constraint = trim($constraint);
+        $constraint = preg_replace('/\s+but it is missing$/i', '', $constraint) ?? $constraint;
         $constraint = trim($constraint, " \t\n\r\0\x0B().,;");
 
         return $constraint === '' ? null : $constraint;

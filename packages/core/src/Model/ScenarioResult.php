@@ -40,6 +40,7 @@ final class ScenarioResult
     /** @var list<ComposerDiagnostic> */
     private array $diagnostics;
     private bool $exposeTempPath;
+    private ?ProjectState $candidateProjectState;
 
     public function __construct(
         Scenario $scenario,
@@ -55,7 +56,8 @@ final class ScenarioResult
         ?CandidateLockEvidence $candidateLockEvidence = null,
         array $diagnostics = [],
         ?string $outcome = null,
-        bool $exposeTempPath = false
+        bool $exposeTempPath = false,
+        ?ProjectState $candidateProjectState = null
     ) {
         if ($failureType !== null && !in_array($failureType, [self::FAILURE_SOLVER, self::FAILURE_OPERATIONAL, self::FAILURE_VALIDATION], true)) {
             throw new \InvalidArgumentException(sprintf('Unsupported scenario failure type "%s".', $failureType));
@@ -98,6 +100,9 @@ final class ScenarioResult
         if ($outcome !== self::OUTCOME_SUCCESS && $lock !== null) {
             throw new \InvalidArgumentException('A failed scenario outcome cannot contain a candidate lock.');
         }
+        if ($outcome !== self::OUTCOME_SUCCESS && $candidateProjectState !== null) {
+            throw new \InvalidArgumentException('A failed scenario outcome cannot contain a candidate project state.');
+        }
 
         $this->scenario = $scenario;
         $this->exitCode = $exitCode;
@@ -113,6 +118,7 @@ final class ScenarioResult
         $this->candidateLockEvidence = $candidateLockEvidence ?? ($lock === null ? null : CandidateLockEvidence::fromLock($lock));
         $this->diagnostics = array_values($diagnostics);
         $this->exposeTempPath = $exposeTempPath;
+        $this->candidateProjectState = $candidateProjectState;
     }
 
     public function scenario(): Scenario
@@ -174,6 +180,11 @@ final class ScenarioResult
     public function candidateLockEvidence(): ?CandidateLockEvidence
     {
         return $this->candidateLockEvidence;
+    }
+
+    public function candidateProjectState(): ?ProjectState
+    {
+        return $this->candidateProjectState;
     }
 
     /** @return list<ComposerDiagnostic> */

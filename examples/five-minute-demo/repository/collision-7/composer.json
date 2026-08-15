@@ -1,0 +1,16 @@
+{
+  "name": "nunomaduro/collision",
+  "description": "Metadata-only model of the Laravel conflict declared by Collision 7.11.0.",
+  "version": "7.11.0",
+  "type": "metapackage",
+  "license": "MIT",
+  "require": {
+    "php": "^8.1.0"
+  },
+  "conflict": {
+    "laravel/framework": ">=11.0.0"
+  },
+  "support": {
+    "source": "https://github.com/nunomaduro/collision/tree/v7.11.0"
+  }
+}

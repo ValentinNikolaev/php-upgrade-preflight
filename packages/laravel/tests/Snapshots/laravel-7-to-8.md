@@ -1,6 +1,6 @@
 # PHP Upgrade Preflight Report
 
-Resolution: **feasible_with_changes** | Schema: `0.7` | Tool: `php-upgrade-preflight 0.2.1`
+Resolution: **feasible_with_changes** | Staged: **unknown** | Schema: `0.8` | Tool: `php-upgrade-preflight 0.3.0-dev`
 
 ## Analysis Request
 - Project: `<PROJECT_PATH>`
@@ -37,7 +37,7 @@ Resolution: **feasible_with_changes** | Schema: `0.7` | Tool: `php-upgrade-prefl
     Fixture baseline is valid.
     ```
   - stderr excerpt: *(empty)*
-  - candidate lock: SHA-256 `f5c68267ae8dd17ac99cb55577fe45208367c358e8be650d2b908d6c2207ca18`, content hash `laravel-7-to-8`, packages `1`
+  - candidate lock: SHA-256 `2680ac963ce716e4ae164553599a4ba190c5161873966399eff009d609750554`, content hash `laravel-7-to-8`, packages `1`
   - diagnostics: none
 - `exact-target`: succeeded (outcome `success`, Composer `unknown`, duration `1 ms`, exit `0`, failure type `none`)
   - command argv: `["composer","update","laravel/framework","--no-scripts","--no-plugins","--no-install","--no-audit","--no-progress","--no-interaction"]`
@@ -77,7 +77,7 @@ Resolution: **feasible_with_changes** | Schema: `0.7` | Tool: `php-upgrade-prefl
     Fixture target resolved.
     ```
   - stderr excerpt: *(empty)*
-  - candidate lock: SHA-256 `f5c68267ae8dd17ac99cb55577fe45208367c358e8be650d2b908d6c2207ca18`, content hash `laravel-7-to-8`, packages `1`
+  - candidate lock: SHA-256 `2680ac963ce716e4ae164553599a4ba190c5161873966399eff009d609750554`, content hash `laravel-7-to-8`, packages `1`
   - diagnostics: none
 - `staged-targets`: succeeded (outcome `success`, Composer `unknown`, duration `1 ms`, exit `0`, failure type `none`)
   - command argv: `["composer","update","laravel/framework","--with-all-dependencies","--no-scripts","--no-plugins","--no-install","--no-audit","--no-progress","--no-interaction"]`
@@ -89,6 +89,12 @@ Resolution: **feasible_with_changes** | Schema: `0.7` | Tool: `php-upgrade-prefl
   - stderr excerpt: *(empty)*
   - candidate lock: SHA-256 `8ae5491363cf02faf31066502efc71434bfea78b873276b1cabb7962f9f8371a`, content hash `candidate-v8.83.27`, packages `1`
   - diagnostics: none
+
+## Staged Composer Resolution
+- Execution: `skipped`; status: `unknown`; provider: `laravel`; stop reason: `guidance_gap`
+- No framework stages were executed.
+- Blocker registry:
+  - None recorded.
 
 ## Package Changes
 - `laravel/framework`: upgraded `v7.30.7` -> `v8.83.27` (direct dependency; major-version jump; families: laravel)

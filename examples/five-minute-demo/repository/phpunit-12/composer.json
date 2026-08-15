@@ -1,0 +1,10 @@
+{
+  "name": "phpunit/phpunit",
+  "description": "Metadata-only PHPUnit 12 candidate for the staged offline demo.",
+  "version": "12.0.0",
+  "type": "metapackage",
+  "license": "BSD-3-Clause",
+  "require": {
+    "php": "^8.3"
+  }
+}

@@ -1,0 +1,42 @@
+name: Product feedback
+description: Share product or documentation feedback without submitting code.
+title: "[Feedback]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Product and documentation feedback is welcome. External code contributions are not currently accepted. Do not include credentials, private source code, security vulnerability details, or other sensitive information. Report security vulnerabilities privately through the [repository security policy](https://github.com/ValentinNikolaev/php-upgrade-preflight/blob/main/SECURITY.md).
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Analysis behavior
+        - Reports and schema
+        - Installation or command-line experience
+        - Documentation
+        - Framework coverage
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: feedback
+    attributes:
+      label: Feedback
+      description: Describe the problem, need, or documentation improvement.
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Add non-confidential context that would help evaluate the feedback.
+  - type: checkboxes
+    id: acknowledgements
+    attributes:
+      label: Acknowledgements
+      options:
+        - label: I have removed credentials, private source code, vulnerability details, and other sensitive information.
+          required: true
+        - label: I understand that this issue does not authorize an external code contribution.
+          required: true

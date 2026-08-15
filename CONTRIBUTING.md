@@ -4,6 +4,14 @@ Contributions should keep target projects immutable, report uncertainty explicit
 
 PHP Upgrade Preflight is a source-available public beta, not an Open Source project. Noncommercial use is permitted under the repository's [PolyForm Noncommercial License 1.0.0](LICENSE); commercial use requires a separate license. Contributions do not change that licensing model. See [Project status and licensing](docs/project-status.md) before contributing.
 
+## Accepted contributions
+
+Documentation-only contributions are welcome. They must be limited to explanatory prose and documentation examples and must not change source code, tests, fixtures, workflows, package or build metadata, generated files, or runtime behavior.
+
+External code contributions are not currently accepted. This temporary policy remains in place until the copyright holder adopts a legally reviewed contributor license agreement or another inbound license grant that supports the project's licensing model. Please do not submit implementation patches or other code-bearing pull requests; maintainers may close them without review.
+
+Bug reports and product feedback remain welcome through [GitHub issues](https://github.com/ValentinNikolaev/php-upgrade-preflight/issues). A bug report does not authorize a code contribution. Report security vulnerabilities privately through [the security policy](SECURITY.md), not through an issue or pull request.
+
 ## Set up the repository
 
 ```bash
@@ -58,7 +66,7 @@ docker compose run --rm php composer test:fixtures
 
 The six Laravel fixture reports are approval tests. Review both formats after an intentional behavior change, then regenerate them.
 
-The v0.1 compatibility manifest at `tests/fixtures/contracts/v0.1.json` locks the public PHP operation, generic CLI surface, exit policy, schema `0.6`, and byte-for-byte report artifacts archived from the signed `v0.1.0` tag under `tests/fixtures/contracts/v0.1/laravel-reports`. Current development snapshots remain separate under `packages/laravel/tests/Snapshots`. Do not update the archived reports or manifest during ordinary snapshot regeneration. A correction to the released v0.1 baseline requires explicit compatibility review and documented provenance.
+The v0.1 and v0.2.1 compatibility manifests lock their public operations, command surfaces, exit policies, schemas, and byte-for-byte signed report artifacts under `tests/fixtures/contracts/v0.1` and `tests/fixtures/contracts/v0.2.1`. Current schema 0.8 snapshots remain separate under the package test trees. Do not update either archive during ordinary snapshot regeneration; a released-baseline correction requires explicit compatibility review and documented provenance.
 
 POSIX shell:
 
@@ -88,23 +96,21 @@ Keep existing schema files immutable. A breaking or additive report-shape change
 
 ## Pull requests
 
-- Add focused tests for behavior changes and regression cases.
-- Run `composer check` before opening the pull request.
-- Update public documentation when command behavior or report semantics change.
+- Open pull requests only for documentation-only changes allowed by the [accepted-contributions policy](#accepted-contributions).
+- Check links, commands, version claims, and examples in the changed documentation.
+- Run the relevant documentation and policy checks before opening the pull request.
 - Do not commit preserved debug workspaces, generated reports, credentials, or unrelated formatting changes.
 
 Report security issues through [SECURITY.md](SECURITY.md), not a public issue.
 
-By contributing, you agree that your contribution is licensed under the repository's [PolyForm Noncommercial License 1.0.0](LICENSE).
-
 ## Releases and versions
 
-Run the release workflow manually to exercise the release gates and build archives without publishing. A matching annotated, GitHub-verified `vMAJOR.MINOR.PATCH` tag on the approved release line reruns the gates and publishes the GitHub release only after the quality, compatibility, fresh-clone, and artifact-consumer jobs succeed. The active `0.2.x` release line publishes from `main`; the signed v0.1 compatibility contract remains frozen and is not regenerated during v0.2 work.
+Run the release workflow manually to exercise the release gates and build archives without publishing. A matching annotated, GitHub-verified `vMAJOR.MINOR.PATCH` tag on the approved release line reruns the gates and publishes the GitHub release only after the quality, compatibility, fresh-clone, and artifact-consumer jobs succeed. The active `0.3.x` release line publishes from `main`; v0.2 maintenance publishes from `0.2.x`, and the signed v0.1 and v0.2 compatibility contracts remain frozen.
 
 Before tagging, run:
 
 ```bash
-composer release:verify -- 0.2.1
+composer release:verify -- 0.3.0
 ```
 
-See [Versioning](docs/versioning.md) for the `0.x` policy and active `0.2.x` release line, and [the release checklist](docs/release-checklist.md) for dependency-inventory, provenance, distribution-repository, and Packagist steps.
+See [Versioning](docs/versioning.md) for the `0.x` policy and active `0.3.x` release line, and [the release checklist](docs/release-checklist.md) for dependency-inventory, provenance, distribution-repository, and Packagist steps.

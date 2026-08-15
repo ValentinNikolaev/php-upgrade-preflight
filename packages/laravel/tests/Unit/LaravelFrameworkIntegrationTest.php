@@ -8,6 +8,7 @@ use PhpUpgradePreflight\Core\Model\ComposerJson;
 use PhpUpgradePreflight\Core\Model\ComposerLock;
 use PhpUpgradePreflight\Core\Model\EvidenceLedger;
 use PhpUpgradePreflight\Core\Model\FrameworkGuidance;
+use PhpUpgradePreflight\Core\Model\FrameworkStagePlan;
 use PhpUpgradePreflight\Core\Model\ProjectState;
 use PhpUpgradePreflight\Core\Model\UpgradeRequest;
 use PhpUpgradePreflight\Core\Model\UpgradeTarget;
@@ -318,6 +319,60 @@ final class LaravelFrameworkIntegrationTest extends TestCase
             $guidance->hops()
         ));
         self::assertSame([], $guidance->toArray()['uncertainties']);
+    }
+
+    public function testMilestoneZeroStagesSkipIlluminateOnlyProjectsWithoutAddingLaravelFramework(): void
+    {
+        $project = new ProjectState(
+            __DIR__,
+            new ComposerJson([
+                'require' => [
+                    'illuminate/console' => '^10.0',
+                    'illuminate/support' => '^10.0',
+                ],
+            ]),
+            new ComposerLock([
+                'packages' => [
+                    ['name' => 'illuminate/console', 'version' => 'v10.48.20'],
+                    ['name' => 'illuminate/support', 'version' => 'v10.48.28'],
+                ],
+            ])
+        );
+        $request = new UpgradeRequest(
+            __DIR__,
+            [new UpgradeTarget('illuminate/support', '^13.0')],
+            '8.1',
+            '8.3'
+        );
+
+        $plan = (new LaravelFrameworkIntegration())->planStages($project, $request, new EvidenceLedger());
+
+        self::assertFalse($plan->isAvailable());
+        self::assertSame(FrameworkStagePlan::REASON_GUIDANCE_GAP, $plan->unavailableReason());
+        self::assertSame([], $plan->stages());
+    }
+
+    public function testMilestoneZeroStagesSkipMixedLaravelFamilyTargets(): void
+    {
+        $project = new ProjectState(
+            __DIR__,
+            new ComposerJson(['require' => ['laravel/framework' => '^10.0']]),
+            new ComposerLock(['packages' => [['name' => 'laravel/framework', 'version' => 'v10.48.28']]])
+        );
+        $request = new UpgradeRequest(
+            __DIR__,
+            [
+                new UpgradeTarget('laravel/framework', '^13.0'),
+                new UpgradeTarget('illuminate/support', '^13.0'),
+            ],
+            '8.1',
+            '8.3'
+        );
+
+        $plan = (new LaravelFrameworkIntegration())->planStages($project, $request, new EvidenceLedger());
+
+        self::assertFalse($plan->isAvailable());
+        self::assertSame(FrameworkStagePlan::REASON_GUIDANCE_GAP, $plan->unavailableReason());
     }
 
     public function testItReportsInconsistentRootedIlluminateLockedMajorsAsUncertainty(): void

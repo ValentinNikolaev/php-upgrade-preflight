@@ -1,0 +1,56 @@
+name: Bug report
+description: Report a reproducible problem without submitting an implementation patch.
+title: "[Bug]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for reporting a problem. External code contributions are not currently accepted. A bug report does not authorize a code contribution. Remove credentials, private source code, and other sensitive information before submitting.
+
+        Report security vulnerabilities privately through the [repository security policy](https://github.com/ValentinNikolaev/php-upgrade-preflight/blob/main/SECURITY.md) instead of this form.
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Which PHP Upgrade Preflight version produced the problem?
+      placeholder: 0.2.1
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Include the operating system and PHP and Composer versions.
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: Describe what happened and what you expected instead.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction steps
+      description: Provide the smallest reproducible sequence without confidential project data.
+    validations:
+      required: true
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: Sanitized diagnostics
+      description: Add relevant output after removing credentials, private URLs, absolute paths, and proprietary source code.
+      render: shell
+  - type: checkboxes
+    id: acknowledgements
+    attributes:
+      label: Acknowledgements
+      options:
+        - label: I have searched existing issues for the same problem.
+          required: true
+        - label: I have removed credentials, private source code, vulnerability details, and other sensitive information.
+          required: true
+        - label: I understand that this issue does not authorize an external code contribution.
+          required: true

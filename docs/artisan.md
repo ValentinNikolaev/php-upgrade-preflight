@@ -48,6 +48,6 @@ Artisan must boot before it can run the command. The v0.2 adapter is host-instal
 
 Laravel guidance covers 7→8, the retained direct 7→9 path, and adjacent 8→9 through 12→13 packs. Gapless adjacent packs compose multi-major guidance. Same-major requests, downgrades, ambiguous or unknown majors, catalog boundaries, and requests whose first required hop is missing are unsupported. A covered prefix before a later gap is `partially_supported`, and guidance stops there.
 
-Schema `0.7` records raw AST observations in `source_inventory`; `source_impact` contains only observations correlated with a selected package change, an applicable Laravel rule, or both. Read `resolution.status` separately from `transition.framework_guidance[].status`: Composer feasibility and rule-pack coverage do not imply one another.
+Schema `0.8` preserves raw `source_inventory` and actionable direct `source_impact`, then adds the same staged result as the generic CLI. Read direct `resolution.status`, `transition.framework_guidance[].status`, and `staged_resolution.status` separately; Composer feasibility and rule-pack coverage do not imply one another.
 
 The command returns `0` after writing any valid report, including a blocked result. It returns `2` for invalid invocation and `1` when it cannot produce a report.

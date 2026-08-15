@@ -29,6 +29,6 @@ Every intentional v0.3 compatibility break must be identified in the changelog a
 
 PHP Upgrade Preflight is source-available software. It is not distributed or described as Open Source.
 
-The [PolyForm Noncommercial License 1.0.0](../LICENSE) permits the uses defined there as noncommercial without a commercial license fee. Commercial use is not permitted under that license and requires a separate license from the copyright holder.
+The [PolyForm Noncommercial License 1.0.0](../LICENSE) permits the uses defined there as noncommercial without a commercial license fee. Commercial use is not permitted under that license and requires a separate license from the copyright holder. Use the [commercial license request form](https://docs.google.com/forms/d/e/1FAIpQLSfUlJJnSoqgUuJnKUCGzQQpIeXZtz471iD_XiPTjdnODbooYw/viewform) to request licensing terms. Submitting the form does not grant a license or authorize commercial use.
 
 This page describes the project's product and licensing position; it does not replace or modify the license. The license text controls if this summary and the license differ.

@@ -1,0 +1,269 @@
+<?php
+
+declare(strict_types=1);
+
+namespace PhpUpgradePreflight\Laravel\Tests\Integration;
+
+use Opis\JsonSchema\Errors\ErrorFormatter;
+use Opis\JsonSchema\Validator;
+use PhpUpgradePreflight\Core\Analysis\DefaultUpgradeAnalyzer;
+use PhpUpgradePreflight\Core\Model\ExtensionAssumption;
+use PhpUpgradePreflight\Core\Model\ReportFormat;
+use PhpUpgradePreflight\Core\Model\UpgradeRequest;
+use PhpUpgradePreflight\Core\Model\UpgradeTarget;
+use PhpUpgradePreflight\Laravel\LaravelFrameworkIntegration;
+use PhpUpgradePreflight\Tests\Support\FixtureSnapshot;
+use PHPUnit\Framework\TestCase;
+
+/** @group windows-integration-heavy */
+final class FiveMinuteDemoTest extends TestCase
+{
+    public function testOfflineDemoUsesTheRealSolverAndKeepsTheTargetImmutable(): void
+    {
+        $target = $this->demoRoot() . '/target';
+        $snapshot = FixtureSnapshot::capture($target);
+        $previousDisableNetwork = getenv('COMPOSER_DISABLE_NETWORK');
+        $previousRootVersion = getenv('COMPOSER_ROOT_VERSION');
+        putenv('COMPOSER_DISABLE_NETWORK=1');
+        putenv('COMPOSER_ROOT_VERSION=1.0.0');
+
+        try {
+            $report = (new DefaultUpgradeAnalyzer([new LaravelFrameworkIntegration()]))->analyzeUpgrade(
+                new UpgradeRequest(
+                    $target,
+                    [new UpgradeTarget('laravel/framework', '^13.0')],
+                    '8.1',
+                    '8.3',
+                    [],
+                    ['laravel'],
+                    ReportFormat::JSON,
+                    $this->demoRoot() . '/reports/laravel-10-to-13.json',
+                    false,
+                    [ExtensionAssumption::fromAbsenceInput('ext-preflight-stage')]
+                )
+            );
+        } finally {
+            $this->restoreEnvironment('COMPOSER_DISABLE_NETWORK', $previousDisableNetwork);
+            $this->restoreEnvironment('COMPOSER_ROOT_VERSION', $previousRootVersion);
+        }
+
+        $snapshot->assertUnchanged($this);
+        self::assertSame('blocked', $report->resolutionStatus());
+        $canonical = $report->toArray();
+        $staged = $canonical['staged_resolution'];
+        self::assertSame('evaluated', $staged['execution_state']);
+        self::assertSame('blocked', $staged['status']);
+        self::assertSame('blocking_registry_not_cleared', $staged['stop_reason']);
+        self::assertCount(3, $staged['stages']);
+
+        $first = $staged['stages'][0];
+        self::assertSame('laravel-10-to-11', $first['id']);
+        self::assertSame('feasible_with_changes', $first['resolution_status']);
+        self::assertSame(3, $first['selected_attempt']);
+        self::assertCount(3, $first['attempts']);
+        self::assertCount(2, $first['attempts'][0]['blocker_ids']);
+        self::assertCount(1, $first['attempts'][1]['blocker_ids']);
+        self::assertSame([], $first['attempts'][2]['blocker_ids']);
+        self::assertTrue($first['attempts'][2]['selected']);
+
+        $middle = $staged['stages'][1];
+        self::assertSame('laravel-11-to-12', $middle['id']);
+        self::assertSame('feasible_with_changes', $middle['resolution_status']);
+        self::assertSame($first['output_state']['state_sha256'], $middle['input_state']['state_sha256']);
+
+        $last = $staged['stages'][2];
+        self::assertSame('laravel-12-to-13', $last['id']);
+        self::assertSame('blocked', $last['resolution_status']);
+        self::assertNull($last['selected_attempt']);
+        self::assertNull($last['output_state']);
+        self::assertSame($middle['output_state']['state_sha256'], $last['input_state']['state_sha256']);
+        self::assertSame('original_project', $last['source_snapshot']);
+        self::assertSame('tests/Feature/LegacyCsrfTest.php', $last['source_impact'][0]['occurrences'][0]['file']);
+
+        $registry = [];
+        foreach ($staged['blocker_registry'] as $entry) {
+            $registry[$entry['subject'] . ':' . ($entry['blocking_package'] ?? '')] = $entry;
+        }
+        self::assertCount(3, $registry);
+        self::assertSame('resolved', $registry['laravel/framework:nunomaduro/collision']['lifecycle']);
+        self::assertSame(['detected', 'resolved'], array_column(
+            $registry['laravel/framework:nunomaduro/collision']['lifecycle_history'],
+            'status'
+        ));
+        self::assertSame('resolved', $registry['laravel/framework:phpunit/phpunit']['lifecycle']);
+        self::assertSame(['detected', 'persists', 'resolved'], array_column(
+            $registry['laravel/framework:phpunit/phpunit']['lifecycle_history'],
+            'status'
+        ));
+        self::assertSame('persists', $registry['ext-preflight-stage:laravel/framework']['lifecycle']);
+
+        self::assertCount(1, $report->frameworkGuidance());
+        $guidance = $report->frameworkGuidance()[0];
+        self::assertSame('supported', $guidance->status());
+        self::assertSame(10, $guidance->sourceMajor());
+        self::assertSame(13, $guidance->targetMajor());
+        self::assertSame([
+            ['from_major' => 10, 'to_major' => 11],
+            ['from_major' => 11, 'to_major' => 12],
+            ['from_major' => 12, 'to_major' => 13],
+        ], $guidance->supportedHopReferences());
+
+        self::assertCount(1, $report->actionableSourceImpact());
+        $sourceImpact = $report->actionableSourceImpact()[0]->toArray();
+        self::assertSame('framework_rule', $sourceImpact['relevance']);
+        self::assertSame('high', $sourceImpact['severity']);
+        self::assertSame('tests/Feature/LegacyCsrfTest.php', $sourceImpact['occurrences'][0]['file']);
+        self::assertSame('Illuminate\\Foundation\\Http\\Middleware\\VerifyCsrfToken', $sourceImpact['occurrences'][0]['symbol']);
+
+        $summaries = array_map(static fn ($finding): string => $finding->summary(), $report->frameworkFindings());
+        self::assertContains(
+            'phpunit/phpunit 10.0.0 is outside the encoded Laravel 11 review range `^11.0.1`; review its upgrade or replacement.',
+            $summaries
+        );
+        self::assertContains(
+            'nesbot/carbon 2.72.0 is outside the encoded Laravel 12 review range `^3.0`; review its upgrade or replacement.',
+            $summaries
+        );
+        self::assertContains(
+            'laravel/tinker 2.9.0 is outside the encoded Laravel 13 review range `^3.0`; review its upgrade or replacement.',
+            $summaries
+        );
+        self::assertContains(
+            'Replace 1 detected direct reference to VerifyCsrfToken or ValidateCsrfToken with PreventRequestForgery before targeting Laravel 13.',
+            $summaries
+        );
+    }
+
+    public function testCheckedInReportsValidateAndProjectTheSameKeyFindings(): void
+    {
+        $jsonPath = $this->demoRoot() . '/reports/laravel-10-to-13.json';
+        $markdownPath = $this->demoRoot() . '/reports/laravel-10-to-13.md';
+        $json = $this->read($jsonPath);
+        $markdown = $this->read($markdownPath);
+        /** @var array<string, mixed> $canonical */
+        $canonical = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
+
+        self::assertSame('0.8', $canonical['metadata']['schema_version'] ?? null);
+        self::assertSame('0.3.0-dev', $canonical['metadata']['tool']['version'] ?? null);
+        self::assertSame('blocked', $canonical['resolution']['status'] ?? null);
+        self::assertSame('blocked', $canonical['staged_resolution']['status'] ?? null);
+        self::assertSame('laravel-10-to-11', $canonical['staged_resolution']['stages'][0]['id'] ?? null);
+        self::assertSame(3, $canonical['staged_resolution']['stages'][0]['selected_attempt'] ?? null);
+        self::assertSame('feasible_with_changes', $canonical['staged_resolution']['stages'][1]['resolution_status'] ?? null);
+        self::assertSame('blocked', $canonical['staged_resolution']['stages'][2]['resolution_status'] ?? null);
+        self::assertSame('tests/Feature/LegacyCsrfTest.php', $canonical['source_impact'][0]['occurrences'][0]['file'] ?? null);
+        self::assertSame(0, $canonical['resolution']['scenarios'][0]['exit_code'] ?? null);
+        self::assertSame([
+            ['from_major' => 10, 'to_major' => 11],
+            ['from_major' => 11, 'to_major' => 12],
+            ['from_major' => 12, 'to_major' => 13],
+        ], array_map(
+            static fn (array $hop): array => [
+                'from_major' => $hop['from_major'],
+                'to_major' => $hop['to_major'],
+            ],
+            $canonical['transition']['framework_guidance'][0]['hops'] ?? []
+        ));
+
+        $this->assertConformsToSchema($json);
+        $this->assertMarkdownProjectsCanonicalFindings($canonical, $markdown);
+        self::assertDoesNotMatchRegularExpression(
+            '~(?:^|[\\s"\'])[A-Za-z]:[\\\\/]|/(?:app|home|Users)/~im',
+            $json . $markdown
+        );
+        self::assertStringNotContainsString('--debug', $json . $markdown);
+        foreach ($canonical['resolution']['scenarios'] ?? [] as $scenario) {
+            self::assertNull($scenario['temp_path'] ?? null);
+        }
+
+        $rootReadme = $this->read(dirname($this->demoRoot(), 2) . '/README.md');
+        self::assertStringContainsString(
+            '(examples/five-minute-demo/README.md)',
+            $rootReadme
+        );
+
+        $script = $this->read($this->demoRoot() . '/run-demo.sh');
+        $tape = $this->read($this->demoRoot() . '/laravel-10-to-13.tape');
+        self::assertStringContainsString('--without-extension=ext-preflight-stage', $script);
+        self::assertStringContainsString('reports/laravel-10-to-13.json', $script);
+        self::assertStringContainsString('staged_resolution', $script);
+        self::assertStringContainsString('bash examples/five-minute-demo/run-demo.sh', $tape);
+        $gifSize = filesize($this->demoRoot() . '/laravel-10-to-13.gif');
+        self::assertIsInt($gifSize);
+        self::assertGreaterThan(0, $gifSize);
+    }
+
+    /** @param array<string, mixed> $canonical */
+    private function assertMarkdownProjectsCanonicalFindings(array $canonical, string $markdown): void
+    {
+        self::assertStringContainsString('Resolution: **blocked** | Staged: **blocked** | Schema: `0.8`', $markdown);
+        self::assertStringContainsString('## Staged Composer Resolution', $markdown);
+
+        foreach ($canonical['staged_resolution']['blocker_registry'] ?? [] as $blocker) {
+            self::assertIsArray($blocker);
+            self::assertStringContainsString((string) ($blocker['id'] ?? ''), $markdown);
+            self::assertStringContainsString((string) ($blocker['lifecycle'] ?? ''), $markdown);
+        }
+
+        foreach ($canonical['blockers'] ?? [] as $blocker) {
+            self::assertIsArray($blocker);
+            self::assertStringContainsString((string) ($blocker['type'] ?? ''), $markdown);
+            self::assertStringContainsString((string) ($blocker['blocker'] ?? ''), $markdown);
+            self::assertStringContainsString((string) ($blocker['conflict'] ?? ''), $markdown);
+        }
+
+        foreach ($canonical['framework_findings'] ?? [] as $finding) {
+            self::assertIsArray($finding);
+            self::assertStringContainsString((string) ($finding['summary'] ?? ''), $markdown);
+        }
+
+        foreach ($canonical['source_impact'] ?? [] as $finding) {
+            self::assertIsArray($finding);
+            foreach ($finding['occurrences'] ?? [] as $occurrence) {
+                self::assertIsArray($occurrence);
+                self::assertStringContainsString((string) ($occurrence['file'] ?? ''), $markdown);
+                self::assertStringContainsString((string) ($occurrence['symbol'] ?? ''), $markdown);
+            }
+        }
+    }
+
+    private function assertConformsToSchema(string $json): void
+    {
+        $schemaContents = $this->read(dirname($this->demoRoot(), 2) . '/packages/core/resources/schema/upgrade-report-v0.8.schema.json');
+        /** @var object $schema */
+        $schema = json_decode($schemaContents, false, 512, JSON_THROW_ON_ERROR);
+        /** @var mixed $report */
+        $report = json_decode($json, false, 512, JSON_THROW_ON_ERROR);
+        $result = (new Validator(null, 20, false))->validate($report, $schema);
+
+        if ($result->hasError()) {
+            $error = $result->error();
+            self::assertNotNull($error);
+            self::fail(json_encode(
+                (new ErrorFormatter())->format($error),
+                JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR
+            ));
+        }
+
+        self::assertTrue($result->isValid());
+    }
+
+    /** @param string|false $value */
+    private function restoreEnvironment(string $name, $value): void
+    {
+        putenv($value === false ? $name : sprintf('%s=%s', $name, $value));
+    }
+
+    private function demoRoot(): string
+    {
+        return dirname(__DIR__, 4) . '/examples/five-minute-demo';
+    }
+
+    private function read(string $path): string
+    {
+        $contents = file_get_contents($path);
+        self::assertIsString($contents, sprintf('Unable to read %s.', $path));
+
+        return $contents;
+    }
+}

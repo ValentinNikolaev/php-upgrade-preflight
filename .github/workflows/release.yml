@@ -7,9 +7,9 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: Exact v0.2 release version to verify and package without publishing
+        description: Exact v0.3 release version to verify and package without publishing
         required: true
-        default: 0.2.1
+        default: 0.3.0
         type: string
 
 concurrency:
@@ -62,6 +62,8 @@ jobs:
           release_branch='main'
           if [[ "${RELEASE_VERSION}" == 0.1.* ]]; then
             release_branch='0.1.x'
+          elif [[ "${RELEASE_VERSION}" == 0.2.* ]]; then
+            release_branch='0.2.x'
           fi
 
           git fetch --no-tags origin "+refs/heads/${release_branch}:refs/remotes/origin/${release_branch}"
@@ -556,7 +558,7 @@ jobs:
             if (($report["metadata"]["tool"]["version"] ?? null) !== $argv[2]) {
                 throw new RuntimeException("Unexpected tool version in archive-installed report.");
             }
-            if (($report["metadata"]["schema_version"] ?? null) !== "0.7") {
+            if (($report["metadata"]["schema_version"] ?? null) !== "0.8") {
               throw new RuntimeException("Unexpected schema version in archive-installed report.");
             }
             $frameworks = array_column($report["framework_findings"] ?? [], "framework");
@@ -659,7 +661,7 @@ jobs:
           php -r '
             $report = json_decode(file_get_contents($argv[1]), true, 512, JSON_THROW_ON_ERROR);
             if (($report["metadata"]["tool"]["version"] ?? null) !== $argv[2]
-                || ($report["metadata"]["schema_version"] ?? null) !== "0.7") {
+                || ($report["metadata"]["schema_version"] ?? null) !== "0.8") {
                 throw new RuntimeException("Published quick start returned unexpected report metadata.");
               }
           ' "${report}" "${version}"

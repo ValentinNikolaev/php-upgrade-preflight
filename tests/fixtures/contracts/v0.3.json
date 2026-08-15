@@ -1,0 +1,193 @@
+{
+    "contract": "php-upgrade-preflight-v0.3",
+    "development_identity": {
+        "tool_version": "0.3.0-dev",
+        "package_branch_alias": "0.3.x-dev",
+        "internal_constraint": "^0.3",
+        "release_series": "0.3",
+        "release_branch": "main",
+        "maintenance_series": "0.2",
+        "maintenance_branch": "0.2.x",
+        "schema": "0.8"
+    },
+    "report_dimensions": {
+        "independent": [
+            "resolution.status",
+            "transition.framework_guidance[].status",
+            "staged_resolution.status"
+        ],
+        "direct_resolution_statuses": [
+            "feasible",
+            "feasible_with_changes",
+            "blocked",
+            "unknown"
+        ],
+        "guidance_statuses": [
+            "supported",
+            "partially_supported",
+            "unsupported"
+        ],
+        "staged_resolution_statuses": [
+            "feasible",
+            "feasible_with_changes",
+            "blocked",
+            "unknown"
+        ],
+        "silent_cross_dimension_upgrade_forbidden": true
+    },
+    "stage_contract": {
+        "execution_states": [
+            "evaluated",
+            "skipped"
+        ],
+        "resolution_statuses": [
+            "feasible",
+            "feasible_with_changes",
+            "blocked",
+            "unknown"
+        ],
+        "stop_conditions": {
+            "missing_target": "skipped:unknown",
+            "ambiguous_transition": "skipped:unknown",
+            "guidance_gap": "skipped:unknown",
+            "solver_blocker": "evaluated:blocked",
+            "timeout": "evaluated:unknown",
+            "aggregate_timeout": "evaluated:unknown",
+            "operational_failure": "evaluated:unknown",
+            "provider_conflict": "skipped:unknown",
+            "hop_budget": "skipped:unknown"
+        },
+        "later_stages_after_stop": "skipped",
+        "source_snapshot": "original_project",
+        "source_change_application_forbidden": true
+    },
+    "blocker_registry": {
+        "shape": "ordered_collection",
+        "nullable": false,
+        "singleton_shortcut_forbidden": true,
+        "required_fields": [
+            "id",
+            "stage_id",
+            "attempt",
+            "scenario",
+            "category",
+            "subject",
+            "blocking_package",
+            "requested_constraint",
+            "constraint",
+            "dependency_path",
+            "confidence",
+            "summary",
+            "options",
+            "blocking",
+            "evidence",
+            "first_seen",
+            "last_seen",
+            "lifecycle",
+            "lifecycle_history",
+            "observations"
+        ],
+        "lifecycles": [
+            "detected",
+            "persists",
+            "resolved",
+            "superseded"
+        ],
+        "deduplication": {
+            "within_attempt": "exact full identity",
+            "within_stage": "same stage plus exact category, subject, blocking package, requested constraint, constraint, dependency path, and platform identity",
+            "across_stages": "never merge; stage identity is mandatory",
+            "similar_prose_is_identity": false,
+            "similar_package_name_is_identity": false
+        }
+    },
+    "remediation": {
+        "attempt_orders": {
+            "without_adapter_root_remediations": [
+                "target_only",
+                "locked_package_remediation"
+            ],
+            "with_adapter_root_remediations": [
+                "target_only",
+                "root_constraint_remediation",
+                "root_and_locked_package_remediation"
+            ]
+        },
+        "allowed_root_changes": "exact stage targets and adapter-evidenced remediation targets only",
+        "allowed_locked_changes": "direct and transitive packages reachable through Composer --with-all-dependencies",
+        "candidate_order": "normalized package name ascending after exact stage targets",
+        "every_change_recorded": true,
+        "original_project_immutable": true,
+        "next_stage_input": "selected successful candidate manifest, lock, platform, and execution policy",
+        "selection_gate": "full-target Composer success and no active blocking entry for the selected attempt"
+    },
+    "stage_targets": {
+        "package_targets": "exact adapter targets for one adjacent framework hop",
+        "analysis_php": "exact request evidence checked against adapter minimum metadata",
+        "minimum_constraint_is_not_exact_deployment_claim": true,
+        "milestone_0_slice": "rooted laravel/framework 10 with only laravel/framework targeted at 13",
+        "optional_provider_interface": "PhpUpgradePreflight\\Core\\Framework\\FrameworkStageTargetProvider",
+        "required_v0_2_interfaces_unchanged": true,
+        "active_provider_limit": 1
+    },
+    "target_platform_profile": {
+        "versioned": true,
+        "semantics": {
+            "partial": "Unlisted platform packages may still come from analyzer runtime state.",
+            "complete": "Unlisted supported platform packages are modeled absent."
+        },
+        "supported_classes": [
+            "php",
+            "ext-*",
+            "lib-*",
+            "php-subtype",
+            "composer-platform"
+        ],
+        "composer_complete_minimum": "2.2.0",
+        "older_composer_complete_result": "unknown",
+        "conflicts_rejected_before_composer": true
+    },
+    "budgets": {
+        "max_hops": 6,
+        "max_attempts_per_stage": 3,
+        "max_scenarios": 18,
+        "scenario_timeout_seconds": 300,
+        "aggregate_timeout_seconds": 1800,
+        "memory_bytes": 268435456,
+        "json_report_bytes": 524288,
+        "markdown_report_bytes": 262144
+    },
+    "ordering": [
+        "stages by provider plan order after contiguous validation",
+        "attempts by remediation attempt order",
+        "root remediation targets by normalized package name",
+        "blocker registry by first observation order",
+        "blocker observations by attempt then scenario",
+        "package changes by package name",
+        "evidence by ledger insertion order"
+    ],
+    "schema_0_8": {
+        "path": "packages/core/resources/schema/upgrade-report-v0.8.schema.json",
+        "minimal_fixture": "tests/fixtures/contracts/v0.3/minimal-report-v0.8.json",
+        "new_required_top_level_fields": [
+            "staged_resolution"
+        ],
+        "migration_from_0_7": {
+            "dispatch_on": "metadata.schema_version",
+            "historical_reports_immutable": true,
+            "missing_staged_resolution_means_v0_7_not_empty_v0_8": true,
+            "direct_resolution_meaning_unchanged": true,
+            "framework_guidance_meaning_unchanged": true
+        }
+    },
+    "non_goals": [
+        "Symfony adapter",
+        "CodeIgniter adapter",
+        "PHAR delivery",
+        "versioned container delivery",
+        "runtime floor change",
+        "source mutation",
+        "Composer manifest or lock mutation in the analyzed project",
+        "runtime compatibility guarantee"
+    ]
+}

@@ -29,13 +29,23 @@ final class MarkdownReportWriter
         $platform = $canonical['platform'];
         /** @var array{status:string, scenarios:list<array<string, mixed>>} $resolution */
         $resolution = $canonical['resolution'];
+        /** @var array<string, mixed> $stagedResolution */
+        $stagedResolution = $canonical['staged_resolution'] ?? [
+            'execution_state' => 'skipped',
+            'status' => 'unknown',
+            'provider' => null,
+            'stages' => [],
+            'blocker_registry' => [],
+            'stop_reason' => 'schema_does_not_include_staged_resolution',
+        ];
 
         $lines = [
             '# PHP Upgrade Preflight Report',
             '',
             sprintf(
-                'Resolution: **%s** | Schema: %s | Tool: %s',
+                'Resolution: **%s** | Staged: **%s** | Schema: %s | Tool: %s',
                 $this->singleLine($resolution['status']),
+                $this->singleLine((string) $stagedResolution['status']),
                 $this->code($metadata['schema_version']),
                 $this->code($metadata['tool']['name'] . ' ' . $metadata['tool']['version'])
             ),
@@ -155,6 +165,100 @@ final class MarkdownReportWriter
                         $this->appendExcerpt($lines, 'stderr excerpt', $diagnostic['stderr_excerpt'], '    ');
                     }
                 }
+            }
+        }
+
+        $lines[] = '';
+        $lines[] = '## Staged Composer Resolution';
+        $lines[] = sprintf(
+            '- Execution: %s; status: %s; provider: %s; stop reason: %s',
+            $this->code((string) $stagedResolution['execution_state']),
+            $this->code((string) $stagedResolution['status']),
+            $this->code($stagedResolution['provider'] ?? 'none'),
+            $this->code($stagedResolution['stop_reason'] ?? 'none')
+        );
+        if ($stagedResolution['stages'] === []) {
+            $lines[] = '- No framework stages were executed.';
+        } else {
+            foreach ($stagedResolution['stages'] as $stage) {
+                $lines[] = sprintf(
+                    '- **%s** (%s -> %s): execution %s; resolution %s; selected attempt %s',
+                    $this->singleLine((string) $stage['id']),
+                    $this->code((string) $stage['from_major']),
+                    $this->code((string) $stage['to_major']),
+                    $this->code((string) $stage['execution_state']),
+                    $this->code($stage['resolution_status'] ?? 'not evaluated'),
+                    $this->code($stage['selected_attempt'] === null ? 'none' : (string) $stage['selected_attempt'])
+                );
+                $lines[] = sprintf('  - analysis PHP: %s; source snapshot: %s', $this->code((string) $stage['analysis_php']), $this->code((string) $stage['source_snapshot']));
+                $lines[] = sprintf(
+                    '  - state chain: predecessor %s; input %s; output %s',
+                    $this->code($stage['predecessor_state']['state_sha256'] ?? 'none'),
+                    $this->code($stage['input_state']['state_sha256'] ?? 'none'),
+                    $this->code($stage['output_state']['state_sha256'] ?? 'none')
+                );
+                foreach ($stage['attempts'] as $attempt) {
+                    $lines[] = sprintf(
+                        '  - attempt `%d` %s: outcome %s; selected %s; blockers %s',
+                        $attempt['number'],
+                        $this->code((string) $attempt['strategy']),
+                        $this->code((string) $attempt['scenario']['outcome']),
+                        $attempt['selected'] ? 'yes' : 'no',
+                        $this->inlineList($attempt['blocker_ids'], 'none')
+                    );
+                    foreach ($attempt['root_constraint_changes'] as $change) {
+                        $lines[] = sprintf(
+                            '    - analyzer-only root change %s: %s -> %s',
+                            $this->code((string) $change['package']),
+                            $this->code($change['from_constraint'] ?? '-'),
+                            $this->code($change['to_constraint'] ?? '-')
+                        );
+                    }
+                }
+                foreach ($stage['package_changes'] as $change) {
+                    $lines[] = sprintf(
+                        '  - selected package change %s: %s -> %s',
+                        $this->code((string) $change['name']),
+                        $this->code($change['from_version'] ?? '-'),
+                        $this->code($change['to_version'] ?? '-')
+                    );
+                }
+                foreach ($stage['source_findings'] as $finding) {
+                    $lines[] = sprintf(
+                        '  - original-source finding (%s): %s',
+                        $this->code((string) $finding['severity']),
+                        $this->singleLine((string) $finding['summary'])
+                    );
+                }
+                if ($stage['stop_reason'] !== null) {
+                    $lines[] = sprintf('  - stop reason: %s', $this->code((string) $stage['stop_reason']));
+                }
+            }
+        }
+
+        $lines[] = '- Blocker registry:';
+        if ($stagedResolution['blocker_registry'] === []) {
+            $lines[] = '  - None recorded.';
+        } else {
+            foreach ($stagedResolution['blocker_registry'] as $blocker) {
+                $history = array_map(
+                    static fn (array $event): string => sprintf('%s@%d', $event['status'], $event['attempt']),
+                    $blocker['lifecycle_history']
+                );
+                $lines[] = sprintf(
+                    '  - %s stage %s: %s %s; lifecycle %s (%s); blocking package %s; constraint %s; path %s',
+                    $this->code((string) $blocker['id']),
+                    $this->code((string) $blocker['stage_id']),
+                    $this->code((string) $blocker['category']),
+                    $this->code((string) $blocker['subject']),
+                    $this->code((string) $blocker['lifecycle']),
+                    implode(' -> ', $history),
+                    $this->code($blocker['blocking_package'] ?? '-'),
+                    $this->code($blocker['constraint'] ?? '-'),
+                    $blocker['dependency_path'] === []
+                        ? 'unknown'
+                        : $this->code(implode(' -> ', $blocker['dependency_path']))
+                );
             }
         }
 
@@ -496,7 +600,7 @@ final class MarkdownReportWriter
             $excerptLines = [$value];
         }
         foreach ($excerptLines as $excerptLine) {
-            $lines[] = $codeIndent . $excerptLine;
+            $lines[] = $excerptLine === '' ? '' : $codeIndent . $excerptLine;
         }
         $lines[] = $codeIndent . $fence;
     }

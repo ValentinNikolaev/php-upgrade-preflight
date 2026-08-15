@@ -30,7 +30,7 @@ final class ReleaseVerifierTest extends TestCase
 
     public function testAcceptsConsistentReleaseMetadata(): void
     {
-        self::assertSame([], (new ReleaseVerifier($this->root))->verify('0.2.0'));
+        self::assertSame([], (new ReleaseVerifier($this->root))->verify('0.3.0'));
     }
 
     /** @dataProvider invalidVersionProvider */
@@ -47,21 +47,21 @@ final class ReleaseVerifierTest extends TestCase
     {
         return [
             [''],
-            ['v0.2.0'],
-            ['0.2'],
-            ['0.2.0.0'],
+            ['v0.3.0'],
+            ['0.3'],
+            ['0.3.0.0'],
             ['00.1.0'],
             ['0.01.0'],
-            ['0.2.00'],
-            ['0.2.0-beta'],
+            ['0.3.00'],
+            ['0.3.0-beta'],
         ];
     }
 
     public function testAcceptsAnotherPatchOnTheActiveReleaseLine(): void
     {
-        $this->writeConsistentFixture('0.2.1');
+        $this->writeConsistentFixture('0.3.1');
 
-        self::assertSame([], (new ReleaseVerifier($this->root))->verify('0.2.1'));
+        self::assertSame([], (new ReleaseVerifier($this->root))->verify('0.3.1'));
     }
 
     /** @dataProvider lockedReleaseSeriesProvider */
@@ -70,7 +70,7 @@ final class ReleaseVerifierTest extends TestCase
         $errors = (new ReleaseVerifier($this->root))->verify($version);
 
         self::assertCount(1, $errors);
-        self::assertStringContainsString('only 0.2.x releases are currently allowed', $errors[0]);
+        self::assertStringContainsString('only 0.3.x releases are currently allowed', $errors[0]);
     }
 
     /** @return list<array{string}> */
@@ -78,7 +78,7 @@ final class ReleaseVerifierTest extends TestCase
     {
         return [
             ['0.1.1'],
-            ['0.3.0'],
+            ['0.2.1'],
             ['1.0.0'],
         ];
     }
@@ -88,7 +88,7 @@ final class ReleaseVerifierTest extends TestCase
     {
         $this->makeFixtureInvalid($case);
 
-        $errors = (new ReleaseVerifier($this->root))->verify('0.2.0');
+        $errors = (new ReleaseVerifier($this->root))->verify('0.3.0');
 
         self::assertStringContainsString(
             $expectedError,
@@ -99,13 +99,13 @@ final class ReleaseVerifierTest extends TestCase
 
     public function testRejectsUnreadableReleaseNotes(): void
     {
-        $notesPath = $this->root . '/docs/releases/v0.2.0.md';
+        $notesPath = $this->root . '/docs/releases/v0.3.0.md';
         $verifier = new ReleaseVerifier(
             $this->root,
             static fn (string $path) => $path === $notesPath ? false : file_get_contents($path)
         );
 
-        $errors = $verifier->verify('0.2.0');
+        $errors = $verifier->verify('0.3.0');
 
         self::assertStringContainsString('could not read release notes:', implode("\n", $errors));
     }
@@ -119,17 +119,17 @@ final class ReleaseVerifierTest extends TestCase
             ['non-array-root-json', 'composer.json: root value is not an object'],
             [
                 'wrong-root-requirement',
-                "root require.php-upgrade-preflight/core must be '0.2.x-dev'; found '0.3.x-dev'",
+                "root require.php-upgrade-preflight/core must be '0.3.x-dev'; found '0.4.x-dev'",
             ],
             [
                 'missing-root-repository',
-                "root path repository version for php-upgrade-preflight/cli must be '0.2.x-dev'; found NULL",
+                "root path repository version for php-upgrade-preflight/cli must be '0.3.x-dev'; found NULL",
             ],
             ['missing-package-manifest', 'packages/core/composer.json: could not read file'],
             ['invalid-package-json', 'packages/core/composer.json: Syntax error'],
             [
                 'wrong-branch-alias',
-                "php-upgrade-preflight/laravel branch alias must be '0.2.x-dev'; found '0.3.x-dev'",
+                "php-upgrade-preflight/laravel branch alias must be '0.3.x-dev'; found '0.4.x-dev'",
             ],
             [
                 'explicit-package-version',
@@ -137,15 +137,15 @@ final class ReleaseVerifierTest extends TestCase
             ],
             [
                 'non-array-requirements',
-                "php-upgrade-preflight/cli require.php-upgrade-preflight/core must be '^0.2'; found NULL",
+                "php-upgrade-preflight/cli require.php-upgrade-preflight/core must be '^0.3'; found NULL",
             ],
             [
                 'missing-internal-dependency',
-                "php-upgrade-preflight/laravel require.php-upgrade-preflight/core must be '^0.2'; found NULL",
+                "php-upgrade-preflight/laravel require.php-upgrade-preflight/core must be '^0.3'; found NULL",
             ],
             [
                 'wrong-internal-constraint',
-                "php-upgrade-preflight/cli require.php-upgrade-preflight/core must be '^0.2'; found '^0.3'",
+                "php-upgrade-preflight/cli require.php-upgrade-preflight/core must be '^0.3'; found '^0.4'",
             ],
             [
                 'unexpected-internal-dependency',
@@ -155,19 +155,19 @@ final class ReleaseVerifierTest extends TestCase
             ['missing-tool-version-file', 'could not find TOOL_VERSION'],
             [
                 'wrong-tool-version',
-                "ReportMetadata::TOOL_VERSION must be '0.2.0'; found '0.2.1'",
+                "ReportMetadata::TOOL_VERSION must be '0.3.0'; found '0.2.1'",
             ],
             ['missing-schema-version', 'could not find SCHEMA_VERSION'],
             [
                 'wrong-schema-version',
-                "ReportMetadata::SCHEMA_VERSION must be '0.7'; found '0.6'",
+                "ReportMetadata::SCHEMA_VERSION must be '0.8'; found '0.7'",
             ],
-            ['missing-changelog-heading', 'CHANGELOG.md must contain a dated [0.2.0] release heading'],
-            ['missing-changelog-file', 'CHANGELOG.md must contain a dated [0.2.0] release heading'],
+            ['missing-changelog-heading', 'CHANGELOG.md must contain a dated [0.3.0] release heading'],
+            ['missing-changelog-file', 'CHANGELOG.md must contain a dated [0.3.0] release heading'],
             ['missing-release-notes', 'missing release notes:'],
             [
                 'wrong-release-notes-heading',
-                "release notes heading must be '# PHP Upgrade Preflight v0.2.0'; found '# PHP Upgrade Preflight v0.3.0'",
+                "release notes heading must be '# PHP Upgrade Preflight v0.3.0'; found '# PHP Upgrade Preflight v0.4.0'",
             ],
             ['empty-release-notes-body', 'release notes must contain content after the heading'],
         ];
@@ -192,7 +192,7 @@ final class ReleaseVerifierTest extends TestCase
         }
         if ($case === 'wrong-root-requirement') {
             $manifest = $this->readJson($this->root . '/composer.json');
-            $manifest['require']['php-upgrade-preflight/core'] = '0.3.x-dev';
+            $manifest['require']['php-upgrade-preflight/core'] = '0.4.x-dev';
             $this->writeJson($this->root . '/composer.json', $manifest);
 
             return;
@@ -219,14 +219,14 @@ final class ReleaseVerifierTest extends TestCase
         }
         if ($case === 'wrong-branch-alias') {
             $manifest = $this->readJson($this->root . '/packages/laravel/composer.json');
-            $manifest['extra']['branch-alias']['dev-main'] = '0.3.x-dev';
+            $manifest['extra']['branch-alias']['dev-main'] = '0.4.x-dev';
             $this->writeJson($this->root . '/packages/laravel/composer.json', $manifest);
 
             return;
         }
         if ($case === 'explicit-package-version') {
             $manifest = $this->readJson($this->root . '/packages/core/composer.json');
-            $manifest['version'] = '0.2.0';
+            $manifest['version'] = '0.3.0';
             $this->writeJson($this->root . '/packages/core/composer.json', $manifest);
 
             return;
@@ -247,14 +247,14 @@ final class ReleaseVerifierTest extends TestCase
         }
         if ($case === 'wrong-internal-constraint') {
             $manifest = $this->readJson($this->root . '/packages/cli/composer.json');
-            $manifest['require']['php-upgrade-preflight/core'] = '^0.3';
+            $manifest['require']['php-upgrade-preflight/core'] = '^0.4';
             $this->writeJson($this->root . '/packages/cli/composer.json', $manifest);
 
             return;
         }
         if ($case === 'unexpected-internal-dependency') {
             $manifest = $this->readJson($this->root . '/packages/core/composer.json');
-            $manifest['require']['php-upgrade-preflight/laravel'] = '^0.2';
+            $manifest['require']['php-upgrade-preflight/laravel'] = '^0.3';
             $this->writeJson($this->root . '/packages/core/composer.json', $manifest);
 
             return;
@@ -275,7 +275,7 @@ final class ReleaseVerifierTest extends TestCase
         if ($case === 'wrong-tool-version') {
             $this->filesystem->dumpFile(
                 $this->root . '/packages/core/src/Model/ReportMetadata.php',
-                "<?php\nfinal class ReportMetadata { public const SCHEMA_VERSION = '0.7'; public const TOOL_VERSION = '0.2.1'; }\n"
+                "<?php\nfinal class ReportMetadata { public const SCHEMA_VERSION = '0.8'; public const TOOL_VERSION = '0.2.1'; }\n"
             );
 
             return;
@@ -283,7 +283,7 @@ final class ReleaseVerifierTest extends TestCase
         if ($case === 'missing-schema-version') {
             $this->filesystem->dumpFile(
                 $this->root . '/packages/core/src/Model/ReportMetadata.php',
-                "<?php\nfinal class ReportMetadata { public const TOOL_VERSION = '0.2.0'; }\n"
+                "<?php\nfinal class ReportMetadata { public const TOOL_VERSION = '0.3.0'; }\n"
             );
 
             return;
@@ -291,7 +291,7 @@ final class ReleaseVerifierTest extends TestCase
         if ($case === 'wrong-schema-version') {
             $this->filesystem->dumpFile(
                 $this->root . '/packages/core/src/Model/ReportMetadata.php',
-                "<?php\nfinal class ReportMetadata { public const SCHEMA_VERSION = '0.6'; public const TOOL_VERSION = '0.2.0'; }\n"
+                "<?php\nfinal class ReportMetadata { public const SCHEMA_VERSION = '0.7'; public const TOOL_VERSION = '0.3.0'; }\n"
             );
 
             return;
@@ -307,22 +307,22 @@ final class ReleaseVerifierTest extends TestCase
             return;
         }
         if ($case === 'missing-release-notes') {
-            $this->filesystem->remove($this->root . '/docs/releases/v0.2.0.md');
+            $this->filesystem->remove($this->root . '/docs/releases/v0.3.0.md');
 
             return;
         }
         if ($case === 'wrong-release-notes-heading') {
             $this->filesystem->dumpFile(
-                $this->root . '/docs/releases/v0.2.0.md',
-                "# PHP Upgrade Preflight v0.3.0\n\nWrong release.\n"
+                $this->root . '/docs/releases/v0.3.0.md',
+                "# PHP Upgrade Preflight v0.4.0\n\nWrong release.\n"
             );
 
             return;
         }
         if ($case === 'empty-release-notes-body') {
             $this->filesystem->dumpFile(
-                $this->root . '/docs/releases/v0.2.0.md',
-                "# PHP Upgrade Preflight v0.2.0\n"
+                $this->root . '/docs/releases/v0.3.0.md',
+                "# PHP Upgrade Preflight v0.3.0\n"
             );
 
             return;
@@ -331,7 +331,7 @@ final class ReleaseVerifierTest extends TestCase
         self::fail(sprintf('Unknown invalid release fixture case %s.', $case));
     }
 
-    private function writeConsistentFixture(string $version = '0.2.0'): void
+    private function writeConsistentFixture(string $version = '0.3.0'): void
     {
         $parts = explode('.', $version);
         $series = $parts[0] . '.' . $parts[1];
@@ -370,7 +370,7 @@ final class ReleaseVerifierTest extends TestCase
         $this->filesystem->dumpFile(
             $this->root . '/packages/core/src/Model/ReportMetadata.php',
             sprintf(
-                "<?php\nfinal class ReportMetadata { public const SCHEMA_VERSION = '0.7'; public const TOOL_VERSION = '%s'; }\n",
+                "<?php\nfinal class ReportMetadata { public const SCHEMA_VERSION = '0.8'; public const TOOL_VERSION = '%s'; }\n",
                 $version
             )
         );

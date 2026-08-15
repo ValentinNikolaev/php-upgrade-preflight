@@ -5,7 +5,7 @@
 
 PHP Upgrade Preflight analyzes Composer-based PHP upgrades before you change the target project. It copies `composer.json` and `composer.lock` into temporary workspaces, runs isolated Composer scenarios, scans source files, and produces a canonical JSON report or a Markdown projection.
 
-The v0.2.1 analyzer packages run on PHP `^8.0` (PHP 8.0 through PHP 8.x). Its Laravel adapter retains Laravel 7 to 8 and direct 7 to 9 analysis and adds adjacent Laravel 8 to 9, 9 to 10, 10 to 11, 11 to 12, and 12 to 13 rule packs, including target-platform, official-package, test-tool, and selected high-signal source checks.
+The v0.3 development line runs on PHP `^8.0` (PHP 8.0 through PHP 8.x). Its Laravel adapter retains Laravel 7 to 8 and direct 7 to 9 guidance plus adjacent Laravel 8 to 9 through 12 to 13 rule packs. The Milestone 0 vertical slice adds sequential Composer evidence for Laravel 10→11→12→13 while preserving the direct final-target result independently.
 
 The Laravel adapter can be installed alongside Laravel 8 on PHP 8.0, Laravel 9 on PHP 8.0.2, Laravel 10 on PHP 8.1, Laravel 11/12 on PHP 8.2, and Laravel 13 on PHP 8.3. Host installability and analyzed target requirements remain separate: an external analyzer may model a newer target through Composer platform simulation.
 
@@ -13,7 +13,7 @@ The Laravel adapter can be installed alongside Laravel 8 on PHP 8.0, Laravel 9 o
 
 The released v0.2.x line keeps the public PHP operation, CLI and Artisan behavior, adapter metadata, exit policy, schema `0.7` compatibility, and supported transition claims backward-compatible across patch releases. Bug fixes, security fixes, and evidence corrections may still change individual findings or diagnostics without changing those contracts.
 
-The planned v0.3 line is a new `0.MINOR` release and may introduce documented breaking changes to inputs, report shape, package constraints, and adapter extension points. Existing v0.2 schemas, signed artifacts, and compatibility evidence remain immutable; planned v0.3 behavior must not be inferred from a v0.2 report.
+The active `main` branch now identifies as `0.3.0-dev`, uses `0.3.x-dev` aliases and `^0.3` internal constraints, and emits schema `0.8`. It is an unreleased new `0.MINOR` line with documented report and adapter changes. Released v0.2.1 remains available from the `0.2.x` maintenance line; its schema, signed artifacts, and compatibility evidence remain immutable.
 
 Public beta is not a production-readiness claim. The analyzer provides decision-support evidence: it does not perform an upgrade, execute the analyzed application, prove runtime compatibility, or guarantee a successful deployment. Review every report and validate the resulting upgrade with the application's own test and deployment process. See [Project status and licensing](docs/project-status.md), [Versioning](docs/versioning.md), and [Limitations and trust boundaries](docs/limitations.md).
 
@@ -63,6 +63,12 @@ php artisan upgrade:analyze \
 
 The analyzer returns `0` after producing a valid report, including reports whose `resolution.status` is `blocked` or `unknown`. Automation should read that field instead of treating the process exit code as upgrade feasibility.
 
+### Five-minute offline demo
+
+The repository includes a deterministic [Laravel 10 to 13 demo](examples/five-minute-demo/README.md) that uses real offline Composer solves from local path repositories. Its schema `0.8` report keeps direct-final, framework-guidance, and staged resolution separate; retains two simultaneous 10→11 blockers and their different lifecycles; carries selected candidate-state fingerprints through a feasible middle hop; and stops 12→13 on a distinct extension blocker plus an original-source incompatibility. Recursive before/after digests prove that the target stayed unchanged.
+
+![Laravel 10 to 13 terminal demo](examples/five-minute-demo/laravel-10-to-13.gif)
+
 ## Read-only analysis
 
 The analyzer treats the target project as immutable input. Composer runs only in disposable workspaces, with scripts and plugins disabled. Report destinations supplied through `--output` must sit outside the analyzed project. Tests snapshot every fixture file before analysis and verify the original bytes afterward.
@@ -77,15 +83,16 @@ The analyzer keeps exact project and source paths for internal filesystem access
 
 ## Reports
 
-JSON is the canonical report. Version 0.2.1 produces schema `0.7` reports; the v0.1 package line produced schema `0.6`. Reports contain:
+JSON is the canonical report. The v0.3 development line produces schema `0.8`; v0.2.1 produced schema `0.7`, and v0.1 produced schema `0.6`. Reports contain:
 
 - scenario commands, solver outcomes, diagnostics, and candidate-lock fingerprints;
 - platform provenance with explicit host-dependence uncertainty, package changes, structured blockers, raw source inventory, Composer-autoload-owned actionable source impact, framework transition guidance, and hop-scoped framework findings;
+- independent direct-final and staged Composer resolution, including adjacent stages, attempts, selected-state fingerprints, blocker lifecycles, stage-scoped changes, and original-snapshot source findings;
 - staged actions, test guidance, risk, effort, uncertainty, and linked evidence.
 
-Schema `0.7` moves the raw parser observations formerly stored in `source_impact` to `source_inventory`. Its new `source_impact` contains only findings correlated with a selected package change or an applicable framework rule. The new top-level `platform` object records where analyzer, current, target, and extension values came from. See [JSON schema and compatibility](docs/schema.md) before consuming both 0.6 and 0.7 reports.
+Schema `0.8` adds required `staged_resolution` without changing the meaning of schema 0.7's direct `resolution` or framework guidance. See [JSON schema and compatibility](docs/schema.md) and the [v0.3 staged-analysis contract](docs/v0.3-contract.md) before consuming multiple versions.
 
-Laravel guidance is supported for 7→8, the retained direct 7→9 path, and every adjacent hop from 8→9 through 12→13. A multi-major upgrade is supported when the catalog provides every required adjacent hop; advice stops at the first gap. Ambiguous or unknown majors, same-major requests, downgrades, a source or target outside Laravel 7–13, and requests whose first required hop is missing are unsupported. Framework guidance coverage is independent of final-target Composer feasibility, so consumers must read both `transition.framework_guidance[].status` and `resolution.status`.
+Laravel guidance is supported for 7→8, the retained direct 7→9 path, and every adjacent hop from 8→9 through 12→13. A multi-major upgrade is supported when the catalog provides every required adjacent hop; advice stops at the first gap. Ambiguous or unknown majors, same-major requests, downgrades, a source or target outside Laravel 7–13, and requests whose first required hop is missing are unsupported. Schema 0.8 consumers must read `transition.framework_guidance[].status`, `resolution.status`, and `staged_resolution.status` separately.
 
 Six application-shaped Laravel fixtures have approved JSON and Markdown snapshots in [`packages/laravel/tests/Snapshots`](packages/laravel/tests/Snapshots). CI runs the same suite on Ubuntu and Windows.
 
@@ -107,6 +114,7 @@ Third-party adapter packages register themselves through Composer metadata, so t
 - [JSON schema and compatibility](docs/schema.md)
 - [Project status and licensing](docs/project-status.md)
 - [v0.2 report and transition contract](docs/v0.2-contract.md)
+- [v0.3 staged-analysis contract](docs/v0.3-contract.md)
 - [Laravel v0.2 transition scope](docs/laravel-v0.2-transition-scope.md)
 - [Limitations and trust boundaries](docs/limitations.md)
 - [Troubleshooting](docs/troubleshooting.md)
@@ -129,4 +137,4 @@ docker compose run --rm php composer check
 
 ## License and commercial use
 
-Copyright 2026 Valentin Nikolaev. PHP Upgrade Preflight is source-available software, free for noncommercial use under the [PolyForm Noncommercial License 1.0.0](LICENSE). Commercial use requires a separate license from the copyright holder. The project is not distributed as Open Source. The license text controls if this summary and the license differ.
+Copyright 2026 Valentin Nikolaev. PHP Upgrade Preflight is source-available software, free for noncommercial use under the [PolyForm Noncommercial License 1.0.0](LICENSE). Commercial use requires a separate license from the copyright holder. [Request a commercial license](https://docs.google.com/forms/d/e/1FAIpQLSfUlJJnSoqgUuJnKUCGzQQpIeXZtz471iD_XiPTjdnODbooYw/viewform). The project is not distributed as Open Source. The license text controls if this summary and the license differ.

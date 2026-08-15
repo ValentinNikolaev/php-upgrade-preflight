@@ -17,8 +17,8 @@
     },
     {
       "name": "schema-version-constant",
-      "file": "packages/core/resources/schema/upgrade-report-v0.7.schema.json",
-      "search": "\"const\": \"0.7\"",
+      "file": "packages/core/resources/schema/upgrade-report-v0.8.schema.json",
+      "search": "\"const\": \"0.8\"",
       "replace": "\"const\": \"mutant\"",
       "test_filter": "UpgradeReportSchemaTest"
     },
@@ -32,8 +32,8 @@
     {
       "name": "laravel-transition-equal-major-guard",
       "file": "packages/laravel/src/LaravelFrameworkIntegration.php",
-      "search": "if ($sourceMajor >= $targetMajor)",
-      "replace": "if ($sourceMajor > $targetMajor)",
+      "search": "if ($sourceMajor >= $targetMajor) {\n            return $this->unsupportedTransition(",
+      "replace": "if ($sourceMajor > $targetMajor) {\n            return $this->unsupportedTransition(",
       "test_filter": "LaravelFrameworkIntegrationTest"
     },
     {

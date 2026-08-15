@@ -1,0 +1,10 @@
+{
+  "name": "nunomaduro/collision",
+  "description": "Metadata-only Collision candidate for the staged offline demo.",
+  "version": "8.6.0",
+  "type": "metapackage",
+  "license": "MIT",
+  "require": {
+    "php": "^8.2"
+  }
+}

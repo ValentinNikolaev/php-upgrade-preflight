@@ -18,6 +18,7 @@ final class ReleaseWorkflowTest extends TestCase
         self::assertStringContainsString('git merge-base --is-ancestor', $workflow);
         self::assertStringContainsString("release_branch='main'", $workflow);
         self::assertStringContainsString("release_branch='0.1.x'", $workflow);
+        self::assertStringContainsString("release_branch='0.2.x'", $workflow);
         self::assertStringContainsString('refs/remotes/origin/${release_branch}', $workflow);
     }
 
@@ -181,8 +182,8 @@ final class ReleaseWorkflowTest extends TestCase
         self::assertStringContainsString('ARTIFACT-PROVENANCE.json', $workflow);
         self::assertStringContainsString('php tools/release-artifact-metadata.php generate', $workflow);
         self::assertStringContainsString('php tools/release-artifact-metadata.php verify', $workflow);
-        self::assertStringContainsString('"0.7"', $workflow);
-        self::assertStringNotContainsString('!== "0.6"', $workflow);
+        self::assertStringContainsString('"0.8"', $workflow);
+        self::assertStringNotContainsString('!== "0.7"', $workflow);
         self::assertStringContainsString('php tools/mask-secret-canaries.php', $workflow);
         self::assertStringContainsString('php tools/render-markdown-report.php', $workflow);
         self::assertStringContainsString("needs:\n      - artifact-consumer", $workflow);
@@ -399,7 +400,7 @@ final class ReleaseWorkflowTest extends TestCase
         self::assertStringContainsString('$manifest["scripts"] = $fixture["scripts"]', $runs);
         foreach (['core', 'cli', 'laravel'] as $package) {
             self::assertStringContainsString(
-                sprintf('options\\":{\\"versions\\":{\\"php-upgrade-preflight/%s\\":\\"0.2.x-dev\\"', $package),
+                sprintf('options\\":{\\"versions\\":{\\"php-upgrade-preflight/%s\\":\\"0.3.x-dev\\"', $package),
                 $runs
             );
         }

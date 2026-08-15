@@ -4,9 +4,16 @@ This project follows [Semantic Versioning](https://semver.org/). Report schema v
 
 ## [Unreleased]
 
+### Added
+
+- Froze the signed v0.2.1 compatibility surface and canonical reports, created the `0.2.x` maintenance line, and locked the machine-readable v0.3 contract with schema `0.8` migration evidence.
+- Added bounded staged Composer analysis with adjacent Laravel 10→11→12→13 hops, deterministic remediation attempts, carried candidate state, blocker lifecycle tracking, and an offline five-minute demo fixture.
+
 ### Changed
 
 - Declared the project a source-available public beta, clarified the noncommercial PolyForm licensing model, documented the v0.2.x compatibility commitment and v0.3 change boundary, and made explicit that analyzer output is not a production-readiness or runtime-compatibility guarantee.
+- Published a commercial-license request form and limited external contributions to documentation-only changes until a legally reviewed contributor license agreement or other suitable inbound license grant is adopted; bug reports, private security reports, and product feedback remain welcome.
+- Advanced active development identity to `0.3.x-dev`, report metadata to tool `0.3.0-dev`, and the canonical report schema to `0.8`; released v0.2.1 artifacts remain immutable.
 
 ## [0.2.1] - 2026-08-11
 

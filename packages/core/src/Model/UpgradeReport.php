@@ -37,6 +37,7 @@ final class UpgradeReport
     private array $uncertainties;
     /** @var list<Evidence> */
     private array $evidence;
+    private StagedResolution $stagedResolution;
 
     /**
      * @param list<ScenarioResult> $scenarios
@@ -68,7 +69,8 @@ final class UpgradeReport
         array $tests = [],
         array $actionableSourceImpact = [],
         array $frameworkGuidance = [],
-        ?TargetPlatform $targetPlatform = null
+        ?TargetPlatform $targetPlatform = null,
+        ?StagedResolution $stagedResolution = null
     ) {
         $this->metadata = new ReportMetadata();
         $this->request = $request;
@@ -91,6 +93,7 @@ final class UpgradeReport
             $this->platformUncertainties()
         )));
         $this->evidence = array_values($evidence);
+        $this->stagedResolution = $stagedResolution ?? StagedResolution::skipped('stage_target_provider_unavailable');
 
         $this->validateFrameworkFindingScopes();
 
@@ -228,6 +231,11 @@ final class UpgradeReport
         return 'unknown';
     }
 
+    public function stagedResolution(): StagedResolution
+    {
+        return $this->stagedResolution;
+    }
+
     /** @return array<string, mixed> */
     public function toArray(): array
     {
@@ -240,6 +248,7 @@ final class UpgradeReport
                 'status' => $this->resolutionStatus(),
                 'scenarios' => array_map(static fn (ScenarioResult $scenario): array => $scenario->toArray(), $this->scenarios),
             ],
+            'staged_resolution' => $this->stagedResolution->toArray(),
             'transition' => [
                 'package_changes' => array_map(static fn (PackageChange $change): array => $change->toArray(), $this->lockDiff->packageChanges()),
                 'root_constraint_changes' => array_map(
@@ -318,6 +327,8 @@ final class UpgradeReport
         foreach ($this->rootConstraintChanges as $index => $change) {
             $references = $this->appendFindingReferences($references, $change->evidence(), sprintf('Root constraint change at index %d', $index));
         }
+
+        $references = array_merge($references, $this->stagedResolution->evidenceReferences());
 
         foreach ($this->planStages as $index => $stage) {
             $references = $this->appendFindingReferences($references, $stage->evidence(), sprintf('Plan stage at index %d', $index));

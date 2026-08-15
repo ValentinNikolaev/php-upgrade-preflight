@@ -1,6 +1,6 @@
 # PHP Upgrade Preflight Report
 
-Resolution: **blocked** | Schema: `0.7` | Tool: `php-upgrade-preflight 0.2.1`
+Resolution: **blocked** | Staged: **unknown** | Schema: `0.8` | Tool: `php-upgrade-preflight 0.3.0-dev`
 
 ## Analysis Request
 - Project: `<PROJECT_PATH>`
@@ -50,7 +50,7 @@ Resolution: **blocked** | Schema: `0.7` | Tool: `php-upgrade-preflight 0.2.1`
     Fixture baseline is valid.
     ```
   - stderr excerpt: *(empty)*
-  - candidate lock: SHA-256 `102b3791ab5530bfea72f8b587a77c858db95ad4406a7c6dacae1c7869d33e09`, content hash `laravel-package-matrix`, packages `14`
+  - candidate lock: SHA-256 `1ad00c20a738947e3309a0e6917a76cea816fbbd9b2e790222fbdc8a343403d9`, content hash `laravel-package-matrix`, packages `14`
   - diagnostics: none
 - `exact-target`: failed (outcome `solver_failure`, Composer `unknown`, duration `1 ms`, exit `2`, failure type `solver`)
   - command argv: `["composer","update","laravel/framework","--no-scripts","--no-plugins","--no-install","--no-audit","--no-progress","--no-interaction"]`
@@ -150,6 +150,12 @@ Resolution: **blocked** | Schema: `0.7` | Tool: `php-upgrade-preflight 0.2.1`
       ```text
       No additional fixture diagnostic.
       ```
+
+## Staged Composer Resolution
+- Execution: `skipped`; status: `unknown`; provider: `laravel`; stop reason: `guidance_gap`
+- No framework stages were executed.
+- Blocker registry:
+  - None recorded.
 
 ## Package Changes
 - No lockfile changes detected.

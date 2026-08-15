@@ -36,14 +36,14 @@ use Symfony\Component\Filesystem\Filesystem;
 
 final class UpgradeReportSchemaTest extends TestCase
 {
-    public function testCanonicalV07ReportMatchesTheCommittedSnapshot(): void
+    public function testCanonicalV08ReportMatchesTheCommittedSnapshot(): void
     {
         $projectPath = dirname(__DIR__, 5) . '/tests/fixtures/laravel-app';
         $actual = JsonSnapshotNormalizer::normalize(
             (new JsonReportWriter())->render($this->report($projectPath)),
             $projectPath
         );
-        $snapshotPath = dirname(__DIR__, 2) . '/Snapshots/upgrade-report-v0.7.json';
+        $snapshotPath = dirname(__DIR__, 2) . '/Snapshots/upgrade-report-v0.8.json';
         if (getenv('PHP_UPGRADE_PREFLIGHT_UPDATE_SNAPSHOTS') === '1') {
             file_put_contents($snapshotPath, $actual);
         }
@@ -53,7 +53,7 @@ final class UpgradeReportSchemaTest extends TestCase
         self::assertSame($snapshot, $actual);
     }
 
-    public function testCanonicalV07ReportConformsToThePublishedSchema(): void
+    public function testCanonicalV08ReportConformsToThePublishedSchema(): void
     {
         $projectPath = dirname(__DIR__, 5) . '/tests/fixtures/laravel-app';
         $json = (new JsonReportWriter())->render($this->report($projectPath));
@@ -110,14 +110,14 @@ final class UpgradeReportSchemaTest extends TestCase
 
     public function testPublishedSchemaAndRuntimeMetadataDescribeTheSameContractVersion(): void
     {
-        $contents = file_get_contents(dirname(__DIR__, 3) . '/resources/schema/upgrade-report-v0.7.schema.json');
+        $contents = file_get_contents(dirname(__DIR__, 3) . '/resources/schema/upgrade-report-v0.8.schema.json');
 
         self::assertIsString($contents);
         /** @var array<string, mixed> $schema */
         $schema = json_decode($contents, true, 512, JSON_THROW_ON_ERROR);
 
         self::assertSame('https://json-schema.org/draft/2020-12/schema', $schema['$schema']);
-        self::assertSame('urn:php-upgrade-preflight:schema:upgrade-report:0.7', $schema['$id']);
+        self::assertSame('urn:php-upgrade-preflight:schema:upgrade-report:0.8', $schema['$id']);
         self::assertSame(
             ReportMetadata::SCHEMA_VERSION,
             $schema['$defs']['metadata']['properties']['schema_version']['const']
@@ -170,6 +170,14 @@ final class UpgradeReportSchemaTest extends TestCase
 
         self::assertIsString($snapshot);
         $this->assertConformsToSchema($snapshot, '0.6');
+    }
+
+    public function testCanonicalV07SnapshotStillConformsToThePreservedSchema(): void
+    {
+        $snapshot = file_get_contents(dirname(__DIR__, 2) . '/Snapshots/upgrade-report-v0.7.json');
+
+        self::assertIsString($snapshot);
+        $this->assertConformsToSchema($snapshot, '0.7');
     }
 
     public function testPublishedV05BlockerContractRemainsUnchanged(): void
@@ -446,7 +454,7 @@ final class UpgradeReportSchemaTest extends TestCase
         );
     }
 
-    private function assertConformsToSchema(string $json, string $schemaVersion = '0.7'): void
+    private function assertConformsToSchema(string $json, string $schemaVersion = '0.8'): void
     {
         $schemaContents = file_get_contents(sprintf(
             '%s/resources/schema/upgrade-report-v%s.schema.json',

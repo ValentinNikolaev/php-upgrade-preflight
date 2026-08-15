@@ -24,6 +24,7 @@ use Symfony\Component\Process\Process;
 
 final class ComposerScenarioRunner
 {
+    public const SCENARIO_TIMEOUT_SECONDS = 300;
     private const ABSENT_EXTENSION_MIN_COMPOSER_VERSION = '2.2.0';
     private const LOCKED_DIAGNOSTIC_MIN_COMPOSER_VERSION = '2.4.0';
     /** @var list<string> */
@@ -120,9 +121,16 @@ final class ComposerScenarioRunner
 
         try {
             $tempPath = $this->workspaces->createFromProject($project->path());
+            $this->seedProjectState($tempPath, $project);
             $phase = 'preparation';
+            $candidateManifest = $project->composerJson();
             if (!$scenario->isBaselineValidation()) {
-                $this->applyTemporaryComposerChanges($tempPath, $project->path(), $scenario, $platform);
+                $candidateManifest = $this->applyTemporaryComposerChanges(
+                    $tempPath,
+                    $project,
+                    $scenario,
+                    $platform
+                );
             }
             $phase = 'process';
             $startedAt = ($this->clock)();
@@ -137,12 +145,17 @@ final class ComposerScenarioRunner
 
             $lock = null;
             $candidateLockEvidence = null;
+            $candidateProjectState = null;
             $lockPath = $tempPath . DIRECTORY_SEPARATOR . 'composer.lock';
             $phase = 'lockfile';
             if ($process['exit_code'] === 0 && is_file($lockPath)) {
-                $manifest = new ComposerJson($this->reader->read($tempPath . DIRECTORY_SEPARATOR . 'composer.json'));
-                $lock = new ComposerLock($this->reader->read($lockPath), array_keys($manifest->rootRequirements()));
+                $lock = new ComposerLock($this->reader->read($lockPath), array_keys($candidateManifest->rootRequirements()));
                 $candidateLockEvidence = CandidateLockEvidence::fromFile($lockPath, $lock);
+                $candidateProjectState = new ProjectState(
+                    $project->path(),
+                    $candidateManifest,
+                    $lock
+                );
             }
 
             $failureType = null;
@@ -193,7 +206,8 @@ final class ComposerScenarioRunner
                 $candidateLockEvidence,
                 $diagnostics,
                 $outcome,
-                $request->debug()
+                $request->debug(),
+                $candidateProjectState
             );
         } catch (\Throwable $exception) {
             if ($exception instanceof WorkspaceCleanupException) {
@@ -334,7 +348,13 @@ final class ComposerScenarioRunner
      */
     private function runProcess(array $command, string $workingDirectory): array
     {
-        $process = new Process($command, $workingDirectory, ['COMPOSER_NO_INTERACTION' => '1'], null, 300);
+        $process = new Process(
+            $command,
+            $workingDirectory,
+            ['COMPOSER_NO_INTERACTION' => '1'],
+            null,
+            self::SCENARIO_TIMEOUT_SECONDS
+        );
         $process->run();
 
         return [
@@ -405,14 +425,12 @@ final class ComposerScenarioRunner
 
     private function applyTemporaryComposerChanges(
         string $tempPath,
-        string $projectPath,
+        ProjectState $project,
         Scenario $scenario,
         TargetPlatform $platform
-    ): void {
+    ): ComposerJson {
         $composerPath = $tempPath . DIRECTORY_SEPARATOR . 'composer.json';
-        $data = $this->reader->read($composerPath);
-
-        $data = $this->absolutePathRepositories($data, $projectPath);
+        $data = $project->composerJson()->data();
 
         foreach ($scenario->targets()->packageTargets() as $target) {
             if (isset($data['require-dev']) && is_array($data['require-dev']) && array_key_exists($target->package(), $data['require-dev'])
@@ -436,9 +454,28 @@ final class ComposerScenarioRunner
             $data['config']['platform'][$extension] = $value;
         }
 
+        $candidateManifest = new ComposerJson($data);
+        $data = $this->absolutePathRepositories($data, $project->path());
+
         $encoded = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR) . PHP_EOL;
         if (@file_put_contents($composerPath, $encoded) === false) {
             throw new \RuntimeException('Unable to write the temporary Composer manifest.');
+        }
+
+        return $candidateManifest;
+    }
+
+    private function seedProjectState(string $tempPath, ProjectState $project): void
+    {
+        $files = [
+            'composer.json' => $project->composerJson()->data(),
+            'composer.lock' => $project->composerLock()->data(),
+        ];
+        foreach ($files as $name => $data) {
+            $encoded = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR) . PHP_EOL;
+            if (@file_put_contents($tempPath . DIRECTORY_SEPARATOR . $name, $encoded) === false) {
+                throw new \RuntimeException(sprintf('Unable to seed the temporary %s.', $name));
+            }
         }
     }
 
@@ -690,6 +727,8 @@ final class ComposerScenarioRunner
     ): string {
         return hash('sha256', serialize([
             $project->path(),
+            $project->composerJson()->data(),
+            $project->composerLock()->data(),
             $scenario->targets()->toArray(),
             $package,
             $constraint,

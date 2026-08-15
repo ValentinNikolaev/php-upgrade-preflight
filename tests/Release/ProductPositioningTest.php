@@ -8,6 +8,10 @@ use PHPUnit\Framework\TestCase;
 
 final class ProductPositioningTest extends TestCase
 {
+    private const COMMERCIAL_LICENSE_REQUEST_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSfUlJJnSoqgUuJnKUCGzQQpIeXZtz471iD_XiPTjdnODbooYw/viewform';
+
+    private const CODE_CONTRIBUTION_POLICY = 'External code contributions are not currently accepted.';
+
     private string $root;
 
     protected function setUp(): void
@@ -78,6 +82,65 @@ final class ProductPositioningTest extends TestCase
             'The standard PolyForm license body must remain byte-stable after line-ending normalization.'
         );
         self::assertStringContainsString('https://polyformproject.org/licenses/noncommercial/1.0.0', $license);
+    }
+
+    public function testCommercialLicenseContactIsCanonicalAcrossPublicSurfaces(): void
+    {
+        foreach (
+            [
+                'README.md',
+                'LICENSE',
+                'docs/project-status.md',
+                '.github/ISSUE_TEMPLATE/config.yml',
+            ] as $relativePath
+        ) {
+            self::assertSame(
+                1,
+                substr_count($this->read($relativePath), self::COMMERCIAL_LICENSE_REQUEST_URL),
+                sprintf('%s must contain the canonical commercial-license contact exactly once.', $relativePath)
+            );
+        }
+
+        self::assertStringContainsString(
+            'Submitting the form does not grant a license or authorize commercial use.',
+            $this->read('docs/project-status.md')
+        );
+    }
+
+    public function testContributorSurfacesKeepExternalCodeClosedAndDocumentationOpen(): void
+    {
+        $contributing = $this->read('CONTRIBUTING.md');
+        self::assertStringContainsString('Documentation-only contributions are welcome.', $contributing);
+        self::assertStringContainsString(self::CODE_CONTRIBUTION_POLICY, $contributing);
+        self::assertStringContainsString('legally reviewed contributor license agreement', $contributing);
+        self::assertStringNotContainsString('By contributing, you agree that your contribution is licensed', $contributing);
+        self::assertStringContainsString('Bug reports and product feedback remain welcome', $contributing);
+        self::assertStringContainsString('Report security vulnerabilities privately', $contributing);
+
+        $pullRequestTemplate = $this->read('.github/pull_request_template.md');
+        self::assertStringContainsString('documentation-only contributions', $pullRequestTemplate);
+        self::assertStringContainsString(self::CODE_CONTRIBUTION_POLICY, $pullRequestTemplate);
+        self::assertStringContainsString('Report security vulnerabilities privately', $pullRequestTemplate);
+
+        $issueForms = array_merge(
+            glob($this->root . '/.github/ISSUE_TEMPLATE/*.yml') ?: [],
+            glob($this->root . '/.github/ISSUE_TEMPLATE/*.yaml') ?: []
+        );
+        $issueForms = array_values(array_filter(
+            $issueForms,
+            static fn (string $path): bool => !in_array(basename($path), ['config.yml', 'config.yaml'], true)
+        ));
+        self::assertNotEmpty($issueForms, 'At least one issue form must preserve the non-code reporting path.');
+
+        foreach ($issueForms as $issueForm) {
+            $contents = file_get_contents($issueForm);
+            self::assertIsString($contents, sprintf('Unable to read %s.', $issueForm));
+            self::assertStringContainsString(
+                self::CODE_CONTRIBUTION_POLICY,
+                $contents,
+                sprintf('%s must not invite external code contributions.', $issueForm)
+            );
+        }
     }
 
     public function testThirdPartyAdapterFixtureRemainsExplicitlyOutsideTheProductPackages(): void

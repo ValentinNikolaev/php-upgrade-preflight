@@ -18,6 +18,7 @@ use PhpUpgradePreflight\Core\Model\LockDiff;
 use PhpUpgradePreflight\Core\Model\RiskSummary;
 use PhpUpgradePreflight\Core\Model\Scenario;
 use PhpUpgradePreflight\Core\Model\ScenarioResult;
+use PhpUpgradePreflight\Core\Model\StagedResolution;
 use PhpUpgradePreflight\Core\Model\TargetPlatform;
 use PhpUpgradePreflight\Core\Model\UpgradeReport;
 use PhpUpgradePreflight\Core\Model\UpgradeRequest;
@@ -39,6 +40,7 @@ final class DefaultUpgradeAnalyzer implements UpgradeAnalyzer
     private ReportAssembler $reportAssembler;
     private AutoloadOwnershipIndexBuilder $ownershipIndexBuilder;
     private SourceImpactBuilder $sourceImpactBuilder;
+    private StagedUpgradeOrchestrator $stagedUpgradeOrchestrator;
 
     /** @param list<FrameworkIntegration> $frameworks */
     public function __construct(
@@ -54,7 +56,8 @@ final class DefaultUpgradeAnalyzer implements UpgradeAnalyzer
         ?ReportAssembler $reportAssembler = null,
         ?ScenarioSelector $scenarioSelector = null,
         ?AutoloadOwnershipIndexBuilder $ownershipIndexBuilder = null,
-        ?SourceImpactBuilder $sourceImpactBuilder = null
+        ?SourceImpactBuilder $sourceImpactBuilder = null,
+        ?StagedUpgradeOrchestrator $stagedUpgradeOrchestrator = null
     ) {
         $this->projectStateBuilder = $projectStateBuilder ?? new ProjectStateBuilder();
         $this->scenarioRunner = $scenarioRunner ?? new ComposerScenarioRunner();
@@ -68,6 +71,8 @@ final class DefaultUpgradeAnalyzer implements UpgradeAnalyzer
         $this->reportAssembler = $reportAssembler ?? new ReportAssembler();
         $this->ownershipIndexBuilder = $ownershipIndexBuilder ?? new AutoloadOwnershipIndexBuilder();
         $this->sourceImpactBuilder = $sourceImpactBuilder ?? new SourceImpactBuilder();
+        $this->stagedUpgradeOrchestrator = $stagedUpgradeOrchestrator
+            ?? new StagedUpgradeOrchestrator($this->scenarioRunner, $this->blockerGrouper, $this->lockDiffBuilder);
     }
 
     public function analyzeUpgrade(UpgradeRequest $request): UpgradeReport
@@ -115,6 +120,13 @@ final class DefaultUpgradeAnalyzer implements UpgradeAnalyzer
             $requestedConstraints,
             $platform
         );
+        $stagedResolution = $this->stagedUpgradeOrchestrator->analyze(
+            $activeFrameworks,
+            $project,
+            $request,
+            $platform,
+            $evidence
+        );
         $sourceUncertainties = $analysisUncertainties;
         $sourceInventory = $this->sourceUsageScanner->scan(
             $project,
@@ -150,6 +162,10 @@ final class DefaultUpgradeAnalyzer implements UpgradeAnalyzer
             $ownershipIndex,
             $evidence
         );
+        $stagedResolution = $stagedResolution->withSourceAssessments(
+            $frameworkFindings,
+            $actionableSourceImpact
+        );
         $risk = $this->riskAndEffortEstimator->estimateRisk(
             $blockers,
             $lockDiff->packageChanges(),
@@ -172,7 +188,8 @@ final class DefaultUpgradeAnalyzer implements UpgradeAnalyzer
             $evidence,
             $frameworkGuidance,
             $platform,
-            $actionableSourceImpact
+            $actionableSourceImpact,
+            $stagedResolution
         );
     }
 
@@ -229,7 +246,14 @@ final class DefaultUpgradeAnalyzer implements UpgradeAnalyzer
                 ['Upgrade effort was not estimated because Composer project input could not be loaded.']
             ),
             [sprintf('Composer project input could not be loaded: %s', $safeFailureMessage)],
-            []
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            null,
+            StagedResolution::skipped('project_input_failure')
         );
     }
 

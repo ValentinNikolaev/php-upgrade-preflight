@@ -6,8 +6,8 @@ namespace PhpUpgradePreflight\Tools;
 
 final class ReleaseVerifier
 {
-    private const ACTIVE_RELEASE_SERIES = '0.2';
-    private const ACTIVE_SCHEMA_VERSION = '0.7';
+    private const ACTIVE_RELEASE_SERIES = '0.3';
+    private const ACTIVE_SCHEMA_VERSION = '0.8';
 
     /** @var array<string, string> */
     private const PACKAGE_NAMES = [

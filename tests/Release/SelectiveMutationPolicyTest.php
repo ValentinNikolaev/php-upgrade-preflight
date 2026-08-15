@@ -29,7 +29,7 @@ final class SelectiveMutationPolicyTest extends TestCase
         $expected = [
             'scenario-selection-package-target-guard' => 'packages/core/src/Analysis/ScenarioSelector.php',
             'composer-blocker-platform-pattern' => 'packages/core/src/Analysis/ComposerBlockerParser.php',
-            'schema-version-constant' => 'packages/core/resources/schema/upgrade-report-v0.7.schema.json',
+            'schema-version-constant' => 'packages/core/resources/schema/upgrade-report-v0.8.schema.json',
             'risk-resolution-blocker-level' => 'packages/core/src/Analysis/RiskAndEffortEstimator.php',
             'laravel-transition-equal-major-guard' => 'packages/laravel/src/LaravelFrameworkIntegration.php',
             'release-series-lock-branch' => 'tools/ReleaseVerifier.php',

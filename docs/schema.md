@@ -5,10 +5,10 @@ JSON reports use a versioned consumer contract. Tool releases and schema release
 ```json
 {
   "metadata": {
-    "schema_version": "0.7",
+    "schema_version": "0.8",
     "tool": {
       "name": "php-upgrade-preflight",
-      "version": "0.2.1"
+      "version": "0.3.0-dev"
     }
   }
 }
@@ -18,10 +18,11 @@ Select a parser or validator through `metadata.schema_version`. Do not infer the
 
 ## Current contract
 
-PHP Upgrade Preflight v0.2.1 writes the strict Draft 2020-12 [`upgrade-report-v0.7.schema.json`](../packages/core/resources/schema/upgrade-report-v0.7.schema.json). It rejects unknown properties and defines scenario outcomes, structured blockers, platform provenance, package changes, framework-transition guidance, source inventory, actionable source impact, risk, effort, and uncertainties.
+The v0.3 development line writes the strict Draft 2020-12 [`upgrade-report-v0.8.schema.json`](../packages/core/resources/schema/upgrade-report-v0.8.schema.json). It rejects unknown properties and adds required staged execution, adjacent-stage attempts, selected-state fingerprints, and a lifecycle-preserving blocker registry to the schema 0.7 fields.
 
 Historical schemas remain in the same directory for consumers that store older reports:
 
+- [v0.7](../packages/core/resources/schema/upgrade-report-v0.7.schema.json)
 - [v0.6](../packages/core/resources/schema/upgrade-report-v0.6.schema.json)
 - [v0.5](../packages/core/resources/schema/upgrade-report-v0.5.schema.json)
 - [v0.4](../packages/core/resources/schema/upgrade-report-v0.4.schema.json)
@@ -38,7 +39,29 @@ Markdown has no independent contract. It projects the canonical report for human
 
 Composer `stdout_excerpt` and `stderr_excerpt` values are bounded and redacted before they enter the canonical model. Stable markers such as `[REDACTED]`, `[REDACTED_TOKEN]`, and `[REDACTED_URL]` replace sensitive values without changing the schema shape.
 
-Historical reports are not rewritten. A consumer that accepts both v0.1 and v0.2 output must keep a schema `0.6` path and a schema `0.7` path rather than normalizing by tool-version string.
+Historical reports are not rewritten. A multi-version consumer must retain separate schema `0.6`, `0.7`, and `0.8` paths rather than normalizing by tool-version string.
+
+## Migrating from 0.7 to 0.8
+
+Schema 0.8 adds one required top-level object, `staged_resolution`. It does not change the meaning of `resolution.status`, `transition.framework_guidance`, direct-final `transition.package_changes`, or the schema 0.7 source fields.
+
+| 0.7 | 0.8 |
+| --- | --- |
+| No adjacent Composer-stage result | `staged_resolution` records execution state, independent resolution status, provider, stages, blocker registry, stop reason, budgets, and evidence |
+| Final-target blockers only | `staged_resolution.blocker_registry[]` retains attempt- and stage-scoped lifecycle history |
+| No selected intermediate project state | Each stage links predecessor, input, and selected output manifest/lock/platform/execution-policy fingerprints |
+| Framework findings are hop-scoped | Executed stages also project applicable findings and source impact while explicitly naming `original_project` as the inspected snapshot |
+
+For a 0.7/0.8 consumer:
+
+1. Dispatch on `metadata.schema_version`.
+2. Keep existing 0.7 direct-resolution and guidance reads unchanged.
+3. For 0.8 only, read `staged_resolution.execution_state` before interpreting its independent `status`.
+4. Treat `blocker_registry` as an ordered array even when empty or when it contains one entry.
+5. Advance through stages only when the stage has a selected attempt and its output fingerprint matches the next stage's input fingerprint.
+6. Do not infer an empty staged result for schema 0.7; the field's absence identifies the older contract.
+
+The minimal canonical 0.8 fixture is [`tests/fixtures/contracts/v0.3/minimal-report-v0.8.json`](../tests/fixtures/contracts/v0.3/minimal-report-v0.8.json). The complete staged semantics are locked in the [v0.3 contract](v0.3-contract.md).
 
 ## Path exposure and report privacy
 

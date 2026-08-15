@@ -1,0 +1,131 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "0e3e25bea4860bcbbe5529ec8924aab5",
+    "packages": [
+        {
+            "name": "laravel/framework",
+            "version": "10.0.0",
+            "dist": {
+                "type": "path",
+                "url": "../repository/framework-10"
+            },
+            "require": {
+                "php": "^8.1"
+            },
+            "type": "metapackage",
+            "license": [
+                "PolyForm-Noncommercial-1.0.0"
+            ],
+            "description": "Metadata-only Laravel 10 package for the offline demo.",
+            "transport-options": {
+                "symlink": false,
+                "relative": true
+            }
+        },
+        {
+            "name": "laravel/tinker",
+            "version": "2.9.0",
+            "dist": {
+                "type": "path",
+                "url": "../repository/tinker-2"
+            },
+            "require": {
+                "php": "^8.1"
+            },
+            "type": "metapackage",
+            "license": [
+                "PolyForm-Noncommercial-1.0.0"
+            ],
+            "description": "Metadata-only Tinker 2 package for the offline demo.",
+            "transport-options": {
+                "symlink": false,
+                "relative": true
+            }
+        },
+        {
+            "name": "nesbot/carbon",
+            "version": "2.72.0",
+            "dist": {
+                "type": "path",
+                "url": "../repository/carbon-2"
+            },
+            "require": {
+                "php": "^8.1"
+            },
+            "type": "metapackage",
+            "license": [
+                "PolyForm-Noncommercial-1.0.0"
+            ],
+            "description": "Metadata-only Carbon 2 package for the offline demo.",
+            "transport-options": {
+                "symlink": false,
+                "relative": true
+            }
+        }
+    ],
+    "packages-dev": [
+        {
+            "name": "nunomaduro/collision",
+            "version": "7.11.0",
+            "dist": {
+                "type": "path",
+                "url": "../repository/collision-7"
+            },
+            "require": {
+                "php": "^8.1.0"
+            },
+            "conflict": {
+                "laravel/framework": ">=11.0.0"
+            },
+            "type": "metapackage",
+            "license": [
+                "MIT"
+            ],
+            "description": "Metadata-only model of the Laravel conflict declared by Collision 7.11.0.",
+            "support": {
+                "source": "https://github.com/nunomaduro/collision/tree/v7.11.0"
+            },
+            "transport-options": {
+                "symlink": false,
+                "relative": true
+            }
+        },
+        {
+            "name": "phpunit/phpunit",
+            "version": "10.0.0",
+            "dist": {
+                "type": "path",
+                "url": "../repository/phpunit-10"
+            },
+            "require": {
+                "php": "^8.1"
+            },
+            "conflict": {
+                "laravel/framework": ">=11.0.0"
+            },
+            "type": "metapackage",
+            "license": [
+                "PolyForm-Noncommercial-1.0.0"
+            ],
+            "description": "Metadata-only PHPUnit 10 package for the offline demo.",
+            "transport-options": {
+                "symlink": false,
+                "relative": true
+            }
+        }
+    ],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": {},
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": {
+        "php": "^8.1"
+    },
+    "platform-dev": {},
+    "plugin-api-version": "2.9.0"
+}

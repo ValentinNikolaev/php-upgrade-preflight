@@ -8,7 +8,7 @@ PHP Upgrade Preflight is a public beta while its public PHP API, CLI and Artisan
 
 Within the released v0.2.x line, patch releases preserve the public PHP operation, CLI and Artisan behavior, adapter metadata, exit policy, schema `0.7` compatibility, and supported transition claims. A patch may correct findings, evidence, diagnostics, security behavior, or documentation while retaining those contracts.
 
-The planned v0.3 line is a new `0.MINOR` release. It may make documented breaking changes to inputs, report shape, package constraints, and adapter extension points. Its planned schema `0.8`, target-platform profiles, and staged Composer results are not features of v0.2.x. Historical v0.2 schemas and signed compatibility artifacts remain immutable, and every intentional migration must be documented when v0.3 is released.
+The active v0.3 development line is a new `0.MINOR` release. It introduces schema `0.8`, an optional stage-target provider, and staged Composer results; later milestones complete target-platform profiles and execution hardening. Historical v0.2 schemas and signed compatibility artifacts remain immutable, and every intentional migration is documented before v0.3 is released.
 
 ## The `0.x` phase
 
@@ -18,19 +18,19 @@ The project will keep major version `0` while its public PHP API, CLI contract, 
 - minor releases such as `0.2.0` contain backward-compatible features and any intentional breaking changes;
 - every breaking change must still be called out prominently in the changelog and migration notes.
 
-This follows the practical meaning of SemVer's initial-development rule: compatibility is not promised across `0.MINOR` lines. Composer constraints therefore keep project-package dependencies on the same minor line, currently `^0.2`.
+This follows the practical meaning of SemVer's initial-development rule: compatibility is not promised across `0.MINOR` lines. Composer constraints therefore keep project-package dependencies on the same minor line, currently `^0.3` on `main`.
 
 ## Active release line
 
-Release automation is enabled for the active `0.2.x` release line. The v0.2.0 release candidate was approved as the coordinated minor release that introduces schema `0.7`, expanded Laravel transition guidance, platform provenance, and actionable source-impact semantics. The verifier rejects `0.1.x`, `0.3.x`, `1.x`, and every other series even when their files are otherwise internally consistent.
+Release automation on `main` permits only the active `0.3.x` release line and requires schema `0.8`, `0.3.x-dev` aliases, and `^0.3` internal constraints. The released `0.2.x` line is retained on the `0.2.x` maintenance branch; v0.1.x remains on `0.1.x`. A maintenance release is prepared from its own branch and verifier policy, never by weakening the active `main` verifier.
 
 The signed v0.1.0 release and its schema `0.6` artifacts remain immutable historical contracts. A security or maintenance release on the retired `0.1.x` line requires an explicit coordinated policy change on its maintenance branch; it is not prepared from `main` and does not weaken the archived compatibility checks.
 
-## v0.2 release and development identity
+## v0.2 release and v0.3 development identity
 
 The current v0.2.1 release identifies reports as tool `0.2.1` with schema `0.7`; v0.2.0 reports use the same schema. Root path repositories and package branch aliases use `0.2.x-dev`, while internal package constraints use `^0.2`. Composer derives exact package releases from matching Git tags; package manifests do not declare a `version` field.
 
-The branch aliases describe Composer's `dev-main` line, not the version embedded in release reports. Future v0.2 patch releases update the exact tool version, dated changelog entry, and release notes together while retaining `0.2.x-dev` aliases and `^0.2` internal constraints. Exact release tags never use a `-dev` suffix.
+The `main` development identity is tool `0.3.0-dev`, schema `0.8`, branch aliases and root path versions `0.3.x-dev`, and internal constraints `^0.3`. The aliases describe Composer's development branch, not a tagged release. Exact release tags never use a `-dev` suffix. Future v0.2 maintenance releases retain their historical schema and `0.2.x` policy on the maintenance branch.
 
 ## When to release `1.0`
 
@@ -47,7 +47,7 @@ Composer package versions come from Git tags; package manifests deliberately do 
 - `ReportMetadata::TOOL_VERSION`;
 - the changelog release heading and release-notes filename;
 - every `dev-main` branch alias and root path-repository development version;
-- internal package constraints such as `php-upgrade-preflight/core:^0.2`;
-- the report schema expected for the active release line (`0.7` for v0.2.x).
+- internal package constraints such as `php-upgrade-preflight/core:^0.3`;
+- the report schema expected for the active release line (`0.8` for v0.3.x).
 
 The monorepo GitHub release and the three distribution repositories must use the same `vMAJOR.MINOR.PATCH` tag.

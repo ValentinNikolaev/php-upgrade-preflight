@@ -1,0 +1,102 @@
+{
+    "metadata": {
+        "schema_version": "0.8",
+        "tool": {
+            "name": "php-upgrade-preflight",
+            "version": "0.3.0-dev"
+        }
+    },
+    "request_summary": {
+        "project_path": "[PROJECT_ROOT]",
+        "targets": [
+            {
+                "package": "php",
+                "constraint": "8.3.0"
+            }
+        ],
+        "from_php": null,
+        "target_php": "8.3.0",
+        "source_paths": [],
+        "frameworks": [],
+        "format": "json",
+        "output_path": null
+    },
+    "project_state": {
+        "path": "[PROJECT_ROOT]",
+        "platform_php": null,
+        "root_requirements": {},
+        "locked_packages": 0
+    },
+    "platform": {
+        "analyzer": {
+            "php_version": "8.3.0",
+            "provenance": "runtime"
+        },
+        "current_php": {
+            "version": null,
+            "provenance": "unknown"
+        },
+        "target_php": {
+            "version": "8.3.0",
+            "provenance": "request"
+        },
+        "extensions": {
+            "provenance": "analyzer_runtime",
+            "explicitly_modeled": false,
+            "completeness": "none",
+            "unmodeled_provenance": "analyzer_runtime",
+            "assumptions": []
+        }
+    },
+    "resolution": {
+        "status": "unknown",
+        "scenarios": []
+    },
+    "staged_resolution": {
+        "execution_state": "skipped",
+        "status": "unknown",
+        "provider": null,
+        "stages": [],
+        "blocker_registry": [],
+        "stop_reason": "stage_target_provider_unavailable",
+        "budgets": {
+            "max_hops": 6,
+            "max_attempts_per_stage": 3,
+            "max_scenarios": 18,
+            "scenario_timeout_seconds": 300,
+            "aggregate_timeout_seconds": 1800,
+            "memory_bytes": 268435456,
+            "json_report_bytes": 524288,
+            "markdown_report_bytes": 262144
+        },
+        "evidence": []
+    },
+    "transition": {
+        "package_changes": [],
+        "root_constraint_changes": [],
+        "framework_guidance": []
+    },
+    "blockers": [],
+    "source_inventory": [],
+    "source_impact": [],
+    "framework_findings": [],
+    "plan": {
+        "stages": []
+    },
+    "risk": {
+        "level": "low",
+        "drivers": []
+    },
+    "effort": {
+        "range_hours": [
+            0,
+            0
+        ],
+        "confidence": "high",
+        "components": {},
+        "assumptions": []
+    },
+    "tests": [],
+    "uncertainties": [],
+    "evidence": []
+}

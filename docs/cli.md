@@ -45,9 +45,9 @@ The v0.2 Laravel catalog supports 7→8, the retained direct 7→9 path, and adj
 
 ## Report interpretation
 
-Schema `0.7` separates observations from conclusions. `source_inventory` is the deterministic raw AST inventory. `source_impact` contains only inventory uses correlated with a package selected as changed by the successful final-target scenario, an applicable framework rule, or both. Each finding records ownership confidence, relevance, severity, exact occurrences, and evidence. An unknown owner stays `null`; it must not be inferred by a consumer.
+Schema `0.8` preserves the schema 0.7 separation of raw `source_inventory` and actionable direct `source_impact`, then adds `staged_resolution`. Each executed stage records attempts, the selected candidate-state chain, stage package changes, blocker lifecycle, and findings projected from the labeled original source snapshot.
 
-Read `resolution.status` and `transition.framework_guidance[].status` independently. A valid report can be Composer-blocked with supported framework guidance, or Composer-feasible with partial or unsupported guidance. See [JSON schema and compatibility](schema.md) for the schema 0.6→0.7 migration.
+Read `resolution.status`, `transition.framework_guidance[].status`, and `staged_resolution.status` independently. Check `staged_resolution.execution_state` before interpreting staged status; a skipped unknown is not a Composer blocker. See [JSON schema and compatibility](schema.md) for the 0.7→0.8 migration.
 
 ## Streams and exit codes
 
@@ -55,7 +55,7 @@ Reports go to stdout unless `--output` is set. Diagnostics go to stderr.
 
 | Code | Meaning |
 | --- | --- |
-| `0` | Help or a completed canonical report. Inspect `resolution.status`. |
+| `0` | Help or a completed canonical report. Inspect the direct and staged status fields. |
 | `1` | An internal or operational failure prevented report production. |
 | `2` | Invalid command syntax, paths, targets, format, framework, or output destination. |
 

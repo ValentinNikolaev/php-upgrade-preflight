@@ -10,7 +10,7 @@ An installed adapter package declares one or more integration classes under `ext
 {
   "name": "vendor/example-adapter",
   "require": {
-    "php-upgrade-preflight/core": "^0.2"
+    "php-upgrade-preflight/core": "^0.3"
   },
   "autoload": {
     "psr-4": {
@@ -64,3 +64,7 @@ Composer metadata generalizes standalone CLI registration; it does not replace L
 ## Regression fixture
 
 The repository's test-only `php-upgrade-preflight/test-adapter` package is deliberately outside CLI source. Its Composer metadata is the only production registration path. The `third-party-adapter` fixture proves automatic package detection, its `modules` default source path, a compatibility rule, and `test-vendor/*` package-family classification in a complete CLI analysis. It is test infrastructure and is not part of the published v0.2 package set.
+
+## Optional v0.3 staged targets
+
+An adapter may implement `FrameworkStageTargetProvider` in addition to the unchanged required `FrameworkIntegration` and `FrameworkTransitionProvider` contracts. The optional provider returns stable adjacent-stage IDs, exact package targets, an exact analysis PHP value, remediation candidates, and evidence. Old-style adapter source remains valid after its Composer constraint is updated to permit Core v0.3; without the optional interface it contributes ordinary detection and guidance while staged solving is skipped honestly. Only one active stage-target provider is allowed in v0.3.
