@@ -74,7 +74,29 @@ final class StagedUpgradeOrchestrator
 
         /** @var FrameworkIntegration&FrameworkStageTargetProvider $provider */
         $provider = $providers[0];
-        $plan = $provider->planStages($project, $request, $evidence);
+        $providerName = $provider->name();
+        $evidenceBeforePlanning = array_fill_keys(array_map(
+            static fn (Evidence $item): string => $item->id(),
+            $evidence->all()
+        ), true);
+        try {
+            $plan = $provider->planStages($project, $request, $evidence);
+        } catch (\Throwable) {
+            $providerEvidence = $this->newEvidenceReferences($evidence, $evidenceBeforePlanning);
+            $evidenceId = $evidence->add(
+                'stage-plan-invalid',
+                Evidence::E2_PACKAGE_METADATA,
+                'The active adapter failed while producing its staged target chain.',
+                'high',
+                ['provider' => $providerName, 'reason' => 'provider_failure']
+            )->id();
+
+            return StagedResolution::skipped(
+                'invalid_stage_plan',
+                $providerName,
+                array_values(array_unique(array_merge($providerEvidence, [$evidenceId])))
+            );
+        }
         $stages = $plan->stages();
         $planEvidence = $plan->evidence();
         foreach ($stages as $stage) {
@@ -84,7 +106,19 @@ final class StagedUpgradeOrchestrator
             }
         }
         $planEvidence = array_values(array_unique($planEvidence));
-        $validationFailure = $this->validatePlan($stages, $plan->provider(), $provider->name());
+        $providerEvidence = $this->newEvidenceReferences($evidence, $evidenceBeforePlanning);
+        $validationFailure = $this->validatePlan($stages, $plan->provider(), $providerName);
+        if ($validationFailure === null) {
+            foreach ($planEvidence as $reference) {
+                if (!$evidence->has($reference)) {
+                    $validationFailure = 'missing_evidence_reference';
+                    break;
+                }
+            }
+        }
+        if ($validationFailure === null && array_diff($providerEvidence, $planEvidence) !== []) {
+            $validationFailure = 'unreferenced_provider_evidence';
+        }
         if ($validationFailure !== null) {
             $evidenceId = $evidence->add(
                 'stage-plan-invalid',
@@ -97,7 +131,14 @@ final class StagedUpgradeOrchestrator
             return StagedResolution::skipped(
                 'invalid_stage_plan',
                 $plan->provider(),
-                array_values(array_unique(array_merge($planEvidence, [$evidenceId])))
+                array_values(array_unique(array_merge(
+                    array_values(array_filter(
+                        $planEvidence,
+                        static fn (string $reference): bool => $evidence->has($reference)
+                    )),
+                    $providerEvidence,
+                    [$evidenceId]
+                )))
             );
         }
         if (!$plan->isAvailable()) {
@@ -118,6 +159,25 @@ final class StagedUpgradeOrchestrator
 
             return StagedResolution::skipped(
                 'hop_budget_exceeded',
+                $plan->provider(),
+                array_values(array_unique(array_merge($planEvidence, [$evidenceId])))
+            );
+        }
+        $projectedProcesses = $this->projectedWorstCaseComposerProcesses($stages);
+        if ($projectedProcesses > StagedAnalysisPolicy::MAX_COMPOSER_PROCESSES) {
+            $evidenceId = $evidence->add(
+                'stage-process-budget',
+                Evidence::E5_HEURISTIC,
+                'Staged Composer analysis exceeded the approved process-expansion budget and was not executed.',
+                'high',
+                [
+                    'projected_processes' => $projectedProcesses,
+                    'max_processes' => StagedAnalysisPolicy::MAX_COMPOSER_PROCESSES,
+                ]
+            )->id();
+
+            return StagedResolution::skipped(
+                'process_budget_exceeded',
                 $plan->provider(),
                 array_values(array_unique(array_merge($planEvidence, [$evidenceId])))
             );
@@ -192,12 +252,20 @@ final class StagedUpgradeOrchestrator
             $stageStatus = StagedResolution::UNKNOWN;
             $stageStopReason = null;
             $definitions = $this->attemptDefinitions($stage);
+            $stageDurationMs = 0;
 
             foreach ($definitions as $attemptIndex => $definition) {
                 $remainingAggregateMs = StagedAnalysisPolicy::AGGREGATE_TIMEOUT_SECONDS * 1000
                     - $aggregateDurationMs;
                 if ($remainingAggregateMs < $scenarioTimeoutMs) {
                     $stageStopReason = 'aggregate_timeout';
+                    $stageStatus = StagedResolution::UNKNOWN;
+                    break;
+                }
+                $remainingStageMs = StagedAnalysisPolicy::STAGE_TIMEOUT_SECONDS * 1000
+                    - $stageDurationMs;
+                if ($remainingStageMs < $scenarioTimeoutMs) {
+                    $stageStopReason = 'stage_timeout';
                     $stageStatus = StagedResolution::UNKNOWN;
                     break;
                 }
@@ -210,6 +278,7 @@ final class StagedUpgradeOrchestrator
                 );
                 $result = $this->runner->run($currentState, $stagedRequest, $scenario, $platform);
                 $aggregateDurationMs += $result->durationMs();
+                $stageDurationMs += $result->durationMs();
 
                 $attemptEvidence = $evidence->add(
                     'stage-attempt',
@@ -273,7 +342,17 @@ final class StagedUpgradeOrchestrator
                     [$attemptEvidence]
                 );
 
-                if ($result->succeeded()
+                $runtimeBudgetStop = null;
+                if ($aggregateDurationMs > StagedAnalysisPolicy::AGGREGATE_TIMEOUT_SECONDS * 1000) {
+                    $runtimeBudgetStop = 'aggregate_timeout';
+                } elseif ($stageDurationMs > StagedAnalysisPolicy::STAGE_TIMEOUT_SECONDS * 1000) {
+                    $runtimeBudgetStop = 'stage_timeout';
+                }
+
+                if ($runtimeBudgetStop !== null) {
+                    $stageStatus = StagedResolution::UNKNOWN;
+                    $stageStopReason = $runtimeBudgetStop;
+                } elseif ($result->succeeded()
                     && $candidate !== null
                     && !$this->hasActiveBlockingEntries($registry, $stage->id())) {
                     $attempt = $attempt->withSelected();
@@ -390,6 +469,38 @@ final class StagedUpgradeOrchestrator
         ];
 
         return array_slice($definitions, 0, StagedAnalysisPolicy::MAX_ATTEMPTS_PER_STAGE);
+    }
+
+    /**
+     * Bound every process the staged chain can cause, including one `composer prohibits`
+     * diagnostic for each target after a failed attempt. Earlier stages must succeed to
+     * advance, so their last attempt does not add diagnostics; the stopping stage may.
+     *
+     * @param list<FrameworkStageTarget> $stages
+     */
+    private function projectedWorstCaseComposerProcesses(array $stages): int
+    {
+        $successfulPrefixProcesses = 0;
+        $worst = 0;
+
+        foreach ($stages as $stage) {
+            $definitions = $this->attemptDefinitions($stage);
+            $scenarioProcesses = count($definitions);
+            $diagnosticProcesses = array_sum(array_map(
+                static fn (array $definition): int => count($definition['targets']),
+                $definitions
+            ));
+            $stopAtThisStage = $successfulPrefixProcesses + $scenarioProcesses + $diagnosticProcesses;
+            $worst = max($worst, $stopAtThisStage);
+
+            $last = count($definitions) - 1;
+            $successfulPrefixProcesses += $scenarioProcesses + array_sum(array_map(
+                static fn (array $definition): int => count($definition['targets']),
+                array_slice($definitions, 0, $last)
+            ));
+        }
+
+        return max($worst, $successfulPrefixProcesses);
     }
 
     /**
@@ -547,6 +658,21 @@ final class StagedUpgradeOrchestrator
         }
 
         return null;
+    }
+
+    /**
+     * @param array<string, true> $existing
+     * @return list<string>
+     */
+    private function newEvidenceReferences(EvidenceLedger $evidence, array $existing): array
+    {
+        return array_values(array_map(
+            static fn (Evidence $item): string => $item->id(),
+            array_filter(
+                $evidence->all(),
+                static fn (Evidence $item): bool => !isset($existing[$item->id()])
+            )
+        ));
     }
 
     private function stagedRequest(UpgradeRequest $request): UpgradeRequest

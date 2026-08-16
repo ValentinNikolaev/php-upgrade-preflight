@@ -448,7 +448,10 @@ final class LaravelFrameworkIntegrationTest extends TestCase
         )));
     }
 
-    /** @dataProvider supportedStagePathProvider */
+    /**
+     * @dataProvider supportedStagePathProvider
+     * @param list<string> $expectedStageIds
+     */
     public function testItBuildsEverySupportedContiguousLaravelStagePath(
         int $sourceMajor,
         int $targetMajor,

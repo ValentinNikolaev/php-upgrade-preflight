@@ -40,7 +40,7 @@ final class FrameworkIntegrationRegistryTest extends TestCase
         $integrations = (new FrameworkIntegrationRegistry())->installed();
 
         self::assertSame(
-            ['laravel', 'test-framework'],
+            ['laravel', 'legacy-test-framework', 'test-framework'],
             array_map(static fn ($integration): string => $integration->name(), $integrations)
         );
     }

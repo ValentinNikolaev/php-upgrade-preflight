@@ -100,7 +100,10 @@ final class FrameworkRuleEngineTest extends TestCase
         ], $findings[0]->appliesToHops());
     }
 
-    /** @param list<string> $frameworks @param list<string> $sourcePaths */
+    /**
+     * @param list<string> $frameworks
+     * @param list<string> $sourcePaths
+     */
     private function request(array $frameworks = [], array $sourcePaths = []): UpgradeRequest
     {
         return new UpgradeRequest(__DIR__, [new UpgradeTarget('vendor/package', '^2.0')], null, null, $sourcePaths, $frameworks);
@@ -121,7 +124,10 @@ final class FixtureFrameworkIntegration implements FrameworkIntegration
     /** @var list<CompatibilityRule> */
     private array $rules;
 
-    /** @param list<string> $sourcePaths @param list<CompatibilityRule> $rules */
+    /**
+     * @param list<string> $sourcePaths
+     * @param list<CompatibilityRule> $rules
+     */
     public function __construct(string $name, bool $detected, array $sourcePaths, array $rules)
     {
         $this->name = $name;

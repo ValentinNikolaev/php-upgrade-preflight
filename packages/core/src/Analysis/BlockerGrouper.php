@@ -97,7 +97,7 @@ final class BlockerGrouper
             }
         }
 
-        return $blockers;
+        return array_values($blockers);
     }
 
     /** @param list<ScenarioResult> $scenarioResults */

@@ -295,6 +295,28 @@ final class ReleaseWorkflowTest extends TestCase
         self::assertSame('zip, fileinfo', $artifactConsumerSetup[0]['with']['extensions'] ?? null);
     }
 
+    public function testWorstSupportedStagedChainBudgetRunsOnLinuxAndWindows(): void
+    {
+        $quality = $this->parseYamlFile('.github/workflows/quality.yml');
+        $budget = $quality['jobs']['staged-budgets'] ?? null;
+        self::assertIsArray($budget);
+        self::assertSame(
+            ['ubuntu-latest', 'windows-latest'],
+            $budget['strategy']['matrix']['os'] ?? null
+        );
+
+        $runs = array_values(array_filter(array_column($budget['steps'] ?? [], 'run'), 'is_string'));
+        self::assertContains('php tools/mask-secret-canaries.php', $runs);
+        self::assertContains('composer test:integration:staged-budget', $runs);
+
+        $composer = json_decode($this->readRootFile('composer.json'), true, 512, JSON_THROW_ON_ERROR);
+        self::assertIsArray($composer);
+        self::assertSame(
+            'phpunit --filter WorstCaseStagedBudgetTest',
+            $composer['scripts']['test:integration:staged-budget'] ?? null
+        );
+    }
+
     public function testPublishingRequiresSignedDistributionTagsAndPublishedPackageSmoke(): void
     {
         $workflow = $this->readRootFile('.github/workflows/release.yml');

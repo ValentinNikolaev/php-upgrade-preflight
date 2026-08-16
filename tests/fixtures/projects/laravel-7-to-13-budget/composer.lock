@@ -1,0 +1,13 @@
+{
+  "content-hash": "laravel-7-to-13-budget",
+  "packages": [
+    {"name": "doctrine/dbal", "version": "2.13.9"},
+    {"name": "laravel/boost", "version": "1.0.0"},
+    {"name": "laravel/breeze", "version": "1.0.0"},
+    {"name": "laravel/framework", "version": "v7.30.7"},
+    {"name": "laravel/passport", "version": "8.5.0"},
+    {"name": "nesbot/carbon", "version": "2.72.6"},
+    {"name": "pusher/pusher-php-server", "version": "4.1.5"}
+  ],
+  "packages-dev": []
+}

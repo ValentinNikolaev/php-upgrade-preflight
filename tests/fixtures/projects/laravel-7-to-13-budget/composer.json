@@ -1,0 +1,21 @@
+{
+  "name": "fixture/laravel-7-to-13-budget",
+  "require": {
+    "php": "^7.4 || ^8.0",
+    "laravel/framework": "^7.0",
+    "laravel/passport": "^8.0",
+    "pusher/pusher-php-server": "^4.0",
+    "doctrine/dbal": "^2.0",
+    "laravel/breeze": "^1.0",
+    "nesbot/carbon": "^2.0",
+    "laravel/boost": "^1.0"
+  },
+  "config": {
+    "platform": {
+      "php": "7.4.33"
+    }
+  },
+  "extra": {
+    "php-upgrade-preflight-fixture": "laravel-7-to-13-budget"
+  }
+}

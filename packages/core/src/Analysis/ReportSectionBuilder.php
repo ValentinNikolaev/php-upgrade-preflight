@@ -60,7 +60,7 @@ final class ReportSectionBuilder
             $rootConstraintChanges,
             $planStages,
             $this->testGuidance($request, $project, $sourceImpact, $frameworkFindings),
-            $this->uncertainties($request, $project, $scenarioResults, $sourceUncertainties)
+            array_values($this->uncertainties($request, $project, $scenarioResults, $sourceUncertainties))
         );
     }
 
@@ -133,6 +133,11 @@ final class ReportSectionBuilder
     ): array {
         if ($stagedResolution !== null && $stagedResolution->stages() !== []) {
             return $this->executedStagePlan($stagedResolution, $evidence);
+        }
+        if ($stagedResolution !== null
+            && $stagedResolution->executionState() === StagedResolution::SKIPPED
+            && $stagedResolution->stopReason() !== 'stage_target_provider_unavailable') {
+            return $this->skippedStagePlan($stagedResolution, $evidence);
         }
 
         $guidanceEvidence = $evidence->add(
@@ -312,6 +317,34 @@ final class ReportSectionBuilder
         return $plan;
     }
 
+    /** @return list<PlanStage> */
+    private function skippedStagePlan(StagedResolution $resolution, EvidenceLedger $evidence): array
+    {
+        $reason = $resolution->stopReason() ?? 'staged_resolution_unavailable';
+        $evidenceId = $evidence->add(
+            'stage-plan',
+            Evidence::E5_HEURISTIC,
+            'Stopped the recommended plan because staged Composer resolution did not produce a stage.',
+            'low',
+            [
+                'execution_state' => $resolution->executionState(),
+                'resolution_status' => $resolution->status(),
+                'stop_reason' => $reason,
+                'transition_recommended' => false,
+            ]
+        )->id();
+
+        return [new PlanStage(
+            'staged-resolution',
+            sprintf('Stop before the missing staged transition; staged Composer resolution ended with %s.', $reason),
+            [sprintf(
+                'Resolve the staged analysis stop condition `%s` and rerun analysis before applying a framework transition.',
+                $reason
+            )],
+            array_values(array_unique(array_merge([$evidenceId], $resolution->evidenceReferences())))
+        )];
+    }
+
     /**
      * @param list<SourceImpactFinding> $sourceImpact
      * @param list<CompatibilityFinding> $frameworkFindings
@@ -487,7 +520,7 @@ final class ReportSectionBuilder
             $references = array_merge($references, $usage->evidence());
         }
 
-        return $references;
+        return array_values($references);
     }
 
     /** @param list<CompatibilityFinding> $frameworkFindings @return list<string> */
@@ -498,6 +531,6 @@ final class ReportSectionBuilder
             $references = array_merge($references, $finding->evidence());
         }
 
-        return $references;
+        return array_values($references);
     }
 }

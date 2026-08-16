@@ -143,17 +143,19 @@ final class ProductPositioningTest extends TestCase
         }
     }
 
-    public function testThirdPartyAdapterFixtureRemainsExplicitlyOutsideTheProductPackages(): void
+    public function testThirdPartyAdapterFixturesRemainExplicitlyOutsideTheProductPackages(): void
     {
-        $manifest = json_decode(
-            $this->read('packages/test-adapter/composer.json'),
-            true,
-            512,
-            JSON_THROW_ON_ERROR
-        );
-        self::assertIsArray($manifest);
-        self::assertSame('MIT', $manifest['license'] ?? null);
-        self::assertStringStartsWith('Test-only third-party framework adapter fixture', $manifest['description'] ?? '');
+        foreach (['test-adapter', 'legacy-test-adapter'] as $package) {
+            $manifest = json_decode(
+                $this->read('packages/' . $package . '/composer.json'),
+                true,
+                512,
+                JSON_THROW_ON_ERROR
+            );
+            self::assertIsArray($manifest);
+            self::assertSame('MIT', $manifest['license'] ?? null);
+            self::assertStringStartsWith('Test-only ', $manifest['description'] ?? '');
+        }
     }
 
     private function read(string $relativePath): string

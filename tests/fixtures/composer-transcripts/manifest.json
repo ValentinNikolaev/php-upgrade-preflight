@@ -1,5 +1,31 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
+  "policy": {
+    "supported_runtime_constraint": ">=2.0.0 <3.0.0",
+    "parser_contract_version": 1,
+    "diagnostic_profiles": [
+      {
+        "id": "composer-2.0-unlocked",
+        "supported_range": ">=2.0.0 <2.2.0",
+        "fixture_version": "2.0.14"
+      },
+      {
+        "id": "composer-2.2-platform-unlocked",
+        "supported_range": ">=2.2.0 <2.4.0",
+        "fixture_version": "2.2.25"
+      },
+      {
+        "id": "composer-2.4-locked",
+        "supported_range": ">=2.4.0 <3.0.0",
+        "fixture_version": "2.4.4"
+      },
+      {
+        "id": "current-pinned-output",
+        "supported_range": "2.8.12",
+        "fixture_version": "2.8.12"
+      }
+    ]
+  },
   "versions": [
     {
       "composer_version": "2.0.14",
@@ -12,6 +38,7 @@
           "name": "solver-php-upper-bound",
           "kind": "solver",
           "transcript": "2.0/solver.txt",
+          "transcript_sha256": "80c83d389da30591015ff6c364dbfd81a9159b03eae7a5f0f89d37add87c837c",
           "targets": [
             {"package": "php", "constraint": "8.2"}
           ],
@@ -31,6 +58,7 @@
           "name": "prohibits-transitive-chain",
           "kind": "prohibits",
           "transcript": "2.0/prohibits.txt",
+          "transcript_sha256": "d38d20902cb2814ad45299c9ac86fa1711702477ccc82949522426ffb37d3bc4",
           "targets": [
             {"package": "vendor/dependency", "constraint": "^2.0"}
           ],
@@ -64,6 +92,7 @@
           "name": "solver-missing-extension",
           "kind": "solver",
           "transcript": "2.2/solver.txt",
+          "transcript_sha256": "8e96fea58309112f5beb2011d34440ce0b560c442456754703ee296d3601c5d1",
           "targets": [
             {"package": "vendor/framework", "constraint": "^3.0"}
           ],
@@ -83,6 +112,7 @@
           "name": "prohibits-php-target",
           "kind": "prohibits",
           "transcript": "2.2/prohibits.txt",
+          "transcript_sha256": "bdd03c9c103cd26077a153f45db79e89783985746bbe44c06174c00b9d5298ef",
           "targets": [
             {"package": "php", "constraint": "8.2"}
           ],
@@ -116,6 +146,7 @@
           "name": "solver-locked-root-package",
           "kind": "solver",
           "transcript": "2.4/solver.txt",
+          "transcript_sha256": "05c948cd67e965f4c67dfcceb0772eeef705b548bf9087aa8020a583d1ce0b5b",
           "targets": [
             {"package": "vendor/package", "constraint": "^2.0"}
           ],
@@ -135,6 +166,7 @@
           "name": "prohibits-locked-transitive-chain",
           "kind": "prohibits",
           "transcript": "2.4/prohibits.txt",
+          "transcript_sha256": "a59db9d861be51d870e3df6ebe03e7206df7c1e9e3893045689da05c4ef1699b",
           "targets": [
             {"package": "fixture/dependency", "constraint": "^2.0"}
           ],
@@ -168,6 +200,7 @@
           "name": "solver-multiple-problems",
           "kind": "solver",
           "transcript": "2.8/solver.txt",
+          "transcript_sha256": "96cc950c76e30e5ed0a740d411349308035852c289a8f6d13b60db3c0618d3d8",
           "targets": [
             {"package": "vendor/first", "constraint": "^2.0"}
           ],
@@ -196,6 +229,7 @@
           "name": "prohibits-native-tree",
           "kind": "prohibits",
           "transcript": "2.8/prohibits.txt",
+          "transcript_sha256": "0ee5029cbdfdf16a2213d08c80f217dec8e296d6579d98f634319a61e155c90b",
           "targets": [
             {"package": "php", "constraint": "9.0"}
           ],

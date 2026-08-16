@@ -78,7 +78,20 @@ final class FrameworkStageTarget
             if (!isset($normalizedEvidence[$package]) || $normalizedEvidence[$package] === []) {
                 throw new \InvalidArgumentException(sprintf('Stage remediation target "%s" must reference evidence.', $package));
             }
+            if (isset($normalizedRemediations[$package])) {
+                throw new \InvalidArgumentException(sprintf(
+                    'Stage remediation target "%s" is duplicated.',
+                    $package
+                ));
+            }
             $normalizedRemediations[$package] = new UpgradeTarget($package, $target->constraint());
+        }
+        $unusedRemediationEvidence = array_diff_key($normalizedEvidence, $normalizedRemediations);
+        if ($unusedRemediationEvidence !== []) {
+            throw new \InvalidArgumentException(sprintf(
+                'Stage remediation evidence references an undeclared target "%s".',
+                array_key_first($unusedRemediationEvidence)
+            ));
         }
         ksort($normalizedRemediations, SORT_STRING);
 

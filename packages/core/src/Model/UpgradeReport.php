@@ -293,6 +293,7 @@ final class UpgradeReport
     /** @return list<string> */
     private function evidenceReferences(): array
     {
+        /** @var list<string> $references */
         $references = [];
 
         foreach ($this->blockers as $index => $blocker) {
@@ -330,7 +331,7 @@ final class UpgradeReport
             $references = $this->appendFindingReferences($references, $change->evidence(), sprintf('Root constraint change at index %d', $index));
         }
 
-        $references = array_merge($references, $this->stagedResolution->evidenceReferences());
+        $references = array_values(array_merge($references, $this->stagedResolution->evidenceReferences()));
 
         foreach ($this->planStages as $index => $stage) {
             $references = $this->appendFindingReferences($references, $stage->evidence(), sprintf('Plan stage at index %d', $index));
@@ -345,7 +346,7 @@ final class UpgradeReport
             }
         }
 
-        return $references;
+        return array_values($references);
     }
 
     /** @return list<string> */
@@ -413,7 +414,11 @@ final class UpgradeReport
         }
     }
 
-    /** @param list<string> $references @param list<string> $findingReferences @return list<string> */
+    /**
+     * @param list<string> $references
+     * @param list<string> $findingReferences
+     * @return list<string>
+     */
     private function appendFindingReferences(array $references, array $findingReferences, string $description): array
     {
         if ($findingReferences === []) {
@@ -424,7 +429,7 @@ final class UpgradeReport
             $references[] = $reference;
         }
 
-        return $references;
+        return array_values($references);
     }
 
     private function containsEvidenceReference(string $text, string $id): bool

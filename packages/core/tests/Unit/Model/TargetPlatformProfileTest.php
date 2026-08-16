@@ -155,7 +155,10 @@ final class TargetPlatformProfileTest extends TestCase
         );
     }
 
-    /** @dataProvider invalidProfileProvider */
+    /**
+     * @dataProvider invalidProfileProvider
+     * @param array<string, mixed> $data
+     */
     public function testItRejectsMalformedOrFalselyCompleteProfiles(array $data): void
     {
         $this->expectException(\InvalidArgumentException::class);

@@ -149,7 +149,11 @@ final class SymfonyComponentConstraintRule implements CompatibilityRule, HopAwar
         $packages = count($uniqueRanges) === 1
             ? array_keys($incompatible)
             : array_map(
-                static fn (string $package): string => sprintf('%s (`%s`)', $package, $compatibleRanges[$package]),
+                static fn (string $package): string => sprintf(
+                    '%s (`%s`)',
+                    $package,
+                    $compatibleRanges[$package] ?? 'unknown'
+                ),
                 array_keys($incompatible)
             );
 

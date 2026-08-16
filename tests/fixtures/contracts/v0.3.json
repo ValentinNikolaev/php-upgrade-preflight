@@ -53,10 +53,12 @@
             "analysis_php_unavailable": "skipped:unknown",
             "solver_blocker": "evaluated:blocked",
             "timeout": "evaluated:unknown",
+            "stage_timeout": "evaluated:unknown",
             "aggregate_timeout": "evaluated:unknown",
             "operational_failure": "evaluated:unknown",
             "provider_conflict": "skipped:unknown",
-            "hop_budget": "skipped:unknown"
+            "hop_budget": "skipped:unknown",
+            "process_budget": "skipped:unknown"
         },
         "later_stages_after_stop": "skipped",
         "source_snapshot": "original_project",
@@ -265,13 +267,32 @@
         "max_hops": 6,
         "max_attempts_per_stage": 3,
         "max_scenarios": 18,
+        "max_composer_processes": 128,
         "scenario_timeout_seconds": 300,
+        "stage_timeout_seconds": 900,
         "aggregate_timeout_seconds": 1800,
         "scenario_timeout_application": "effective staged timeout is the lesser of the request timeout and scenario_timeout_seconds",
-        "aggregate_start_gate": "an attempt starts only when its full effective scenario timeout fits within the remaining aggregate budget",
+        "aggregate_start_gate": "an attempt starts only when its full effective scenario timeout fits within the remaining stage and aggregate budgets; measured diagnostic and cleanup time can exhaust either budget and prevent subsequent work",
         "memory_bytes": 268435456,
         "json_report_bytes": 524288,
         "markdown_report_bytes": 262144
+    },
+    "ci_worst_chain": {
+        "fixture": "laravel-7-to-13-budget",
+        "platforms": [
+            "linux",
+            "windows"
+        ],
+        "deterministic_reruns": 3,
+        "expected_stages": 6,
+        "expected_staged_scenarios": 18,
+        "max_observed_composer_processes": 128,
+        "runtime_seconds": 30,
+        "peak_memory_bytes": 268435456,
+        "json_report_bytes": 524288,
+        "markdown_report_bytes": 262144,
+        "allowed_seeded_canary_occurrences": 0,
+        "target_immutability_required": true
     },
     "ordering": [
         "stages by provider plan order after contiguous validation",
@@ -298,6 +319,8 @@
             "staged_resolution.stages[].composer_execution",
             "staged_resolution.stages[].duration_ms",
             "staged_resolution.stages[].evidence",
+            "staged_resolution.budgets.max_composer_processes",
+            "staged_resolution.budgets.stage_timeout_seconds",
             "staged_resolution.source_impact",
             "staged_resolution.stages[].blockers",
             "staged_resolution.stages[].source_snapshot_note",

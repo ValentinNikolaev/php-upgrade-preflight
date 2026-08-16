@@ -174,3 +174,38 @@ jobs:
       - name: Verify report privacy
         if: matrix.privacy
         run: php tools/verify-report-privacy.php
+
+  staged-budgets:
+    name: Worst supported staged chain / ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up PHP 8.3
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
+        with:
+          php-version: '8.3'
+          coverage: none
+
+      - name: Mask synthetic secret canaries
+        run: php tools/mask-secret-canaries.php
+
+      - name: Cache Composer dependencies
+        if: runner.os != 'Windows'
+        uses: ramsey/composer-install@65e4f84970763564f46a70b8a54b90d033b3bdda # v3
+        with:
+          composer-options: --prefer-dist --no-progress
+
+      - name: Install Composer dependencies on Windows
+        if: runner.os == 'Windows'
+        run: composer install --prefer-dist --no-interaction --no-progress
+
+      - name: Enforce worst-chain process, runtime, memory, privacy, size, and determinism budgets
+        run: composer test:integration:staged-budget

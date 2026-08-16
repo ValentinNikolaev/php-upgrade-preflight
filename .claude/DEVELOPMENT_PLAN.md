@@ -1,6 +1,6 @@
 # PHP Upgrade Preflight Development Plan
 
-Last updated: 2026-08-14
+Last updated: 2026-08-16
 
 - Active tool/package target: `0.3.0`
 - Released baseline: `0.2.1`
@@ -250,37 +250,37 @@ Status: complete.
 
 Priority: P1.
 
-- [ ] Extend the test-only third-party adapter with the optional stage-target contract and prove discovery still requires no CLI source registration.
-- [ ] Add an old-style adapter fixture whose unchanged implementation uses only the v0.2 required interfaces but whose Composer constraint explicitly permits Core v0.3; do not claim that an adapter pinned to Core `^0.2` is install-compatible.
-- [ ] Add conformance tests for stable stage IDs, exact target constraints, PHP requirement evidence, ordering, duplicate targets, conflicting providers, missing metadata, and invalid provider output.
-- [ ] Prove old-style third-party adapter implementations with a v0.3-compatible constraint still load and contribute guidance without making staged-feasibility claims.
-- [ ] Keep core opaque to Laravel package families, version semantics, and rule-catalog details.
-- [ ] Preserve Laravel's supported guidance matrix and direct final-target behavior while adding staged evidence for every adjacent path.
-- [ ] Keep generic CLI and Laravel Artisan canonical JSON parity for complete profiles, restricted execution, single-hop, multi-hop, blocked, and skipped cases.
-- [ ] Publish adapter-author guidance for detection, guidance, optional stage targets, platform evidence, source scope, ordering, collisions, privacy, and conformance fixtures.
-- [ ] Record Symfony as the first post-v0.3 candidate rather than adding a fourth package or distribution repository to this release.
+- [x] Extend the test-only third-party adapter with the optional stage-target contract and prove discovery still requires no CLI source registration.
+- [x] Add an old-style adapter fixture whose unchanged implementation uses only the v0.2 required interfaces but whose Composer constraint explicitly permits Core v0.3; do not claim that an adapter pinned to Core `^0.2` is install-compatible.
+- [x] Add conformance tests for stable stage IDs, exact target constraints, PHP requirement evidence, ordering, duplicate targets, conflicting providers, missing metadata, and invalid provider output.
+- [x] Prove old-style third-party adapter implementations with a v0.3-compatible constraint still load and contribute guidance without making staged-feasibility claims.
+- [x] Keep core opaque to Laravel package families, version semantics, and rule-catalog details.
+- [x] Preserve Laravel's supported guidance matrix and direct final-target behavior while adding staged evidence for every adjacent path.
+- [x] Keep generic CLI and Laravel Artisan canonical JSON parity for complete profiles, restricted execution, single-hop, multi-hop, blocked, and skipped cases.
+- [x] Publish adapter-author guidance for detection, guidance, optional stage targets, platform evidence, source scope, ordering, collisions, privacy, and conformance fixtures.
+- [x] Record Symfony as the first post-v0.3 candidate rather than adding a fourth package or distribution repository to this release.
 
 Acceptance gate: an external adapter can contribute a deterministic staged plan without CLI changes, unchanged old-style source can migrate by widening or updating its Core constraint and remains honest about absent staged evidence, and Laravel's two entry points remain canonical-report equivalent.
 
-Status: not started.
+Status: complete.
 
 ## Milestone 6: Quality, Performance, and Supply-Chain Hardening
 
 Priority: P1.
 
-- [ ] Add selective mutants for platform completeness, profile precedence, restricted execution, stage chaining, fingerprint validation, stop-on-gap behavior, aggregate de-duplication, old-adapter compatibility, and release-series policy.
-- [ ] Continue the coverage ratchet and make new profile, execution-policy, stage-orchestration, and report-assembly classes critical modules.
-- [ ] Raise production and full-repository PHPStan levels in measured steps without hiding new defects in the baseline.
-- [ ] Keep Composer transcript coverage for every supported diagnostic version and separate parser drift from solver or repository drift.
-- [ ] Enforce per-stage and worst-case supported-chain process, runtime, memory, report-size, redaction, and deterministic-rerun budgets on Linux and Windows.
-- [ ] Bound scenario expansion by contract and fail with explicit uncertainty when a request exceeds the supported stage or process budget.
-- [ ] Refactor phase boundaries if staged work would otherwise turn `ComposerScenarioRunner`, `DefaultUpgradeAnalyzer`, source-impact construction, or report assembly into orchestration monoliths.
-- [ ] Retain dependency audits, commit-pinned actions, archive checksums, dependency inventory, provenance, signed distribution verification, secret canaries, and target-immutability gates.
-- [ ] Preserve the PHP `^8.0` runtime floor and normal/lowest Laravel 8–13 host-installability matrix.
+- [x] Add selective mutants for platform completeness, profile precedence, restricted execution, stage chaining, fingerprint validation, stop-on-gap behavior, aggregate de-duplication, old-adapter compatibility, and release-series policy.
+- [x] Continue the coverage ratchet and make new profile, execution-policy, stage-orchestration, and report-assembly classes critical modules.
+- [x] Raise production and full-repository PHPStan levels in measured steps without hiding new defects in the baseline.
+- [x] Keep Composer transcript coverage for every supported diagnostic version and separate parser drift from solver or repository drift.
+- [x] Enforce per-stage and worst-case supported-chain process, runtime, memory, report-size, redaction, and deterministic-rerun budgets on Linux and Windows.
+- [x] Bound scenario expansion by contract and fail with explicit uncertainty when a request exceeds the supported stage or process budget.
+- [x] Refactor phase boundaries if staged work would otherwise turn `ComposerScenarioRunner`, `DefaultUpgradeAnalyzer`, source-impact construction, or report assembly into orchestration monoliths.
+- [x] Retain dependency audits, commit-pinned actions, archive checksums, dependency inventory, provenance, signed distribution verification, secret canaries, and target-immutability gates.
+- [x] Preserve the PHP `^8.0` runtime floor and normal/lowest Laravel 8–13 host-installability matrix.
 
 Acceptance gate: the worst supported staged request is bounded, deterministic, private, mutation-protected, and reliable across supported hosts without weakening any existing quality or supply-chain gate.
 
-Status: not started.
+Status: complete.
 
 ## Milestone 7: v0.3 Documentation, Migration, and Release
 
@@ -331,4 +331,4 @@ Status: not started.
 
 ## Recommended Next Work Session
 
-Complete GitHub reauthentication so the prepared `0.2.x` protection rule can be saved, then begin Milestone 5 adapter conformance and Laravel parity.
+Complete GitHub reauthentication so the prepared `0.2.x` protection rule can be saved, then begin Milestone 7 documentation, migration, and release preparation.

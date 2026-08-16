@@ -53,6 +53,16 @@
           "php-upgrade-preflight/test-adapter": "0.3.x-dev"
         }
       }
+    },
+    {
+      "type": "path",
+      "url": "packages/legacy-test-adapter",
+      "options": {
+        "symlink": true,
+        "versions": {
+          "php-upgrade-preflight/legacy-test-adapter": "0.3.x-dev"
+        }
+      }
     }
   ],
   "require": {
@@ -65,6 +75,7 @@
     "friendsofphp/php-cs-fixer": "^3.64",
     "illuminate/container": "^8.0",
     "opis/json-schema": "^2.6",
+    "php-upgrade-preflight/legacy-test-adapter": "0.3.x-dev",
     "php-upgrade-preflight/test-adapter": "0.3.x-dev",
     "phpstan/phpstan": "^2.1",
     "phpunit/phpunit": "^9.6",
@@ -75,6 +86,7 @@
       "PhpUpgradePreflight\\Cli\\Tests\\": "packages/cli/tests/",
       "PhpUpgradePreflight\\Core\\Tests\\": "packages/core/tests/",
       "PhpUpgradePreflight\\Laravel\\Tests\\": "packages/laravel/tests/",
+      "PhpUpgradePreflight\\LegacyTestAdapter\\": "packages/legacy-test-adapter/src/",
       "PhpUpgradePreflight\\Tests\\Support\\": "tests/Support/"
     }
   },
@@ -84,7 +96,8 @@
       "@composer validate --strict packages/core/composer.json",
       "@composer validate --strict packages/cli/composer.json",
       "@composer validate --strict packages/laravel/composer.json",
-      "@composer validate --strict packages/test-adapter/composer.json"
+      "@composer validate --strict packages/test-adapter/composer.json",
+      "@composer validate --strict packages/legacy-test-adapter/composer.json"
     ],
     "test": "@test:all",
     "test:unit": "phpunit --testsuite unit",
@@ -98,6 +111,7 @@
     "test:integration:windows-parity-b": "phpunit --testsuite integration --group windows-parity-b",
     "test:integration:windows-heavy": "phpunit --testsuite integration --group windows-integration-heavy",
     "test:integration:windows-rest": "phpunit --testsuite integration --exclude-group windows-parity-a,windows-parity-b,windows-integration-heavy",
+    "test:integration:staged-budget": "phpunit --filter WorstCaseStagedBudgetTest",
     "test:all": [
       "@test:unit",
       "@test:integration",

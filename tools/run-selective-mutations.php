@@ -16,21 +16,32 @@ if (!is_array($configuration) || ($configuration['schema_version'] ?? null) !== 
 }
 $mutations = $configuration['mutations'] ?? null;
 if (!is_array($mutations)) {
-    fwrite(STDERR, "Selective mutation configuration must define all six critical mutants.\n");
+    fwrite(STDERR, "Selective mutation configuration must define all critical mutants.\n");
     exit(1);
 }
 
+/** @var array<string, array{file: string, test_filter: string}> $requiredMutations */
 $requiredMutations = [
-    'scenario-selection-package-target-guard' => 'packages/core/src/Analysis/ScenarioSelector.php',
-    'composer-blocker-platform-pattern' => 'packages/core/src/Analysis/ComposerBlockerParser.php',
-    'schema-version-constant' => 'packages/core/resources/schema/upgrade-report-v0.8.schema.json',
-    'risk-resolution-blocker-level' => 'packages/core/src/Analysis/RiskAndEffortEstimator.php',
-    'laravel-transition-equal-major-guard' => 'packages/laravel/src/LaravelFrameworkIntegration.php',
-    'release-series-lock-branch' => 'tools/ReleaseVerifier.php',
+    'scenario-selection-package-target-guard' => ['file' => 'packages/core/src/Analysis/ScenarioSelector.php', 'test_filter' => 'ScenarioSelectorTest'],
+    'composer-blocker-platform-pattern' => ['file' => 'packages/core/src/Analysis/ComposerBlockerParser.php', 'test_filter' => 'ComposerBlockerParserTranscriptTest'],
+    'schema-version-constant' => ['file' => 'packages/core/resources/schema/upgrade-report-v0.8.schema.json', 'test_filter' => 'UpgradeReportSchemaTest'],
+    'risk-resolution-blocker-level' => ['file' => 'packages/core/src/Analysis/RiskAndEffortEstimator.php', 'test_filter' => 'RiskAndEffortEstimatorTest'],
+    'laravel-transition-equal-major-guard' => ['file' => 'packages/laravel/src/LaravelFrameworkIntegration.php', 'test_filter' => 'LaravelFrameworkIntegrationTest'],
+    'release-series-lock-branch' => ['file' => 'tools/ReleaseVerifier.php', 'test_filter' => 'ReleaseVerifierTest'],
+    'platform-completeness-requires-php' => ['file' => 'packages/core/src/Model/TargetPlatformProfile.php', 'test_filter' => 'TargetPlatformProfileTest'],
+    'profile-request-precedence' => ['file' => 'packages/core/src/Model/TargetPlatform.php', 'test_filter' => 'TargetPlatformResolutionTest'],
+    'restricted-execution-environment' => ['file' => 'packages/core/src/Model/ComposerExecutionConfiguration.php', 'test_filter' => 'ComposerExecutionConfigurationTest'],
+    'stage-selected-state-chaining' => ['file' => 'packages/core/src/Analysis/StagedUpgradeOrchestrator.php', 'test_filter' => 'StagedUpgradeOrchestratorTest'],
+    'state-fingerprint-execution-policy' => ['file' => 'packages/core/src/Model/ProjectStateFingerprint.php', 'test_filter' => 'ProjectStateFingerprintTest'],
+    'stage-plan-stop-on-gap' => ['file' => 'packages/laravel/src/LaravelFrameworkIntegration.php', 'test_filter' => 'LaravelFrameworkIntegrationTest'],
+    'aggregate-uncertainty-deduplication' => ['file' => 'packages/core/src/Model/UpgradeReport.php', 'test_filter' => 'ReportAssemblerTest'],
+    'old-style-adapter-stage-provider-guard' => ['file' => 'packages/core/src/Analysis/StagedUpgradeOrchestrator.php', 'test_filter' => 'testOldStyleAdapterWithoutStageProviderRemainsCompatible'],
 ];
+/** @var array<string, array{file: string, test_filter: string}> $configuredMutations */
 $configuredMutations = [];
 foreach ($mutations as $mutation) {
-    if (!is_array($mutation) || !is_string($mutation['name'] ?? null) || !is_string($mutation['file'] ?? null)) {
+    if (!is_array($mutation) || !is_string($mutation['name'] ?? null)
+        || !is_string($mutation['file'] ?? null) || !is_string($mutation['test_filter'] ?? null)) {
         fwrite(STDERR, "Selective mutation configuration contains an incomplete mutation identity.\n");
         exit(1);
     }
@@ -38,7 +49,10 @@ foreach ($mutations as $mutation) {
         fwrite(STDERR, sprintf("Selective mutation configuration repeats mutant %s.\n", $mutation['name']));
         exit(1);
     }
-    $configuredMutations[$mutation['name']] = $mutation['file'];
+    $configuredMutations[$mutation['name']] = [
+        'file' => $mutation['file'],
+        'test_filter' => $mutation['test_filter'],
+    ];
 }
 ksort($requiredMutations);
 ksort($configuredMutations);

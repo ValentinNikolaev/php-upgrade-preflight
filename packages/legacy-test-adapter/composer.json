@@ -1,0 +1,22 @@
+{
+  "name": "php-upgrade-preflight/legacy-test-adapter",
+  "description": "Test-only old-style third-party adapter fixture for PHP Upgrade Preflight.",
+  "type": "library",
+  "license": "MIT",
+  "require": {
+    "php": "^8.0",
+    "php-upgrade-preflight/core": "^0.3"
+  },
+  "autoload": {
+    "psr-4": {
+      "PhpUpgradePreflight\\LegacyTestAdapter\\": "src/"
+    }
+  },
+  "extra": {
+    "php-upgrade-preflight": {
+      "framework-adapters": [
+        "PhpUpgradePreflight\\LegacyTestAdapter\\LegacyTestFrameworkIntegration"
+      ]
+    }
+  }
+}

@@ -8,6 +8,10 @@ use Illuminate\Contracts\Events\Dispatcher;
 
 final class NullEventDispatcher implements Dispatcher
 {
+    /**
+     * @param string|array<string> $events
+     * @param callable|string|null $listener
+     */
     public function listen($events, $listener = null): void
     {
     }
@@ -21,16 +25,25 @@ final class NullEventDispatcher implements Dispatcher
     {
     }
 
+    /**
+     * @param array<mixed> $payload
+     * @return array<mixed>|null
+     */
     public function until($event, $payload = []): ?array
     {
         return null;
     }
 
+    /**
+     * @param array<mixed> $payload
+     * @return array<mixed>|null
+     */
     public function dispatch($event, $payload = [], $halt = false): ?array
     {
         return null;
     }
 
+    /** @param array<mixed> $payload */
     public function push($event, $payload = []): void
     {
     }

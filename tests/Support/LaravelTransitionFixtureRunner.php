@@ -79,7 +79,10 @@ final class LaravelTransitionFixtureRunner
         return $decoded;
     }
 
-    /** @param array<string, mixed> $manifest @return list<string> */
+    /**
+     * @param array<string, mixed> $manifest
+     * @return list<string>
+     */
     private static function writeCandidateLock(string $workingDirectory, array $manifest): array
     {
         $lockPath = $workingDirectory . DIRECTORY_SEPARATOR . 'composer.lock';

@@ -1,5 +1,8 @@
+includes:
+    - phpstan-production-baseline.neon
+
 parameters:
-    level: 5
+    level: 6
     treatPhpDocTypesAsCertain: false
     bootstrapFiles:
         - tests/phpstan-bootstrap.php

@@ -134,7 +134,7 @@ final class DefaultUpgradeAnalyzer implements UpgradeAnalyzer
         $sourceUncertainties = $analysisUncertainties;
         $sourceInventory = $this->sourceUsageScanner->scan(
             $project,
-            $sourcePaths,
+            array_values($sourcePaths),
             $evidence,
             $sourceUncertainties,
             $request->sourcePaths() !== []

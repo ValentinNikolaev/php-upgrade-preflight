@@ -93,6 +93,11 @@ final class StagedResolution
         return $this->status;
     }
 
+    public function stopReason(): ?string
+    {
+        return $this->stopReason;
+    }
+
     /** @return list<StageAnalysis> */
     public function stages(): array
     {
@@ -210,7 +215,9 @@ final class StagedResolution
                 'max_hops' => StagedAnalysisPolicy::MAX_HOPS,
                 'max_attempts_per_stage' => StagedAnalysisPolicy::MAX_ATTEMPTS_PER_STAGE,
                 'max_scenarios' => StagedAnalysisPolicy::MAX_SCENARIOS,
+                'max_composer_processes' => StagedAnalysisPolicy::MAX_COMPOSER_PROCESSES,
                 'scenario_timeout_seconds' => StagedAnalysisPolicy::SCENARIO_TIMEOUT_SECONDS,
+                'stage_timeout_seconds' => StagedAnalysisPolicy::STAGE_TIMEOUT_SECONDS,
                 'aggregate_timeout_seconds' => StagedAnalysisPolicy::AGGREGATE_TIMEOUT_SECONDS,
                 'memory_bytes' => StagedAnalysisPolicy::MEMORY_BUDGET_BYTES,
                 'json_report_bytes' => StagedAnalysisPolicy::JSON_REPORT_BUDGET_BYTES,

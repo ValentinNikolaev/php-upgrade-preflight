@@ -178,7 +178,10 @@ final class CommandEntryPointParityTest extends TestCase
         return $report;
     }
 
-    /** @param array<string, mixed> $report @return array<string, mixed> */
+    /**
+     * @param array<string, mixed> $report
+     * @return array<string, mixed>
+     */
     private function normalizeReport(array $report): array
     {
         $report['request_summary']['output_path'] = '<REPORT_PATH>';

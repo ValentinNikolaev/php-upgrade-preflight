@@ -98,7 +98,10 @@ final class SecretLeakVerifierTest extends TestCase
         SecretLeakVerifier::fromFixture($path);
     }
 
-    /** @dataProvider invalidCanaryProvider */
+    /**
+     * @dataProvider invalidCanaryProvider
+     * @param array<mixed, mixed> $canaries
+     */
     public function testItRejectsInvalidCanaries(array $canaries): void
     {
         $this->expectException(\InvalidArgumentException::class);

@@ -16,7 +16,11 @@ use PHPUnit\Framework\TestCase;
 
 final class LaterLaravelUpgradeFixtureTest extends TestCase
 {
-    /** @dataProvider transitionFixtureProvider */
+    /**
+     * @dataProvider transitionFixtureProvider
+     * @param list<string> $expectedSummaries
+     * @param list<string> $unexpectedSummaries
+     */
     public function testLaterTransitionFixturesExerciseTheirApprovedRulePacks(
         string $fixture,
         string $target,

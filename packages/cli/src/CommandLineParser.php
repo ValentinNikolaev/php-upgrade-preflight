@@ -93,8 +93,16 @@ final class CommandLineParser
                 continue;
             }
 
-            if (in_array($name, ['target', 'source', 'framework'], true)) {
-                $options[$name][] = $value;
+            if ($name === 'target') {
+                $options['target'][] = $value;
+                continue;
+            }
+            if ($name === 'source') {
+                $options['source'][] = $value;
+                continue;
+            }
+            if ($name === 'framework') {
+                $options['framework'][] = $value;
                 continue;
             }
 
@@ -116,7 +124,23 @@ final class CommandLineParser
             }
 
             $seen[$name] = true;
-            $options[$name] = $value;
+            switch ($name) {
+                case 'path':
+                case 'target-php':
+                case 'from-php':
+                case 'format':
+                case 'output':
+                case 'target-platform-profile':
+                case 'composer-mode':
+                case 'composer-executable':
+                case 'composer-version':
+                case 'composer-timeout':
+                case 'composer-diagnostic-timeout':
+                    $options[$name] = $value;
+                    break;
+                default:
+                    throw new \LogicException('Validated CLI option was not assigned.');
+            }
         }
 
         if ($options['target'] === [] && $options['target-php'] === null && !isset($options['target-platform-profile'])) {

@@ -138,7 +138,7 @@ final class SourceImpactBuilder
             $existing->relevance(),
             $existing->reason(),
             $existing->severity(),
-            $occurrences,
+            array_values($occurrences),
             array_merge($existing->evidence(), $finding->evidence())
         );
 

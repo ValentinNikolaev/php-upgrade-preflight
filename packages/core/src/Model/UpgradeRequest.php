@@ -226,7 +226,10 @@ final class UpgradeRequest
         }
     }
 
-    /** @param list<string> $frameworks @return list<string> */
+    /**
+     * @param list<string> $frameworks
+     * @return list<string>
+     */
     private function normalizeFrameworks(array $frameworks): array
     {
         $normalized = [];
@@ -267,7 +270,10 @@ final class UpgradeRequest
         return $version;
     }
 
-    /** @param list<string> $sourcePaths @return list<string> */
+    /**
+     * @param list<string> $sourcePaths
+     * @return list<string>
+     */
     private function normalizeSourcePaths(array $sourcePaths): array
     {
         $normalized = [];

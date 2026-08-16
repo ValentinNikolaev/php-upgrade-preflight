@@ -1,0 +1,10 @@
+{
+  "name": "php-upgrade-preflight/legacy-third-party-adapter-fixture",
+  "description": "Fixture proving an old-style Composer-discovered adapter remains compatible with Core v0.3.",
+  "type": "project",
+  "license": "MIT",
+  "require": {
+    "php": "^8.0",
+    "legacy-vendor/framework": "1.0.0"
+  }
+}

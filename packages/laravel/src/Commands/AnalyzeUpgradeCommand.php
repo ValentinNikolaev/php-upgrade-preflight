@@ -69,17 +69,17 @@ final class AnalyzeUpgradeCommand extends Command
                 );
             }
 
-            $format = ReportFormat::normalize((string) $this->option('format'));
+            $format = ReportFormat::normalize($this->requiredStringOption('format'));
             $extensionAssumptions = ExtensionAssumptionSet::fromInputs(
                 array_values((array) $this->option('with-extension')),
                 array_values((array) $this->option('without-extension'))
             )->all();
             $composerExecution = new ComposerExecutionConfiguration(
-                (string) $this->option('composer-executable'),
+                $this->requiredStringOption('composer-executable'),
                 $this->optionalString('composer-version') ?? ComposerExecutionConfiguration::DEFAULT_EXPECTED_VERSION,
                 $this->positiveIntegerOption('composer-timeout'),
                 $this->positiveIntegerOption('composer-diagnostic-timeout'),
-                (string) $this->option('composer-mode')
+                $this->requiredStringOption('composer-mode')
             );
             $request = new UpgradeRequest(
                 $this->projectPath(),
@@ -158,6 +158,16 @@ final class AnalyzeUpgradeCommand extends Command
         }
 
         if (!is_string($value)) {
+            throw new \InvalidArgumentException(sprintf('Option "--%s" must be a string.', $name));
+        }
+
+        return $value;
+    }
+
+    private function requiredStringOption(string $name): string
+    {
+        $value = $this->optionalString($name);
+        if ($value === null) {
             throw new \InvalidArgumentException(sprintf('Option "--%s" must be a string.', $name));
         }
 

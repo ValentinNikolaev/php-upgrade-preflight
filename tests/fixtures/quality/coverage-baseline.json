@@ -7,8 +7,8 @@
         "new_executable_lines_must_be_covered"
     ],
     "overall": {
-        "covered": 6342,
-        "executable": 6886
+        "covered": 9381,
+        "executable": 9992
     },
     "critical_modules": {
         "packages/core/src/Analysis/ScenarioSelector.php": {
@@ -16,32 +16,64 @@
             "executable": 44
         },
         "packages/core/src/Analysis/ComposerBlockerParser.php": {
-            "covered": 223,
-            "executable": 231
+            "covered": 254,
+            "executable": 261
         },
         "packages/core/src/Model/UpgradeReport.php": {
-            "covered": 151,
-            "executable": 157
+            "covered": 168,
+            "executable": 174
         },
         "packages/core/src/Analysis/RiskAndEffortEstimator.php": {
-            "covered": 50,
-            "executable": 51
+            "covered": 139,
+            "executable": 154
         },
         "packages/laravel/src/LaravelFrameworkIntegration.php": {
-            "covered": 242,
-            "executable": 290
+            "covered": 429,
+            "executable": 483
         },
         "tools/ReleaseVerifier.php": {
-            "covered": 114,
-            "executable": 114
+            "covered": 123,
+            "executable": 123
         },
         "tools/CoverageVerifier.php": {
-            "covered": 128,
-            "executable": 132
+            "covered": 129,
+            "executable": 133
         },
         "tools/SecretLeakVerifier.php": {
             "covered": 64,
             "executable": 73
+        },
+        "packages/core/src/Model/TargetPlatformProfile.php": {
+            "covered": 173,
+            "executable": 173
+        },
+        "packages/core/src/Model/TargetPlatform.php": {
+            "covered": 171,
+            "executable": 173
+        },
+        "packages/core/src/Model/ComposerExecutionConfiguration.php": {
+            "covered": 99,
+            "executable": 100
+        },
+        "packages/core/src/Model/ProjectStateFingerprint.php": {
+            "covered": 67,
+            "executable": 67
+        },
+        "packages/core/src/Analysis/StagedUpgradeOrchestrator.php": {
+            "covered": 480,
+            "executable": 481
+        },
+        "packages/core/src/Analysis/ReportAssembler.php": {
+            "covered": 37,
+            "executable": 37
+        },
+        "packages/core/src/Analysis/ReportSectionBuilder.php": {
+            "covered": 303,
+            "executable": 319
+        },
+        "packages/cli/src/FrameworkIntegrationRegistry.php": {
+            "covered": 156,
+            "executable": 156
         }
     },
     "known_uncovered_fingerprints": {
@@ -51,6 +83,7 @@
             "34c69c193503669bc7ba33917da4de32e57a415b81c71c4d4e77f7fbe937e042": 1,
             "381af2f9583cb0ce583078a8c949c381d60e6158b850fd40d5414dddb365631e": 1,
             "5d06d87bbff164d36dcf9d9ffc3fa2ed750a64e19acdb2f8339bfba63ae25300": 1,
+            "60ba7af81eb55e2d263153f1dbed2b3f24685a556d1199d8807597979fc122fa": 1,
             "7b8dc726e3f545d0356f43bf4777892615dc003ee3a70e789f039e2448383569": 1,
             "ad94368e9e126eec1010883894c21797df69542c1d78a462c8ba5a30d326c020": 1,
             "d168561937225877ce517bbba09ad919cb2a8fce9e759ee7b28041a1ca83554a": 1
@@ -59,15 +92,11 @@
             "377c1088ae8927a670c41ba1d8b7aaf3a5f2b1ba0e28c15ff90a636f7fc995db": 1,
             "3a52cc190dd7e14c93d807723a7a138e2e467b0c0c17e193f78a899b6ac21f1d": 1,
             "4d47a32e64bdf42936b5a9d7b5bdcc515c774989b899cfc6be815424e12ccd0b": 1,
+            "98277e6ea0d449af990b73f21922e52a7002d57a0994061e9277ad30bd52af21": 1,
             "d3d8834c0f72b326fcfee01b76b0ef2fef14e0d1485e603f01ee91911de78b08": 1
-        },
-        "packages/cli/src/FrameworkIntegrationRegistry.php": {
-            "58b547f3d0c27caa692eab0addabd55770ff7cbe5d387c13fbb7d52e57498435": 1,
-            "63d2924560651cb484582ee73d47d1378e9b6e8815865e1f76f5ad401f768a11": 1
         },
         "packages/core/src/Analysis/ComposerBlockerParser.php": {
             "36f12b8085b29b40c651cdeca7578487e4038863b2f1a4bd523c311c7e57762f": 1,
-            "4ad2292cb6c5c2d31325739acfa4452421493ab7819e55fbaef0c55ac99bab33": 1,
             "4b7f4adc73e5b1a37f38f23a94c3cfa7f31e3e409acec8423934e1dcbe64c480": 1,
             "9905c74cac2343e0f2334ca7bbf91e7f681e26dffa4035c3a75f96106d00bcc3": 1,
             "a54e3219d6115fba9d105e608759aedb61e68491307fb6654465043d04b80d2d": 2,
@@ -97,41 +126,68 @@
         },
         "packages/core/src/Analysis/ReportSectionBuilder.php": {
             "24122a867b2fe93aa7a70a8ba599320eaa15899c493f0d50cf6a22fef5a983d9": 1,
-            "62da2ff741d7553c4371983d08605c4f62aed05e1d5084d33c5baeff21b1f969": 1,
-            "6e40fb975ddbe14540475217a970dd6342a09cd4168dff93109fcda7dcd047fd": 2,
+            "42af036c740443455b79633c4ad8b5b729798d3a7a26ae1ca2f96dda0e1d266f": 1,
+            "6e40fb975ddbe14540475217a970dd6342a09cd4168dff93109fcda7dcd047fd": 1,
             "7c7f64cd425ae12e43e4562af10993ccc77b85af5b98fa50e2a715c196cf59bf": 1,
-            "9d8b2b5670d18da8a99f6152f7ee75558019cd106d8032bf7c1117bd37273e37": 2,
-            "b04aac282ac126e805213acfe14f584e08bcb145512a717700495c92c6f40405": 2,
+            "9d8b2b5670d18da8a99f6152f7ee75558019cd106d8032bf7c1117bd37273e37": 1,
+            "b04aac282ac126e805213acfe14f584e08bcb145512a717700495c92c6f40405": 1,
             "b99a8b596a682e71ee602aa108b2b1edb58a218c2289a6b8a2723953b8733b10": 1,
             "c07c4ba04ec1dd62def04474fe065ea5cbb9faf41ebb6a812e4633d64815ed7b": 1,
             "c11dda452cfaf72bc515353e5615b2aaccf8d608a2298b0685ca012aa328a0ed": 1,
             "c68fa19176718891fa9d2a01cb224b73b5621a71a9821b5eff3f857656f5f973": 1,
+            "c6ad0f8f9a721ff0ea9d553047fd3e872ca616e1ac7d273da90ee78a61123a72": 1,
             "c738fe1262792948464da18b424407ec36bbbb3c1f5bdf896b0aeaf4941487c4": 2,
             "cbc9b748a312b706cb0a68bc806aae3c8c5afbf0b2853fc81aa11dc43ae98e90": 1,
+            "d96de6f33018780ee55fb2262d1935df4b226977737601b2f9fe4eaaf3632c05": 1,
             "f86fcc6e63fd0901518120095f4f6f6e88ed4fd39551d35a2faa32cd96386bff": 1
         },
         "packages/core/src/Analysis/RiskAndEffortEstimator.php": {
-            "ca294552a6a10a7ef86b5d26ed48294d6bea8f61775a206a6667560baf504944": 1
+            "01158036d92da1cecd2b33f44bcccc95792ede7e79eeb179d4ce3824fbcb8fbd": 1,
+            "0ae47a13980fb259002db6257e354e5c8994a535462bf8ac0c952fcdf5444e69": 1,
+            "0c51ffecc76ee8ee4c1d75dc68a27bbfda93bebbfb90a72037f2977122453e7f": 1,
+            "0fab68a8e9956eb76b9fa4809ed98be0e263dc49a4868882665a69fb34de3230": 1,
+            "213bd0e16c4ed26d0bbb5c7b584cdf440de0fcfa5cf464571ff438d09742facf": 1,
+            "42af036c740443455b79633c4ad8b5b729798d3a7a26ae1ca2f96dda0e1d266f": 2,
+            "581fd87905ce727ef8222ec6e65b29647472c59500d57d70ac342fe7374a1c06": 1,
+            "61cf78928bfbc1adea4634b560feed4012d9af0d3cc28a81cf44b496b99935d2": 1,
+            "714e7a2b9498691d7184b31f8d21df30a5a95932949776fbae17bafebf921188": 3,
+            "ca294552a6a10a7ef86b5d26ed48294d6bea8f61775a206a6667560baf504944": 1,
+            "e35c292e34634b3f6923e93d337a1c32676fe2a86f63b06c3636d8366fa5b18a": 1,
+            "e5e16b3c9eee71c67cf5d3a6ba1236cc266c19d37ab9b5ae30b469ef532f2865": 1
         },
         "packages/core/src/Analysis/SourceImpactBuilder.php": {
             "18cf640bb6b1369f265e801c68ec7cd448a00fc0dac0572da33a5a0b573f50b9": 1,
             "cc411d1bc49d2392d840e8ba4ddc77a0132297095d6265f8b356af5ced534cc5": 1,
             "eb5f7b5be608f7f6dd757f88469a55fb6322824d76635e56830304503eb78b88": 1
         },
+        "packages/core/src/Analysis/StageAssessmentBuilder.php": {
+            "015717b67267226c5e702164bc3c7d1ef597e6b47469c4acc881056467f09a94": 1,
+            "0bf37874b7af9907cc21dc845f1daf71d4f9392a2ca7a5b474c14db2db91e879": 1,
+            "29b37775b0f3a7ea49b3fa8f24e927db1956623c6b29b56ebd36de0af53fd6bb": 1,
+            "2b7aed3cd5fe2394780e6b5544aecabe8e1156b4119c7c1eb1aac6d5c6a45087": 1,
+            "2c8664841b166597beae4ee22257238bd7c50abeac479a3c1a40766d102fc8c7": 2,
+            "3064712729d0a78df2c51ce57f9894b61f5775af7a1c45390016afb06cfd7df6": 1,
+            "306e84a1fecc2ca74f21b99b286964c6528aa0f3303f20764b64eddc7dc175c5": 1,
+            "6328dac3de97bcae7274c501bc522260c6a7022e209dc392bc519f7e820c34ea": 2,
+            "7cc2a3a9eb61ada380d9fd383ad116a8a9c6494a44fd874c974c9cfc3c4b438a": 1,
+            "7e59cdb2046ba0560c87433482eb3dece1ad2fffab3d182d741412e97a65c12a": 1,
+            "8f6c2f603b4e4ab2570d75d40f68f954d228f3326eccb6cf04b7de2413fead80": 1,
+            "ac142dbcd4e360e22766c976e6768ed9a6aef0af4fd182c810b50da8f645d760": 2,
+            "b468055e3f2c45a9c170c7cab025a95f1bfc9963dcc8e138949bc6d4d1e46e49": 2,
+            "b6c97f9fb78b1166a48beceefd70700a80c16869a04f5dc17ef6a48d80fa64ad": 1,
+            "bb784195ee7b21f240e21153bbcc8055a1dbfd791f1a6bafcc32afdeff99a2a4": 2,
+            "e6fab891cad3ddad968f8787a6e5a4fedb9d08b78c839e60f138c7db07f13e17": 1,
+            "f9c3760ca0013470e7d3fd051a0b342fcb670c5ba75493608bf710632867e397": 2
+        },
+        "packages/core/src/Analysis/StagedUpgradeOrchestrator.php": {
+            "049d5e15c47db74e48df0adef43578a400350f69572ff38c9a3d24a94fefa3de": 1
+        },
         "packages/core/src/Composer/ComposerScenarioRunner.php": {
-            "10e0fa08a73f0cd151617165a96e7df8c8d14ecfc63d6f1f343559f16198939f": 1,
             "21bf500b847e9476908b89ad287211d24c1e9521a543a9dd1c49ad93c36b6ef3": 1,
-            "358ba3f2223784d800ea2ba8df77338f4c08cb3b2c280ec8b3020925fa2bc4ef": 2,
-            "4ad2292cb6c5c2d31325739acfa4452421493ab7819e55fbaef0c55ac99bab33": 2,
-            "52d719ddc42f8c96cfcb7873687a8e5743f7e809413a75efae0c66cce4d4c362": 1,
-            "5e27c97a72d92a9143d8a69b8cf6d39c6108c76517d07162cd569e50ba5db2de": 2,
+            "544cc5457e6349c907bdb1df53a9c6d01cb6617c5f88416d94173e046cbd586d": 1,
             "8cd8043d9918de29aecfc49317a274dda8250803ef32a5adc86465190b1e1f1f": 1,
-            "95237b7ec4def50142845edbd82085f33a5fb9e3ae6aa01658cec8d56bbed825": 2,
-            "9ba75b5bc16c6c8ba383c9b72b3f17d3e4ef493b29d08d3be1ba2a2e89bd2af5": 2,
-            "aef3c0862a093100d79d121d5da000787a4e141a959b51e25edaadcec9a5be96": 1,
-            "b04e9b9e2f410c1586c946d7d98d897e50e6d8e1f53554050fdf9179bc3dfea7": 2,
             "b13c971b599f389265d33b88c1685869b3483b498ce45956c46114d976d3a60c": 1,
-            "ed9d0d22d644b693b1bbfed21efedd687e48c73378611f9a117a352aebba234c": 2
+            "b5edc42ff2e5be2e078517efeca609a7d51cf5ebb5140832086ac891a6492418": 1
         },
         "packages/core/src/Composer/JsonFileReader.php": {
             "15d00073a2e454dd736e7db6c2fa0a93bec36d76d925007346b465b39e95a3ba": 1,
@@ -168,6 +224,9 @@
         "packages/core/src/Model/ComposerDiagnostic.php": {
             "7e2536dd6a994ecbb2a44b00c9a82701dc62054d632df73198ca600d020a00bd": 1
         },
+        "packages/core/src/Model/ComposerExecutionConfiguration.php": {
+            "a3a9f210bf006eeba59378997610b6fd8dfee4fc1ccb66d2ba1e6bbbfd5668eb": 1
+        },
         "packages/core/src/Model/ComposerJson.php": {
             "14abeef234ff0d2974f1bcb331d3f8a49a19e881ac10e44b56d09f740cd11547": 1,
             "c7221e1192cef51aa9d2ab86a2200fac852bd254ed01b295bd47b2923204ecc5": 1
@@ -180,7 +239,6 @@
             "9b0e3fb816112566c39d373587095548e604a2eb567ce639c03cfcd2c6fbd761": 1
         },
         "packages/core/src/Model/Evidence.php": {
-            "8104222068ffe874b663451c60c89ccb113642a602528faebd53572f1b1223fb": 1,
             "a53b2e3ab62194bfa7cfa90fd5d5abcc1f15aa5011ef8c4bcb9d661115b470ef": 1
         },
         "packages/core/src/Model/EvidenceLedger.php": {
@@ -189,14 +247,12 @@
         },
         "packages/core/src/Model/ExtensionAssumption.php": {
             "02ac84afcbd68b8b1240313d7889b019c5aae2722fbfc4d769770063b4453ec6": 1,
-            "0c049cf1444bfb9b41131eea0a974d8ea4750a88dde275f3d9c18627e27dd09b": 2,
+            "0c049cf1444bfb9b41131eea0a974d8ea4750a88dde275f3d9c18627e27dd09b": 1,
             "119c49b8e49e452f41eca1872a23db548f7239306f516d2ab24ea98fac7d55aa": 1,
-            "158c72d49d15a18d5ba81c3808d2b1fa4e17c284184af7d9cc4dd4647374e67b": 1,
-            "38a30440f20648d7a5d36eb06f72903fc4aa7f528a18d814d494ea67a38d2e54": 1,
             "57e6f724880722fcf05c83100c48320c0a915feb98501f2f7010bb0b69f5326e": 1,
             "87c0f62668bfcaaf54341f1a802e6ee573599dd348e191107fe9622b331af84f": 1,
             "8e2d223d4f4c73aa69b97e3b27de692307f21e2501c55e2af2cde1ef2cbc6ec9": 1,
-            "ae7106a7d37a3edad0b0ee23a54a70836e4e9c03f9e8e24a7a98ebe57df4ea16": 2,
+            "ae7106a7d37a3edad0b0ee23a54a70836e4e9c03f9e8e24a7a98ebe57df4ea16": 1,
             "b3e034a6f4f1555d1e9e637a2c71ae6418f68d038b62382f9b3295207bdf4c24": 1,
             "baa9505c6cac1b94000f8102c7b4f468497a3fbc3c2dd0ec663cc5f29ff8fc4c": 1,
             "eef4a41ba2899a37e253992ebf84653198920d994777ed775b9de9aa56dc5582": 1
@@ -229,8 +285,19 @@
             "7948cddd25e0f44b212c7ba5c99169feed038fb149f607390ce63dc31ee3a027": 1,
             "cbb46a4e8ae83deaff5669992a6094f092c9aeca0fe501739c3eeca4ef5c9859": 1
         },
+        "packages/core/src/Model/FrameworkStagePlan.php": {
+            "c39d1993aa8ecc57d1220c26a353116557c9701d16a07b421a6d7a7a65844352": 1
+        },
+        "packages/core/src/Model/FrameworkStageTarget.php": {
+            "07da3d1701f7af28321992bc6ba023926bdc09cf14cfc1cb4376ad632ab721f8": 1,
+            "0c049cf1444bfb9b41131eea0a974d8ea4750a88dde275f3d9c18627e27dd09b": 1,
+            "10e0fa08a73f0cd151617165a96e7df8c8d14ecfc63d6f1f343559f16198939f": 1,
+            "60789c33940d3c3b6c752da47a1492bda4bd9fbea856d62a108e0008fde688a9": 1,
+            "aaa8eaa001239394fc1c98b0555365ea923662bd3b6217fcfbf293426a8f7f2f": 1,
+            "ae7106a7d37a3edad0b0ee23a54a70836e4e9c03f9e8e24a7a98ebe57df4ea16": 1,
+            "c50565768d1ec0bb28bad1a690760f6dedee5b6b30430e852468df825cc620fe": 1
+        },
         "packages/core/src/Model/HostExtension.php": {
-            "a059a3fc40e1862f7bd9f99a5026ec3fd645f7ad2ed5981581e5a2cf787be160": 1,
             "fb5f451241fd2543ad6b2670de89162b752cb7aa4b4384868253679aba535e30": 1
         },
         "packages/core/src/Model/PackageChange.php": {
@@ -266,14 +333,38 @@
         "packages/core/src/Model/SourceImpactFinding.php": {
             "252245f5751317e9aaebe19606b37b35721bbe92dcb3388fe811eaaace764fbf": 1,
             "3815a9c1ee87706286a14f56043eec10db2b44b5e544f80a0e2b614543852f27": 1,
+            "4afb0dacd808e9e570ce060e3466483024f93e2b033a62d61238020405079466": 1,
             "4b20abd71df23a47bf2ec73f8231f91b9e9dcc40f2195f870584064f21c748c6": 1,
             "6e54f0d589704bf29b04e37ee7381ba62c07f7e374a31e8b14f7cde08356da68": 1,
             "a74e3de7ced560ef010b418e0bdd9c0e6bda8f4e820b90b227597703513178a2": 1,
-            "b5bb4bef682835985ec69fee366653a5c6d242121bc39ba4d411d002fe089514": 1
+            "b5bb4bef682835985ec69fee366653a5c6d242121bc39ba4d411d002fe089514": 1,
+            "c8b201a95b5ba974f1881348ab822ccb9011580ec1ed9136ed8b341980e13a0b": 1
+        },
+        "packages/core/src/Model/StageAnalysis.php": {
+            "1936386b286e858e43ed187320ac4cc1d487bf454c6ce1fb4e90ca96f4af0e5a": 1,
+            "402411e8852a694c4d0804682ea9ca26f24d6cfb8b3d0a5bd7103899a3855708": 1,
+            "61b0de71fcf29a4585bcc1c604e70b53f3c1670defc0bbc1c9609c8c2e2446b3": 1,
+            "9acf2fe5e83b9a19b1b044cf5ff0b86959dc584a3d338ab9a7f436bfb4784349": 1,
+            "c36a30dce7fe2109def31fa6aca7892519c16070b00e976f102c741a7788a696": 1,
+            "d762b6f482d1bd5b0f0d379c212cc9e88116141efc4b80e04d9d5339ae8c8ae1": 1,
+            "dfc8e547ae42f0a45412be769d953c3ca16f41e0833e1e979c886f96453c925b": 1
+        },
+        "packages/core/src/Model/StageBlockerEntry.php": {
+            "3b856e6fff88d12da2377e4448da1026a3df53e8b8374960294051a083035e45": 1,
+            "8104222068ffe874b663451c60c89ccb113642a602528faebd53572f1b1223fb": 1,
+            "824d0733d533ba2cf90e30807cb52f682e52c27f4e9ccf518daa43a9e86291ab": 1
+        },
+        "packages/core/src/Model/StageExecutionContext.php": {
+            "dfc9e2c7d801d208ac921690837d438bfedb21dd76f4f1743e4b7b05aaa0e6ae": 1
+        },
+        "packages/core/src/Model/StageTestGuidance.php": {
+            "9daac582e1181ec9f4110aa73d0e003adc3034fe516f6ed2c8560ccaf3c73a94": 1
+        },
+        "packages/core/src/Model/StagedResolution.php": {
+            "58a05021c32449efa08a85d6eb962ed504483bd86ef625736094946ec5b0973a": 1
         },
         "packages/core/src/Model/TargetPlatform.php": {
             "28b5e2136d8016d34ac4a25de6c09a1ca86ee06f4c090b2728cdc154d8347df6": 1,
-            "4ad2292cb6c5c2d31325739acfa4452421493ab7819e55fbaef0c55ac99bab33": 1,
             "4b57edde9f7c50f81f5a8212e3b5ccef91e96a4520e3dd7ee9e96e58ed25988e": 1
         },
         "packages/core/src/Model/TestGuidance.php": {
@@ -296,12 +387,33 @@
         },
         "packages/core/src/Reporting/MarkdownReportWriter.php": {
             "0e9dc98b3bc25677deebce7e59120ab5cda61a104aac040785dcddf285689797": 1,
+            "0ffd1bb6e91717ac0ae6c01d67f3487f441aea0055ce8d91e181919c0c372c0d": 1,
+            "1565781bbe0bfc6adce89323b1337b76908c4f3eab452f557993163068653e9b": 3,
+            "1ec80ab46bea94b238782688a38beba5144160898a6db458d0a9f6ddc9f91b91": 1,
             "2149ff93b9b1199ff38f543388ded3da72767e5153ca65125e7eb1654e85728c": 1,
             "23cb85596686a1c0e2593c45b667108e57a2f7b8635cac5d77899df60a13a678": 1,
+            "309199e997d14cc1436fcede9d8ad75096968bcda7eb2de6e8c76ba763568a80": 1,
+            "388c66c92e82a69cbb5e4452c084a99229aef636cd8ba4314d4e32ef0a7e9e50": 1,
             "39adecb688cbc2749a3bc0e974c5052acebb269d78aa413e3c640bf3a5a165d0": 1,
+            "3b2375ea3bfa38a3789415f80b174d5e6c8fa6b37cf16f33d37c226b0d58e62e": 1,
+            "57c88a5b63d7b06eebe392b7379f883a14c8eaab23d87c066b1d32e498db4dbb": 1,
+            "60dd7af6f694350ea35b2019b66c7ce930dcb0b9e03a9f0402bae8196f80b4f0": 1,
+            "7a8b610016fbb201146df4a885b0abb5d2032f6d1230301e82cf2975d7bc137f": 1,
+            "7b875e5f0a7f6d70950a027757145b55394118c9dbfe79bfa378967938941dcf": 1,
+            "8ca10df2389e4cd1af04ac68c75e7ae14340efba2d4e80c093cb9a7a5f521d5b": 1,
+            "8d79499feae57b036193bc12a121f386bd98bdbbe8a79bf9a6acdaf505b134cc": 1,
+            "965917375d4395526fabcc31b206b157ad872efa37789347f23518367ef74a24": 1,
+            "9d8b2b5670d18da8a99f6152f7ee75558019cd106d8032bf7c1117bd37273e37": 3,
+            "a47c9edd2a57b80995c9f8859a23b459e30b801cba9ae4bdcb78f75e32d96151": 1,
+            "b119d082ec4f5e1898af8d8f3349166bfa780da4cce098703b6386b9787d7448": 1,
+            "b833f17a590b09fdd6846cdc2018a856a285d124e059814dae124ed0bda3c2f5": 1,
             "bab63e3e46ed4153e3792552e60fa00306c3950135ea27480fefa142fbb44960": 1,
+            "bdd9b44952512b5468856bd681d9644c38650a6a934045d4de135e032809c044": 1,
+            "c0b1a3534ab67cd6e1a30a69661c6df42558546a820e082e3c0d48499cab34eb": 1,
             "d69f1d137cf788ad2aadd6e68e148d8da206699aa9c7c5b1ee9b2ff8664cd6fd": 1,
-            "dd371dd72ab47b3f49b7967cfbb1bfd5754ad97bbe155bd104dd0ed65dc992f6": 1
+            "d838b45941ee0700dc6b28ca479a53c0e967ca2c496eaee1b17fc55fc7872833": 1,
+            "dd371dd72ab47b3f49b7967cfbb1bfd5754ad97bbe155bd104dd0ed65dc992f6": 1,
+            "ddeac67b37cc10fcdb83b8e36b4cd1377c83309c7f77e359c0a44faa835b1fe9": 1
         },
         "packages/core/src/Reporting/ReportFileWriter.php": {
             "2567a34780a6f6b94688e00ebcead59e893e8ab70f7157c3eb53719b43b41193": 1,
@@ -342,13 +454,13 @@
             "03efb32eb56249a034705f0361f39bc040bf0209835cead74a004cd4d544506f": 1,
             "0bf37874b7af9907cc21dc845f1daf71d4f9392a2ca7a5b474c14db2db91e879": 1,
             "10e0fa08a73f0cd151617165a96e7df8c8d14ecfc63d6f1f343559f16198939f": 3,
+            "325464a9ff828aa50482844e84444244dba63d004c42922baa2ff9162cbdec6a": 1,
             "38c49581e86aaa4c099b6218c9e81804b0b30347f6056b06dadbe42879e7b866": 1,
             "49478d5ac3f2aa07a17ce2e8023b615c2318a9484c8612386f5ecb59c5c6b6b1": 1,
             "4ac9343c714cfed05fabbd6d65f768440526275ab765a0316a0a62407ca9fafd": 1,
             "79a0bdfb3c0d9ba5f56755b7d04695b764ab5abe44ba4db98e5023de1d1f6006": 1,
             "8beaabe25ab7e0a80d1e25bada55a2f5a227101c2210eadf0b368d3c2be4a83f": 4,
             "95b9f3c8aa008e8f29ab01aa772d7cb9383e37a153ba41683a95563acd1756ed": 1,
-            "e7b0eb06cad090bcd548098f19307dd304bd7c885e47ea42b074ae84e9d93e8c": 1,
             "feeefa2c9ff502edce7b0c74a13c09d42dc026e0603ec3cb8767faa09e029305": 1
         },
         "packages/core/src/Source/SourceUsageScanner.php": {
@@ -396,7 +508,7 @@
         },
         "packages/core/src/Support/PathExposurePolicy.php": {
             "0563a0b08201707a19223a848b2db2ec5280e54a1eb49205b92c80454c173ade": 3,
-            "0bf37874b7af9907cc21dc845f1daf71d4f9392a2ca7a5b474c14db2db91e879": 2,
+            "0bf37874b7af9907cc21dc845f1daf71d4f9392a2ca7a5b474c14db2db91e879": 1,
             "41293580ff1131bcd66b6010e93d5585b00519b1d74fcec481e8fb83695f3034": 1,
             "4ad2292cb6c5c2d31325739acfa4452421493ab7819e55fbaef0c55ac99bab33": 1,
             "67571cbd9c7bea2a67943f7ebb5b986eaa625a65fd78239ed66b5734c9f06fb7": 1,
@@ -405,8 +517,7 @@
             "87de34b67950e86c2b8b2cf8802d428d51392f7d2bb7f78948719c366bc70336": 1,
             "9905c74cac2343e0f2334ca7bbf91e7f681e26dffa4035c3a75f96106d00bcc3": 1,
             "a49cf60c21915b0b8d3d20a9905876a5dd74bd791158b057f7dd55afebbc11e5": 1,
-            "c7221e1192cef51aa9d2ab86a2200fac852bd254ed01b295bd47b2923204ecc5": 1,
-            "e2265bb65b74ce25b4d383002d0fdbdbaeb506b8353b5a6a8c4d43df2bb3c909": 1
+            "c7221e1192cef51aa9d2ab86a2200fac852bd254ed01b295bd47b2923204ecc5": 1
         },
         "packages/core/src/Support/SensitiveOutputRedactor.php": {
             "0088fc0e4afca056ea79949afc9d43c9751ddf2cc19b3ae9668d7e192454b961": 1,
@@ -424,9 +535,6 @@
             "ace81f6cb7d765e2403a67a3fe0f003d2b88bb8d0241bf2a1c6997d54d7b4995": 1,
             "c6ce8d613323d079f11e8316b31a92de97375471f3c60817cb1ec455290fe10c": 1,
             "c82af32403740d530efe71cbc86d7d904800c46243403b78a1dd386640d8a17d": 1
-        },
-        "packages/laravel/src/Catalog/LaravelRuleCatalog.php": {
-            "4ad2292cb6c5c2d31325739acfa4452421493ab7819e55fbaef0c55ac99bab33": 1
         },
         "packages/laravel/src/Catalog/LaravelRuleCatalogValidator.php": {
             "05a9a60131ec5281fde543696bbdd8fe60652df09dfd3a624e83027f0d8182f8": 1,
@@ -447,15 +555,15 @@
         "packages/laravel/src/Commands/AnalyzeUpgradeCommand.php": {
             "0c049cf1444bfb9b41131eea0a974d8ea4750a88dde275f3d9c18627e27dd09b": 1,
             "381af2f9583cb0ce583078a8c949c381d60e6158b850fd40d5414dddb365631e": 1,
-            "3db99f5c54b6e9b920ddeb99c7af7d077b5249ecdad29500c630880a48833920": 1,
+            "3db99f5c54b6e9b920ddeb99c7af7d077b5249ecdad29500c630880a48833920": 2,
             "583e0977342828c288fff44b07567149b4582f4cc75474c20b674335d1c8e1cb": 1,
             "58bfe9dcd31dd7ca0d9cfc01ee0a9df18c590de237b39c6c1269349d57c03587": 1,
             "5d06d87bbff164d36dcf9d9ffc3fa2ed750a64e19acdb2f8339bfba63ae25300": 1,
+            "60ba7af81eb55e2d263153f1dbed2b3f24685a556d1199d8807597979fc122fa": 1,
             "7b8dc726e3f545d0356f43bf4777892615dc003ee3a70e789f039e2448383569": 1,
             "ad94368e9e126eec1010883894c21797df69542c1d78a462c8ba5a30d326c020": 1,
             "cb424047ade3c16d0f015e714718a50b33bf3fc12725a4884f1820ac95f5f2e4": 1,
-            "d168561937225877ce517bbba09ad919cb2a8fce9e759ee7b28041a1ca83554a": 1,
-            "e8d1f8ac8b119fd1542bffeb1c8f698c9207eb2b520891c3a33a0e6f3a4e5d5b": 1
+            "d168561937225877ce517bbba09ad919cb2a8fce9e759ee7b28041a1ca83554a": 1
         },
         "packages/laravel/src/LaravelFrameworkIntegration.php": {
             "01f9dd703d41727acbda0f3a1e360491183424c0c028d22ad5fc24b438902584": 1,
@@ -463,6 +571,7 @@
             "09b8a4b4647c9e8cbafe5d75dff2a94d7368e380f6fdb21b9da61dc2ffe48689": 1,
             "0e12585c5b464ac24483e1adde127045cb96387397a0b3202d3cffc7e50fbb9c": 1,
             "1279d7dc7e0a7823cd05fdf98f13511ca9dd8acd4242e9192fcb14dc8f673622": 1,
+            "18c5d4f441599df5712d3031d2fac2acc7a66276dc4c6f0a3566754c37d60d80": 1,
             "1c128ec2b8325e60d256ba230a87d56815537713fcc7fb2eaeaab1e11b9d313a": 1,
             "1dbebeb8df1b5bd298753cb326aab5d694fb4e20b5fa9a9e60a676f0429c446a": 1,
             "1e60c6b50470151a12335578fff5d34225be1db115cee1ba20760b0991a7daed": 3,
@@ -475,6 +584,8 @@
             "3beff4e3d62b4e68219c55a1c38099e2f07857723a9baa0b33ad9ec44d1f1d42": 1,
             "49ee6d2f9e8629cdd95bd1d5e1518528b097621d3f7981901be65721024cff45": 1,
             "4ad2292cb6c5c2d31325739acfa4452421493ab7819e55fbaef0c55ac99bab33": 1,
+            "4bb94d54263420f4c91d7f4c233885e73a77b99255f843d127721ea8cc6eeaa5": 1,
+            "512e4b9f40e8eb8590fd76e597f3eb7026d22692286aa092314610675427f368": 1,
             "5350acb6b7da915a268c94fe7ee81dcd8e7993b3d40591508b864f5a1d413867": 1,
             "5a546d6d73b013d197f03e49634d4027673b9c76b3c3d4802332b9c0fe187b05": 1,
             "647076ce6e3326db67824fd209b5eb219bbfbaa2f5b131ce913b577b7021e930": 1,
@@ -487,18 +598,20 @@
             "7f75c15c0f1fbd1e7959df0047c1b88c735e6d5e384cfd8f62f4bcd98c4c0f98": 1,
             "87af103d1fd802cc5eccb5c7c08dce8e5ce121b84cabcee2e6dfa6957cbe4e19": 1,
             "92eb4e3352467d4f98f511e7ae946b66e331bae6491f3f9b919ec3860410dda2": 1,
-            "9d8b2b5670d18da8a99f6152f7ee75558019cd106d8032bf7c1117bd37273e37": 2,
+            "9d8b2b5670d18da8a99f6152f7ee75558019cd106d8032bf7c1117bd37273e37": 3,
             "9e9c0072e8260b449fc404f903292baab96c9f90b23b5faee0411daacc149f16": 1,
+            "b135c30786302b8ef7152cf9dc0437d7a4f84b19211ad53139b67ae78fb8eb3b": 1,
             "b468055e3f2c45a9c170c7cab025a95f1bfc9963dcc8e138949bc6d4d1e46e49": 1,
             "b50a319a289ac36bd0dad89fd918ad66a78c8dc9e66328fcf521b82158756363": 1,
             "b74c5d0fcd4b1328012e41b424fd67ff92a58a152671ef42a1364eb89eb49057": 1,
             "b9d3814f1c68267c738230deaa296886b4ce61ac39febf4f677fd2b990f75de5": 1,
             "ba5ec51d07a4ac0e951608704431d59a02b21a4e951acc10505a8dc407c501ee": 1,
+            "c524a94580a3e7c2a1da940e90181ab6749433bc32cb097f210763e569c6ee6d": 1,
             "cfae0d4248f7142f7b17f826cd7a519280e312577690e957830d23dcf35a3fff": 1,
             "d9882b4067b18abc146602a28d733c5002b052fed0bf631dd0353015c38c5704": 1,
-            "dabbdf16b8204c2b7217958e893ae2d600d2f01a226e3e0d8e7d1ef950819832": 1,
             "e0ea77771deb97e782c4ac5ec2852eb1cfd9bfe538366e629c1f9a778a22f779": 1,
             "ede523670d928b4aca90e920ecdaa2052ac86b3435e86eac361cbf6a6a5e7ee1": 1,
+            "f1c0ef2170e2d6494fabc10c5ffa0190f8eca64ace5ca73a4719be47112f2aa2": 1,
             "f84b643b73818697a12560f18a14b2bbb1b96d63f295411a2c3c78168a1beff2": 1
         },
         "packages/laravel/src/Rules/LaravelCurlExtensionRule.php": {

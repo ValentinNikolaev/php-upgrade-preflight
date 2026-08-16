@@ -53,10 +53,12 @@ final class V03ContractTest extends TestCase
             FrameworkStagePlan::REASON_ANALYSIS_PHP_UNAVAILABLE,
             'solver_blocker',
             'timeout',
+            'stage_timeout',
             'aggregate_timeout',
             'operational_failure',
             'provider_conflict',
             'hop_budget',
+            'process_budget',
         ], array_keys($stage['stop_conditions']));
         self::assertSame('skipped', $stage['later_stages_after_stop']);
         self::assertSame('original_project', $stage['source_snapshot']);
@@ -174,14 +176,47 @@ final class V03ContractTest extends TestCase
             'max_hops' => StagedAnalysisPolicy::MAX_HOPS,
             'max_attempts_per_stage' => StagedAnalysisPolicy::MAX_ATTEMPTS_PER_STAGE,
             'max_scenarios' => StagedAnalysisPolicy::MAX_SCENARIOS,
+            'max_composer_processes' => StagedAnalysisPolicy::MAX_COMPOSER_PROCESSES,
             'scenario_timeout_seconds' => StagedAnalysisPolicy::SCENARIO_TIMEOUT_SECONDS,
+            'stage_timeout_seconds' => StagedAnalysisPolicy::STAGE_TIMEOUT_SECONDS,
             'aggregate_timeout_seconds' => StagedAnalysisPolicy::AGGREGATE_TIMEOUT_SECONDS,
             'scenario_timeout_application' => 'effective staged timeout is the lesser of the request timeout and scenario_timeout_seconds',
-            'aggregate_start_gate' => 'an attempt starts only when its full effective scenario timeout fits within the remaining aggregate budget',
+            'aggregate_start_gate' => 'an attempt starts only when its full effective scenario timeout fits within the remaining stage and aggregate budgets; measured diagnostic and cleanup time can exhaust either budget and prevent subsequent work',
             'memory_bytes' => StagedAnalysisPolicy::MEMORY_BUDGET_BYTES,
             'json_report_bytes' => StagedAnalysisPolicy::JSON_REPORT_BUDGET_BYTES,
             'markdown_report_bytes' => StagedAnalysisPolicy::MARKDOWN_REPORT_BUDGET_BYTES,
         ], $this->contract['budgets']);
+
+        $canonicalBudgets = [
+            'max_hops' => StagedAnalysisPolicy::MAX_HOPS,
+            'max_attempts_per_stage' => StagedAnalysisPolicy::MAX_ATTEMPTS_PER_STAGE,
+            'max_scenarios' => StagedAnalysisPolicy::MAX_SCENARIOS,
+            'max_composer_processes' => StagedAnalysisPolicy::MAX_COMPOSER_PROCESSES,
+            'scenario_timeout_seconds' => StagedAnalysisPolicy::SCENARIO_TIMEOUT_SECONDS,
+            'stage_timeout_seconds' => StagedAnalysisPolicy::STAGE_TIMEOUT_SECONDS,
+            'aggregate_timeout_seconds' => StagedAnalysisPolicy::AGGREGATE_TIMEOUT_SECONDS,
+            'memory_bytes' => StagedAnalysisPolicy::MEMORY_BUDGET_BYTES,
+            'json_report_bytes' => StagedAnalysisPolicy::JSON_REPORT_BUDGET_BYTES,
+            'markdown_report_bytes' => StagedAnalysisPolicy::MARKDOWN_REPORT_BUDGET_BYTES,
+        ];
+        $serialized = (new StagedResolution(
+            StagedResolution::SKIPPED,
+            StagedResolution::UNKNOWN,
+            null,
+            [],
+            [],
+            'stage_target_provider_unavailable'
+        ))->toArray();
+        self::assertSame($canonicalBudgets, $serialized['budgets']);
+
+        $schema = $this->readJson(
+            $this->root . '/packages/core/resources/schema/upgrade-report-v0.8.schema.json'
+        );
+        self::assertSame(array_keys($canonicalBudgets), $schema['$defs']['stagedBudgets']['required']);
+        foreach ($canonicalBudgets as $name => $value) {
+            self::assertSame($value, $schema['$defs']['stagedBudgets']['properties'][$name]['const']);
+        }
+
         self::assertCount(7, $this->contract['ordering']);
     }
 
@@ -217,6 +252,8 @@ final class V03ContractTest extends TestCase
             'staged_resolution.stages[].composer_execution',
             'staged_resolution.stages[].duration_ms',
             'staged_resolution.stages[].evidence',
+            'staged_resolution.budgets.max_composer_processes',
+            'staged_resolution.budgets.stage_timeout_seconds',
             'staged_resolution.source_impact',
             'staged_resolution.stages[].blockers',
             'staged_resolution.stages[].source_snapshot_note',
@@ -245,6 +282,21 @@ final class V03ContractTest extends TestCase
             self::fail(json_encode((new ErrorFormatter())->format($error), JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR));
         }
         self::assertTrue($result->isValid());
+
+        $fixtureArray = json_decode($fixtureContents, true, 512, JSON_THROW_ON_ERROR);
+        self::assertIsArray($fixtureArray);
+        foreach (['max_composer_processes', 'stage_timeout_seconds'] as $requiredBudget) {
+            $withoutRequiredBudget = $fixtureArray;
+            unset($withoutRequiredBudget['staged_resolution']['budgets'][$requiredBudget]);
+            $invalidResult = (new Validator(null, 20, false))->validate(
+                json_decode(json_encode($withoutRequiredBudget, JSON_THROW_ON_ERROR), false, 512, JSON_THROW_ON_ERROR),
+                $schema
+            );
+            self::assertFalse(
+                $invalidResult->isValid(),
+                sprintf('Schema 0.8 must require staged_resolution.budgets.%s.', $requiredBudget)
+            );
+        }
 
         $migrationContents = file_get_contents($this->root . '/' . $schemaContract['migration_fixture']);
         self::assertIsString($migrationContents);

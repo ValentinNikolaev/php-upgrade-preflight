@@ -42,6 +42,62 @@
       "search": "if ($series !== self::ACTIVE_RELEASE_SERIES)",
       "replace": "if ($series === self::ACTIVE_RELEASE_SERIES)",
       "test_filter": "ReleaseVerifierTest"
+    },
+    {
+      "name": "platform-completeness-requires-php",
+      "file": "packages/core/src/Model/TargetPlatformProfile.php",
+      "search": "if ($completeness === self::COMPLETENESS_COMPLETE && !isset($indexed['php']))",
+      "replace": "if ($completeness === self::COMPLETENESS_COMPLETE && isset($indexed['php']))",
+      "test_filter": "TargetPlatformProfileTest"
+    },
+    {
+      "name": "profile-request-precedence",
+      "file": "packages/core/src/Model/TargetPlatform.php",
+      "search": "if ($request->targetPhp() !== null && $request->targetPhpProvenance() === 'request')",
+      "replace": "if ($request->targetPhp() !== null && $request->targetPhpProvenance() !== 'request')",
+      "test_filter": "TargetPlatformResolutionTest"
+    },
+    {
+      "name": "restricted-execution-environment",
+      "file": "packages/core/src/Model/ComposerExecutionConfiguration.php",
+      "search": "$expectedEnvironment = $mode === self::MODE_RESTRICTED\n            ? self::ENVIRONMENT_SANITIZED",
+      "replace": "$expectedEnvironment = $mode === self::MODE_COMPATIBLE\n            ? self::ENVIRONMENT_SANITIZED",
+      "test_filter": "ComposerExecutionConfigurationTest"
+    },
+    {
+      "name": "stage-selected-state-chaining",
+      "file": "packages/core/src/Analysis/StagedUpgradeOrchestrator.php",
+      "search": "$currentState = $selectedState;",
+      "replace": "$currentState = $project;",
+      "test_filter": "StagedUpgradeOrchestratorTest"
+    },
+    {
+      "name": "state-fingerprint-execution-policy",
+      "file": "packages/core/src/Model/ProjectStateFingerprint.php",
+      "search": "'execution_policy' => $policy,",
+      "replace": "'execution_policy' => $effectivePlatform,",
+      "test_filter": "ProjectStateFingerprintTest"
+    },
+    {
+      "name": "stage-plan-stop-on-gap",
+      "file": "packages/laravel/src/LaravelFrameworkIntegration.php",
+      "search": "if ($definition === null || $transition === null || !$transition->isSupported())",
+      "replace": "if ($definition === null && $transition === null && !$transition->isSupported())",
+      "test_filter": "LaravelFrameworkIntegrationTest"
+    },
+    {
+      "name": "aggregate-uncertainty-deduplication",
+      "file": "packages/core/src/Model/UpgradeReport.php",
+      "search": "$this->uncertainties = array_values(array_unique(array_merge(",
+      "replace": "$this->uncertainties = array_values(array_merge(",
+      "test_filter": "ReportAssemblerTest"
+    },
+    {
+      "name": "old-style-adapter-stage-provider-guard",
+      "file": "packages/core/src/Analysis/StagedUpgradeOrchestrator.php",
+      "search": "static fn (FrameworkIntegration $framework): bool => $framework instanceof FrameworkStageTargetProvider",
+      "replace": "static fn (FrameworkIntegration $framework): bool => true",
+      "test_filter": "testOldStyleAdapterWithoutStageProviderRemainsCompatible"
     }
   ]
 }

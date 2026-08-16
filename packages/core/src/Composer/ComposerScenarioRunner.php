@@ -148,8 +148,7 @@ final class ComposerScenarioRunner
                 }
             }
         }
-        $durationMs = 0;
-        $startedAt = null;
+        $startedAt = ($this->clock)();
         $phase = 'workspace';
         $cleanupFailedDuringCreation = false;
 
@@ -168,7 +167,6 @@ final class ComposerScenarioRunner
                 );
             }
             $phase = 'process';
-            $startedAt = ($this->clock)();
             $environment = $this->processEnvironment($execution, $tempPath);
             $process = ($this->processRunner)(
                 $command,
@@ -183,8 +181,6 @@ final class ComposerScenarioRunner
                 $repositoryPaths,
                 $execution
             );
-            $durationMs = $this->elapsedMilliseconds($startedAt);
-
             $lock = null;
             $candidateLockEvidence = null;
             $candidateProjectState = null;
@@ -251,7 +247,7 @@ final class ComposerScenarioRunner
                 $failureType,
                 $composerVersion,
                 $this->safeCommand($command, $execution),
-                $durationMs,
+                0,
                 $candidateLockEvidence,
                 $diagnostics,
                 $outcome,
@@ -262,10 +258,6 @@ final class ComposerScenarioRunner
             if ($exception instanceof WorkspaceCleanupException) {
                 $tempPath = $exception->workspacePath();
                 $cleanupFailedDuringCreation = true;
-            }
-
-            if ($startedAt !== null && $durationMs === 0) {
-                $durationMs = $this->elapsedMilliseconds($startedAt);
             }
 
             $stdout = '';
@@ -309,7 +301,7 @@ final class ComposerScenarioRunner
                 ScenarioResult::FAILURE_OPERATIONAL,
                 $composerVersion,
                 $this->safeCommand($command, $execution),
-                $durationMs,
+                0,
                 null,
                 [],
                 $this->exceptionOutcome($exception, $phase),
@@ -321,7 +313,7 @@ final class ComposerScenarioRunner
             try {
                 $this->workspaces->remove($tempPath);
             } catch (\Throwable $exception) {
-                return new ScenarioResult(
+                $result = new ScenarioResult(
                     $scenario,
                     $result->exitCode(),
                     $result->stdout(),
@@ -339,7 +331,7 @@ final class ComposerScenarioRunner
                     ScenarioResult::FAILURE_OPERATIONAL,
                     $result->composerVersion(),
                     $result->command(),
-                    $result->durationMs(),
+                    0,
                     $result->candidateLockEvidence(),
                     $result->diagnostics(),
                     ScenarioResult::OUTCOME_CLEANUP_FAILURE,
@@ -348,7 +340,7 @@ final class ComposerScenarioRunner
             }
         }
 
-        return $result;
+        return $this->withDuration($result, $this->elapsedMilliseconds($startedAt), $request->debug());
     }
 
     public function resetDiagnosticCache(): void
@@ -614,6 +606,27 @@ final class ComposerScenarioRunner
     private function elapsedMilliseconds(float $startedAt): int
     {
         return max(0, (int) round(((float) ($this->clock)() - $startedAt) * 1000));
+    }
+
+    private function withDuration(ScenarioResult $result, int $durationMs, bool $exposeTempPath): ScenarioResult
+    {
+        return new ScenarioResult(
+            $result->scenario(),
+            $result->exitCode(),
+            $result->stdout(),
+            $result->stderr(),
+            $result->lock(),
+            $result->tempPath(),
+            $result->failureType(),
+            $result->composerVersion(),
+            $result->command(),
+            $durationMs,
+            $result->candidateLockEvidence(),
+            $result->diagnostics(),
+            $result->outcome(),
+            $exposeTempPath,
+            $result->candidateProjectState()
+        );
     }
 
     /** @param array<string, string>|null $analyzerPlatformPackages */

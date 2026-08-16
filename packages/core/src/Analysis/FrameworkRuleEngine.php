@@ -216,6 +216,6 @@ final class FrameworkRuleEngine
             );
         }
 
-        return $deduplicated;
+        return array_values($deduplicated);
     }
 }

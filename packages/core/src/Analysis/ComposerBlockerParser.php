@@ -291,7 +291,8 @@ final class ComposerBlockerParser
                 continue;
             }
 
-            $constraint = isset($matches[5]) ? preg_split('/\s+->\s+/', $matches[5], 2)[0] : null;
+            $constraintParts = isset($matches[5]) ? preg_split('/\s+->\s+/', $matches[5], 2) : false;
+            $constraint = $constraintParts === false ? null : $constraintParts[0];
             $operation = strtolower($matches[3]);
             $relations[] = [
                 'package' => strtolower($matches[1]),

@@ -16,7 +16,10 @@ use PHPUnit\Framework\TestCase;
 /** @group windows-integration-heavy */
 final class LaravelV02TransitionFixtureTest extends TestCase
 {
-    /** @dataProvider transitionCaseProvider */
+    /**
+     * @dataProvider transitionCaseProvider
+     * @param array<string, mixed> $case
+     */
     public function testTransitionCaseCoversResolutionAndGuidanceIndependently(array $case): void
     {
         $path = $this->fixturePath($case['fixture']);

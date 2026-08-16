@@ -31,10 +31,38 @@ use Symfony\Component\Process\Process;
 
 final class StagedUpgradeOrchestratorTest extends TestCase
 {
-    public function testItSkipsWhenNoActiveFrameworkProvidesStages(): void
+    public function testOldStyleAdapterWithoutStageProviderRemainsCompatible(): void
     {
         [$project, $request, $platform] = $this->context();
-        $resolution = $this->orchestrator()->analyze([], $project, $request, $platform, new EvidenceLedger());
+        $oldStyleAdapter = new class () implements FrameworkIntegration {
+            public function name(): string
+            {
+                return 'old-style-adapter';
+            }
+
+            public function detect(ProjectState $project): FrameworkDetection
+            {
+                return new FrameworkDetection($this->name(), true, '1.0.0');
+            }
+
+            public function rules(): iterable
+            {
+                return [];
+            }
+
+            public function defaultSourcePaths(ProjectState $project): array
+            {
+                return [];
+            }
+        };
+
+        $resolution = $this->orchestrator()->analyze(
+            [$oldStyleAdapter],
+            $project,
+            $request,
+            $platform,
+            new EvidenceLedger()
+        );
 
         self::assertSame(StagedResolution::SKIPPED, $resolution->executionState());
         self::assertSame(StagedResolution::UNKNOWN, $resolution->status());
@@ -134,6 +162,91 @@ final class StagedUpgradeOrchestratorTest extends TestCase
         $ledger->validateReferences($resolution->evidenceReferences());
     }
 
+    public function testItRejectsProviderFailuresBeforeComposerRunsAndRetainsTheirEvidence(): void
+    {
+        [$project, $request, $platform] = $this->context();
+        $ledger = new EvidenceLedger();
+        $plan = new FrameworkStagePlan('fixture', [], FrameworkStagePlan::REASON_MISSING_TARGET);
+        $provider = $this->provider('fixture', $plan, static function (EvidenceLedger $evidence): void {
+            $evidence->add('provider-output', Evidence::E2_PACKAGE_METADATA, 'Provider output started.');
+            throw new \RuntimeException('Fixture provider failure.');
+        });
+
+        $resolution = $this->orchestrator()->analyze([$provider], $project, $request, $platform, $ledger);
+
+        self::assertSame(StagedResolution::SKIPPED, $resolution->executionState());
+        self::assertSame('invalid_stage_plan', $resolution->toArray()['stop_reason']);
+        self::assertSame('provider_failure', $ledger->all()[1]->context()['reason']);
+        $ledger->validateReferences($resolution->evidenceReferences());
+    }
+
+    public function testItRejectsMissingProviderEvidenceBeforeComposerRuns(): void
+    {
+        [$project, $request, $platform] = $this->context();
+        $ledger = new EvidenceLedger();
+        $plan = new FrameworkStagePlan(
+            'fixture',
+            [],
+            FrameworkStagePlan::REASON_MISSING_TARGET,
+            ['missing-evidence']
+        );
+
+        $resolution = $this->orchestrator()->analyze(
+            [$this->provider('fixture', $plan)],
+            $project,
+            $request,
+            $platform,
+            $ledger
+        );
+
+        self::assertSame('invalid_stage_plan', $resolution->toArray()['stop_reason']);
+        self::assertSame('missing_evidence_reference', $ledger->all()[0]->context()['reason']);
+        self::assertNotContains('missing-evidence', $resolution->evidenceReferences());
+        $ledger->validateReferences($resolution->evidenceReferences());
+    }
+
+    public function testItRejectsUnreferencedEvidenceCreatedByAProvider(): void
+    {
+        [$project, $request, $platform] = $this->context();
+        $ledger = new EvidenceLedger();
+        $reference = $ledger->add('stage-target', Evidence::E2_PACKAGE_METADATA, 'Declared stage evidence.')->id();
+        $plan = new FrameworkStagePlan(
+            'fixture',
+            [],
+            FrameworkStagePlan::REASON_MISSING_TARGET,
+            [$reference]
+        );
+        $provider = $this->provider('fixture', $plan, static function (EvidenceLedger $evidence): void {
+            $evidence->add('provider-output', Evidence::E2_PACKAGE_METADATA, 'Undeclared provider evidence.');
+        });
+
+        $resolution = $this->orchestrator()->analyze([$provider], $project, $request, $platform, $ledger);
+
+        self::assertSame('invalid_stage_plan', $resolution->toArray()['stop_reason']);
+        self::assertSame('unreferenced_provider_evidence', $ledger->all()[2]->context()['reason']);
+        $ledger->validateReferences($resolution->evidenceReferences());
+    }
+
+    public function testItRejectsStageFrameworkMismatchesBeforeComposerRuns(): void
+    {
+        [$project, $request, $platform] = $this->context();
+        $ledger = new EvidenceLedger();
+        $reference = $ledger->add('stage-target', Evidence::E2_PACKAGE_METADATA, 'Mismatched stage framework.')->id();
+        $plan = new FrameworkStagePlan('fixture', [$this->stage(0, 1, $reference, 'other')], null, [$reference]);
+
+        $resolution = $this->orchestrator()->analyze(
+            [$this->provider('fixture', $plan)],
+            $project,
+            $request,
+            $platform,
+            $ledger
+        );
+
+        self::assertSame('invalid_stage_plan', $resolution->toArray()['stop_reason']);
+        self::assertSame('stage_framework_mismatch', $ledger->all()[1]->context()['reason']);
+        $ledger->validateReferences($resolution->evidenceReferences());
+    }
+
     public function testItEnforcesTheHopBudgetBeforeRunningComposerAndRetainsPlanEvidence(): void
     {
         [$project, $request, $platform] = $this->context();
@@ -160,7 +273,60 @@ final class StagedUpgradeOrchestratorTest extends TestCase
         $ledger->validateReferences($resolution->evidenceReferences());
     }
 
-    public function testAggregateTimeoutStopsAsUnknownAfterASolverFailure(): void
+    public function testItRejectsAPlanWhoseWorstCaseDiagnosticsExceedTheProcessBudget(): void
+    {
+        [$project, $request, $platform] = $this->context();
+        $ledger = new EvidenceLedger();
+        $stageEvidence = $ledger->add(
+            'stage-target',
+            Evidence::E2_PACKAGE_METADATA,
+            'Process-budget stage target.'
+        )->id();
+        $remediations = [];
+        $remediationEvidence = [];
+        for ($index = 0; $index < StagedAnalysisPolicy::MAX_COMPOSER_PROCESSES; ++$index) {
+            $package = sprintf('vendor/remediation-%d', $index);
+            $reference = $ledger->add(
+                'stage-remediation',
+                Evidence::E2_PACKAGE_METADATA,
+                'Process-budget remediation target.'
+            )->id();
+            $remediations[] = new UpgradeTarget($package, '^2.0');
+            $remediationEvidence[$package] = [$reference];
+        }
+        $stage = new FrameworkStageTarget(
+            'fixture-0-to-1',
+            'fixture',
+            0,
+            1,
+            new UpgradeTargetSet([new UpgradeTarget('vendor/framework', '^1.0')], '8.3.0'),
+            '8.3.0',
+            $remediations,
+            $remediationEvidence,
+            [$stageEvidence]
+        );
+        $planEvidence = array_merge([$stageEvidence], ...array_values($remediationEvidence));
+        $plan = new FrameworkStagePlan('fixture', [$stage], null, $planEvidence);
+
+        $resolution = $this->orchestrator()->analyze(
+            [$this->provider('fixture', $plan)],
+            $project,
+            $request,
+            $platform,
+            $ledger
+        );
+
+        self::assertSame(StagedResolution::SKIPPED, $resolution->executionState());
+        self::assertSame(StagedResolution::UNKNOWN, $resolution->status());
+        self::assertSame('process_budget_exceeded', $resolution->toArray()['stop_reason']);
+        self::assertGreaterThan(
+            StagedAnalysisPolicy::MAX_COMPOSER_PROCESSES,
+            $ledger->all()[count($ledger->all()) - 1]->context()['projected_processes']
+        );
+        $ledger->validateReferences($resolution->evidenceReferences());
+    }
+
+    public function testStageTimeoutStopsAsUnknownAfterASolverFailure(): void
     {
         [$project, $request, $platform] = $this->context();
         $ledger = new EvidenceLedger();
@@ -169,18 +335,18 @@ final class StagedUpgradeOrchestratorTest extends TestCase
 
         $resolution = $this->solverFailureOrchestrator(
             ['ext-timeout'],
-            [(float) StagedAnalysisPolicy::AGGREGATE_TIMEOUT_SECONDS]
+            [(float) StagedAnalysisPolicy::STAGE_TIMEOUT_SECONDS]
         )->analyze([$this->provider('fixture', $plan)], $project, $request, $platform, $ledger);
         $canonical = $resolution->toArray();
 
         self::assertSame(StagedResolution::UNKNOWN, $resolution->status());
-        self::assertSame('aggregate_timeout', $canonical['stop_reason']);
+        self::assertSame('stage_timeout', $canonical['stop_reason']);
         self::assertSame(StagedResolution::UNKNOWN, $canonical['stages'][0]['resolution_status']);
-        self::assertSame('aggregate_timeout', $canonical['stages'][0]['stop_reason']);
+        self::assertSame('stage_timeout', $canonical['stages'][0]['stop_reason']);
         self::assertCount(1, $canonical['stages'][0]['attempts']);
     }
 
-    public function testItDoesNotStartAnAttemptWhoseTimeoutExceedsTheRemainingAggregateBudget(): void
+    public function testAnAttemptThatExceedsTheStageBudgetStopsAsUnknown(): void
     {
         [$project, $request, $platform] = $this->context();
         $ledger = new EvidenceLedger();
@@ -194,8 +360,63 @@ final class StagedUpgradeOrchestratorTest extends TestCase
         $canonical = $resolution->toArray();
 
         self::assertSame(StagedResolution::UNKNOWN, $resolution->status());
-        self::assertSame('aggregate_timeout', $canonical['stop_reason']);
+        self::assertSame('stage_timeout', $canonical['stop_reason']);
         self::assertCount(1, $canonical['stages'][0]['attempts']);
+    }
+
+    public function testSlowDiagnosticsExhaustTheStageBudgetBeforeAnotherAttemptStarts(): void
+    {
+        [$project, $request, $platform] = $this->context();
+        $ledger = new EvidenceLedger();
+        $reference = $ledger->add('stage-target', Evidence::E2_PACKAGE_METADATA, 'Slow diagnostic stage.')->id();
+        $plan = new FrameworkStagePlan('fixture', [$this->stage(0, 1, $reference)], null, [$reference]);
+        $primaryProcesses = 0;
+
+        $resolution = $this->slowDiagnosticOrchestrator('stage', $primaryProcesses)->analyze(
+            [$this->provider('fixture', $plan)],
+            $project,
+            $request,
+            $platform,
+            $ledger
+        );
+        $canonical = $resolution->toArray();
+
+        self::assertSame(StagedResolution::UNKNOWN, $resolution->status());
+        self::assertSame('stage_timeout', $canonical['stop_reason']);
+        self::assertSame(1, $primaryProcesses);
+        self::assertCount(1, $canonical['stages'][0]['attempts']);
+        self::assertSame(700000, $canonical['stages'][0]['attempts'][0]['scenario']['duration_ms']);
+    }
+
+    public function testSlowDiagnosticsExhaustTheAggregateBudgetBeforeAnotherAttemptStarts(): void
+    {
+        [$project, $request, $platform] = $this->context();
+        $ledger = new EvidenceLedger();
+        $first = $ledger->add('stage-target', Evidence::E2_PACKAGE_METADATA, 'Slow first stage.')->id();
+        $second = $ledger->add('stage-target', Evidence::E2_PACKAGE_METADATA, 'Slow second stage.')->id();
+        $plan = new FrameworkStagePlan(
+            'fixture',
+            [$this->stage(0, 1, $first), $this->stage(1, 2, $second)],
+            null,
+            [$first, $second]
+        );
+        $primaryProcesses = 0;
+
+        $resolution = $this->slowDiagnosticOrchestrator('aggregate', $primaryProcesses)->analyze(
+            [$this->provider('fixture', $plan)],
+            $project,
+            $request,
+            $platform,
+            $ledger
+        );
+        $canonical = $resolution->toArray();
+
+        self::assertSame(StagedResolution::UNKNOWN, $resolution->status());
+        self::assertSame('aggregate_timeout', $canonical['stop_reason']);
+        self::assertSame(3, $primaryProcesses);
+        self::assertCount(2, $canonical['stages'][0]['attempts']);
+        self::assertCount(1, $canonical['stages'][1]['attempts']);
+        self::assertSame(700000, $canonical['stages'][1]['attempts'][0]['scenario']['duration_ms']);
     }
 
     public function testItCapsConfiguredScenarioTimeoutsForStagedExecutionAndReportsTheEffectivePolicy(): void
@@ -525,7 +746,10 @@ final class StagedUpgradeOrchestratorTest extends TestCase
         $reference = $ledger->add('stage-target', Evidence::E2_PACKAGE_METADATA, 'Matching root stage.')->id();
         $plan = new FrameworkStagePlan('fixture', [$this->stage(0, 1, $reference)], null, [$reference]);
 
-        $resolution = $this->solverFailureOrchestrator(['ext-blocked'], [0.1])->analyze(
+        $resolution = $this->solverFailureOrchestrator(
+            ['ext-blocked', 'ext-still-blocked'],
+            [0.1, 0.1]
+        )->analyze(
             [$this->provider('fixture', $plan)],
             $project,
             $request,
@@ -582,7 +806,10 @@ final class StagedUpgradeOrchestratorTest extends TestCase
         ));
     }
 
-    /** @param list<string> $extensions @param list<float> $durations */
+    /**
+     * @param list<string> $extensions
+     * @param list<float> $durations
+     */
     private function solverFailureOrchestrator(array $extensions, array $durations): StagedUpgradeOrchestrator
     {
         $outputs = array_map(static function (string $extension): string {
@@ -592,6 +819,7 @@ final class StagedUpgradeOrchestratorTest extends TestCase
                 sprintf('- vendor/blocker 1.0.0 requires %s * -> it is missing from your system.', $extension),
             ]);
         }, $extensions);
+        /** @var list<float> $clockValues */
         $clockValues = [];
         $current = 0.0;
         foreach ($durations as $duration) {
@@ -640,6 +868,60 @@ final class StagedUpgradeOrchestratorTest extends TestCase
                 return ['exit_code' => 2, 'stdout' => '', 'stderr' => $output];
             },
             static fn (): string => '2.3.0'
+        );
+
+        return new StagedUpgradeOrchestrator($runner);
+    }
+
+    private function slowDiagnosticOrchestrator(string $mode, int &$primaryProcesses): StagedUpgradeOrchestrator
+    {
+        $now = 0.0;
+        $runner = new ComposerScenarioRunner(
+            null,
+            null,
+            static function (array $command, string $workspace) use (
+                $mode,
+                &$primaryProcesses,
+                &$now
+            ): array {
+                if (in_array('prohibits', $command, true)) {
+                    $now += $mode === 'aggregate' && $primaryProcesses === 1 ? 250.0 : 300.0;
+
+                    return ['exit_code' => 1, 'stdout' => '', 'stderr' => 'Synthetic slow diagnostic.'];
+                }
+
+                ++$primaryProcesses;
+                if ($mode === 'aggregate' && $primaryProcesses === 2) {
+                    $now += 299.0;
+                    $contents = file_get_contents($workspace . '/composer.json');
+                    if (!is_string($contents)
+                        || preg_match('/"vendor\\/framework"\s*:\s*"\^(\d+)\.0"/', $contents, $matches) !== 1) {
+                        throw new \RuntimeException('The slow diagnostic fixture has no staged framework target.');
+                    }
+                    file_put_contents($workspace . '/composer.lock', json_encode([
+                        'content-hash' => 'slow-diagnostic-stage',
+                        'packages' => [['name' => 'vendor/framework', 'version' => $matches[1] . '.0.0']],
+                        'packages-dev' => [],
+                    ], JSON_THROW_ON_ERROR));
+
+                    return ['exit_code' => 0, 'stdout' => 'Resolved.', 'stderr' => ''];
+                }
+
+                $now += 100.0;
+
+                return [
+                    'exit_code' => 2,
+                    'stdout' => '',
+                    'stderr' => implode("\n", [
+                        'Your requirements could not be resolved to an installable set of packages.',
+                        '- vendor/blocker 1.0.0 requires ext-slow * -> it is missing from your system.',
+                    ]),
+                ];
+            },
+            static fn (): string => '2.8.12',
+            static function () use (&$now): float {
+                return $now;
+            }
         );
 
         return new StagedUpgradeOrchestrator($runner);
@@ -723,11 +1005,11 @@ final class StagedUpgradeOrchestratorTest extends TestCase
         return [$project, $request, TargetPlatform::fromRequest($request, $project, [], '8.3.0')];
     }
 
-    private function stage(int $from, int $to, string $evidence): FrameworkStageTarget
+    private function stage(int $from, int $to, string $evidence, string $framework = 'fixture'): FrameworkStageTarget
     {
         return new FrameworkStageTarget(
             sprintf('fixture-%d-to-%d', $from, $to),
-            'fixture',
+            $framework,
             $from,
             $to,
             new UpgradeTargetSet([new UpgradeTarget('vendor/framework', '^' . $to . '.0')], '8.3.0'),
@@ -738,16 +1020,21 @@ final class StagedUpgradeOrchestratorTest extends TestCase
         );
     }
 
-    private function provider(string $name, FrameworkStagePlan $plan): FrameworkIntegration
-    {
-        return new class ($name, $plan) implements FrameworkIntegration, FrameworkStageTargetProvider {
+    private function provider(
+        string $name,
+        FrameworkStagePlan $plan,
+        ?callable $beforeReturn = null
+    ): FrameworkIntegration {
+        return new class ($name, $plan, $beforeReturn) implements FrameworkIntegration, FrameworkStageTargetProvider {
             private string $name;
             private FrameworkStagePlan $plan;
+            private ?\Closure $beforeReturn;
 
-            public function __construct(string $name, FrameworkStagePlan $plan)
+            public function __construct(string $name, FrameworkStagePlan $plan, ?callable $beforeReturn)
             {
                 $this->name = $name;
                 $this->plan = $plan;
+                $this->beforeReturn = $beforeReturn === null ? null : \Closure::fromCallable($beforeReturn);
             }
 
             public function name(): string
@@ -775,6 +1062,10 @@ final class StagedUpgradeOrchestratorTest extends TestCase
                 UpgradeRequest $request,
                 EvidenceLedger $evidence
             ): FrameworkStagePlan {
+                if ($this->beforeReturn !== null) {
+                    ($this->beforeReturn)($evidence);
+                }
+
                 return $this->plan;
             }
         };

@@ -20,6 +20,7 @@ use PhpUpgradePreflight\Core\Model\Scenario;
 use PhpUpgradePreflight\Core\Model\ScenarioResult;
 use PhpUpgradePreflight\Core\Model\SourceImpactFinding;
 use PhpUpgradePreflight\Core\Model\SourceUsage;
+use PhpUpgradePreflight\Core\Model\StagedResolution;
 use PhpUpgradePreflight\Core\Model\UpgradeRequest;
 use PhpUpgradePreflight\Core\Model\UpgradeTarget;
 use PHPUnit\Framework\TestCase;
@@ -215,5 +216,106 @@ final class ReportSectionBuilderTest extends TestCase
             'Rerun the isolated Composer scenarios after resolving the reported blockers.',
             $sections->planStages()[1]->actions()
         );
+    }
+
+    /**
+     * @dataProvider skippedStagedResolutionProvider
+     */
+    public function testSkippedStagedResolutionProducesOnlyATerminalPlan(
+        string $reason,
+        ?string $provider
+    ): void {
+        $projectPath = dirname(__DIR__, 5);
+        $request = new UpgradeRequest(
+            $projectPath,
+            [new UpgradeTarget('vendor/framework', '^3.0')],
+            '8.1.0',
+            '8.3.0'
+        );
+        $project = new ProjectState($projectPath, new ComposerJson([
+            'require' => ['vendor/framework' => '^1.0'],
+            'scripts' => ['test' => 'phpunit'],
+        ]), new ComposerLock([]));
+        $scenario = new Scenario('direct-final', $request->targets());
+        $evidence = new EvidenceLedger([
+            new Evidence('stage-stop-1', Evidence::E2_PACKAGE_METADATA, 'The staged transition is unavailable.'),
+        ]);
+        $staged = StagedResolution::skipped($reason, $provider, ['stage-stop-1']);
+
+        $sections = (new ReportSectionBuilder())->build(
+            $request,
+            $project,
+            [new ScenarioResult($scenario, 0, 'Resolved.', '', new ComposerLock([]))],
+            new LockDiff([new PackageChange('vendor/framework', 'upgraded', '1.0.0', '3.0.0', true)]),
+            [],
+            [],
+            [],
+            [],
+            $evidence,
+            $staged
+        );
+
+        self::assertCount(1, $sections->planStages());
+        self::assertSame([
+            'stage_id' => null,
+            'name' => 'staged-resolution',
+            'summary' => sprintf(
+                'Stop before the missing staged transition; staged Composer resolution ended with %s.',
+                $reason
+            ),
+            'actions' => [sprintf(
+                'Resolve the staged analysis stop condition `%s` and rerun analysis before applying a framework transition.',
+                $reason
+            )],
+            'evidence' => ['stage-plan-1', 'stage-stop-1'],
+        ], $sections->planStages()[0]->toArray());
+        $planEvidence = array_values(array_filter(
+            $evidence->all(),
+            static fn (Evidence $item): bool => $item->id() === 'stage-plan-1'
+        ))[0] ?? null;
+        self::assertInstanceOf(Evidence::class, $planEvidence);
+        self::assertFalse($planEvidence->context()['transition_recommended']);
+        self::assertSame($reason, $planEvidence->context()['stop_reason']);
+    }
+
+    /** @return iterable<string, array{string, ?string}> */
+    public function skippedStagedResolutionProvider(): iterable
+    {
+        yield 'guidance gap' => ['guidance_gap', 'fixture'];
+        yield 'provider conflict' => ['multiple_stage_target_providers', null];
+        yield 'invalid provider output' => ['invalid_stage_plan', 'fixture'];
+    }
+
+    public function testMissingOptionalStageProviderPreservesTheDirectFinalPlan(): void
+    {
+        $projectPath = dirname(__DIR__, 5);
+        $request = new UpgradeRequest($projectPath, [new UpgradeTarget('vendor/package', '^2.0')]);
+        $project = new ProjectState($projectPath, new ComposerJson([
+            'require' => ['vendor/package' => '^1.0'],
+            'scripts' => ['test' => 'phpunit'],
+        ]), new ComposerLock([]));
+        $scenario = new Scenario('direct-final', $request->targets());
+
+        $sections = (new ReportSectionBuilder())->build(
+            $request,
+            $project,
+            [new ScenarioResult($scenario, 0, 'Resolved.', '', new ComposerLock([]))],
+            new LockDiff([new PackageChange('vendor/package', 'upgraded', '1.0.0', '2.0.0', true)]),
+            [],
+            [],
+            [],
+            [],
+            new EvidenceLedger(),
+            StagedResolution::skipped('stage_target_provider_unavailable')
+        );
+
+        self::assertSame(['constraints', 'dependencies', 'validation'], array_map(
+            static fn (PlanStage $stage): string => $stage->name(),
+            $sections->planStages()
+        ));
+        self::assertSame([null, null, null], array_column(array_map(
+            static fn (PlanStage $stage): array => $stage->toArray(),
+            $sections->planStages()
+        ), 'stage_id'));
     }
 }

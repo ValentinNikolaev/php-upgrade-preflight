@@ -177,12 +177,13 @@ final class ContextualSourceUsageVisitor extends NodeVisitorAbstract
         }
 
         $function = $this->shortName((string) $call->name);
-        if ($this->isNamedFunction($call->name, 'config') && isset($call->args[0])) {
-            $this->addConfigReferences($call->args[0]->value);
+        $arguments = $this->arguments($call->args);
+        if ($this->isNamedFunction($call->name, 'config') && isset($arguments[0])) {
+            $this->addConfigReferences($arguments[0]->value);
         }
 
         if (in_array($function, ['mock', 'prophesize', 'spy'], true)) {
-            $this->addTestDoubleTarget($call->args);
+            $this->addTestDoubleTarget($arguments);
         }
     }
 
@@ -194,6 +195,7 @@ final class ContextualSourceUsageVisitor extends NodeVisitorAbstract
         }
 
         $method = strtolower((string) $call->name);
+        $arguments = $this->arguments($call->args);
 
         if ($method === 'dispatchnow'
             && $call instanceof Expr\StaticCall
@@ -204,12 +206,12 @@ final class ContextualSourceUsageVisitor extends NodeVisitorAbstract
             }
         }
 
-        if ($this->isConfigCall($call, $method) && isset($call->args[0])) {
-            $this->addConfigReferences($call->args[0]->value, $method !== 'set');
+        if ($this->isConfigCall($call, $method) && isset($arguments[0])) {
+            $this->addConfigReferences($arguments[0]->value, $method !== 'set');
         }
 
-        if ($this->isServiceProviderRegistration($call, $method)) {
-            $this->addClassReferences($call->args[0]->value, 'service_provider');
+        if ($this->isServiceProviderRegistration($call, $method) && isset($arguments[0])) {
+            $this->addClassReferences($arguments[0]->value, 'service_provider');
         }
 
         if (in_array($method, [
@@ -223,11 +225,11 @@ final class ContextualSourceUsageVisitor extends NodeVisitorAbstract
             'pushmiddleware',
             'withoutmiddleware',
         ], true)) {
-            $this->addArgumentClassReferences($call->args, 'middleware_reference');
+            $this->addArgumentClassReferences($arguments, 'middleware_reference');
         }
 
         if (in_array($method, ['commands', 'loadcommands', 'registercommands', 'resolvecommands'], true)) {
-            $this->addArgumentClassReferences($call->args, 'console_command');
+            $this->addArgumentClassReferences($arguments, 'console_command');
         }
 
         if (in_array($method, [
@@ -243,7 +245,7 @@ final class ContextualSourceUsageVisitor extends NodeVisitorAbstract
             'prophesize',
             'spy',
         ], true)) {
-            $this->addTestDoubleTarget($call->args);
+            $this->addTestDoubleTarget($arguments);
         }
 
         if ($call instanceof Expr\StaticCall
@@ -275,7 +277,7 @@ final class ContextualSourceUsageVisitor extends NodeVisitorAbstract
     /** @param Expr\MethodCall|Expr\StaticCall $call */
     private function isServiceProviderRegistration($call, string $method): bool
     {
-        if (!isset($call->args[0])) {
+        if (!isset($call->args[0]) || !$call->args[0] instanceof Arg) {
             return false;
         }
 
@@ -322,6 +324,18 @@ final class ContextualSourceUsageVisitor extends NodeVisitorAbstract
         foreach ($arguments as $argument) {
             $this->addClassReferences($argument->value, $usageType);
         }
+    }
+
+    /**
+     * @param array<Arg|Node\VariadicPlaceholder> $arguments
+     * @return list<Arg>
+     */
+    private function arguments(array $arguments): array
+    {
+        return array_values(array_filter(
+            $arguments,
+            static fn (Node $argument): bool => $argument instanceof Arg
+        ));
     }
 
     private function addClassReferences(Node $node, string $usageType): void

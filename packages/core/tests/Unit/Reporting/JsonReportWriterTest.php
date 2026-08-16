@@ -145,7 +145,10 @@ final class JsonReportWriterTest extends TestCase
         );
     }
 
-    /** @param list<Evidence> $evidence @param list<ScenarioResult> $scenarios */
+    /**
+     * @param list<Evidence> $evidence
+     * @param list<ScenarioResult> $scenarios
+     */
     private function report(array $evidence, array $scenarios = []): UpgradeReport
     {
         $projectPath = dirname(__DIR__, 5);

@@ -423,7 +423,7 @@ final class AnalyzeCommandTest extends TestCase
         ]);
 
         self::assertSame(AnalyzeCommand::SUCCESS, $exitCode);
-        self::assertSame(['laravel', 'test-framework'], $factory->registeredNames);
+        self::assertSame(['laravel', 'legacy-test-framework', 'test-framework'], $factory->registeredNames);
         self::assertSame(['laravel'], $factory->detectedNames);
     }
 

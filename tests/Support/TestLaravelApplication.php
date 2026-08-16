@@ -171,6 +171,7 @@ final class TestLaravelApplication extends Container implements ApplicationContr
         $this->bootedCallbacks[] = $callback;
     }
 
+    /** @param list<string> $bootstrappers */
     public function bootstrapWith(array $bootstrappers): void
     {
         foreach ($bootstrappers as $bootstrapper) {
@@ -189,7 +190,10 @@ final class TestLaravelApplication extends Container implements ApplicationContr
         return 'App\\';
     }
 
-    /** @param ServiceProvider|string $provider @return list<ServiceProvider> */
+    /**
+     * @param ServiceProvider|string $provider
+     * @return list<ServiceProvider>
+     */
     public function getProviders($provider): array
     {
         $class = is_string($provider) ? $provider : get_class($provider);

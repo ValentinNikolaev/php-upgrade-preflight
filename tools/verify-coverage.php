@@ -16,6 +16,14 @@ const CRITICAL_MODULES = [
     'tools/ReleaseVerifier.php',
     'tools/CoverageVerifier.php',
     'tools/SecretLeakVerifier.php',
+    'packages/core/src/Model/TargetPlatformProfile.php',
+    'packages/core/src/Model/TargetPlatform.php',
+    'packages/core/src/Model/ComposerExecutionConfiguration.php',
+    'packages/core/src/Model/ProjectStateFingerprint.php',
+    'packages/core/src/Analysis/StagedUpgradeOrchestrator.php',
+    'packages/core/src/Analysis/ReportAssembler.php',
+    'packages/core/src/Analysis/ReportSectionBuilder.php',
+    'packages/cli/src/FrameworkIntegrationRegistry.php',
 ];
 
 $cloverPath = $argv[1] ?? (__DIR__ . '/../build/coverage/clover.xml');

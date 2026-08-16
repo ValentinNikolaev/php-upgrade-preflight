@@ -605,7 +605,10 @@ final class LaravelCompatibilityRulesTest extends TestCase
         );
     }
 
-    /** @param array<string, string> $requirements @return array<string, mixed> */
+    /**
+     * @param array<string, string> $requirements
+     * @return array<string, mixed>
+     */
     private function package(string $name, string $version, array $requirements = []): array
     {
         $package = ['name' => $name, 'version' => $version];
@@ -660,7 +663,10 @@ final class LaravelCompatibilityRulesTest extends TestCase
         );
     }
 
-    /** @return list<string> */
+    /**
+     * @param list<\PhpUpgradePreflight\Core\Model\CompatibilityFinding> $findings
+     * @return list<string>
+     */
     private function summaries(array $findings): array
     {
         return array_map(static fn ($finding): string => $finding->summary(), $findings);

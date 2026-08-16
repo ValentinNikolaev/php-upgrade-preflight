@@ -63,12 +63,77 @@ Composer metadata generalizes standalone CLI registration; it does not replace L
 
 ## Regression fixture
 
-The repository's test-only `php-upgrade-preflight/test-adapter` package is deliberately outside CLI source. Its Composer metadata is the only production registration path. The `third-party-adapter` fixture proves automatic package detection, its `modules` default source path, a compatibility rule, and `test-vendor/*` package-family classification in a complete CLI analysis. It is test infrastructure and is not part of the published v0.2 package set.
+The repository's test-only `php-upgrade-preflight/test-adapter` package is deliberately outside CLI source. Its Composer metadata is the only production registration path. The `third-party-adapter` fixture proves automatic package detection, its `modules` default source path, a compatibility rule, `test-vendor/*` package-family classification, and a deterministic staged plan in a complete CLI analysis.
+
+The separate `php-upgrade-preflight/legacy-test-adapter` package keeps an old-style implementation that uses only the required v0.2 interfaces. Its package constraint explicitly permits Core `^0.3`; its fixture proves that detection and guidance still work while staged resolution is reported as unavailable. Neither test package is part of the three published v0.3 packages.
 
 ## Optional v0.3 staged targets
 
-An adapter may implement `FrameworkStageTargetProvider` in addition to the unchanged required `FrameworkIntegration` and `FrameworkTransitionProvider` contracts. The optional provider returns a nonempty contiguous plan with stable adjacent-stage IDs, a matching provider/framework identity, exact package targets, an exact analysis PHP value, sorted remediation candidates, and evidence. Invalid plans are rejected before Composer runs.
+An adapter may implement `FrameworkStageTargetProvider` in addition to the unchanged required `FrameworkIntegration` contract. `FrameworkTransitionProvider` remains optional and supplies guidance independently from staged Composer feasibility. A provider has one method:
+
+```php
+public function planStages(
+    ProjectState $project,
+    UpgradeRequest $request,
+    EvidenceLedger $evidence
+): FrameworkStagePlan;
+```
+
+For an available plan, return one `FrameworkStageTarget` per ascending adjacent framework hop. Each stage must contain:
+
+- a stable lowercase ID that is unchanged for the same framework hop;
+- provider and framework identities equal to `FrameworkIntegration::name()`;
+- exact, adapter-selected Composer package constraints in canonical package-name order;
+- one exact analysis PHP version, also present as the stage's Composer PHP target;
+- zero or more package-sorted root-remediation candidates, each with its own evidence;
+- ledger-backed evidence for the package targets and PHP decision.
+
+Return an empty plan with a canonical unavailable reason when there is no unambiguous, fully evidenced chain. Do not manufacture a stage from a broad target, a guidance gap, or a minimum PHP constraint. Plans must be contiguous and ordered from the detected source major toward the requested target. Duplicate stage IDs, duplicate remediation packages, conflicting package targets, undeclared remediation evidence, provider or framework mismatches, missing evidence, provider failures, and non-contiguous output are invalid. The analyzer records deterministic invalid-provider evidence and does not run Composer for that plan.
+
+Only one active adapter may provide stage targets in v0.3. If several detected or explicitly selected adapters implement the provider, ordinary rules and guidance still run, but staged solving is skipped with the providers listed in lexical order. Adapters must not attempt to win this collision through metadata order.
+
+### Platform and PHP evidence
+
+The analysis PHP value is a Composer simulation input, not a deployment recommendation. It must be an exact value supported by request evidence, such as exact current PHP or exact target-profile PHP, and it must satisfy the adapter's documented requirement for that hop. Record both the value and its provenance in evidence. A minimum such as `^8.2` is a compatibility boundary, not evidence that `8.2.0` is the application's intended platform, so a provider must return `analysis_php_unavailable` when no safe exact value exists.
+
+Platform-profile completeness remains a Core request/report property. An adapter may use effective profile decisions when selecting a stage, but must not claim that host-derived partial inputs are closed-world evidence or that toolchain-bound Composer platform values were simulated. Never add host values that contradict the request profile.
+
+### Guidance and source scope
+
+Detection, direct final-target Composer resolution, transition guidance, and staged resolution are independent report dimensions. A stage provider does not turn guidance into feasibility, and Composer success does not prove source or runtime compatibility. Continue to implement `FrameworkTransitionProvider` when users need a documented hop matrix, including explicit unsupported or partially supported gaps.
+
+`defaultSourcePaths()` must return project-relative paths and should stay bounded to the framework's conventional application source. Rules inspect the original source snapshot for every stage; the analyzer does not apply source changes between stages. Stage-aware rules should attach exact hop references, while global inventory remains a record of the original project. Do not execute or boot the analyzed application to improve detection.
+
+### Privacy and trust boundary
+
+Treat manifest data, source text, Composer diagnostics, repository URLs, credentials, and local paths as untrusted input. Put only the minimum reproducible fact in evidence context. Do not emit authentication data, query-string credentials, absolute project or workspace paths, raw environment variables, or unnecessary source excerpts. Core applies publication-boundary redaction, but adapters remain responsible for not creating new secret-bearing fields or bypassing the canonical report writers.
+
+Provider output is metadata consumed by analyzer-owned temporary workspaces. It must never edit the original `composer.json`, `composer.lock`, source tree, or `vendor/`; must not run its own unbounded solver process; and must not claim that analyzer-only remediation candidates were applied to the project.
+
+### Conformance fixtures
+
+Adapter authors should keep committed, offline fixtures for at least:
+
+- metadata-only discovery with no CLI source registration;
+- stable IDs and identical canonical output across repeated runs;
+- exact target constraints and PHP provenance for every supported adjacent hop;
+- canonical ordering plus identical-duplicate normalization and conflicting-duplicate rejection;
+- missing targets, ambiguous transitions, guidance gaps, and unavailable exact PHP;
+- invalid evidence, provider identity, framework identity, ordering, and adjacency;
+- collision with a second active provider;
+- source-snapshot immutability and privacy redaction;
+- an old-style implementation test when supporting migration from v0.2.
+
+Use committed local Composer `path` repositories or a deterministic runner for solver tests. Snapshot every input byte before analysis and compare it afterward. The repository's test adapter, legacy adapter, orchestrator conformance tests, and Laravel CLI/Artisan parity suite are reference fixtures, not production packages.
 
 The exact PHP value must come from request evidence and satisfy adapter metadata. Laravel prefers the exact final target PHP and falls back to the exact current PHP only when no compatible final value is available; it never derives an exact value from a minimum constraint. Its provider covers rooted `laravel/framework` adjacent paths from 7 through 13. A direct 7→9 request becomes two staged solves, while its direct guidance and direct final-target resolution remain separate report dimensions.
 
-Old-style adapter source remains valid after its Composer constraint is updated to permit Core v0.3; without the optional interface it contributes ordinary detection and guidance while staged solving is skipped honestly. The third-party adapter fixture exercises that compatibility path. Only one active stage-target provider is allowed in v0.3.
+## Migrating an old-style adapter
+
+The required v0.2 PHP interfaces were not extended. An unchanged implementation can migrate by testing against v0.3 and releasing with a Composer constraint that explicitly permits Core v0.3, for example `"php-upgrade-preflight/core": "^0.3"` or a deliberately supported range. An adapter still pinned to Core `^0.2` is not install-compatible with the v0.3 package line and must not be described as such.
+
+Without `FrameworkStageTargetProvider`, the migrated adapter continues to contribute detection, rules, source paths, optional transition guidance, and optional package-family classification. The report honestly uses `stage_target_provider_unavailable`; it does not infer staged feasibility from the adapter's guidance.
+
+## Post-v0.3 adapter roadmap
+
+Symfony is the first adapter candidate after the optional staged-target contract has production evidence. v0.3 does not add a Symfony or CodeIgniter package, a fourth distribution repository, or another published adapter.

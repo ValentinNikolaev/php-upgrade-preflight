@@ -18,6 +18,7 @@ final class LaravelTransitionCommandParityTest extends TestCase
     /**
      * @group windows-parity-a
      * @dataProvider transitionCaseShardAProvider
+     * @param array<string, mixed> $case
      */
     public function testCliAndArtisanHaveCanonicalJsonParityForTransitionFixtureShardA(array $case): void
     {
@@ -27,8 +28,19 @@ final class LaravelTransitionCommandParityTest extends TestCase
     /**
      * @group windows-parity-b
      * @dataProvider transitionCaseShardBProvider
+     * @param array<string, mixed> $case
      */
     public function testCliAndArtisanHaveCanonicalJsonParityForTransitionFixtureShardB(array $case): void
+    {
+        $this->assertCanonicalParity($case);
+    }
+
+    /**
+     * @group windows-parity-a
+     * @dataProvider stagedParityCaseProvider
+     * @param array<string, mixed> $case
+     */
+    public function testCliAndArtisanHaveCanonicalJsonParityForStagedAnalysis(array $case): void
     {
         $this->assertCanonicalParity($case);
     }
@@ -43,6 +55,101 @@ final class LaravelTransitionCommandParityTest extends TestCase
     public function transitionCaseShardBProvider(): iterable
     {
         yield from $this->transitionCasesForShard(1);
+    }
+
+    /** @return iterable<string, array{array<string, mixed>}> */
+    public function stagedParityCaseProvider(): iterable
+    {
+        yield 'complete target-platform profile' => [[
+            'fixture' => 'laravel-12-to-13-feasible',
+            'target_package' => 'laravel/framework',
+            'target_constraint' => '^13.0',
+            'target_php' => '8.3.0',
+            'target_platform_profile' => 'complete-php-83.json',
+            'composer_mode' => 'compatible',
+            'resolution' => 'feasible_with_changes',
+            'guidance' => 'supported',
+            'catalog' => 'default',
+            'staged_execution_state' => 'evaluated',
+            'staged_status' => 'feasible_with_changes',
+            'staged_stop_reason' => null,
+            'stage_ids' => ['laravel-12-to-13'],
+        ]];
+
+        yield 'restricted Composer execution' => [[
+            'fixture' => 'laravel-10-to-11-feasible',
+            'target_package' => 'laravel/framework',
+            'target_constraint' => '^11.0',
+            'target_php' => '8.2.0',
+            'composer_mode' => 'restricted',
+            'resolution' => 'feasible_with_changes',
+            'guidance' => 'supported',
+            'catalog' => 'default',
+            'staged_execution_state' => 'evaluated',
+            'staged_status' => 'feasible_with_changes',
+            'staged_stop_reason' => null,
+            'stage_ids' => ['laravel-10-to-11'],
+        ]];
+
+        yield 'feasible single hop' => [[
+            'fixture' => 'laravel-8-to-9-feasible',
+            'target_package' => 'laravel/framework',
+            'target_constraint' => '^9.0',
+            'target_php' => '8.0.2',
+            'composer_mode' => 'compatible',
+            'resolution' => 'feasible_with_changes',
+            'guidance' => 'supported',
+            'catalog' => 'default',
+            'staged_execution_state' => 'evaluated',
+            'staged_status' => 'feasible_with_changes',
+            'staged_stop_reason' => null,
+            'stage_ids' => ['laravel-8-to-9'],
+        ]];
+
+        yield 'feasible multi hop' => [[
+            'fixture' => 'laravel-10-to-13',
+            'target_package' => 'laravel/framework',
+            'target_constraint' => '^13.0',
+            'target_php' => '8.3',
+            'composer_mode' => 'compatible',
+            'resolution' => 'feasible_with_changes',
+            'guidance' => 'supported',
+            'catalog' => 'default',
+            'staged_execution_state' => 'evaluated',
+            'staged_status' => 'feasible_with_changes',
+            'staged_stop_reason' => null,
+            'stage_ids' => ['laravel-10-to-11', 'laravel-11-to-12', 'laravel-12-to-13'],
+        ]];
+
+        yield 'blocked stage' => [[
+            'fixture' => 'laravel-12-to-13',
+            'target_package' => 'laravel/framework',
+            'target_constraint' => '^13.0',
+            'target_php' => '8.3',
+            'composer_mode' => 'compatible',
+            'resolution' => 'blocked',
+            'guidance' => 'supported',
+            'catalog' => 'default',
+            'staged_execution_state' => 'evaluated',
+            'staged_status' => 'blocked',
+            'staged_stop_reason' => 'blocking_registry_not_cleared',
+            'stage_ids' => ['laravel-12-to-13'],
+        ]];
+
+        yield 'skipped stages after guidance gap' => [[
+            'fixture' => 'laravel-missing-hop',
+            'target_package' => 'laravel/framework',
+            'target_constraint' => '^13.0',
+            'target_php' => '8.3',
+            'composer_mode' => 'compatible',
+            'resolution' => 'feasible_with_changes',
+            'guidance' => 'partially_supported',
+            'catalog' => 'missing-11-to-12',
+            'staged_execution_state' => 'skipped',
+            'staged_status' => 'unknown',
+            'staged_stop_reason' => 'guidance_gap',
+            'stage_ids' => [],
+        ]];
     }
 
     /** @param array<string, mixed> $case */
@@ -62,6 +169,39 @@ final class LaravelTransitionCommandParityTest extends TestCase
         self::assertSame($cli, $artisan);
         self::assertSame($case['resolution'], $cli['resolution']['status']);
         self::assertSame($case['guidance'], $cli['transition']['framework_guidance'][0]['status']);
+
+        if (isset($case['staged_execution_state'])) {
+            $this->assertStagedCoverage($case, $cli);
+        }
+    }
+
+    /**
+     * @param array<string, mixed> $case
+     * @param array<string, mixed> $report
+     */
+    private function assertStagedCoverage(array $case, array $report): void
+    {
+        self::assertSame($case['composer_mode'], $report['composer_execution']['mode']);
+        self::assertSame($case['staged_execution_state'], $report['staged_resolution']['execution_state']);
+        self::assertSame($case['staged_status'], $report['staged_resolution']['status']);
+        self::assertSame($case['staged_stop_reason'], $report['staged_resolution']['stop_reason']);
+        self::assertSame(
+            $case['stage_ids'],
+            array_column($report['staged_resolution']['stages'], 'id')
+        );
+
+        if (isset($case['target_platform_profile'])) {
+            self::assertSame('complete', $report['platform']['profile']['completeness']);
+            self::assertTrue($report['platform']['profile']['closed_world']);
+            self::assertNotNull($report['request_summary']['target_platform_profile']);
+        }
+
+        foreach ($report['staged_resolution']['stages'] as $stage) {
+            self::assertSame(
+                $case['composer_mode'],
+                $stage['composer_execution']['configuration']['mode']
+            );
+        }
     }
 
     /** @return iterable<string, array{array<string, mixed>}> */
@@ -84,7 +224,10 @@ final class LaravelTransitionCommandParityTest extends TestCase
         }
     }
 
-    /** @return array{int, string, string} */
+    /**
+     * @param array<string, mixed> $case
+     * @return array{int, string, string}
+     */
     private function runCli(array $case, string $projectPath): array
     {
         $stdout = fopen('php://memory', 'w+');
@@ -99,7 +242,7 @@ final class LaravelTransitionCommandParityTest extends TestCase
                 $stdout,
                 $stderr
             );
-            $exitCode = $command->run([
+            $arguments = [
                 'upgrade-intel',
                 'analyze',
                 '--path=' . $projectPath,
@@ -107,7 +250,12 @@ final class LaravelTransitionCommandParityTest extends TestCase
                 '--target-php=' . $case['target_php'],
                 '--framework=laravel',
                 '--format=json',
-            ]);
+                '--composer-mode=' . ($case['composer_mode'] ?? 'compatible'),
+            ];
+            if (isset($case['target_platform_profile'])) {
+                $arguments[] = '--target-platform-profile=' . $this->profilePath($case['target_platform_profile']);
+            }
+            $exitCode = $command->run($arguments);
 
             return [$exitCode, $this->streamContents($stdout), $this->streamContents($stderr)];
         } finally {
@@ -116,7 +264,10 @@ final class LaravelTransitionCommandParityTest extends TestCase
         }
     }
 
-    /** @return array{int, string, string} */
+    /**
+     * @param array<string, mixed> $case
+     * @return array{int, string, string}
+     */
     private function runArtisan(array $case, string $projectPath): array
     {
         $application = $this->createMock(Application::class);
@@ -134,12 +285,17 @@ final class LaravelTransitionCommandParityTest extends TestCase
         $command = new AnalyzeUpgradeCommand(LaravelTransitionFixtureFactory::analyzer($case['catalog']));
         $command->setLaravel($application);
         $tester = new CommandTester($command);
-        $exitCode = $tester->execute([
+        $arguments = [
             '--path' => $projectPath,
             '--target' => [$case['target_package'] . ':' . $case['target_constraint']],
             '--target-php' => $case['target_php'],
             '--format' => 'json',
-        ], ['capture_stderr_separately' => true]);
+            '--composer-mode' => $case['composer_mode'] ?? 'compatible',
+        ];
+        if (isset($case['target_platform_profile'])) {
+            $arguments['--target-platform-profile'] = [$this->profilePath($case['target_platform_profile'])];
+        }
+        $exitCode = $tester->execute($arguments, ['capture_stderr_separately' => true]);
 
         return [$exitCode, $tester->getDisplay(), $tester->getErrorOutput()];
     }
@@ -153,15 +309,29 @@ final class LaravelTransitionCommandParityTest extends TestCase
         return $report;
     }
 
-    /** @param array<string, mixed> $report @return array<string, mixed> */
+    /**
+     * @param array<string, mixed> $report
+     * @return array<string, mixed>
+     */
     private function normalizeReport(array $report): array
     {
-        foreach ($report['resolution']['scenarios'] as &$scenario) {
-            $scenario['duration_ms'] = 0;
+        foreach ($report as $key => &$value) {
+            if ($key === 'duration_ms') {
+                $value = 0;
+                continue;
+            }
+            if (is_array($value)) {
+                $value = $this->normalizeReport($value);
+            }
         }
-        unset($scenario);
+        unset($value);
 
         return $report;
+    }
+
+    private function profilePath(string $fixture): string
+    {
+        return dirname(__DIR__, 4) . '/tests/fixtures/platform-profiles/' . $fixture;
     }
 
     /** @param resource $stream */

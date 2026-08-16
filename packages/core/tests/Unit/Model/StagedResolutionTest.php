@@ -237,6 +237,29 @@ final class StagedResolutionTest extends TestCase
             [],
             ['target-evidence']
         );
+        $this->assertInvalidTarget(
+            'fixture-1-to-2',
+            'fixture',
+            1,
+            2,
+            '8.3.0',
+            [
+                new UpgradeTarget('vendor/remediation', '^2.0'),
+                new UpgradeTarget('VENDOR/REMEDIATION', '^2.0'),
+            ],
+            ['vendor/remediation' => ['remediation-evidence']],
+            ['target-evidence']
+        );
+        $this->assertInvalidTarget(
+            'fixture-1-to-2',
+            'fixture',
+            1,
+            2,
+            '8.3.0',
+            [],
+            ['vendor/undeclared' => ['remediation-evidence']],
+            ['target-evidence']
+        );
 
         $this->assertInvalid(
             fn (): StageAttempt => new StageAttempt(0, 'target_only', [], $result, $fingerprint, null, [], []),
@@ -271,7 +294,11 @@ final class StagedResolutionTest extends TestCase
         );
     }
 
-    /** @param list<mixed> $remediations @param array<string, list<string>> $remediationEvidence @param list<string> $evidence */
+    /**
+     * @param list<mixed> $remediations
+     * @param array<string, list<string>> $remediationEvidence
+     * @param list<string> $evidence
+     */
     private function assertInvalidTarget(
         string $id,
         string $framework,
@@ -295,7 +322,10 @@ final class StagedResolutionTest extends TestCase
         ));
     }
 
-    /** @param list<mixed> $attempts @param list<mixed> $changes */
+    /**
+     * @param list<mixed> $attempts
+     * @param list<mixed> $changes
+     */
     private function assertInvalidStage(string $execution, ?string $status, array $attempts, array $changes): void
     {
         $this->expectInvalidWithoutMessage(fn (): StageAnalysis => new StageAnalysis(

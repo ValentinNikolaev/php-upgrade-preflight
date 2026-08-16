@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a477881d0703eb4296dfb738c9c367ee",
+    "content-hash": "486a9047d6f56aad82656a87efd81ff7",
     "packages": [
         {
             "name": "carbonphp/carbon-doctrine-types",
@@ -3274,6 +3274,40 @@
             "time": "2022-02-21T01:04:05+00:00"
         },
         {
+            "name": "php-upgrade-preflight/legacy-test-adapter",
+            "version": "0.3.x-dev",
+            "dist": {
+                "type": "path",
+                "url": "packages/legacy-test-adapter",
+                "reference": "866d1c4393302d10acaaea34edf0db669be84eaf"
+            },
+            "require": {
+                "php": "^8.0",
+                "php-upgrade-preflight/core": "^0.3"
+            },
+            "type": "library",
+            "extra": {
+                "php-upgrade-preflight": {
+                    "framework-adapters": [
+                        "PhpUpgradePreflight\\LegacyTestAdapter\\LegacyTestFrameworkIntegration"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "PhpUpgradePreflight\\LegacyTestAdapter\\": "src/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "description": "Test-only old-style third-party adapter fixture for PHP Upgrade Preflight.",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
             "name": "php-upgrade-preflight/test-adapter",
             "version": "0.3.x-dev",
             "dist": {
@@ -6013,6 +6047,7 @@
         "php-upgrade-preflight/cli": 20,
         "php-upgrade-preflight/core": 20,
         "php-upgrade-preflight/laravel": 20,
+        "php-upgrade-preflight/legacy-test-adapter": 20,
         "php-upgrade-preflight/test-adapter": 20
     },
     "prefer-stable": true,

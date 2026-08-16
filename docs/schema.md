@@ -55,6 +55,8 @@ Schema 0.8 adds one required top-level object, `staged_resolution`, plus require
 | Framework findings are hop-scoped | Executed stages project applicable findings and stable source-impact IDs while explicitly naming `original_project` as the inspected snapshot; full staged findings are de-duplicated in `staged_resolution.source_impact` |
 | No versioned target-platform profile | `request_summary.target_platform_profile` records safe input metadata and `platform.profile` records the normalized effective profile or `null` |
 
+The required `staged_resolution.budgets` object reports the normative hop, attempt, scenario, Composer-process, per-scenario timeout, per-stage timeout, aggregate timeout, memory, JSON-size, and Markdown-size caps. In schema 0.8, `max_composer_processes` is `128` and `stage_timeout_seconds` is `900`; consumers must not infer either value from the scenario or aggregate limits.
+
 For a 0.7/0.8 consumer:
 
 1. Dispatch on `metadata.schema_version`.

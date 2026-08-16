@@ -104,7 +104,7 @@ final class SourceUsageScanner
 
         $uncertainties = array_values(array_unique($uncertainties));
 
-        return $usages;
+        return array_values($usages);
     }
 
     /**

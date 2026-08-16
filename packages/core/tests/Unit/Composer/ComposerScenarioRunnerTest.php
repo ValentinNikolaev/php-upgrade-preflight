@@ -184,6 +184,53 @@ final class ComposerScenarioRunnerTest extends TestCase
         self::assertFalse($transitivePackage->isDirect());
     }
 
+    public function testDurationIncludesTargetDiagnosticsAndWorkspaceCleanup(): void
+    {
+        $now = 100.0;
+        $workspaces = new ClockAdvancingWorkspaceManager(static function () use (&$now): void {
+            $now += 0.250;
+        });
+        $runner = new ComposerScenarioRunner(
+            $workspaces,
+            null,
+            static function (array $command) use (&$now): array {
+                if (in_array('prohibits', $command, true)) {
+                    $now += 0.375;
+
+                    return ['exit_code' => 1, 'stdout' => '', 'stderr' => 'Synthetic target diagnostic.'];
+                }
+                $now += 0.125;
+
+                return [
+                    'exit_code' => 2,
+                    'stdout' => '',
+                    'stderr' => 'Your requirements could not be resolved to an installable set of packages.',
+                ];
+            },
+            static fn (): string => '2.8.12',
+            static function () use (&$now): float {
+                return $now;
+            }
+        );
+        $projectPath = dirname(__DIR__, 5) . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR
+            . 'fixtures' . DIRECTORY_SEPARATOR . 'project-isolation';
+        $request = new UpgradeRequest($projectPath, [new UpgradeTarget('fixture/dependency', '^2.0')]);
+
+        try {
+            $result = $runner->run(
+                (new ProjectStateBuilder())->build($projectPath),
+                $request,
+                new Scenario('exact-target', $request->targets(), false)
+            );
+
+            self::assertSame(750, $result->durationMs());
+            self::assertCount(1, $result->diagnostics());
+            self::assertCount(1, $workspaces->removedPaths);
+        } finally {
+            $workspaces->forceCleanup();
+        }
+    }
+
     public function testBaselineValidationUsesTheUnchangedManifestAndValidationCommand(): void
     {
         $capturedCommand = null;
@@ -1245,6 +1292,46 @@ final class TrackingWorkspaceManager implements WorkspaceManager
     {
         $this->delegate->remove($path);
         $this->removedPaths[] = $path;
+    }
+
+    public function forceCleanup(): void
+    {
+        foreach ($this->createdPaths as $path) {
+            if (is_dir($path)) {
+                $this->delegate->remove($path);
+            }
+        }
+    }
+}
+
+final class ClockAdvancingWorkspaceManager implements WorkspaceManager
+{
+    private TemporaryWorkspaceManager $delegate;
+    private \Closure $onRemove;
+    /** @var list<string> */
+    public array $createdPaths = [];
+    /** @var list<string> */
+    public array $removedPaths = [];
+
+    public function __construct(callable $onRemove)
+    {
+        $this->delegate = new TemporaryWorkspaceManager();
+        $this->onRemove = \Closure::fromCallable($onRemove);
+    }
+
+    public function createFromProject(string $projectPath): string
+    {
+        $path = $this->delegate->createFromProject($projectPath);
+        $this->createdPaths[] = $path;
+
+        return $path;
+    }
+
+    public function remove(string $path): void
+    {
+        $this->delegate->remove($path);
+        $this->removedPaths[] = $path;
+        ($this->onRemove)();
     }
 
     public function forceCleanup(): void

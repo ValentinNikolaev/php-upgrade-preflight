@@ -70,7 +70,7 @@ final class TargetPlatformPackageTest extends TestCase
     }
 
     /** @dataProvider invalidPackageProvider */
-    public function testItRejectsUnsupportedNamesValuesAndConstraints(string $name, $value): void
+    public function testItRejectsUnsupportedNamesValuesAndConstraints(string $name, mixed $value): void
     {
         $this->expectException(\InvalidArgumentException::class);
 

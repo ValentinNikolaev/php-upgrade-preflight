@@ -11,6 +11,7 @@ final class LaravelRuleCatalogValidator
     /** @return list<string> */
     public function validate(LaravelRuleCatalog $catalog): array
     {
+        /** @var list<string> $errors */
         $errors = [];
         $keys = [];
         $advice = [];
@@ -159,7 +160,10 @@ final class LaravelRuleCatalogValidator
         }
     }
 
-    /** @param array<string, true> $keys @param list<string> $errors */
+    /**
+     * @param array<string, true> $keys
+     * @param list<string> $errors
+     */
     private function recordKey(string $key, array &$keys, array &$errors): void
     {
         if (isset($keys[$key])) {
@@ -186,7 +190,10 @@ final class LaravelRuleCatalogValidator
         }
     }
 
-    /** @param list<string> $sources @param list<string> $errors */
+    /**
+     * @param list<string> $sources
+     * @param list<string> $errors
+     */
     private function validateSources(array $sources, string $owner, array &$errors): void
     {
         if ($sources === []) {
@@ -202,7 +209,10 @@ final class LaravelRuleCatalogValidator
         }
     }
 
-    /** @param list<RuleApplicability> $applicability @param list<string> $errors */
+    /**
+     * @param list<RuleApplicability> $applicability
+     * @param list<string> $errors
+     */
     private function validateApplicability(
         LaravelRuleCatalog $catalog,
         string $owner,
@@ -241,7 +251,10 @@ final class LaravelRuleCatalogValidator
         }
     }
 
-    /** @param array<string, string> $advice @param list<string> $errors */
+    /**
+     * @param array<string, string> $advice
+     * @param list<string> $errors
+     */
     private function recordAdvice(
         string $package,
         RuleApplicability $applicability,

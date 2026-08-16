@@ -13,6 +13,7 @@ use PhpUpgradePreflight\Core\Model\LockDiff;
 use PhpUpgradePreflight\Core\Model\ProjectState;
 use PhpUpgradePreflight\Core\Model\RiskSummary;
 use PhpUpgradePreflight\Core\Model\ScenarioResult;
+use PhpUpgradePreflight\Core\Model\SourceImpactFinding;
 use PhpUpgradePreflight\Core\Model\SourceUsage;
 use PhpUpgradePreflight\Core\Model\StagedResolution;
 use PhpUpgradePreflight\Core\Model\TargetPlatform;
@@ -39,6 +40,7 @@ final class ReportAssembler
      * @param list<CompatibilityFinding> $frameworkFindings
      * @param list<string> $sourceUncertainties
      * @param list<FrameworkGuidance> $frameworkGuidance
+     * @param ?list<SourceImpactFinding> $actionableSourceImpact
      */
     public function assemble(
         UpgradeRequest $request,
@@ -57,7 +59,9 @@ final class ReportAssembler
         ?array $actionableSourceImpact = null,
         ?StagedResolution $stagedResolution = null
     ): UpgradeReport {
-        $actionableSourceImpact = $actionableSourceImpact ?? $this->sourceImpactBuilder->build($sourceImpact, $frameworkFindings);
+        $actionableSourceImpact = array_values(
+            $actionableSourceImpact ?? $this->sourceImpactBuilder->build($sourceImpact, $frameworkFindings)
+        );
         $sections = $this->sectionBuilder->build(
             $request,
             $project,
