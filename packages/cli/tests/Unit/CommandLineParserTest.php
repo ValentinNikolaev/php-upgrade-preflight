@@ -23,6 +23,11 @@ final class CommandLineParserTest extends TestCase
             '--with-extension=ext-intl:72.1',
             '--with-extension=ext-json',
             '--without-extension=ext-xdebug',
+            '--composer-mode=restricted',
+            '--composer-executable=/tools/composer.phar',
+            '--composer-version=^2.8',
+            '--composer-timeout=120',
+            '--composer-diagnostic-timeout=15',
             '--debug',
         ]);
 
@@ -36,6 +41,11 @@ final class CommandLineParserTest extends TestCase
             $options['extension-assumptions']
         ));
         self::assertTrue($options['debug']);
+        self::assertSame('restricted', $options['composer-mode']);
+        self::assertSame('/tools/composer.phar', $options['composer-executable']);
+        self::assertSame('^2.8', $options['composer-version']);
+        self::assertSame('120', $options['composer-timeout']);
+        self::assertSame('15', $options['composer-diagnostic-timeout']);
     }
 
     public function testTargetPhpAloneIsAValidTargetSelection(): void

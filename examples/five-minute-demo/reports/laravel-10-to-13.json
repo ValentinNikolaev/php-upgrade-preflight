@@ -26,7 +26,16 @@
         ],
         "format": "json",
         "output_path": "[REPORT_OUTPUT]",
-        "target_platform_profile": null
+        "target_platform_profile": null,
+        "composer_execution": {
+            "mode": "restricted",
+            "executable_selection": "path_search",
+            "expected_version": ">=2.0.0 <3.0.0",
+            "scenario_timeout_seconds": 300,
+            "diagnostic_timeout_seconds": 60,
+            "environment_mode": "sanitized",
+            "network_policy": "best_effort_offline"
+        }
     },
     "project_state": {
         "path": "[PROJECT_ROOT]",
@@ -43,7 +52,7 @@
     },
     "platform": {
         "analyzer": {
-            "php_version": "8.3.33",
+            "php_version": "8.4.24",
             "provenance": "runtime"
         },
         "current_php": {
@@ -70,6 +79,29 @@
         },
         "profile": null
     },
+    "composer_execution": {
+        "mode": "restricted",
+        "composer_version": "2.10.2",
+        "expected_version": ">=2.0.0 <3.0.0",
+        "version_matches_expectation": true,
+        "executable_selection": "path_search",
+        "scenario_timeout_seconds": 300,
+        "diagnostic_timeout_seconds": 60,
+        "environment_mode": "sanitized",
+        "network_policy": "best_effort_offline",
+        "repository_source_mode": "project_only",
+        "composer_home": "analyzer_owned",
+        "global_configuration_inherited": false,
+        "credentials_may_be_inherited": false,
+        "offline_requested": true,
+        "scripts_enabled": false,
+        "plugins_enabled": false,
+        "installation_enabled": false,
+        "audit_enabled": false,
+        "interaction_enabled": false,
+        "progress_enabled": false,
+        "process_os_isolation": false
+    },
     "resolution": {
         "status": "blocked",
         "scenarios": [
@@ -85,7 +117,7 @@
                     "--no-plugins",
                     "--no-interaction"
                 ],
-                "duration_ms": 123,
+                "duration_ms": 139,
                 "exit_code": 0,
                 "succeeded": true,
                 "outcome": "success",
@@ -114,7 +146,7 @@
                     "--no-progress",
                     "--no-interaction"
                 ],
-                "duration_ms": 312,
+                "duration_ms": 288,
                 "exit_code": 2,
                 "succeeded": false,
                 "outcome": "solver_failure",
@@ -177,7 +209,7 @@
                     "--no-progress",
                     "--no-interaction"
                 ],
-                "duration_ms": 317,
+                "duration_ms": 276,
                 "exit_code": 2,
                 "succeeded": false,
                 "outcome": "solver_failure",
@@ -241,7 +273,7 @@
                     "--no-progress",
                     "--no-interaction"
                 ],
-                "duration_ms": 308,
+                "duration_ms": 309,
                 "exit_code": 2,
                 "succeeded": false,
                 "outcome": "solver_failure",
@@ -302,7 +334,7 @@
                     "--no-progress",
                     "--no-interaction"
                 ],
-                "duration_ms": 294,
+                "duration_ms": 363,
                 "exit_code": 0,
                 "succeeded": true,
                 "outcome": "success",
@@ -332,13 +364,13 @@
                     "--no-progress",
                     "--no-interaction"
                 ],
-                "duration_ms": 292,
+                "duration_ms": 335,
                 "exit_code": 2,
                 "succeeded": false,
                 "outcome": "solver_failure",
                 "failure_type": "solver",
                 "stdout_excerpt": "",
-                "stderr_excerpt": "Loading composer repositories with package information\nUpdating dependencies\nYour requirements could not be resolved to an installable set of packages.\n\n  Problem 1\n    - Root composer.json requires laravel/framework ^13.0 -> satisfiable by laravel/framework[13.0.0].\n    - laravel/framework 13.0.0 requires php ^8.3 -> your php version (8.1.0; overridden via config.platform, actual: 8.3.33) does not satisfy that requirement.\n\n",
+                "stderr_excerpt": "Loading composer repositories with package information\nUpdating dependencies\nYour requirements could not be resolved to an installable set of packages.\n\n  Problem 1\n    - Root composer.json requires laravel/framework ^13.0 -> satisfiable by laravel/framework[13.0.0].\n    - laravel/framework 13.0.0 requires php ^8.3 -> your php version (8.1.0; overridden via config.platform, actual: 8.4.24) does not satisfy that requirement.\n\n",
                 "candidate_lock": null,
                 "diagnostics": [
                     {
@@ -393,23 +425,23 @@
                 "predecessor_state": {
                     "manifest_sha256": "22160d52f264c172f20c7d35924efb796209e4a7515039470744756799f4dc7d",
                     "lock_sha256": "b0b435fafce2a876d1b08eb49ca96e68a8d520e267ed254cb85f90d95978f0ab",
-                    "platform_sha256": "881f35b4a4b418a4eda928a03b708610356c8c31392e9fbf4f65f531e73fe7eb",
-                    "execution_policy_sha256": "0f007c646c1b7eb937df5dd86d151edab154ed5cf57690a9caf87ffb769e7ee6",
-                    "state_sha256": "a506769b5d65be3b3e27cec250aca451037e007272e589fd438c08dae270f984"
+                    "platform_sha256": "6c689c2a945689da7693f0293117541fb3fbc27cb4f072489e15428fd844dbd7",
+                    "execution_policy_sha256": "f7867541fa8d250aab14dc390187c1a8930cdd8fb3b76e3dd72486cc5512107e",
+                    "state_sha256": "8313655c69c96b842467b5f5693af8d676cf581cba93e27ab396ecdedfe33d1c"
                 },
                 "input_state": {
                     "manifest_sha256": "22160d52f264c172f20c7d35924efb796209e4a7515039470744756799f4dc7d",
                     "lock_sha256": "b0b435fafce2a876d1b08eb49ca96e68a8d520e267ed254cb85f90d95978f0ab",
-                    "platform_sha256": "881f35b4a4b418a4eda928a03b708610356c8c31392e9fbf4f65f531e73fe7eb",
-                    "execution_policy_sha256": "0f007c646c1b7eb937df5dd86d151edab154ed5cf57690a9caf87ffb769e7ee6",
-                    "state_sha256": "a506769b5d65be3b3e27cec250aca451037e007272e589fd438c08dae270f984"
+                    "platform_sha256": "6c689c2a945689da7693f0293117541fb3fbc27cb4f072489e15428fd844dbd7",
+                    "execution_policy_sha256": "f7867541fa8d250aab14dc390187c1a8930cdd8fb3b76e3dd72486cc5512107e",
+                    "state_sha256": "8313655c69c96b842467b5f5693af8d676cf581cba93e27ab396ecdedfe33d1c"
                 },
                 "output_state": {
                     "manifest_sha256": "b4d332e29f50556da15f7e65d5007c9ad793c21662a0b14443c07636e54f32c0",
                     "lock_sha256": "c808969d66df29ada282fe266237b7d7e7cfa49caa9679cdf20b5df3d2c94a2f",
-                    "platform_sha256": "881f35b4a4b418a4eda928a03b708610356c8c31392e9fbf4f65f531e73fe7eb",
-                    "execution_policy_sha256": "0f007c646c1b7eb937df5dd86d151edab154ed5cf57690a9caf87ffb769e7ee6",
-                    "state_sha256": "f895e6529133aa3146077ad05f71ab54868ece7b95b486e5909d13e02abce0e9"
+                    "platform_sha256": "6c689c2a945689da7693f0293117541fb3fbc27cb4f072489e15428fd844dbd7",
+                    "execution_policy_sha256": "f7867541fa8d250aab14dc390187c1a8930cdd8fb3b76e3dd72486cc5512107e",
+                    "state_sha256": "c859f67517c31f3218b80121630e382892bd44d7e7fa6c66413f6e24086eea1d"
                 },
                 "attempts": [
                     {
@@ -442,7 +474,7 @@
                                 "--no-progress",
                                 "--no-interaction"
                             ],
-                            "duration_ms": 297,
+                            "duration_ms": 325,
                             "exit_code": 2,
                             "succeeded": false,
                             "outcome": "solver_failure",
@@ -493,14 +525,14 @@
                         "input_state": {
                             "manifest_sha256": "22160d52f264c172f20c7d35924efb796209e4a7515039470744756799f4dc7d",
                             "lock_sha256": "b0b435fafce2a876d1b08eb49ca96e68a8d520e267ed254cb85f90d95978f0ab",
-                            "platform_sha256": "881f35b4a4b418a4eda928a03b708610356c8c31392e9fbf4f65f531e73fe7eb",
-                            "execution_policy_sha256": "0f007c646c1b7eb937df5dd86d151edab154ed5cf57690a9caf87ffb769e7ee6",
-                            "state_sha256": "a506769b5d65be3b3e27cec250aca451037e007272e589fd438c08dae270f984"
+                            "platform_sha256": "6c689c2a945689da7693f0293117541fb3fbc27cb4f072489e15428fd844dbd7",
+                            "execution_policy_sha256": "f7867541fa8d250aab14dc390187c1a8930cdd8fb3b76e3dd72486cc5512107e",
+                            "state_sha256": "8313655c69c96b842467b5f5693af8d676cf581cba93e27ab396ecdedfe33d1c"
                         },
                         "output_state": null,
                         "blocker_ids": [
-                            "stage-blocker-c2a3069ee41bf51e8d62",
-                            "stage-blocker-86a42c6d92a5c34c9664"
+                            "stage-blocker-da9ed30e1b45cf7243c4",
+                            "stage-blocker-78808d7e6ec6a483ae60"
                         ],
                         "evidence": [
                             "stage-attempt-1"
@@ -549,7 +581,7 @@
                                 "--no-progress",
                                 "--no-interaction"
                             ],
-                            "duration_ms": 301,
+                            "duration_ms": 283,
                             "exit_code": 2,
                             "succeeded": false,
                             "outcome": "solver_failure",
@@ -618,13 +650,13 @@
                         "input_state": {
                             "manifest_sha256": "22160d52f264c172f20c7d35924efb796209e4a7515039470744756799f4dc7d",
                             "lock_sha256": "b0b435fafce2a876d1b08eb49ca96e68a8d520e267ed254cb85f90d95978f0ab",
-                            "platform_sha256": "881f35b4a4b418a4eda928a03b708610356c8c31392e9fbf4f65f531e73fe7eb",
-                            "execution_policy_sha256": "0f007c646c1b7eb937df5dd86d151edab154ed5cf57690a9caf87ffb769e7ee6",
-                            "state_sha256": "a506769b5d65be3b3e27cec250aca451037e007272e589fd438c08dae270f984"
+                            "platform_sha256": "6c689c2a945689da7693f0293117541fb3fbc27cb4f072489e15428fd844dbd7",
+                            "execution_policy_sha256": "f7867541fa8d250aab14dc390187c1a8930cdd8fb3b76e3dd72486cc5512107e",
+                            "state_sha256": "8313655c69c96b842467b5f5693af8d676cf581cba93e27ab396ecdedfe33d1c"
                         },
                         "output_state": null,
                         "blocker_ids": [
-                            "stage-blocker-86a42c6d92a5c34c9664"
+                            "stage-blocker-78808d7e6ec6a483ae60"
                         ],
                         "evidence": [
                             "stage-attempt-2"
@@ -686,7 +718,7 @@
                                 "--no-progress",
                                 "--no-interaction"
                             ],
-                            "duration_ms": 308,
+                            "duration_ms": 283,
                             "exit_code": 0,
                             "succeeded": true,
                             "outcome": "success",
@@ -704,16 +736,16 @@
                         "input_state": {
                             "manifest_sha256": "22160d52f264c172f20c7d35924efb796209e4a7515039470744756799f4dc7d",
                             "lock_sha256": "b0b435fafce2a876d1b08eb49ca96e68a8d520e267ed254cb85f90d95978f0ab",
-                            "platform_sha256": "881f35b4a4b418a4eda928a03b708610356c8c31392e9fbf4f65f531e73fe7eb",
-                            "execution_policy_sha256": "0f007c646c1b7eb937df5dd86d151edab154ed5cf57690a9caf87ffb769e7ee6",
-                            "state_sha256": "a506769b5d65be3b3e27cec250aca451037e007272e589fd438c08dae270f984"
+                            "platform_sha256": "6c689c2a945689da7693f0293117541fb3fbc27cb4f072489e15428fd844dbd7",
+                            "execution_policy_sha256": "f7867541fa8d250aab14dc390187c1a8930cdd8fb3b76e3dd72486cc5512107e",
+                            "state_sha256": "8313655c69c96b842467b5f5693af8d676cf581cba93e27ab396ecdedfe33d1c"
                         },
                         "output_state": {
                             "manifest_sha256": "b4d332e29f50556da15f7e65d5007c9ad793c21662a0b14443c07636e54f32c0",
                             "lock_sha256": "c808969d66df29ada282fe266237b7d7e7cfa49caa9679cdf20b5df3d2c94a2f",
-                            "platform_sha256": "881f35b4a4b418a4eda928a03b708610356c8c31392e9fbf4f65f531e73fe7eb",
-                            "execution_policy_sha256": "0f007c646c1b7eb937df5dd86d151edab154ed5cf57690a9caf87ffb769e7ee6",
-                            "state_sha256": "f895e6529133aa3146077ad05f71ab54868ece7b95b486e5909d13e02abce0e9"
+                            "platform_sha256": "6c689c2a945689da7693f0293117541fb3fbc27cb4f072489e15428fd844dbd7",
+                            "execution_policy_sha256": "f7867541fa8d250aab14dc390187c1a8930cdd8fb3b76e3dd72486cc5512107e",
+                            "state_sha256": "c859f67517c31f3218b80121630e382892bd44d7e7fa6c66413f6e24086eea1d"
                         },
                         "blocker_ids": [],
                         "evidence": [
@@ -842,23 +874,23 @@
                 "predecessor_state": {
                     "manifest_sha256": "b4d332e29f50556da15f7e65d5007c9ad793c21662a0b14443c07636e54f32c0",
                     "lock_sha256": "c808969d66df29ada282fe266237b7d7e7cfa49caa9679cdf20b5df3d2c94a2f",
-                    "platform_sha256": "881f35b4a4b418a4eda928a03b708610356c8c31392e9fbf4f65f531e73fe7eb",
-                    "execution_policy_sha256": "0f007c646c1b7eb937df5dd86d151edab154ed5cf57690a9caf87ffb769e7ee6",
-                    "state_sha256": "f895e6529133aa3146077ad05f71ab54868ece7b95b486e5909d13e02abce0e9"
+                    "platform_sha256": "6c689c2a945689da7693f0293117541fb3fbc27cb4f072489e15428fd844dbd7",
+                    "execution_policy_sha256": "f7867541fa8d250aab14dc390187c1a8930cdd8fb3b76e3dd72486cc5512107e",
+                    "state_sha256": "c859f67517c31f3218b80121630e382892bd44d7e7fa6c66413f6e24086eea1d"
                 },
                 "input_state": {
                     "manifest_sha256": "b4d332e29f50556da15f7e65d5007c9ad793c21662a0b14443c07636e54f32c0",
                     "lock_sha256": "c808969d66df29ada282fe266237b7d7e7cfa49caa9679cdf20b5df3d2c94a2f",
-                    "platform_sha256": "881f35b4a4b418a4eda928a03b708610356c8c31392e9fbf4f65f531e73fe7eb",
-                    "execution_policy_sha256": "0f007c646c1b7eb937df5dd86d151edab154ed5cf57690a9caf87ffb769e7ee6",
-                    "state_sha256": "f895e6529133aa3146077ad05f71ab54868ece7b95b486e5909d13e02abce0e9"
+                    "platform_sha256": "6c689c2a945689da7693f0293117541fb3fbc27cb4f072489e15428fd844dbd7",
+                    "execution_policy_sha256": "f7867541fa8d250aab14dc390187c1a8930cdd8fb3b76e3dd72486cc5512107e",
+                    "state_sha256": "c859f67517c31f3218b80121630e382892bd44d7e7fa6c66413f6e24086eea1d"
                 },
                 "output_state": {
                     "manifest_sha256": "e8a0d3db618d2b1e67045c2048e2e3c21a506a0a0ea0bed88d7fd555f3ef7186",
                     "lock_sha256": "8ae5ca981ee0006bdb91bc2d8cd87f5658806b86b4ef603456cf175f71150330",
-                    "platform_sha256": "881f35b4a4b418a4eda928a03b708610356c8c31392e9fbf4f65f531e73fe7eb",
-                    "execution_policy_sha256": "0f007c646c1b7eb937df5dd86d151edab154ed5cf57690a9caf87ffb769e7ee6",
-                    "state_sha256": "a5a48b6aad3e8513d6a9516d696822af8c1b97f2c8cc1f0b4d0f10eecd01c0fb"
+                    "platform_sha256": "6c689c2a945689da7693f0293117541fb3fbc27cb4f072489e15428fd844dbd7",
+                    "execution_policy_sha256": "f7867541fa8d250aab14dc390187c1a8930cdd8fb3b76e3dd72486cc5512107e",
+                    "state_sha256": "5f2e15a7ea08a48b656a14e38337734b2b8a25b834cecfa5b5449fb984ddc2fb"
                 },
                 "attempts": [
                     {
@@ -891,7 +923,7 @@
                                 "--no-progress",
                                 "--no-interaction"
                             ],
-                            "duration_ms": 295,
+                            "duration_ms": 293,
                             "exit_code": 0,
                             "succeeded": true,
                             "outcome": "success",
@@ -909,16 +941,16 @@
                         "input_state": {
                             "manifest_sha256": "b4d332e29f50556da15f7e65d5007c9ad793c21662a0b14443c07636e54f32c0",
                             "lock_sha256": "c808969d66df29ada282fe266237b7d7e7cfa49caa9679cdf20b5df3d2c94a2f",
-                            "platform_sha256": "881f35b4a4b418a4eda928a03b708610356c8c31392e9fbf4f65f531e73fe7eb",
-                            "execution_policy_sha256": "0f007c646c1b7eb937df5dd86d151edab154ed5cf57690a9caf87ffb769e7ee6",
-                            "state_sha256": "f895e6529133aa3146077ad05f71ab54868ece7b95b486e5909d13e02abce0e9"
+                            "platform_sha256": "6c689c2a945689da7693f0293117541fb3fbc27cb4f072489e15428fd844dbd7",
+                            "execution_policy_sha256": "f7867541fa8d250aab14dc390187c1a8930cdd8fb3b76e3dd72486cc5512107e",
+                            "state_sha256": "c859f67517c31f3218b80121630e382892bd44d7e7fa6c66413f6e24086eea1d"
                         },
                         "output_state": {
                             "manifest_sha256": "e8a0d3db618d2b1e67045c2048e2e3c21a506a0a0ea0bed88d7fd555f3ef7186",
                             "lock_sha256": "8ae5ca981ee0006bdb91bc2d8cd87f5658806b86b4ef603456cf175f71150330",
-                            "platform_sha256": "881f35b4a4b418a4eda928a03b708610356c8c31392e9fbf4f65f531e73fe7eb",
-                            "execution_policy_sha256": "0f007c646c1b7eb937df5dd86d151edab154ed5cf57690a9caf87ffb769e7ee6",
-                            "state_sha256": "a5a48b6aad3e8513d6a9516d696822af8c1b97f2c8cc1f0b4d0f10eecd01c0fb"
+                            "platform_sha256": "6c689c2a945689da7693f0293117541fb3fbc27cb4f072489e15428fd844dbd7",
+                            "execution_policy_sha256": "f7867541fa8d250aab14dc390187c1a8930cdd8fb3b76e3dd72486cc5512107e",
+                            "state_sha256": "5f2e15a7ea08a48b656a14e38337734b2b8a25b834cecfa5b5449fb984ddc2fb"
                         },
                         "blocker_ids": [],
                         "evidence": [
@@ -1037,16 +1069,16 @@
                 "predecessor_state": {
                     "manifest_sha256": "e8a0d3db618d2b1e67045c2048e2e3c21a506a0a0ea0bed88d7fd555f3ef7186",
                     "lock_sha256": "8ae5ca981ee0006bdb91bc2d8cd87f5658806b86b4ef603456cf175f71150330",
-                    "platform_sha256": "881f35b4a4b418a4eda928a03b708610356c8c31392e9fbf4f65f531e73fe7eb",
-                    "execution_policy_sha256": "0f007c646c1b7eb937df5dd86d151edab154ed5cf57690a9caf87ffb769e7ee6",
-                    "state_sha256": "a5a48b6aad3e8513d6a9516d696822af8c1b97f2c8cc1f0b4d0f10eecd01c0fb"
+                    "platform_sha256": "6c689c2a945689da7693f0293117541fb3fbc27cb4f072489e15428fd844dbd7",
+                    "execution_policy_sha256": "f7867541fa8d250aab14dc390187c1a8930cdd8fb3b76e3dd72486cc5512107e",
+                    "state_sha256": "5f2e15a7ea08a48b656a14e38337734b2b8a25b834cecfa5b5449fb984ddc2fb"
                 },
                 "input_state": {
                     "manifest_sha256": "e8a0d3db618d2b1e67045c2048e2e3c21a506a0a0ea0bed88d7fd555f3ef7186",
                     "lock_sha256": "8ae5ca981ee0006bdb91bc2d8cd87f5658806b86b4ef603456cf175f71150330",
-                    "platform_sha256": "881f35b4a4b418a4eda928a03b708610356c8c31392e9fbf4f65f531e73fe7eb",
-                    "execution_policy_sha256": "0f007c646c1b7eb937df5dd86d151edab154ed5cf57690a9caf87ffb769e7ee6",
-                    "state_sha256": "a5a48b6aad3e8513d6a9516d696822af8c1b97f2c8cc1f0b4d0f10eecd01c0fb"
+                    "platform_sha256": "6c689c2a945689da7693f0293117541fb3fbc27cb4f072489e15428fd844dbd7",
+                    "execution_policy_sha256": "f7867541fa8d250aab14dc390187c1a8930cdd8fb3b76e3dd72486cc5512107e",
+                    "state_sha256": "5f2e15a7ea08a48b656a14e38337734b2b8a25b834cecfa5b5449fb984ddc2fb"
                 },
                 "output_state": null,
                 "attempts": [
@@ -1080,7 +1112,7 @@
                                 "--no-progress",
                                 "--no-interaction"
                             ],
-                            "duration_ms": 299,
+                            "duration_ms": 278,
                             "exit_code": 2,
                             "succeeded": false,
                             "outcome": "solver_failure",
@@ -1131,13 +1163,13 @@
                         "input_state": {
                             "manifest_sha256": "e8a0d3db618d2b1e67045c2048e2e3c21a506a0a0ea0bed88d7fd555f3ef7186",
                             "lock_sha256": "8ae5ca981ee0006bdb91bc2d8cd87f5658806b86b4ef603456cf175f71150330",
-                            "platform_sha256": "881f35b4a4b418a4eda928a03b708610356c8c31392e9fbf4f65f531e73fe7eb",
-                            "execution_policy_sha256": "0f007c646c1b7eb937df5dd86d151edab154ed5cf57690a9caf87ffb769e7ee6",
-                            "state_sha256": "a5a48b6aad3e8513d6a9516d696822af8c1b97f2c8cc1f0b4d0f10eecd01c0fb"
+                            "platform_sha256": "6c689c2a945689da7693f0293117541fb3fbc27cb4f072489e15428fd844dbd7",
+                            "execution_policy_sha256": "f7867541fa8d250aab14dc390187c1a8930cdd8fb3b76e3dd72486cc5512107e",
+                            "state_sha256": "5f2e15a7ea08a48b656a14e38337734b2b8a25b834cecfa5b5449fb984ddc2fb"
                         },
                         "output_state": null,
                         "blocker_ids": [
-                            "stage-blocker-04dd2115b0a9fe4ea391"
+                            "stage-blocker-b40442291e7ce748c0df"
                         ],
                         "evidence": [
                             "stage-attempt-5"
@@ -1255,13 +1287,13 @@
                         "input_state": {
                             "manifest_sha256": "e8a0d3db618d2b1e67045c2048e2e3c21a506a0a0ea0bed88d7fd555f3ef7186",
                             "lock_sha256": "8ae5ca981ee0006bdb91bc2d8cd87f5658806b86b4ef603456cf175f71150330",
-                            "platform_sha256": "881f35b4a4b418a4eda928a03b708610356c8c31392e9fbf4f65f531e73fe7eb",
-                            "execution_policy_sha256": "0f007c646c1b7eb937df5dd86d151edab154ed5cf57690a9caf87ffb769e7ee6",
-                            "state_sha256": "a5a48b6aad3e8513d6a9516d696822af8c1b97f2c8cc1f0b4d0f10eecd01c0fb"
+                            "platform_sha256": "6c689c2a945689da7693f0293117541fb3fbc27cb4f072489e15428fd844dbd7",
+                            "execution_policy_sha256": "f7867541fa8d250aab14dc390187c1a8930cdd8fb3b76e3dd72486cc5512107e",
+                            "state_sha256": "5f2e15a7ea08a48b656a14e38337734b2b8a25b834cecfa5b5449fb984ddc2fb"
                         },
                         "output_state": null,
                         "blocker_ids": [
-                            "stage-blocker-04dd2115b0a9fe4ea391"
+                            "stage-blocker-b40442291e7ce748c0df"
                         ],
                         "evidence": [
                             "stage-attempt-6"
@@ -1335,7 +1367,7 @@
                                 "--no-progress",
                                 "--no-interaction"
                             ],
-                            "duration_ms": 273,
+                            "duration_ms": 287,
                             "exit_code": 2,
                             "succeeded": false,
                             "outcome": "solver_failure",
@@ -1422,13 +1454,13 @@
                         "input_state": {
                             "manifest_sha256": "e8a0d3db618d2b1e67045c2048e2e3c21a506a0a0ea0bed88d7fd555f3ef7186",
                             "lock_sha256": "8ae5ca981ee0006bdb91bc2d8cd87f5658806b86b4ef603456cf175f71150330",
-                            "platform_sha256": "881f35b4a4b418a4eda928a03b708610356c8c31392e9fbf4f65f531e73fe7eb",
-                            "execution_policy_sha256": "0f007c646c1b7eb937df5dd86d151edab154ed5cf57690a9caf87ffb769e7ee6",
-                            "state_sha256": "a5a48b6aad3e8513d6a9516d696822af8c1b97f2c8cc1f0b4d0f10eecd01c0fb"
+                            "platform_sha256": "6c689c2a945689da7693f0293117541fb3fbc27cb4f072489e15428fd844dbd7",
+                            "execution_policy_sha256": "f7867541fa8d250aab14dc390187c1a8930cdd8fb3b76e3dd72486cc5512107e",
+                            "state_sha256": "5f2e15a7ea08a48b656a14e38337734b2b8a25b834cecfa5b5449fb984ddc2fb"
                         },
                         "output_state": null,
                         "blocker_ids": [
-                            "stage-blocker-04dd2115b0a9fe4ea391"
+                            "stage-blocker-b40442291e7ce748c0df"
                         ],
                         "evidence": [
                             "stage-attempt-7"
@@ -1569,7 +1601,7 @@
         ],
         "blocker_registry": [
             {
-                "id": "stage-blocker-c2a3069ee41bf51e8d62",
+                "id": "stage-blocker-da9ed30e1b45cf7243c4",
                 "stage_id": "laravel-10-to-11",
                 "attempt": 1,
                 "scenario": "laravel-10-to-11-attempt-1-target_only",
@@ -1635,7 +1667,7 @@
                 ]
             },
             {
-                "id": "stage-blocker-86a42c6d92a5c34c9664",
+                "id": "stage-blocker-78808d7e6ec6a483ae60",
                 "stage_id": "laravel-10-to-11",
                 "attempt": 1,
                 "scenario": "laravel-10-to-11-attempt-1-target_only",
@@ -1717,7 +1749,7 @@
                 ]
             },
             {
-                "id": "stage-blocker-04dd2115b0a9fe4ea391",
+                "id": "stage-blocker-b40442291e7ce748c0df",
                 "stage_id": "laravel-12-to-13",
                 "attempt": 1,
                 "scenario": "laravel-12-to-13-attempt-1-target_only",
@@ -2268,7 +2300,8 @@
     "uncertainties": [
         "Dependency resolution does not prove application runtime compatibility; the project test suite must run on the target runtime.",
         "No Composer \"test\" script was found, so the project's canonical test command is unknown.",
-        "Composer modeled only the listed extension assumptions; every unlisted extension still came from the analyzer runtime."
+        "Composer modeled only the listed extension assumptions; every unlisted extension still came from the analyzer runtime.",
+        "Restricted Composer execution uses sanitized analyzer-owned Composer state and best-effort offline behavior; it is not a process or OS network sandbox, and user-selected executables plus Git/SSH helpers remain residual boundaries."
     ],
     "evidence": [
         {
@@ -2466,7 +2499,7 @@
                     }
                 ],
                 "exit_code": 2,
-                "output_excerpt": "Loading composer repositories with package information\nUpdating dependencies\nYour requirements could not be resolved to an installable set of packages.\n\n  Problem 1\n    - Root composer.json requires laravel/framework ^13.0 -> satisfiable by laravel/framework[13.0.0].\n    - laravel/framework 13.0.0 requires php ^8.3 -> your php version (8.1.0; overridden via config.platform, actual: 8.3.33) does not satisfy that requirement.",
+                "output_excerpt": "Loading composer repositories with package information\nUpdating dependencies\nYour requirements could not be resolved to an installable set of packages.\n\n  Problem 1\n    - Root composer.json requires laravel/framework ^13.0 -> satisfiable by laravel/framework[13.0.0].\n    - laravel/framework 13.0.0 requires php ^8.3 -> your php version (8.1.0; overridden via config.platform, actual: 8.4.24) does not satisfy that requirement.",
                 "diagnostics": [
                     {
                         "package": "laravel/framework",

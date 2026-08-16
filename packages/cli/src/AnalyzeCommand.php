@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace PhpUpgradePreflight\Cli;
 
 use PhpUpgradePreflight\Core\Contracts\UpgradeAnalyzer;
+use PhpUpgradePreflight\Core\Model\ComposerExecutionConfiguration;
 use PhpUpgradePreflight\Core\Model\ReportFormat;
 use PhpUpgradePreflight\Core\Model\TargetPlatformProfile;
 use PhpUpgradePreflight\Core\Model\UpgradeRequest;
@@ -66,6 +67,19 @@ final class AnalyzeCommand
             $options = $this->parser->parse($argv);
             $targets = array_map(static fn (string $target): UpgradeTarget => UpgradeTarget::fromString($target), $options['target']);
             $targetPlatformProfile = $this->loadTargetPlatformProfile($options['target-platform-profile'] ?? null);
+            $composerExecution = new ComposerExecutionConfiguration(
+                $options['composer-executable'] ?? 'composer',
+                $options['composer-version'] ?? ComposerExecutionConfiguration::DEFAULT_EXPECTED_VERSION,
+                $this->positiveIntegerOption(
+                    $options['composer-timeout'] ?? (string) ComposerExecutionConfiguration::DEFAULT_SCENARIO_TIMEOUT_SECONDS,
+                    'composer-timeout'
+                ),
+                $this->positiveIntegerOption(
+                    $options['composer-diagnostic-timeout'] ?? (string) ComposerExecutionConfiguration::DEFAULT_DIAGNOSTIC_TIMEOUT_SECONDS,
+                    'composer-diagnostic-timeout'
+                ),
+                $options['composer-mode'] ?? ComposerExecutionConfiguration::MODE_COMPATIBLE
+            );
             $request = new UpgradeRequest(
                 $options['path'],
                 $targets,
@@ -77,7 +91,8 @@ final class AnalyzeCommand
                 $options['output'],
                 $options['debug'],
                 $options['extension-assumptions'] ?? [],
-                $targetPlatformProfile
+                $targetPlatformProfile,
+                $composerExecution
             );
             $this->frameworkIntegrations->assertAvailable($request->frameworks());
 
@@ -140,6 +155,14 @@ Options:
   --framework=NAME        Framework integration to enable; repeatable
   --format=json|markdown  Report format (default: json)
   --output=PATH           Write the report to a file
+  --composer-mode=MODE    compatible or restricted (default: compatible)
+  --composer-executable=PATH
+                          Composer command or executable path (default: composer)
+  --composer-version=RANGE
+                          Expected Composer constraint (default: >=2.0.0 <3.0.0)
+  --composer-timeout=SEC  Scenario timeout from 1 to 3600 seconds (default: 300)
+  --composer-diagnostic-timeout=SEC
+                          Diagnostic timeout from 1 to 900 seconds (default: 60)
   --debug                 Preserve temporary Composer workspaces
   -h, --help              Show this help
 
@@ -158,5 +181,14 @@ USAGE;
     private function diagnostic(string $message): void
     {
         fwrite($this->stderr, SensitiveOutputRedactor::redact($message) . PHP_EOL);
+    }
+
+    private function positiveIntegerOption(string $value, string $name): int
+    {
+        if ($value === '' || !ctype_digit($value)) {
+            throw new \InvalidArgumentException(sprintf('Option "--%s" must be a positive integer.', $name));
+        }
+
+        return (int) $value;
     }
 }

@@ -9,6 +9,7 @@ Resolution: **blocked** | Staged: **unknown** | Schema: `0.8` | Tool: `php-upgra
 - Source paths: `default project paths`
 - Framework integrations: `automatic detection`
 - Target platform profile: `not supplied`
+- Composer execution mode: `compatible`
 - Requested format: `markdown`
 - Output destination: `stdout`
 - Targets:
@@ -21,6 +22,13 @@ Resolution: **blocked** | Staged: **unknown** | Schema: `0.8` | Tool: `php-upgra
 - Target PHP: `8.1.0` (provenance: `request`)
 - Extensions: provenance `analyzer_runtime`; explicitly modeled: no; completeness: `none`; unmodeled values: `analyzer_runtime`
 - Target platform profile: none; platform packages not explicitly modeled above remain analyzer-host dependent.
+
+## Composer Execution Provenance
+- Mode: `compatible`; Composer version: `unknown`; expected: `>=2.0.0 <3.0.0`; matches: `unknown`
+- Executable selection: `path_search`; environment: `inherited`; network: `inherited`; repositories: `project_and_global`
+- Timeouts: scenario `300 s`; diagnostic `60 s`; Composer home: `inherited`
+- Inheritance: global configuration yes; credentials may be inherited yes; offline requested no; process/OS isolation no
+- Side effects disabled: scripts, plugins, installation, audit, interaction, and progress.
 
 ## Project State
 - Analyzed path: `<PROJECT_PATH>`
@@ -242,6 +250,7 @@ Resolution: **blocked** | Staged: **unknown** | Schema: `0.8` | Tool: `php-upgra
 - Root PHP constraint "^7.4" does not include target platform PHP 8.1.0; select an appropriate Composer constraint instead of using the exact simulated platform version.
 - No Composer "test" script was found, so the project's canonical test command is unknown.
 - Composer extension checks used the analyzer runtime because no complete explicit extension platform was supplied.
+- Compatible Composer execution may inherit global configuration, credentials, proxies, caches, repository access, and other analyzer-host state.
 
 ## Evidence
 - `solver-1` (`E1`, high confidence): Composer scenario "exact-target" failed. Context: `{"scenario":"exact-target","targets":[{"package":"laravel/framework","constraint":"^9.0"},{"package":"php","constraint":"8.1.0"}],"exit_code":2,"output_excerpt":"Your requirements could not be resolved to an installable set of packages.\nProblem 1\n- fixture/runtime-guard 1.0.0 requires php ^7.4 -> your php version (8.1.0) does not satisfy that requirement.\nProblem 2\n- fixture/runtime-guard 1.0.0 requires ext-preflight_fixture * -> it is missing from your system.","diagnostics":[{"package":"laravel/framework","constraint":"^9.0","command":["composer","prohibits","laravel/framework","^9.0","--tree","--locked","--no-scripts","--no-plugins","--no-interaction"],"exit_code":1,"stdout_excerpt":"","stderr_excerpt":"No additional fixture diagnostic."},{"package":"php","constraint":"8.1.0","command":["composer","prohibits","php","8.1.0","--tree","--locked","--no-scripts","--no-plugins","--no-interaction"],"exit_code":1,"stdout_excerpt":"","stderr_excerpt":"No additional fixture diagnostic."}]}`

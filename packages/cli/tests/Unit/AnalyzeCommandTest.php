@@ -70,6 +70,11 @@ final class AnalyzeCommandTest extends TestCase
             '--framework=laravel',
             '--with-extension=ext-intl:72.1',
             '--without-extension=ext-xdebug',
+            '--composer-mode=restricted',
+            '--composer-executable=/tools/composer.phar',
+            '--composer-version=^2.8',
+            '--composer-timeout=120',
+            '--composer-diagnostic-timeout=15',
             '--format=markdown',
             '--debug',
         ]);
@@ -89,6 +94,11 @@ final class AnalyzeCommandTest extends TestCase
             $this->analyzer->request->extensionAssumptions()
         ));
         self::assertSame(ReportFormat::MARKDOWN, $this->analyzer->request->format());
+        self::assertSame('restricted', $this->analyzer->request->composerExecution()->mode());
+        self::assertSame('/tools/composer.phar', $this->analyzer->request->composerExecution()->executable());
+        self::assertSame('^2.8', $this->analyzer->request->composerExecution()->expectedVersion());
+        self::assertSame(120, $this->analyzer->request->composerExecution()->scenarioTimeoutSeconds());
+        self::assertSame(15, $this->analyzer->request->composerExecution()->diagnosticTimeoutSeconds());
         self::assertTrue($this->analyzer->request->debug());
         self::assertStringStartsWith('# PHP Upgrade Preflight', $this->streamContents($this->stdout));
         self::assertStringContainsString(

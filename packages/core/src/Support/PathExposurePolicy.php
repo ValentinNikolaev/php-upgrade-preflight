@@ -131,6 +131,30 @@ final class PathExposurePolicy
         return $paths;
     }
 
+    /**
+     * @param array<string, mixed> $composerData
+     * @return list<string>
+     */
+    public static function composerRepositoryReferences(array $composerData, string $projectPath): array
+    {
+        $references = self::localRepositoryPaths($composerData, $projectPath);
+        $repositories = $composerData['repositories'] ?? null;
+        if (!is_array($repositories)) {
+            return $references;
+        }
+
+        foreach ($repositories as $repository) {
+            if (is_array($repository) && is_string($repository['url'] ?? null) && $repository['url'] !== '') {
+                $references[] = $repository['url'];
+            }
+        }
+
+        $references = array_values(array_unique($references));
+        usort($references, static fn (string $left, string $right): int => strlen($right) <=> strlen($left));
+
+        return $references;
+    }
+
     /** @param list<string> $repositoryPaths */
     public static function redactComposerText(
         string $value,
@@ -148,10 +172,14 @@ final class PathExposurePolicy
         foreach ($repositoryPaths as $repositoryPath) {
             if ($repositoryPath !== '' && self::isRepositoryReference($repositoryPath)) {
                 $paths[$repositoryPath] = self::LOCAL_REPOSITORY;
+            } elseif ($repositoryPath !== '' && self::isRemoteUrl($repositoryPath)) {
+                $paths[$repositoryPath] = SensitiveOutputRedactor::REDACTED_URL;
             }
         }
 
-        return SensitiveOutputRedactor::redact(self::redactPathText($value, $paths));
+        return self::redactRemoteUrls(
+            SensitiveOutputRedactor::redact(self::redactPathText($value, $paths))
+        );
     }
 
     public static function workspaceForReport(?string $workspacePath, bool $debug): ?string
@@ -332,6 +360,25 @@ final class PathExposurePolicy
             || preg_match('~^file:(?://|(?:\\\\+/){2})~i', $path) === 1
             || preg_match('/^~[\\\\\/]/', $path) === 1
             || preg_match('/\$(?:\{[A-Za-z_][A-Za-z0-9_]*\}|[A-Za-z_][A-Za-z0-9_]*)|%[A-Za-z_][A-Za-z0-9_]*%/', $path) === 1;
+    }
+
+    private static function isRemoteUrl(string $value): bool
+    {
+        return preg_match('~^[A-Za-z][A-Za-z0-9+.-]*://~', $value) === 1
+            && !str_starts_with(strtolower($value), 'file://');
+    }
+
+    private static function redactRemoteUrls(string $value): string
+    {
+        $redacted = preg_replace_callback(
+            '~(?<![A-Za-z0-9])([A-Za-z][A-Za-z0-9+.-]*):(?://|(?:\\\\+/){2})[^\s<>"\']+~i',
+            static fn (array $matches): string => strtolower($matches[1]) === 'file'
+                ? $matches[0]
+                : SensitiveOutputRedactor::REDACTED_URL,
+            $value
+        );
+
+        return $redacted ?? SensitiveOutputRedactor::REDACTED;
     }
 
     private static function containsEnvironmentVariable(string $path): bool

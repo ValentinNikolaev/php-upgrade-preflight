@@ -466,7 +466,7 @@ final class DefaultUpgradeAnalyzerTest extends TestCase
         self::assertSame('unknown', $report->resolutionStatus());
         self::assertSame([], $report->blockers());
         self::assertSame('low', $report->risk()->level());
-        self::assertCount(7, $report->uncertainties());
+        self::assertCount(8, $report->uncertainties());
         self::assertContains(
             'Composer extension checks used the analyzer runtime because no complete explicit extension platform was supplied.',
             $report->uncertainties()
@@ -590,7 +590,7 @@ final class DefaultUpgradeAnalyzerTest extends TestCase
 
         self::assertSame('unknown', $report->resolutionStatus());
         self::assertCount(1, $report->blockers());
-        self::assertCount(6, $report->uncertainties());
+        self::assertCount(7, $report->uncertainties());
         self::assertContains(
             'Composer extension checks used the analyzer runtime because no complete explicit extension platform was supplied.',
             $report->uncertainties()

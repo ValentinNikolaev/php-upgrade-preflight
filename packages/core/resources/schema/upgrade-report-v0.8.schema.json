@@ -10,6 +10,7 @@
         "request_summary",
         "project_state",
         "platform",
+        "composer_execution",
         "resolution",
         "staged_resolution",
         "transition",
@@ -36,6 +37,9 @@
         },
         "platform": {
             "$ref": "#/$defs/platformProvenance"
+        },
+        "composer_execution": {
+            "$ref": "#/$defs/composerExecutionProvenance"
         },
         "resolution": {
             "$ref": "#/$defs/resolution"
@@ -217,7 +221,8 @@
                 "frameworks",
                 "format",
                 "output_path",
-                "target_platform_profile"
+                "target_platform_profile",
+                "composer_execution"
             ],
             "properties": {
                 "project_path": {
@@ -271,8 +276,106 @@
                 },
                 "target_platform_profile": {
                     "$ref": "#/$defs/targetPlatformProfileSummary"
+                },
+                "composer_execution": {
+                    "$ref": "#/$defs/composerExecutionConfiguration"
                 }
             }
+        },
+        "composerExecutionConfiguration": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "mode",
+                "executable_selection",
+                "expected_version",
+                "scenario_timeout_seconds",
+                "diagnostic_timeout_seconds",
+                "environment_mode",
+                "network_policy"
+            ],
+            "properties": {
+                "mode": {"enum": ["compatible", "restricted"]},
+                "executable_selection": {"enum": ["path_search", "explicit"]},
+                "expected_version": {"type": "string", "minLength": 1},
+                "scenario_timeout_seconds": {"type": "integer", "minimum": 1, "maximum": 3600},
+                "diagnostic_timeout_seconds": {"type": "integer", "minimum": 1, "maximum": 900},
+                "environment_mode": {"enum": ["inherited", "sanitized"]},
+                "network_policy": {"enum": ["inherited", "best_effort_offline"]}
+            }
+        },
+        "composerExecutionProvenance": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "mode",
+                "composer_version",
+                "expected_version",
+                "version_matches_expectation",
+                "executable_selection",
+                "scenario_timeout_seconds",
+                "diagnostic_timeout_seconds",
+                "environment_mode",
+                "network_policy",
+                "repository_source_mode",
+                "composer_home",
+                "global_configuration_inherited",
+                "credentials_may_be_inherited",
+                "offline_requested",
+                "scripts_enabled",
+                "plugins_enabled",
+                "installation_enabled",
+                "audit_enabled",
+                "interaction_enabled",
+                "progress_enabled",
+                "process_os_isolation"
+            ],
+            "properties": {
+                "mode": {"enum": ["compatible", "restricted"]},
+                "composer_version": {"type": ["string", "null"], "minLength": 1},
+                "expected_version": {"type": "string", "minLength": 1},
+                "version_matches_expectation": {"type": ["boolean", "null"]},
+                "executable_selection": {"enum": ["path_search", "explicit"]},
+                "scenario_timeout_seconds": {"type": "integer", "minimum": 1, "maximum": 3600},
+                "diagnostic_timeout_seconds": {"type": "integer", "minimum": 1, "maximum": 900},
+                "environment_mode": {"enum": ["inherited", "sanitized"]},
+                "network_policy": {"enum": ["inherited", "best_effort_offline"]},
+                "repository_source_mode": {"enum": ["project_and_global", "project_only"]},
+                "composer_home": {"enum": ["inherited", "analyzer_owned"]},
+                "global_configuration_inherited": {"type": "boolean"},
+                "credentials_may_be_inherited": {"type": "boolean"},
+                "offline_requested": {"type": "boolean"},
+                "scripts_enabled": {"const": false},
+                "plugins_enabled": {"const": false},
+                "installation_enabled": {"const": false},
+                "audit_enabled": {"const": false},
+                "interaction_enabled": {"const": false},
+                "progress_enabled": {"const": false},
+                "process_os_isolation": {"const": false}
+            },
+            "allOf": [
+                {
+                    "if": {"properties": {"mode": {"const": "restricted"}}, "required": ["mode"]},
+                    "then": {"properties": {
+                        "environment_mode": {"const": "sanitized"},
+                        "network_policy": {"const": "best_effort_offline"},
+                        "repository_source_mode": {"const": "project_only"},
+                        "composer_home": {"const": "analyzer_owned"},
+                        "global_configuration_inherited": {"const": false},
+                        "credentials_may_be_inherited": {"const": false},
+                        "offline_requested": {"const": true}
+                    }},
+                    "else": {"properties": {
+                        "environment_mode": {"const": "inherited"},
+                        "network_policy": {"const": "inherited"},
+                        "repository_source_mode": {"const": "project_and_global"},
+                        "composer_home": {"const": "inherited"},
+                        "global_configuration_inherited": {"const": true},
+                        "credentials_may_be_inherited": {"const": true},
+                        "offline_requested": {"const": false}
+                    }}
+                }
+            ]
         },
         "targetPlatformProfileSummary": {
             "oneOf": [
@@ -1070,6 +1173,7 @@
                         "solver_failure",
                         "validation_failure",
                         "composer_missing",
+                        "repository_metadata_unavailable",
                         "timeout",
                         "invalid_json",
                         "lockfile_missing",

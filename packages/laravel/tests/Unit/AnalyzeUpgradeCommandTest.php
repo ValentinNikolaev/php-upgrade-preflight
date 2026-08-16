@@ -35,6 +35,11 @@ final class AnalyzeUpgradeCommandTest extends TestCase
             '--source' => ['app'],
             '--with-extension' => ['ext-intl:72.1'],
             '--without-extension' => ['ext-xdebug'],
+            '--composer-mode' => 'restricted',
+            '--composer-executable' => '/tools/composer.phar',
+            '--composer-version' => '^2.8',
+            '--composer-timeout' => '120',
+            '--composer-diagnostic-timeout' => '15',
             '--format' => 'markdown',
         ], ['capture_stderr_separately' => true]);
 
@@ -51,6 +56,11 @@ final class AnalyzeUpgradeCommandTest extends TestCase
             $analyzer->request->extensionAssumptions()
         ));
         self::assertSame(ReportFormat::MARKDOWN, $analyzer->request->format());
+        self::assertSame('restricted', $analyzer->request->composerExecution()->mode());
+        self::assertSame('/tools/composer.phar', $analyzer->request->composerExecution()->executable());
+        self::assertSame('^2.8', $analyzer->request->composerExecution()->expectedVersion());
+        self::assertSame(120, $analyzer->request->composerExecution()->scenarioTimeoutSeconds());
+        self::assertSame(15, $analyzer->request->composerExecution()->diagnosticTimeoutSeconds());
         self::assertStringStartsWith('# PHP Upgrade Preflight', $tester->getDisplay());
         self::assertStringContainsString('Literal <info>canonical text</info> remains unchanged.', $tester->getDisplay());
         self::assertSame('', $tester->getErrorOutput());

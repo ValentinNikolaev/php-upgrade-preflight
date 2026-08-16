@@ -20,6 +20,7 @@ final class UpgradeRequest
     private bool $debug;
     private ExtensionAssumptionSet $extensionAssumptions;
     private ?TargetPlatformProfile $targetPlatformProfile;
+    private ComposerExecutionConfiguration $composerExecution;
 
     /**
      * @param list<UpgradeTarget> $targets
@@ -38,7 +39,8 @@ final class UpgradeRequest
         ?string $outputPath = null,
         bool $debug = false,
         array $extensionAssumptions = [],
-        ?TargetPlatformProfile $targetPlatformProfile = null
+        ?TargetPlatformProfile $targetPlatformProfile = null,
+        ?ComposerExecutionConfiguration $composerExecution = null
     ) {
         $resolved = realpath($projectPath);
 
@@ -68,6 +70,7 @@ final class UpgradeRequest
         $this->debug = $debug;
         $this->extensionAssumptions = new ExtensionAssumptionSet($extensionAssumptions);
         $this->targetPlatformProfile = $targetPlatformProfile;
+        $this->composerExecution = $composerExecution ?? ComposerExecutionConfiguration::compatible();
         $this->assertTargetPlatformProfileCompatibility();
     }
 
@@ -134,7 +137,12 @@ final class UpgradeRequest
         return $this->targetPlatformProfile;
     }
 
-    /** @return array{project_path: string, targets: list<array{package: string, constraint: string}>, from_php: ?string, target_php: ?string, source_paths: list<string>, frameworks: list<string>, format: string, output_path: ?string, target_platform_profile: ?array{schema_version: string, completeness: string, sha256: string, provenance: string}} */
+    public function composerExecution(): ComposerExecutionConfiguration
+    {
+        return $this->composerExecution;
+    }
+
+    /** @return array<string, mixed> */
     public function toArray(): array
     {
         return [
@@ -149,6 +157,7 @@ final class UpgradeRequest
             'target_platform_profile' => $this->targetPlatformProfile === null
                 ? null
                 : $this->targetPlatformProfile->summary(),
+            'composer_execution' => $this->composerExecution->fingerprintData(),
         ];
     }
 

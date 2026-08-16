@@ -86,6 +86,7 @@ The analyzer keeps exact project and source paths for internal filesystem access
 JSON is the canonical report. The v0.3 development line produces schema `0.8`; v0.2.1 produced schema `0.7`, and v0.1 produced schema `0.6`. Reports contain:
 
 - scenario commands, solver outcomes, diagnostics, and candidate-lock fingerprints;
+- safe Composer execution provenance, including compatible/restricted mode, version expectation, timeouts, inherited state, and offline policy;
 - platform provenance with explicit host-dependence uncertainty, package changes, structured blockers, raw source inventory, Composer-autoload-owned actionable source impact, framework transition guidance, and hop-scoped framework findings;
 - independent direct-final and staged Composer resolution, including adjacent stages, attempts, selected-state fingerprints, blocker lifecycles, stage-scoped changes, and original-snapshot source findings;
 - staged actions, test guidance, risk, effort, uncertainty, and linked evidence.
@@ -111,6 +112,7 @@ Third-party adapter packages register themselves through Composer metadata, so t
 - [Framework adapters](docs/adapters.md)
 - [CLI reference](docs/cli.md)
 - [Artisan reference](docs/artisan.md)
+- [Composer execution policy](docs/composer-execution.md)
 - [JSON schema and compatibility](docs/schema.md)
 - [Project status and licensing](docs/project-status.md)
 - [v0.2 report and transition contract](docs/v0.2-contract.md)

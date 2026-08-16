@@ -8,6 +8,7 @@ use Opis\JsonSchema\Errors\ErrorFormatter;
 use Opis\JsonSchema\Validator;
 use PhpUpgradePreflight\Core\Analysis\StagedAnalysisPolicy;
 use PhpUpgradePreflight\Core\Framework\FrameworkStageTargetProvider;
+use PhpUpgradePreflight\Core\Model\ComposerExecutionConfiguration;
 use PhpUpgradePreflight\Core\Model\ReportMetadata;
 use PhpUpgradePreflight\Core\Model\StageAnalysis;
 use PhpUpgradePreflight\Core\Model\StageBlockerEntry;
@@ -178,14 +179,33 @@ final class V03ContractTest extends TestCase
         self::assertCount(7, $this->contract['ordering']);
     }
 
+    public function testComposerExecutionModesThreatModelAndDefaultsAreLocked(): void
+    {
+        $execution = $this->contract['composer_execution'];
+        self::assertSame(['compatible', 'restricted'], $execution['modes']);
+        self::assertSame(ComposerExecutionConfiguration::DEFAULT_EXPECTED_VERSION, $execution['expected_version_default']);
+        self::assertSame(ComposerExecutionConfiguration::DEFAULT_SCENARIO_TIMEOUT_SECONDS, $execution['scenario_timeout_default_seconds']);
+        self::assertSame(ComposerExecutionConfiguration::DEFAULT_DIAGNOSTIC_TIMEOUT_SECONDS, $execution['diagnostic_timeout_default_seconds']);
+        self::assertSame('inherited', $execution['compatible']['environment_mode']);
+        self::assertTrue($execution['compatible']['credentials_may_be_inherited']);
+        self::assertSame('sanitized', $execution['restricted']['environment_mode']);
+        self::assertSame('best_effort_offline', $execution['restricted']['network_policy']);
+        self::assertFalse($execution['restricted']['credentials_may_be_inherited']);
+        self::assertFalse($execution['restricted']['os_network_sandbox_claimed']);
+        self::assertContains('COMPOSER_AUTH', $execution['restricted_controlled_sources']);
+        self::assertContains('OS-level networking and process isolation', $execution['residual_boundaries']);
+        self::assertSame('operational_unknown', $execution['restricted_metadata_miss']);
+    }
+
     public function testSchemaMigrationAndMinimalCanonicalFixtureAreValid(): void
     {
         $schemaContract = $this->contract['schema_0_8'];
         self::assertSame('0.8', ReportMetadata::SCHEMA_VERSION);
         self::assertSame('0.3.0-dev', ReportMetadata::TOOL_VERSION);
-        self::assertSame(['staged_resolution'], $schemaContract['new_required_top_level_fields']);
+        self::assertSame(['composer_execution', 'staged_resolution'], $schemaContract['new_required_top_level_fields']);
         self::assertSame([
             'request_summary.target_platform_profile',
+            'request_summary.composer_execution',
             'platform.profile',
         ], $schemaContract['new_required_nested_fields']);
         self::assertTrue($schemaContract['migration_from_0_7']['historical_reports_immutable']);

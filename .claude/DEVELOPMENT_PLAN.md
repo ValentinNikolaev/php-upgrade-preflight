@@ -193,19 +193,19 @@ Status: complete.
 
 Priority: P1. Complete before multiplying Composer work per stage.
 
-- [ ] Extract typed Composer execution configuration for executable selection, expected version range, scenario timeout, diagnostic timeout, environment mode, and network policy.
-- [ ] Define the restricted-mode threat model: enumerate the Composer configuration, authentication, proxy, and environment sources the analyzer controls, and name user-selected executables, Git/SSH helpers, caches, and OS-level networking as residual boundaries unless separately isolated.
-- [ ] Record redacted execution provenance including Composer version, policy mode, timeout policy, repository source mode, and whether global configuration or credentials may have been inherited.
-- [ ] Preserve the current compatible execution mode for projects that require configured private repositories, while labeling its host and credential dependencies.
-- [ ] Add an explicit restricted mode backed by analyzer-owned Composer home/configuration, scrub every credential and proxy source covered by the threat model, and request Composer's offline behavior. Do not describe it as an OS network sandbox.
-- [ ] Treat unavailable repository metadata in restricted mode as operational uncertainty, not proof of dependency incompatibility.
-- [ ] Keep scripts, plugins, installation, audit side effects, interaction, and progress disabled for analysis scenarios.
-- [ ] Keep executable paths, environment values, authentication material, and private repository URLs behind the existing privacy boundary.
-- [ ] Add deterministic tests for executable mismatch, missing Composer, timeout, offline cache hit/miss, empty global configuration, seeded credentials in every controlled source, and attempted network access through the instrumented Composer test path.
+- [x] Extract typed Composer execution configuration for executable selection, expected version range, scenario timeout, diagnostic timeout, environment mode, and network policy.
+- [x] Define the restricted-mode threat model: enumerate the Composer configuration, authentication, proxy, and environment sources the analyzer controls, and name user-selected executables, Git/SSH helpers, caches, and OS-level networking as residual boundaries unless separately isolated.
+- [x] Record redacted execution provenance including Composer version, policy mode, timeout policy, repository source mode, and whether global configuration or credentials may have been inherited.
+- [x] Preserve the current compatible execution mode for projects that require configured private repositories, while labeling its host and credential dependencies.
+- [x] Add an explicit restricted mode backed by analyzer-owned Composer home/configuration, scrub every credential and proxy source covered by the threat model, and request Composer's offline behavior. Do not describe it as an OS network sandbox.
+- [x] Treat unavailable repository metadata in restricted mode as operational uncertainty, not proof of dependency incompatibility.
+- [x] Keep scripts, plugins, installation, audit side effects, interaction, and progress disabled for analysis scenarios.
+- [x] Keep executable paths, environment values, authentication material, and private repository URLs behind the existing privacy boundary.
+- [x] Add deterministic tests for executable mismatch, missing Composer, timeout, offline cache hit/miss, empty global configuration, seeded credentials in every controlled source, and attempted network access through the instrumented Composer test path.
 
 Acceptance gate: every report states enough non-secret execution context to interpret its solver evidence; restricted mode passes the documented Composer-layer credential and offline harness without claiming process/OS isolation; and compatible mode remains explicit about inherited state.
 
-Status: not started.
+Status: complete. The PHP 8.0 and 8.3 unit gates, real-Composer integration suite, restricted offline demo, schema/contract validation, PHPStan, and formatting gates pass.
 
 ## Milestone 3: Productionize Sequential Per-Stage Composer Solving
 
@@ -304,17 +304,17 @@ Status: not started.
 
 ## Principal Risks and Controls
 
-| Risk | Control |
-| --- | --- |
-| Scenario explosion across long transitions | Contract caps, early stop, diagnostic caching, and per-stage plus aggregate budgets |
-| Remediation branching or multiple blockers cause combinatorial growth | Deterministic candidate ordering, per-stage attempt caps, complete blocker-set gates, and explicit uncertainty when the bounded search cannot prove a path |
-| False confidence from a `complete` profile | Closed-world semantics, explicit modeled classes, cross-host proofs, and narrower claims when proof fails |
-| Corrupt sequential state | Canonical manifest, lock, platform, and execution-policy digests plus a strict selected-predecessor chain |
-| Schema consumer breakage | Immutable schema `0.7`, new schema `0.8`, dual-version fixtures, and migration documentation |
-| Private repositories or subprocesses exceed the restricted threat model | Explicit compatible/restricted modes, documented residual boundaries, and operational uncertainty instead of false blockers |
-| Later-stage source findings assume unperformed edits | One labeled original source snapshot and no claims about hypothetical rewritten code |
-| Adapter ecosystem churn | Optional provider contract, unchanged required interfaces, and source-migration fixtures with explicit v0.3 constraints |
-| Framework breadth consumes the release | No new published adapter in v0.3 |
+| Risk                                                                    | Control                                                                                                                                                    |
+|-------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Scenario explosion across long transitions                              | Contract caps, early stop, diagnostic caching, and per-stage plus aggregate budgets                                                                        |
+| Remediation branching or multiple blockers cause combinatorial growth   | Deterministic candidate ordering, per-stage attempt caps, complete blocker-set gates, and explicit uncertainty when the bounded search cannot prove a path |
+| False confidence from a `complete` profile                              | Closed-world semantics, explicit modeled classes, cross-host proofs, and narrower claims when proof fails                                                  |
+| Corrupt sequential state                                                | Canonical manifest, lock, platform, and execution-policy digests plus a strict selected-predecessor chain                                                  |
+| Schema consumer breakage                                                | Immutable schema `0.7`, new schema `0.8`, dual-version fixtures, and migration documentation                                                               |
+| Private repositories or subprocesses exceed the restricted threat model | Explicit compatible/restricted modes, documented residual boundaries, and operational uncertainty instead of false blockers                                |
+| Later-stage source findings assume unperformed edits                    | One labeled original source snapshot and no claims about hypothetical rewritten code                                                                       |
+| Adapter ecosystem churn                                                 | Optional provider contract, unchanged required interfaces, and source-migration fixtures with explicit v0.3 constraints                                    |
+| Framework breadth consumes the release                                  | No new published adapter in v0.3                                                                                                                           |
 
 ## Deferred Until After v0.3.0
 

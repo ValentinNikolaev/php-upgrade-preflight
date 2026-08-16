@@ -21,12 +21,19 @@ upgrade-intel analyze --target=package:constraint [options]
 | `--framework=NAME` | Installed framework adapter to enable. Repeat as needed. |
 | `--format=json\|markdown` | Report format. Defaults to `json`. |
 | `--output=PATH` | Report file outside the analyzed project. Defaults to stdout. |
+| `--composer-mode=compatible\|restricted` | Composer execution policy. Defaults to `compatible`. |
+| `--composer-executable=PATH` | Composer command or executable path. Defaults to `composer`; the exact value is not reported. |
+| `--composer-version=CONSTRAINT` | Expected Composer version constraint. Defaults to `>=2.0.0 <3.0.0`. |
+| `--composer-timeout=SECONDS` | Scenario timeout, 1–3600 seconds. Defaults to 300. |
+| `--composer-diagnostic-timeout=SECONDS` | Diagnostic timeout, 1–900 seconds. Defaults to 60. |
 | `--debug` | Preserve Composer workspaces and expose exact `temp_path` values; output is non-shareable. |
 | `-h`, `--help` | Print command help. |
 
 Supply at least one package target, `--target-php`, or `--target-platform-profile`. `--target=php:8.1` and `--target-php=8.1` are equivalent; if you use both, they must normalize to the same exact PHP version. A profile with exact PHP may supply the target by itself.
 
 The parser accepts only the documented forms. Write `--path=value`, not `--path value`. The `--debug` flag takes no value.
+
+Compatible Composer execution may inherit global configuration, credentials, proxies, caches, and network access. Restricted execution uses fresh analyzer-owned Composer configuration and cache state, scrubs the controlled credential/proxy environment, and requests Composer's best-effort offline behavior. It is not an OS network sandbox. See [Composer execution policy](composer-execution.md) for the threat model and residual boundaries.
 
 By default, canonical JSON and Markdown replace absolute local roots with `[PROJECT_ROOT]`, `[REPORT_OUTPUT]`, `[LOCAL_REPOSITORY]`, and `[ANALYZER_WORKSPACE]`. The analyzer still uses exact project and source paths internally, while reported source files remain project-relative. A cleanup failure reports only `[ANALYZER_WORKSPACE]` unless `--debug` was supplied. Explicit debug mode preserves workspaces and exposes exact `temp_path` values, so debug reports and retained workspaces are non-shareable. Credential redaction remains active in every mode.
 
@@ -55,7 +62,7 @@ The supported classes are `php`, `ext-*`, `lib-*`, PHP subtypes such as `php-64b
 
 `platform.profile` records the profile schema, `partial` or `complete` completeness, canonical SHA-256 digest, safe provenance (`file`, never the input path), modeled classes, closed-world flag, toolchain-bound package names, and every sorted effective decision. A complete profile treats every unlisted package in a supported safely simulated class as absent. A partial profile retains analyzer-host values for unlisted packages and is visibly host-dependent. Composer packages tied to the executable itself, including `composer`, `composer-plugin-api`, and `composer-runtime-api`, are reported as `toolchain_bound`; the profile records them but does not claim that `config.platform` safely simulates them.
 
-Composer 2.2 or newer is required for complete closed-world profiles. With Composer 2.0 or 2.1, analysis stops before workspace creation with an operationally unknown result; the analyzer never downgrades a complete request to partial. Profile completeness covers only the declared platform-package classes. Repository contents, network access, credentials, and the Composer executable remain separate inputs and can still change resolution.
+Composer 2.2 or newer is required for complete closed-world profiles. With Composer 2.0 or 2.1, analysis stops before workspace creation with an operationally unknown result; the analyzer never downgrades a complete request to partial. Profile completeness covers only the declared platform-package classes. Repository contents, network access, credentials, and the Composer executable remain separate inputs and can still change resolution. `composer_execution` records those execution-policy dimensions independently.
 
 ## Framework selection
 

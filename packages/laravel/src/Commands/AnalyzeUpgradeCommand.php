@@ -6,6 +6,7 @@ namespace PhpUpgradePreflight\Laravel\Commands;
 
 use Illuminate\Console\Command;
 use PhpUpgradePreflight\Core\Contracts\UpgradeAnalyzer;
+use PhpUpgradePreflight\Core\Model\ComposerExecutionConfiguration;
 use PhpUpgradePreflight\Core\Model\ExtensionAssumptionSet;
 use PhpUpgradePreflight\Core\Model\ReportFormat;
 use PhpUpgradePreflight\Core\Model\TargetPlatformProfile;
@@ -33,6 +34,11 @@ final class AnalyzeUpgradeCommand extends Command
         {--source=* : Additional source path to scan}
         {--format=json : json or markdown}
         {--output= : Report output path}
+        {--composer-mode=compatible : compatible or restricted}
+        {--composer-executable=composer : Composer command or executable path}
+        {--composer-version= : Expected Composer version constraint}
+        {--composer-timeout=300 : Composer scenario timeout in seconds}
+        {--composer-diagnostic-timeout=60 : Composer diagnostic timeout in seconds}
         {--debug : Preserve temporary Composer workspaces}';
 
     protected $description = 'Analyze Composer and PHP upgrade readiness without mutating the project.';
@@ -68,6 +74,13 @@ final class AnalyzeUpgradeCommand extends Command
                 array_values((array) $this->option('with-extension')),
                 array_values((array) $this->option('without-extension'))
             )->all();
+            $composerExecution = new ComposerExecutionConfiguration(
+                (string) $this->option('composer-executable'),
+                $this->optionalString('composer-version') ?? ComposerExecutionConfiguration::DEFAULT_EXPECTED_VERSION,
+                $this->positiveIntegerOption('composer-timeout'),
+                $this->positiveIntegerOption('composer-diagnostic-timeout'),
+                (string) $this->option('composer-mode')
+            );
             $request = new UpgradeRequest(
                 $this->projectPath(),
                 $targets,
@@ -79,7 +92,8 @@ final class AnalyzeUpgradeCommand extends Command
                 $this->optionalString('output'),
                 (bool) $this->option('debug'),
                 $extensionAssumptions,
-                $targetPlatformProfile
+                $targetPlatformProfile,
+                $composerExecution
             );
 
             if ($request->outputPath() !== null) {
@@ -183,5 +197,15 @@ final class AnalyzeUpgradeCommand extends Command
             SensitiveOutputRedactor::redact($message),
             OutputInterface::OUTPUT_RAW
         );
+    }
+
+    private function positiveIntegerOption(string $name): int
+    {
+        $value = $this->option($name);
+        if (!is_string($value) || $value === '' || !ctype_digit($value)) {
+            throw new \InvalidArgumentException(sprintf('Option "--%s" must be a positive integer.', $name));
+        }
+
+        return (int) $value;
     }
 }

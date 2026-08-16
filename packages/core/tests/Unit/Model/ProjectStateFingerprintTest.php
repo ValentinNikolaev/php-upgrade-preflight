@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace PhpUpgradePreflight\Core\Tests\Unit\Model;
 
+use PhpUpgradePreflight\Core\Model\ComposerExecutionConfiguration;
 use PhpUpgradePreflight\Core\Model\ComposerJson;
 use PhpUpgradePreflight\Core\Model\ComposerLock;
 use PhpUpgradePreflight\Core\Model\HostExtension;
@@ -99,6 +100,31 @@ final class ProjectStateFingerprintTest extends TestCase
 
         self::assertNotSame($firstFingerprint['platform_sha256'], $secondFingerprint['platform_sha256']);
         self::assertNotSame($firstFingerprint['state_sha256'], $secondFingerprint['state_sha256']);
+    }
+
+    public function testExplicitComposerExecutableIdentityChangesExecutionAndStateHashesWithoutExposingItsPath(): void
+    {
+        $state = $this->projectState();
+        $platform = $this->platform($state, $this->profile('partial', ['php' => '8.3.4']));
+        $firstExecution = ComposerExecutionConfiguration::restricted('/private/tools/composer-a');
+        $secondExecution = ComposerExecutionConfiguration::restricted('/private/tools/composer-b');
+
+        $first = ProjectStateFingerprint::fromState(
+            $state,
+            $platform,
+            '8.3.4',
+            $firstExecution->stateFingerprintData()
+        )->toArray();
+        $second = ProjectStateFingerprint::fromState(
+            $state,
+            $platform,
+            '8.3.4',
+            $secondExecution->stateFingerprintData()
+        )->toArray();
+
+        self::assertNotSame($first['execution_policy_sha256'], $second['execution_policy_sha256']);
+        self::assertNotSame($first['state_sha256'], $second['state_sha256']);
+        self::assertStringNotContainsString('/private/tools', json_encode([$first, $second], JSON_THROW_ON_ERROR));
     }
 
     private function platform(ProjectState $state, TargetPlatformProfile $profile): TargetPlatform

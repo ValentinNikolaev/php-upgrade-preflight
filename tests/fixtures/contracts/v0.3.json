@@ -201,6 +201,63 @@
         "complete_closed_world_excludes_toolchain_bound": true,
         "partial_host_dependent": true
     },
+    "composer_execution": {
+        "report_location": "composer_execution",
+        "request_summary_location": "request_summary.composer_execution",
+        "modes": [
+            "compatible",
+            "restricted"
+        ],
+        "expected_version_default": ">=2.0.0 <3.0.0",
+        "scenario_timeout_default_seconds": 300,
+        "diagnostic_timeout_default_seconds": 60,
+        "compatible": {
+            "environment_mode": "inherited",
+            "network_policy": "inherited",
+            "repository_source_mode": "project_and_global",
+            "composer_home": "inherited",
+            "global_configuration_inherited": true,
+            "credentials_may_be_inherited": true
+        },
+        "restricted": {
+            "environment_mode": "sanitized",
+            "network_policy": "best_effort_offline",
+            "repository_source_mode": "project_only",
+            "composer_home": "analyzer_owned",
+            "global_configuration_inherited": false,
+            "credentials_may_be_inherited": false,
+            "offline_requested": true,
+            "os_network_sandbox_claimed": false
+        },
+        "disabled_side_effects": [
+            "scripts",
+            "plugins",
+            "installation",
+            "audit",
+            "interaction",
+            "progress"
+        ],
+        "restricted_controlled_sources": [
+            "COMPOSER_HOME config.json",
+            "COMPOSER_HOME auth.json",
+            "COMPOSER_AUTH",
+            "Composer cache directory",
+            "HTTP_PROXY and lowercase variant",
+            "HTTPS_PROXY and lowercase variant",
+            "ALL_PROXY and lowercase variant",
+            "NO_PROXY and lowercase variant",
+            "XDG config, data, and cache roots",
+            "Git and SSH askpass environment"
+        ],
+        "residual_boundaries": [
+            "user-selected Composer executable",
+            "Git and SSH helper subprocesses",
+            "repository URLs and credentials embedded in the analyzed composer.json",
+            "OS-level networking and process isolation",
+            "system trust stores and executable behavior"
+        ],
+        "restricted_metadata_miss": "operational_unknown"
+    },
     "budgets": {
         "max_hops": 6,
         "max_attempts_per_stage": 3,
@@ -224,10 +281,12 @@
         "path": "packages/core/resources/schema/upgrade-report-v0.8.schema.json",
         "minimal_fixture": "tests/fixtures/contracts/v0.3/minimal-report-v0.8.json",
         "new_required_top_level_fields": [
+            "composer_execution",
             "staged_resolution"
         ],
         "new_required_nested_fields": [
             "request_summary.target_platform_profile",
+            "request_summary.composer_execution",
             "platform.profile"
         ],
         "migration_from_0_7": {

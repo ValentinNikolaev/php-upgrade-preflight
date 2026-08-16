@@ -20,7 +20,16 @@
         "frameworks": [],
         "format": "json",
         "output_path": null,
-        "target_platform_profile": null
+        "target_platform_profile": null,
+        "composer_execution": {
+            "mode": "compatible",
+            "executable_selection": "path_search",
+            "expected_version": ">=2.0.0 <3.0.0",
+            "scenario_timeout_seconds": 300,
+            "diagnostic_timeout_seconds": 60,
+            "environment_mode": "inherited",
+            "network_policy": "inherited"
+        }
     },
     "project_state": {
         "path": "[PROJECT_ROOT]",
@@ -49,6 +58,29 @@
             "assumptions": []
         },
         "profile": null
+    },
+    "composer_execution": {
+        "mode": "compatible",
+        "composer_version": null,
+        "expected_version": ">=2.0.0 <3.0.0",
+        "version_matches_expectation": null,
+        "executable_selection": "path_search",
+        "scenario_timeout_seconds": 300,
+        "diagnostic_timeout_seconds": 60,
+        "environment_mode": "inherited",
+        "network_policy": "inherited",
+        "repository_source_mode": "project_and_global",
+        "composer_home": "inherited",
+        "global_configuration_inherited": true,
+        "credentials_may_be_inherited": true,
+        "offline_requested": false,
+        "scripts_enabled": false,
+        "plugins_enabled": false,
+        "installation_enabled": false,
+        "audit_enabled": false,
+        "interaction_enabled": false,
+        "progress_enabled": false,
+        "process_os_isolation": false
     },
     "resolution": {
         "status": "unknown",

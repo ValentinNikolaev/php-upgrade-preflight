@@ -27,17 +27,6 @@ use PhpUpgradePreflight\Core\Model\UpgradeTargetSet;
 
 final class StagedUpgradeOrchestrator
 {
-    /** @var array<string, mixed> */
-    private const EXECUTION_POLICY = [
-        'mode' => 'compatible',
-        'composer_executable' => 'composer',
-        'network_policy' => 'inherited',
-        'scripts' => false,
-        'plugins' => false,
-        'installation' => false,
-        'timeout_seconds' => StagedAnalysisPolicy::SCENARIO_TIMEOUT_SECONDS,
-    ];
-
     private ComposerScenarioRunner $runner;
     private BlockerGrouper $blockerGrouper;
     private LockDiffBuilder $lockDiffBuilder;
@@ -166,7 +155,7 @@ final class StagedUpgradeOrchestrator
                 $currentState,
                 $platform,
                 $stage->analysisPhp(),
-                self::EXECUTION_POLICY
+                $request->composerExecution()->stateFingerprintData()
             );
             $attempts = [];
             $selectedAttempt = null;
@@ -235,7 +224,7 @@ final class StagedUpgradeOrchestrator
                         $candidate,
                         $platform,
                         $stage->analysisPhp(),
-                        self::EXECUTION_POLICY
+                        $request->composerExecution()->stateFingerprintData()
                     );
                 $rootChanges = $this->rootConstraintChanges(
                     $currentState,

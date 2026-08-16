@@ -26,7 +26,7 @@ printf 'Offline sequential Composer stages + framework guidance + source scan\n\
 before="$(tree_digest "${target}")"
 printf '\033[2mTarget SHA-256 before: %s\033[0m\n\n' "${before}"
 
-printf '\033[1;33m$ upgrade-intel analyze --from-php=8.1 --target=laravel/framework:^13.0 --target-php=8.3 --without-extension=ext-preflight-stage\033[0m\n'
+printf '\033[1;33m$ upgrade-intel analyze --from-php=8.1 --target=laravel/framework:^13.0 --target-php=8.3 --without-extension=ext-preflight-stage --composer-mode=restricted\033[0m\n'
 started_at="${SECONDS}"
 COMPOSER_DISABLE_NETWORK=1 COMPOSER_ROOT_VERSION=1.0.0 \
     php "${repository_root}/packages/cli/bin/upgrade-intel" analyze \
@@ -35,6 +35,7 @@ COMPOSER_DISABLE_NETWORK=1 COMPOSER_ROOT_VERSION=1.0.0 \
     --target=laravel/framework:^13.0 \
     --target-php=8.3 \
     --without-extension=ext-preflight-stage \
+    --composer-mode=restricted \
     --framework=laravel \
     --format=json \
     --output="${report}" >/dev/null
@@ -74,6 +75,7 @@ if ($projection($report) !== $projection($canonical)) {
 
 printf("\n\033[1;31mDirect final target: %s\033[0m\n", strtoupper($report["resolution"]["status"]));
 printf("\033[1;31mStaged resolution:   %s\033[0m\n", strtoupper($report["staged_resolution"]["status"]));
+printf("Composer execution:  %s (offline best effort; no OS sandbox)\n", strtoupper($report["composer_execution"]["mode"]));
 foreach ($report["staged_resolution"]["stages"] as $stage) {
     printf(
         "Stage %d->%d: %-21s attempts=%d selected=%s\n",

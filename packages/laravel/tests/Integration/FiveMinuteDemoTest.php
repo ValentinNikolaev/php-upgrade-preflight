@@ -7,6 +7,7 @@ namespace PhpUpgradePreflight\Laravel\Tests\Integration;
 use Opis\JsonSchema\Errors\ErrorFormatter;
 use Opis\JsonSchema\Validator;
 use PhpUpgradePreflight\Core\Analysis\DefaultUpgradeAnalyzer;
+use PhpUpgradePreflight\Core\Model\ComposerExecutionConfiguration;
 use PhpUpgradePreflight\Core\Model\ExtensionAssumption;
 use PhpUpgradePreflight\Core\Model\ReportFormat;
 use PhpUpgradePreflight\Core\Model\UpgradeRequest;
@@ -39,7 +40,9 @@ final class FiveMinuteDemoTest extends TestCase
                     ReportFormat::JSON,
                     $this->demoRoot() . '/reports/laravel-10-to-13.json',
                     false,
-                    [ExtensionAssumption::fromAbsenceInput('ext-preflight-stage')]
+                    [ExtensionAssumption::fromAbsenceInput('ext-preflight-stage')],
+                    null,
+                    ComposerExecutionConfiguration::restricted()
                 )
             );
         } finally {
@@ -150,6 +153,19 @@ final class FiveMinuteDemoTest extends TestCase
             'Replace 1 detected direct reference to VerifyCsrfToken or ValidateCsrfToken with PreventRequestForgery before targeting Laravel 13.',
             $summaries
         );
+
+        $checkedIn = json_decode(
+            $this->read($this->demoRoot() . '/reports/laravel-10-to-13.json'),
+            true,
+            512,
+            JSON_THROW_ON_ERROR
+        );
+        self::assertIsArray($checkedIn);
+        self::assertSame(
+            $this->stageStateChain($checkedIn),
+            $this->stageStateChain($canonical),
+            'The checked-in demo report must use the current canonical candidate-state fingerprints.'
+        );
     }
 
     public function testCheckedInReportsValidateAndProjectTheSameKeyFindings(): void
@@ -165,6 +181,9 @@ final class FiveMinuteDemoTest extends TestCase
         self::assertSame('0.3.0-dev', $canonical['metadata']['tool']['version'] ?? null);
         self::assertSame('blocked', $canonical['resolution']['status'] ?? null);
         self::assertSame('blocked', $canonical['staged_resolution']['status'] ?? null);
+        self::assertSame('restricted', $canonical['composer_execution']['mode'] ?? null);
+        self::assertTrue($canonical['composer_execution']['offline_requested'] ?? false);
+        self::assertFalse($canonical['composer_execution']['process_os_isolation'] ?? true);
         self::assertSame('laravel-10-to-11', $canonical['staged_resolution']['stages'][0]['id'] ?? null);
         self::assertSame(3, $canonical['staged_resolution']['stages'][0]['selected_attempt'] ?? null);
         self::assertSame('feasible_with_changes', $canonical['staged_resolution']['stages'][1]['resolution_status'] ?? null);
@@ -203,6 +222,7 @@ final class FiveMinuteDemoTest extends TestCase
         $script = $this->read($this->demoRoot() . '/run-demo.sh');
         $tape = $this->read($this->demoRoot() . '/laravel-10-to-13.tape');
         self::assertStringContainsString('--without-extension=ext-preflight-stage', $script);
+        self::assertStringContainsString('--composer-mode=restricted', $script);
         self::assertStringContainsString('reports/laravel-10-to-13.json', $script);
         self::assertStringContainsString('staged_resolution', $script);
         self::assertStringContainsString('bash examples/five-minute-demo/run-demo.sh', $tape);
@@ -243,6 +263,26 @@ final class FiveMinuteDemoTest extends TestCase
                 self::assertStringContainsString((string) ($occurrence['symbol'] ?? ''), $markdown);
             }
         }
+    }
+
+    /**
+     * @param array<string, mixed> $report
+     * @return list<array{id: string, input: string|null, output: string|null}>
+     */
+    private function stageStateChain(array $report): array
+    {
+        return array_map(
+            static fn (array $stage): array => [
+                'id' => (string) ($stage['id'] ?? ''),
+                'input' => isset($stage['input_state']['state_sha256'])
+                    ? (string) $stage['input_state']['state_sha256']
+                    : null,
+                'output' => isset($stage['output_state']['state_sha256'])
+                    ? (string) $stage['output_state']['state_sha256']
+                    : null,
+            ],
+            $report['staged_resolution']['stages'] ?? []
+        );
     }
 
     private function assertConformsToSchema(string $json): void

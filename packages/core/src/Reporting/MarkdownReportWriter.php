@@ -27,6 +27,24 @@ final class MarkdownReportWriter
         $project = $canonical['project_state'];
         /** @var array{analyzer:array{php_version:string, provenance:string}, current_php:array{version:?string, provenance:string}, target_php:array{version:?string, provenance:string}, extensions:array{provenance:string, explicitly_modeled:bool, completeness:string, unmodeled_provenance:?string, assumptions:list<array{name:string, state:string, version:?string, provenance:string}>}, profile?:?array{schema_version:string, completeness:string, sha256:string, provenance:string, supported_classes:list<string>, closed_world:bool, toolchain_bound:list<string>, effective:list<array{name:string, class:string, state:string, version:?string, provenance:string, simulation:string}>}} $platform */
         $platform = $canonical['platform'];
+        /** @var array<string, mixed> $composerExecution */
+        $composerExecution = $canonical['composer_execution'] ?? [
+            'mode' => 'compatible',
+            'composer_version' => null,
+            'expected_version' => 'not recorded by this schema',
+            'version_matches_expectation' => null,
+            'executable_selection' => 'not recorded',
+            'scenario_timeout_seconds' => 300,
+            'diagnostic_timeout_seconds' => 60,
+            'environment_mode' => 'inherited',
+            'network_policy' => 'inherited',
+            'repository_source_mode' => 'project_and_global',
+            'composer_home' => 'inherited',
+            'global_configuration_inherited' => true,
+            'credentials_may_be_inherited' => true,
+            'offline_requested' => false,
+            'process_os_isolation' => false,
+        ];
         /** @var array{status:string, scenarios:list<array<string, mixed>>} $resolution */
         $resolution = $canonical['resolution'];
         /** @var array<string, mixed> $stagedResolution */
@@ -57,6 +75,7 @@ final class MarkdownReportWriter
             sprintf('- Source paths: %s', $this->inlineList($request['source_paths'], 'default project paths')),
             sprintf('- Framework integrations: %s', $this->inlineList($request['frameworks'], 'automatic detection')),
             sprintf('- Target platform profile: %s', $this->profileSummary($request['target_platform_profile'] ?? null)),
+            sprintf('- Composer execution mode: %s', $this->code($request['composer_execution']['mode'] ?? 'not recorded')),
             sprintf('- Requested format: %s', $this->code($request['format'])),
             sprintf('- Output destination: %s', $this->code($request['output_path'] ?? 'stdout')),
             '- Targets:',
@@ -137,6 +156,39 @@ final class MarkdownReportWriter
                 }
             }
         }
+
+        $lines[] = '';
+        $lines[] = '## Composer Execution Provenance';
+        $lines[] = sprintf(
+            '- Mode: %s; Composer version: %s; expected: %s; matches: %s',
+            $this->code((string) $composerExecution['mode']),
+            $this->code($composerExecution['composer_version'] ?? 'unknown'),
+            $this->code((string) $composerExecution['expected_version']),
+            $this->code($composerExecution['version_matches_expectation'] === null
+                ? 'unknown'
+                : ($composerExecution['version_matches_expectation'] ? 'yes' : 'no'))
+        );
+        $lines[] = sprintf(
+            '- Executable selection: %s; environment: %s; network: %s; repositories: %s',
+            $this->code((string) $composerExecution['executable_selection']),
+            $this->code((string) $composerExecution['environment_mode']),
+            $this->code((string) $composerExecution['network_policy']),
+            $this->code((string) $composerExecution['repository_source_mode'])
+        );
+        $lines[] = sprintf(
+            '- Timeouts: scenario `%d s`; diagnostic `%d s`; Composer home: %s',
+            $composerExecution['scenario_timeout_seconds'],
+            $composerExecution['diagnostic_timeout_seconds'],
+            $this->code((string) $composerExecution['composer_home'])
+        );
+        $lines[] = sprintf(
+            '- Inheritance: global configuration %s; credentials may be inherited %s; offline requested %s; process/OS isolation %s',
+            $composerExecution['global_configuration_inherited'] ? 'yes' : 'no',
+            $composerExecution['credentials_may_be_inherited'] ? 'yes' : 'no',
+            $composerExecution['offline_requested'] ? 'yes' : 'no',
+            $composerExecution['process_os_isolation'] ? 'yes' : 'no'
+        );
+        $lines[] = '- Side effects disabled: scripts, plugins, installation, audit, interaction, and progress.';
 
         $lines[] = '';
         $lines[] = '## Project State';

@@ -17,6 +17,7 @@ final class ScenarioResult
     public const OUTCOME_SOLVER_FAILURE = 'solver_failure';
     public const OUTCOME_VALIDATION_FAILURE = 'validation_failure';
     public const OUTCOME_COMPOSER_MISSING = 'composer_missing';
+    public const OUTCOME_REPOSITORY_METADATA_UNAVAILABLE = 'repository_metadata_unavailable';
     public const OUTCOME_TIMEOUT = 'timeout';
     public const OUTCOME_INVALID_JSON = 'invalid_json';
     public const OUTCOME_LOCKFILE_MISSING = 'lockfile_missing';
@@ -265,6 +266,7 @@ final class ScenarioResult
             self::OUTCOME_SOLVER_FAILURE,
             self::OUTCOME_VALIDATION_FAILURE,
             self::OUTCOME_COMPOSER_MISSING,
+            self::OUTCOME_REPOSITORY_METADATA_UNAVAILABLE,
             self::OUTCOME_TIMEOUT,
             self::OUTCOME_INVALID_JSON,
             self::OUTCOME_LOCKFILE_MISSING,

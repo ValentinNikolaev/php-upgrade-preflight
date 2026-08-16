@@ -90,7 +90,8 @@ final class UpgradeReport
         $this->tests = array_values($tests);
         $this->uncertainties = array_values(array_unique(array_merge(
             $uncertainties,
-            $this->platformUncertainties()
+            $this->platformUncertainties(),
+            $this->composerExecutionUncertainties()
         )));
         $this->evidence = array_values($evidence);
         $this->stagedResolution = $stagedResolution ?? StagedResolution::skipped('stage_target_provider_unavailable');
@@ -244,6 +245,7 @@ final class UpgradeReport
             'request_summary' => $this->request->toArray(),
             'project_state' => $this->projectState->toArray(),
             'platform' => $this->platform->toArray(),
+            'composer_execution' => $this->request->composerExecution()->provenance($this->composerVersion()),
             'resolution' => [
                 'status' => $this->resolutionStatus(),
                 'scenarios' => array_map(static fn (ScenarioResult $scenario): array => $scenario->toArray(), $this->scenarios),
@@ -360,6 +362,31 @@ final class UpgradeReport
         }
 
         return [];
+    }
+
+    private function composerVersion(): ?string
+    {
+        foreach ($this->scenarios as $scenario) {
+            if ($scenario->composerVersion() !== null) {
+                return $scenario->composerVersion();
+            }
+        }
+
+        return null;
+    }
+
+    /** @return list<string> */
+    private function composerExecutionUncertainties(): array
+    {
+        if ($this->request->composerExecution()->isRestricted()) {
+            return [
+                'Restricted Composer execution uses sanitized analyzer-owned Composer state and best-effort offline behavior; it is not a process or OS network sandbox, and user-selected executables plus Git/SSH helpers remain residual boundaries.',
+            ];
+        }
+
+        return [
+            'Compatible Composer execution may inherit global configuration, credentials, proxies, caches, repository access, and other analyzer-host state.',
+        ];
     }
 
     private function validateFrameworkFindingScopes(): void

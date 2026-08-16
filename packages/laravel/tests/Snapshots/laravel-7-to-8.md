@@ -9,6 +9,7 @@ Resolution: **feasible_with_changes** | Staged: **unknown** | Schema: `0.8` | To
 - Source paths: `default project paths`
 - Framework integrations: `automatic detection`
 - Target platform profile: `not supplied`
+- Composer execution mode: `compatible`
 - Requested format: `markdown`
 - Output destination: `stdout`
 - Targets:
@@ -21,6 +22,13 @@ Resolution: **feasible_with_changes** | Staged: **unknown** | Schema: `0.8` | To
 - Target PHP: `8.0.0` (provenance: `request`)
 - Extensions: provenance `analyzer_runtime`; explicitly modeled: no; completeness: `none`; unmodeled values: `analyzer_runtime`
 - Target platform profile: none; platform packages not explicitly modeled above remain analyzer-host dependent.
+
+## Composer Execution Provenance
+- Mode: `compatible`; Composer version: `unknown`; expected: `>=2.0.0 <3.0.0`; matches: `unknown`
+- Executable selection: `path_search`; environment: `inherited`; network: `inherited`; repositories: `project_and_global`
+- Timeouts: scenario `300 s`; diagnostic `60 s`; Composer home: `inherited`
+- Inheritance: global configuration yes; credentials may be inherited yes; offline requested no; process/OS isolation no
+- Side effects disabled: scripts, plugins, installation, audit, interaction, and progress.
 
 ## Project State
 - Analyzed path: `<PROJECT_PATH>`
@@ -157,6 +165,7 @@ Resolution: **feasible_with_changes** | Staged: **unknown** | Schema: `0.8` | To
 - Dependency resolution does not prove application runtime compatibility; the project test suite must run on the target runtime.
 - No Composer "test" script was found, so the project's canonical test command is unknown.
 - Composer extension checks used the analyzer runtime because no complete explicit extension platform was supplied.
+- Compatible Composer execution may inherit global configuration, credentials, proxies, caches, repository access, and other analyzer-host state.
 
 ## Evidence
 - `laravel-transition-1` (`E4`, medium confidence): The retained Laravel 7 to 8 rule pack covers this requested transition. Context: `{"source_major":7,"target_major":8,"rule_pack":"laravel-7-to-8","source":"https://laravel.com/docs/8.x/upgrade"}`

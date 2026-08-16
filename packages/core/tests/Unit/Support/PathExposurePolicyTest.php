@@ -123,11 +123,29 @@ final class PathExposurePolicyTest extends TestCase
 
         $sanitized = PathExposurePolicy::redactComposerText($text, '/app', null, ['/repo']);
 
-        self::assertSame(3, substr_count($sanitized, PathExposurePolicy::PROJECT_ROOT));
-        self::assertSame(2, substr_count($sanitized, PathExposurePolicy::LOCAL_REPOSITORY));
+        self::assertSame(2, substr_count($sanitized, PathExposurePolicy::PROJECT_ROOT));
+        self::assertSame(1, substr_count($sanitized, PathExposurePolicy::LOCAL_REPOSITORY));
+        self::assertStringContainsString('[REDACTED_URL]', $sanitized);
         self::assertStringContainsString('vendor/application', $sanitized);
         self::assertStringContainsString('/application', $sanitized);
         self::assertStringContainsString('/repository', $sanitized);
+    }
+
+    public function testComposerTextRedactsUnknownRemoteRepositoryUrlsAcrossSchemes(): void
+    {
+        $text = implode("\n", [
+            'Composer repository: https://private.example.invalid/packages.json',
+            'VCS repository: ssh://git@private.example.invalid/team/package.git',
+            'Custom repository: s3://private-bucket/composer/packages.json',
+            'Local repository: file:///private/packages',
+        ]);
+
+        $sanitized = PathExposurePolicy::redactComposerText($text);
+
+        self::assertSame(3, substr_count($sanitized, '[REDACTED_URL]'));
+        self::assertStringNotContainsString('private.example.invalid', $sanitized);
+        self::assertStringNotContainsString('private-bucket', $sanitized);
+        self::assertStringContainsString(PathExposurePolicy::LOCAL_REPOSITORY, $sanitized);
     }
 
     public function testEncodedPathsAssociativeKeysAndObjectsAreSanitized(): void

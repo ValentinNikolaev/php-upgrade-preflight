@@ -24,11 +24,18 @@ Composer-metadata discovery generalizes adapter registration for the standalone 
 | `--source=PATH` | File or directory inside the project. Repeat as needed. |
 | `--format=json\|markdown` | Report format. Defaults to `json`. |
 | `--output=PATH` | Report file outside the analyzed project. |
+| `--composer-mode=compatible\|restricted` | Composer execution policy. Defaults to `compatible`. |
+| `--composer-executable=PATH` | Composer command or executable path. Defaults to `composer`. |
+| `--composer-version=CONSTRAINT` | Expected Composer constraint. Defaults to `>=2.0.0 <3.0.0`. |
+| `--composer-timeout=SECONDS` | Scenario timeout, 1–3600 seconds. Defaults to 300. |
+| `--composer-diagnostic-timeout=SECONDS` | Diagnostic timeout, 1–900 seconds. Defaults to 60. |
 | `--debug` | Preserve temporary workspaces and expose exact `temp_path` values; output is non-shareable. |
 
 Extension options have the same validation and provenance semantics as the standalone CLI. Matching duplicates collapse deterministically; contradictory versions or presence/absence are rejected. Exact versions and absences affect only temporary Composer workspaces. Absence simulation requires Composer 2.2 or newer and stops affected scenarios before workspace creation on an older detected version. Presence without a version remains visible as uncertainty; related constraint failures are non-blocking `extension-version-unknown` advisories. Every unlisted host extension also remains explicit uncertainty in the canonical report.
 
 `--target-platform-profile` has the same schema `1.0`, supported package classes, validation, precedence, and reporting contract as the standalone CLI. A `partial` profile leaves unlisted platform packages host-dependent. A `complete` profile is closed-world for its supported classes, models safely simulated unlisted packages absent, and requires Composer 2.2 or newer. Older Composer produces an operationally unknown result rather than silently weakening the profile. The report records only safe `file` provenance and a canonical digest; it does not expose the profile path. See the [CLI profile example and guarantee boundary](cli.md).
+
+Composer execution options have the same policy as the standalone CLI. Compatible mode can inherit private-repository state. Restricted mode uses analyzer-owned Composer state, scrubs the controlled credential and proxy sources, and requests best-effort offline behavior without claiming OS isolation. See [Composer execution policy](composer-execution.md).
 
 By default, canonical JSON and Markdown replace absolute local roots with `[PROJECT_ROOT]`, `[REPORT_OUTPUT]`, `[LOCAL_REPOSITORY]`, and `[ANALYZER_WORKSPACE]`. The analyzer still uses exact project and source paths internally, while reported source files remain project-relative. A cleanup failure reports only `[ANALYZER_WORKSPACE]` unless `--debug` was supplied. Explicit debug mode preserves workspaces and exposes exact `temp_path` values, so debug reports and retained workspaces are non-shareable. Credential redaction remains active in every mode.
 

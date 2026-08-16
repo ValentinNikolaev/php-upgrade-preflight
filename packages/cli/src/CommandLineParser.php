@@ -23,7 +23,12 @@ final class CommandLineParser
      *     extension-assumptions?: list<ExtensionAssumption>,
      *     format: string,
      *     output: ?string,
-     *     debug: bool
+     *     debug: bool,
+     *     composer-mode?: string,
+     *     composer-executable?: string,
+     *     composer-version?: string,
+     *     composer-timeout?: string,
+     *     composer-diagnostic-timeout?: string
      * }
      */
     public function parse(array $argv): array
@@ -93,7 +98,16 @@ final class CommandLineParser
                 continue;
             }
 
-            if ($name !== 'target-platform-profile' && !array_key_exists($name, $options)) {
+            if ($name !== 'target-platform-profile'
+                && !array_key_exists($name, $options)
+                && !in_array($name, [
+                    'composer-mode',
+                    'composer-executable',
+                    'composer-version',
+                    'composer-timeout',
+                    'composer-diagnostic-timeout',
+                ], true)
+            ) {
                 throw new \InvalidArgumentException('Unknown option.');
             }
 

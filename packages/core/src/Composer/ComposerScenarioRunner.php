@@ -12,6 +12,7 @@ use PhpUpgradePreflight\Core\Model\CandidateLockEvidence;
 use PhpUpgradePreflight\Core\Model\ComposerJson;
 use PhpUpgradePreflight\Core\Model\ComposerLock;
 use PhpUpgradePreflight\Core\Model\ComposerDiagnostic;
+use PhpUpgradePreflight\Core\Model\ComposerExecutionConfiguration;
 use PhpUpgradePreflight\Core\Model\ProjectState;
 use PhpUpgradePreflight\Core\Model\Scenario;
 use PhpUpgradePreflight\Core\Model\ScenarioResult;
@@ -33,30 +34,32 @@ final class ComposerScenarioRunner
 
     private WorkspaceManager $workspaces;
     private JsonFileReader $reader;
-    /** @var \Closure(list<string>, string): array{exit_code: int, stdout: string, stderr: string} */
+    /** @var \Closure(list<string>, string, array<string, string|false>, int): array{exit_code: int, stdout: string, stderr: string} */
     private \Closure $processRunner;
-    /** @var \Closure(): ?string */
+    /** @var \Closure(ComposerExecutionConfiguration): ?string */
     private \Closure $composerVersionResolver;
     /** @var \Closure(list<string>, string, array<string, string|false>): array{exit_code: int, stdout: string, stderr: string} */
     private \Closure $composerVersionProcessRunner;
     /** @var \Closure(): float */
     private \Closure $clock;
-    /** @var \Closure(): ?array<string, string> */
+    /** @var \Closure(ComposerExecutionConfiguration): ?array<string, string> */
     private \Closure $platformPackageResolver;
     private bool $composerVersionResolved = false;
     private ?string $composerVersion = null;
+    private ?string $composerVersionConfigurationKey = null;
     private bool $platformPackagesResolved = false;
     /** @var ?array<string, string> */
     private ?array $platformPackages = null;
+    private ?string $platformPackagesConfigurationKey = null;
     /** @var array<string, ComposerDiagnostic> */
     private array $diagnosticCache = [];
 
     /**
-     * @param null|callable(list<string>, string): array{exit_code: int, stdout: string, stderr: string} $processRunner
-     * @param null|callable(): ?string $composerVersionResolver
+     * @param null|callable(list<string>, string, array<string, string|false>, int): array{exit_code: int, stdout: string, stderr: string} $processRunner
+     * @param null|callable(ComposerExecutionConfiguration): ?string $composerVersionResolver
      * @param null|callable(): float $clock
      * @param null|callable(list<string>, string, array<string, string|false>): array{exit_code: int, stdout: string, stderr: string} $composerVersionProcessRunner
-     * @param null|callable(): ?array<string, string> $platformPackageResolver
+     * @param null|callable(ComposerExecutionConfiguration): ?array<string, string> $platformPackageResolver
      */
     public function __construct(
         ?WorkspaceManager $workspaces = null,
@@ -96,26 +99,39 @@ final class ComposerScenarioRunner
     ): ScenarioResult {
         $platform = $platform ?? TargetPlatform::fromRequest($request, $project);
         $tempPath = null;
-        $repositoryPaths = PathExposurePolicy::localRepositoryPaths(
+        $repositoryPaths = PathExposurePolicy::composerRepositoryReferences(
             $project->composerJson()->data(),
             $project->path()
         );
-        $command = $this->buildCommand($scenario);
-        $composerVersion = $this->resolveComposerVersion();
+        $execution = $request->composerExecution();
+        $command = $this->buildCommand($scenario, $execution);
+        $composerVersion = $this->resolveComposerVersion($execution);
+        if ($execution->matchesVersion($composerVersion) === false) {
+            return $this->operationalResult(
+                $scenario,
+                $composerVersion,
+                $this->safeCommand($command, $execution),
+                sprintf(
+                    'Composer %s does not match the configured expected version constraint %s.',
+                    $composerVersion,
+                    $execution->expectedVersion()
+                )
+            );
+        }
         $analyzerPlatformPackages = null;
         if (!$scenario->isBaselineValidation() || $platform->isCompleteProfile()) {
             $capabilityFailure = $this->platformCapabilityFailure($platform, $composerVersion);
             if ($capabilityFailure !== null) {
-                return $this->operationalResult($scenario, $composerVersion, $command, $capabilityFailure);
+                return $this->operationalResult($scenario, $composerVersion, $this->safeCommand($command, $execution), $capabilityFailure);
             }
 
             if ($platform->needsToolchainValidation()) {
-                $analyzerPlatformPackages = $this->resolvePlatformPackages();
+                $analyzerPlatformPackages = $this->resolvePlatformPackages($execution);
                 if ($analyzerPlatformPackages === null) {
                     return $this->operationalResult(
                         $scenario,
                         $composerVersion,
-                        $command,
+                        $this->safeCommand($command, $execution),
                         $platform->isCompleteProfile()
                             ? 'Composer platform inventory could not be determined; the complete target-platform profile was not weakened to partial coverage.'
                             : 'Composer platform inventory could not be determined, so toolchain-bound target-platform values could not be validated.'
@@ -126,7 +142,7 @@ final class ComposerScenarioRunner
                     return $this->operationalResult(
                         $scenario,
                         $composerVersion,
-                        $command,
+                        $this->safeCommand($command, $execution),
                         $toolchainFailure
                     );
                 }
@@ -153,12 +169,19 @@ final class ComposerScenarioRunner
             }
             $phase = 'process';
             $startedAt = ($this->clock)();
-            $process = ($this->processRunner)($command, $tempPath);
+            $environment = $this->processEnvironment($execution, $tempPath);
+            $process = ($this->processRunner)(
+                $command,
+                $tempPath,
+                $environment,
+                $execution->scenarioTimeoutSeconds()
+            );
             $process = $this->sanitizeProcessResult(
                 $process,
                 $project->path(),
                 $tempPath,
-                $repositoryPaths
+                $repositoryPaths,
+                $execution
             );
             $durationMs = $this->elapsedMilliseconds($startedAt);
 
@@ -184,6 +207,11 @@ final class ComposerScenarioRunner
                 if ($this->indicatesMissingComposer($process['exit_code'], $process['stdout'], $process['stderr'])) {
                     $failureType = ScenarioResult::FAILURE_OPERATIONAL;
                     $outcome = ScenarioResult::OUTCOME_COMPOSER_MISSING;
+                } elseif ($execution->isRestricted()
+                    && $this->indicatesUnavailableRepositoryMetadata($process['stdout'], $process['stderr'])
+                ) {
+                    $failureType = ScenarioResult::FAILURE_OPERATIONAL;
+                    $outcome = ScenarioResult::OUTCOME_REPOSITORY_METADATA_UNAVAILABLE;
                 } elseif ($scenario->isBaselineValidation()) {
                     $failureType = ScenarioResult::FAILURE_VALIDATION;
                     $outcome = ScenarioResult::OUTCOME_VALIDATION_FAILURE;
@@ -207,7 +235,9 @@ final class ComposerScenarioRunner
                     $scenario,
                     $tempPath,
                     $platform,
-                    $repositoryPaths
+                    $repositoryPaths,
+                    $execution,
+                    $environment
                 );
             }
 
@@ -220,7 +250,7 @@ final class ComposerScenarioRunner
                 $request->debug() ? $tempPath : null,
                 $failureType,
                 $composerVersion,
-                $command,
+                $this->safeCommand($command, $execution),
                 $durationMs,
                 $candidateLockEvidence,
                 $diagnostics,
@@ -254,17 +284,19 @@ final class ComposerScenarioRunner
                 $exitCode = $timedOutProcess->getExitCode() ?? 1;
             }
 
-            $stdout = PathExposurePolicy::redactComposerText(
+            $stdout = $this->redactExecutionText(
                 $stdout,
                 $project->path(),
                 $tempPath,
-                $repositoryPaths
+                $repositoryPaths,
+                $execution
             );
-            $stderr = PathExposurePolicy::redactComposerText(
+            $stderr = $this->redactExecutionText(
                 $stderr,
                 $project->path(),
                 $tempPath,
-                $repositoryPaths
+                $repositoryPaths,
+                $execution
             );
 
             $result = new ScenarioResult(
@@ -276,7 +308,7 @@ final class ComposerScenarioRunner
                 $request->debug() || $cleanupFailedDuringCreation ? $tempPath : null,
                 ScenarioResult::FAILURE_OPERATIONAL,
                 $composerVersion,
-                $command,
+                $this->safeCommand($command, $execution),
                 $durationMs,
                 null,
                 [],
@@ -324,12 +356,23 @@ final class ComposerScenarioRunner
         $this->diagnosticCache = [];
     }
 
+    public function resetAnalysisCaches(): void
+    {
+        $this->resetDiagnosticCache();
+        $this->composerVersionResolved = false;
+        $this->composerVersion = null;
+        $this->composerVersionConfigurationKey = null;
+        $this->platformPackagesResolved = false;
+        $this->platformPackages = null;
+        $this->platformPackagesConfigurationKey = null;
+    }
+
     /** @return list<string> */
-    private function buildCommand(Scenario $scenario): array
+    private function buildCommand(Scenario $scenario, ComposerExecutionConfiguration $execution): array
     {
         if ($scenario->isBaselineValidation()) {
             return array_merge([
-                'composer',
+                $execution->executable(),
                 'validate',
                 '--check-lock',
                 '--no-check-publish',
@@ -338,7 +381,7 @@ final class ComposerScenarioRunner
             ]);
         }
 
-        $command = ['composer', 'update'];
+        $command = [$execution->executable(), 'update'];
 
         foreach ($scenario->targets()->packageTargets() as $target) {
             $command[] = $target->package();
@@ -363,16 +406,21 @@ final class ComposerScenarioRunner
 
     /**
      * @param list<string> $command
+     * @param array<string, string|false> $environment
      * @return array{exit_code: int, stdout: string, stderr: string}
      */
-    private function runProcess(array $command, string $workingDirectory): array
-    {
+    private function runProcess(
+        array $command,
+        string $workingDirectory,
+        array $environment,
+        int $timeoutSeconds
+    ): array {
         $process = new Process(
             $command,
             $workingDirectory,
-            ['COMPOSER_NO_INTERACTION' => '1'],
+            $environment,
             null,
-            self::SCENARIO_TIMEOUT_SECONDS
+            $timeoutSeconds
         );
         $process->run();
 
@@ -383,13 +431,14 @@ final class ComposerScenarioRunner
         ];
     }
 
-    private function detectComposerVersion(): ?string
+    private function detectComposerVersion(?ComposerExecutionConfiguration $execution = null): ?string
     {
+        $execution = $execution ?? ComposerExecutionConfiguration::compatible();
         $process = $this->runComposerMetadataCommand(array_merge(
-            ['composer', '--version', '--no-ansi'],
+            [$execution->executable(), '--version', '--no-ansi'],
             self::COMPOSER_SAFETY_OPTIONS,
             ['--no-interaction']
-        ));
+        ), $execution);
 
         if ($process['exit_code'] !== 0) {
             return null;
@@ -404,13 +453,14 @@ final class ComposerScenarioRunner
     }
 
     /** @return ?array<string, string> */
-    private function detectComposerPlatformPackages(): ?array
+    private function detectComposerPlatformPackages(?ComposerExecutionConfiguration $execution = null): ?array
     {
+        $execution = $execution ?? ComposerExecutionConfiguration::compatible();
         $process = $this->runComposerMetadataCommand(array_merge(
-            ['composer', 'show', '--platform', '--format=json'],
+            [$execution->executable(), 'show', '--platform', '--format=json'],
             self::COMPOSER_SAFETY_OPTIONS,
             ['--no-interaction']
-        ));
+        ), $execution);
         if ($process['exit_code'] !== 0) {
             return null;
         }
@@ -468,19 +518,23 @@ final class ComposerScenarioRunner
      * @param list<string> $command
      * @return array{exit_code: int, stdout: string, stderr: string}
      */
-    private function runComposerMetadataCommand(array $command): array
-    {
+    private function runComposerMetadataCommand(
+        array $command,
+        ComposerExecutionConfiguration $execution
+    ): array {
         $workingDirectory = $this->createComposerProbeDirectory();
 
         try {
+            $environment = $this->processEnvironment($execution, $workingDirectory);
+            if (!$execution->isRestricted()) {
+                $environment['COMPOSER'] = false;
+                $environment['COMPOSER_HOME'] = $workingDirectory;
+            }
+
             return ($this->composerVersionProcessRunner)(
                 $command,
                 $workingDirectory,
-                [
-                    'COMPOSER_NO_INTERACTION' => '1',
-                    'COMPOSER' => false,
-                    'COMPOSER_HOME' => $workingDirectory,
-                ]
+                $environment
             );
         } finally {
             (new Filesystem())->remove($workingDirectory);
@@ -503,16 +557,18 @@ final class ComposerScenarioRunner
         throw new \RuntimeException('Unable to create an isolated Composer platform probe directory.');
     }
 
-    private function resolveComposerVersion(): ?string
+    private function resolveComposerVersion(ComposerExecutionConfiguration $execution): ?string
     {
-        if ($this->composerVersionResolved) {
+        $key = $execution->runtimeCacheKey();
+        if ($this->composerVersionResolved && $this->composerVersionConfigurationKey === $key) {
             return $this->composerVersion;
         }
 
         $this->composerVersionResolved = true;
+        $this->composerVersionConfigurationKey = $key;
 
         try {
-            $version = ($this->composerVersionResolver)();
+            $version = ($this->composerVersionResolver)($execution);
             $this->composerVersion = $version === null || trim($version) === '' ? null : trim($version);
         } catch (\Throwable $exception) {
             $this->composerVersion = null;
@@ -522,15 +578,17 @@ final class ComposerScenarioRunner
     }
 
     /** @return ?array<string, string> */
-    private function resolvePlatformPackages(): ?array
+    private function resolvePlatformPackages(ComposerExecutionConfiguration $execution): ?array
     {
-        if ($this->platformPackagesResolved) {
+        $key = $execution->runtimeCacheKey();
+        if ($this->platformPackagesResolved && $this->platformPackagesConfigurationKey === $key) {
             return $this->platformPackages;
         }
 
         $this->platformPackagesResolved = true;
+        $this->platformPackagesConfigurationKey = $key;
         try {
-            $packages = ($this->platformPackageResolver)();
+            $packages = ($this->platformPackageResolver)($execution);
             if (!is_array($packages)) {
                 return $this->platformPackages = null;
             }
@@ -658,21 +716,24 @@ final class ComposerScenarioRunner
         array $process,
         string $projectPath,
         string $workspacePath,
-        array $repositoryPaths
+        array $repositoryPaths,
+        ComposerExecutionConfiguration $execution
     ): array {
         return [
             'exit_code' => $process['exit_code'],
-            'stdout' => PathExposurePolicy::redactComposerText(
+            'stdout' => $this->redactExecutionText(
                 $process['stdout'],
                 $projectPath,
                 $workspacePath,
-                $repositoryPaths
+                $repositoryPaths,
+                $execution
             ),
-            'stderr' => PathExposurePolicy::redactComposerText(
+            'stderr' => $this->redactExecutionText(
                 $process['stderr'],
                 $projectPath,
                 $workspacePath,
-                $repositoryPaths
+                $repositoryPaths,
+                $execution
             ),
         ];
     }
@@ -721,14 +782,20 @@ final class ComposerScenarioRunner
         return preg_match('/(?:composer(?:\.bat|\.phar)?(?: executable)? (?:was |is )?(?:unavailable|missing|not found)|composer:\s*(?:command\s+)?not found|[\'\"]composer[\'\"] is not recognized|could not open input file:\s*composer|createprocess failed[^\n]*error=2|the system cannot find the file specified)/i', $output) === 1;
     }
 
-    /** @param list<string> $repositoryPaths @return list<ComposerDiagnostic> */
+    /**
+     * @param list<string> $repositoryPaths
+     * @param array<string, string|false> $environment
+     * @return list<ComposerDiagnostic>
+     */
     private function runTargetDiagnostics(
         ProjectState $project,
         UpgradeRequest $request,
         Scenario $scenario,
         string $workingDirectory,
         TargetPlatform $platform,
-        array $repositoryPaths
+        array $repositoryPaths,
+        ComposerExecutionConfiguration $execution,
+        array $environment
     ): array {
         $diagnostics = [];
 
@@ -755,7 +822,9 @@ final class ComposerScenarioRunner
                 $workingDirectory,
                 $platform,
                 $project->path(),
-                $repositoryPaths
+                $repositoryPaths,
+                $execution,
+                $environment
             );
             $this->diagnosticCache[$cacheKey] = $diagnostic;
             $diagnostics[] = $diagnostic;
@@ -764,14 +833,19 @@ final class ComposerScenarioRunner
         return $diagnostics;
     }
 
-    /** @param list<string> $repositoryPaths */
+    /**
+     * @param list<string> $repositoryPaths
+     * @param array<string, string|false> $environment
+     */
     private function runTargetDiagnostic(
         string $package,
         string $constraint,
         string $workingDirectory,
         TargetPlatform $platform,
         string $projectPath,
-        array $repositoryPaths
+        array $repositoryPaths,
+        ComposerExecutionConfiguration $execution,
+        array $environment
     ): ComposerDiagnostic {
         if (!$this->supportsLockedDiagnostics()) {
             return new ComposerDiagnostic(
@@ -789,7 +863,7 @@ final class ComposerScenarioRunner
         }
 
         $command = [
-            'composer',
+            $execution->executable(),
             'prohibits',
             $package,
             $constraint,
@@ -799,18 +873,24 @@ final class ComposerScenarioRunner
         $command = array_merge($command, self::COMPOSER_SAFETY_OPTIONS, ['--no-interaction']);
 
         try {
-            $process = ($this->processRunner)($command, $workingDirectory);
+            $process = ($this->processRunner)(
+                $command,
+                $workingDirectory,
+                $environment,
+                $execution->diagnosticTimeoutSeconds()
+            );
             $process = $this->sanitizeProcessResult(
                 $process,
                 $projectPath,
                 $workingDirectory,
-                $repositoryPaths
+                $repositoryPaths,
+                $execution
             );
 
             return new ComposerDiagnostic(
                 $package,
                 $constraint,
-                $command,
+                $this->safeCommand($command, $execution),
                 $process['exit_code'],
                 $process['stdout'],
                 $process['stderr']
@@ -819,14 +899,15 @@ final class ComposerScenarioRunner
             return new ComposerDiagnostic(
                 $package,
                 $constraint,
-                $command,
+                $this->safeCommand($command, $execution),
                 1,
                 '',
-                PathExposurePolicy::redactComposerText(
+                $this->redactExecutionText(
                     $exception->getMessage(),
                     $projectPath,
                     $workingDirectory,
-                    $repositoryPaths
+                    $repositoryPaths,
+                    $execution
                 )
             );
         }
@@ -927,5 +1008,104 @@ final class ComposerScenarioRunner
         $locked = $project->composerLock()->package($package);
 
         return $locked === null || !Semver::satisfies($locked->version(), $constraint);
+    }
+
+    /** @return array<string, string|false> */
+    private function processEnvironment(
+        ComposerExecutionConfiguration $execution,
+        string $workingDirectory
+    ): array {
+        $environment = [
+            'COMPOSER_NO_INTERACTION' => '1',
+            'COMPOSER_NO_AUDIT' => '1',
+        ];
+        if (!$execution->isRestricted()) {
+            return $environment;
+        }
+
+        $state = $workingDirectory . DIRECTORY_SEPARATOR . '.php-upgrade-preflight-composer';
+        $composerHome = $state . DIRECTORY_SEPARATOR . 'home';
+        $cache = $state . DIRECTORY_SEPARATOR . 'cache';
+        $xdgConfig = $state . DIRECTORY_SEPARATOR . 'xdg-config';
+        $xdgData = $state . DIRECTORY_SEPARATOR . 'xdg-data';
+        $xdgCache = $state . DIRECTORY_SEPARATOR . 'xdg-cache';
+        foreach ([$composerHome, $cache, $xdgConfig, $xdgData, $xdgCache] as $directory) {
+            if (!is_dir($directory) && !@mkdir($directory, 0700, true) && !is_dir($directory)) {
+                throw new \RuntimeException('Unable to create analyzer-owned restricted Composer state.');
+            }
+        }
+        foreach (['config.json', 'auth.json'] as $file) {
+            if (@file_put_contents($composerHome . DIRECTORY_SEPARATOR . $file, "{}\n") === false) {
+                throw new \RuntimeException('Unable to initialize analyzer-owned restricted Composer configuration.');
+            }
+        }
+
+        return array_merge($environment, [
+            'COMPOSER' => false,
+            'COMPOSER_HOME' => $composerHome,
+            'COMPOSER_CACHE_DIR' => $cache,
+            'COMPOSER_AUTH' => '{}',
+            'COMPOSER_DISABLE_NETWORK' => '1',
+            'XDG_CONFIG_HOME' => $xdgConfig,
+            'XDG_DATA_HOME' => $xdgData,
+            'XDG_CACHE_HOME' => $xdgCache,
+            'HTTP_PROXY' => false,
+            'HTTPS_PROXY' => false,
+            'ALL_PROXY' => false,
+            'NO_PROXY' => false,
+            'http_proxy' => false,
+            'https_proxy' => false,
+            'all_proxy' => false,
+            'no_proxy' => false,
+            'GIT_ASKPASS' => false,
+            'SSH_ASKPASS' => false,
+            'GIT_TERMINAL_PROMPT' => '0',
+        ]);
+    }
+
+    /**
+     * @param list<string> $command
+     * @return list<string>
+     */
+    private function safeCommand(array $command, ComposerExecutionConfiguration $execution): array
+    {
+        if ($command !== [] && $execution->executable() !== 'composer') {
+            $command[0] = '[COMPOSER_EXECUTABLE]';
+        }
+
+        return $command;
+    }
+
+    private function indicatesUnavailableRepositoryMetadata(string $stdout, string $stderr): bool
+    {
+        $output = $stdout . "\n" . $stderr;
+
+        return preg_match(
+            '/(?:network (?:is )?disabled|request canceled|offline mode|could not (?:download|load).*cache|metadata.*(?:not available|unavailable)|package information.*not available)/i',
+            $output
+        ) === 1;
+    }
+
+    /** @param list<string> $repositoryPaths */
+    private function redactExecutionText(
+        string $value,
+        ?string $projectPath,
+        ?string $workspacePath,
+        array $repositoryPaths,
+        ComposerExecutionConfiguration $execution
+    ): string {
+        $value = PathExposurePolicy::redactComposerText(
+            $value,
+            $projectPath,
+            $workspacePath,
+            $repositoryPaths
+        );
+        if ($execution->executable() !== 'composer') {
+            $value = PathExposurePolicy::redactPaths($value, [
+                $execution->executable() => '[COMPOSER_EXECUTABLE]',
+            ]);
+        }
+
+        return $value;
     }
 }
