@@ -8,7 +8,7 @@ JSON reports use a versioned consumer contract. Tool releases and schema release
     "schema_version": "0.8",
     "tool": {
       "name": "php-upgrade-preflight",
-      "version": "0.3.0-dev"
+      "version": "0.3.0"
     }
   }
 }
@@ -18,7 +18,7 @@ Select a parser or validator through `metadata.schema_version`. Do not infer the
 
 ## Current contract
 
-The v0.3 development line writes the strict Draft 2020-12 [`upgrade-report-v0.8.schema.json`](../packages/core/resources/schema/upgrade-report-v0.8.schema.json). It rejects unknown properties and adds required staged execution, adjacent-stage attempts, selected-state fingerprints, a lifecycle-preserving blocker registry, nullable target-platform-profile fields, and Composer execution provenance to the schema 0.7 shape.
+The v0.3.0 release candidate writes the strict Draft 2020-12 [`upgrade-report-v0.8.schema.json`](../packages/core/resources/schema/upgrade-report-v0.8.schema.json). It rejects unknown properties and adds required staged execution, adjacent-stage attempts, selected-state fingerprints, a lifecycle-preserving blocker registry, nullable target-platform-profile fields, and Composer execution provenance to the schema 0.7 shape. Schema `0.8` is not a published package contract until the matching v0.3.0 tags and packages pass the release gates.
 
 `request_summary.composer_execution` records the safe requested policy without an executable path. Top-level `composer_execution` adds the detected Composer version, version-match result, repository and global-state inheritance, timeout policy, disabled side effects, offline request, and the explicit fact that process/OS isolation was not supplied. Restricted repository metadata misses use the operational `repository_metadata_unavailable` scenario outcome.
 
@@ -45,11 +45,12 @@ Historical reports are not rewritten. A multi-version consumer must retain separ
 
 ## Migrating from 0.7 to 0.8
 
-Schema 0.8 adds one required top-level object, `staged_resolution`, plus required nullable `request_summary.target_platform_profile` and `platform.profile` fields. It does not change the meaning of `resolution.status`, `transition.framework_guidance`, direct-final `transition.package_changes`, or the schema 0.7 source fields. A `null` profile preserves legacy named partial-platform behavior; it does not mean an empty complete profile.
+Schema 0.8 adds required top-level `composer_execution` and `staged_resolution` objects, required `request_summary.composer_execution`, plus required nullable `request_summary.target_platform_profile` and `platform.profile` fields. It does not change the meaning of `resolution.status`, `transition.framework_guidance`, direct-final `transition.package_changes`, or the schema 0.7 source fields. A `null` profile preserves legacy named partial-platform behavior; it does not mean an empty complete profile.
 
 | 0.7 | 0.8 |
 | --- | --- |
 | No adjacent Composer-stage result | `staged_resolution` records execution state, independent resolution status, provider, stages, blocker registry, stop reason, budgets, and evidence |
+| Composer process policy was implicit | `request_summary.composer_execution` records the requested safe policy and top-level `composer_execution` records redacted detected version, inheritance, timeouts, disabled side effects, and network policy |
 | Final-target blockers only | `staged_resolution.blocker_registry[]` retains attempt- and stage-scoped lifecycle history |
 | No selected intermediate project state | Each stage links predecessor, input, and selected output manifest/lock/platform/execution-policy fingerprints |
 | Framework findings are hop-scoped | Executed stages project applicable findings and stable source-impact IDs while explicitly naming `original_project` as the inspected snapshot; full staged findings are de-duplicated in `staged_resolution.source_impact` |

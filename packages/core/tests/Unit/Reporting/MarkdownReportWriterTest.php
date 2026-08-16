@@ -170,7 +170,7 @@ final class MarkdownReportWriterTest extends TestCase
 
         self::assertStringContainsString('## Composer Scenarios', $markdown);
         self::assertStringContainsString('Schema: `0.8`', $markdown);
-        self::assertStringContainsString('Tool: `php-upgrade-preflight 0.3.0-dev`', $markdown);
+        self::assertStringContainsString('Tool: `php-upgrade-preflight 0.3.0`', $markdown);
         self::assertStringContainsString('## Staged Composer Resolution', $markdown);
         self::assertStringContainsString('## Analysis Request', $markdown);
         self::assertStringContainsString('Current PHP: `7.4`', $markdown);

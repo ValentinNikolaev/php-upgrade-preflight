@@ -5,7 +5,7 @@
 
 PHP Upgrade Preflight analyzes Composer-based PHP upgrades before you change the target project. It copies `composer.json` and `composer.lock` into temporary workspaces, runs isolated Composer scenarios, scans source files, and produces a canonical JSON report or a Markdown projection.
 
-The v0.3 development line runs on PHP `^8.0` (PHP 8.0 through PHP 8.x). Its Laravel adapter retains Laravel 7 to 8 and direct 7 to 9 guidance plus adjacent Laravel 8 to 9 through 12 to 13 rule packs. Rooted `laravel/framework` projects can run sequential Composer evidence across every contiguous adjacent path from Laravel 7 through 13, while the direct final-target result remains independent.
+The v0.3 release candidate on `main` runs on PHP `^8.0` (PHP 8.0 through PHP 8.x). Its Laravel adapter retains Laravel 7 to 8 and direct 7 to 9 guidance plus adjacent Laravel 8 to 9 through 12 to 13 rule packs. Rooted `laravel/framework` projects can run sequential Composer evidence across every contiguous adjacent path from Laravel 7 through 13, while the direct final-target result remains independent.
 
 The Laravel adapter can be installed alongside Laravel 8 on PHP 8.0, Laravel 9 on PHP 8.0.2, Laravel 10 on PHP 8.1, Laravel 11/12 on PHP 8.2, and Laravel 13 on PHP 8.3. Host installability and analyzed target requirements remain separate: an external analyzer may model a newer target through Composer platform simulation.
 
@@ -13,7 +13,7 @@ The Laravel adapter can be installed alongside Laravel 8 on PHP 8.0, Laravel 9 o
 
 The released v0.2.x line keeps the public PHP operation, CLI and Artisan behavior, adapter metadata, exit policy, schema `0.7` compatibility, and supported transition claims backward-compatible across patch releases. Bug fixes, security fixes, and evidence corrections may still change individual findings or diagnostics without changing those contracts.
 
-The active `main` branch now identifies as `0.3.0-dev`, uses `0.3.x-dev` aliases and `^0.3` internal constraints, and emits schema `0.8`. It is an unreleased new `0.MINOR` line with documented report and adapter changes. Released v0.2.1 remains available from the `0.2.x` maintenance line; its schema, signed artifacts, and compatibility evidence remain immutable.
+The `main` branch is preparing v0.3.0 and identifies candidate reports as tool `0.3.0` with schema `0.8`; its Composer aliases remain `0.3.x-dev` with `^0.3` internal constraints. v0.3.0 is not yet a published package release. Released v0.2.1 remains the installable and security-supported line while signed tags, archives, Packagist synchronization, and the published-package quick start are pending.
 
 Public beta is not a production-readiness claim. The analyzer provides decision-support evidence: it does not perform an upgrade, execute the analyzed application, prove runtime compatibility, or guarantee a successful deployment. Review every report and validate the resulting upgrade with the application's own test and deployment process. See [Project status and licensing](docs/project-status.md), [Versioning](docs/versioning.md), and [Limitations and trust boundaries](docs/limitations.md).
 
@@ -27,7 +27,7 @@ cd php-upgrade-tools
 composer require php-upgrade-preflight/cli:^0.2 php-upgrade-preflight/laravel:^0.2
 ```
 
-This separate Composer tools-directory installation is the supported external execution path for v0.2. v0.2 does not ship or support a PHAR or a versioned container image; the repository Docker files are development tooling, not release artifacts.
+This separate Composer tools-directory installation is the supported external execution path for the currently published v0.2 line. v0.2 does not ship or support a PHAR or a versioned container image; the repository Docker files are development tooling, not release artifacts. The commands will switch to `^0.3` only after v0.3.0 tags and packages are published and verified.
 
 You can install both packages as development dependencies in a project that already runs PHP 8.0 or later:
 
@@ -83,7 +83,7 @@ The analyzer keeps exact project and source paths for internal filesystem access
 
 ## Reports
 
-JSON is the canonical report. The v0.3 development line produces schema `0.8`; v0.2.1 produced schema `0.7`, and v0.1 produced schema `0.6`. Reports contain:
+JSON is the canonical report. The v0.3.0 release candidate produces schema `0.8`; published v0.2.1 produces schema `0.7`, and v0.1 produced schema `0.6`. Reports contain:
 
 - scenario commands, solver outcomes, diagnostics, and candidate-lock fingerprints;
 - safe Composer execution provenance, including compatible/restricted mode, version expectation, timeouts, inherited state, and offline policy;
@@ -117,6 +117,7 @@ Third-party adapter packages register themselves through Composer metadata, so t
 - [Project status and licensing](docs/project-status.md)
 - [v0.2 report and transition contract](docs/v0.2-contract.md)
 - [v0.3 staged-analysis contract](docs/v0.3-contract.md)
+- [v0.3.0 release-candidate notes](docs/releases/v0.3.0.md)
 - [Laravel v0.2 transition scope](docs/laravel-v0.2-transition-scope.md)
 - [Limitations and trust boundaries](docs/limitations.md)
 - [Troubleshooting](docs/troubleshooting.md)

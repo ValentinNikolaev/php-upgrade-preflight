@@ -19,7 +19,9 @@ Laravel's own PHP requirement determines the effective floor when it is higher t
 
 The transition catalog covers Laravel 7→8, the retained direct 7→9 path, and every adjacent transition from 8→9 through 12→13. Gapless adjacent packs can compose a multi-major guidance path within Laravel 7–13. Same-major requests, downgrades, ambiguous or unknown majors, targets outside that range, and requests whose first required hop is absent are unsupported. If a future or third-party catalog covers only a contiguous prefix, the report is `partially_supported` and guidance stops before the gap.
 
-## Choose the packages
+## Choose the published packages
+
+v0.2.1 is the latest Packagist release. The examples in this section intentionally install `^0.2`; use the [source checkout](#source-checkout) to evaluate the v0.3.0 release candidate. Change the constraints to `^0.3` only after the signed v0.3.0 tags and Packagist packages are published and verified.
 
 Install `php-upgrade-preflight/cli` for the standalone `upgrade-intel` executable. Add `php-upgrade-preflight/laravel` when you need Laravel detection and rules:
 
@@ -63,7 +65,7 @@ vendor\bin\upgrade-intel.bat --help
 
 Run the external tool with PHP 8.0 or later. Model the target project's current PHP through `--from-php` and its requested runtime through `--target-php`. The target application does not need to boot.
 
-This Composer tools-directory installation is the only supported external delivery format for v0.2. Releases remain normal Composer packages, including checksum-verified package ZIPs used by release automation. Those ZIPs are Composer distribution artifacts; they are not a standalone PHAR. v0.2 does not publish or support a PHAR or a versioned container image. The repository `Dockerfile` and Compose configuration are for development and verification only.
+This Composer tools-directory installation is the only supported external delivery format for the published v0.2 line and the planned v0.3 line. Releases remain normal Composer packages, including checksum-verified package ZIPs used by release automation. Those ZIPs are Composer distribution artifacts; they are not a standalone PHAR. Neither line publishes or supports a PHAR or a versioned container image. The repository `Dockerfile` and Compose configuration are for development and verification only.
 
 Install every desired framework adapter in the tools directory alongside the CLI. Adapter packages register their integration classes through Composer metadata; see [Framework adapters](adapters.md). Nothing needs to be installed in the target project.
 

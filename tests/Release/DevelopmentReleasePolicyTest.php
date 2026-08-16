@@ -79,7 +79,8 @@ final class DevelopmentReleasePolicyTest extends TestCase
         self::assertStringNotContainsString('- [x]', $checklist);
 
         $versioning = $this->read($this->root . '/docs/versioning.md');
-        self::assertStringContainsString('active `0.3.x` release line', $versioning);
+        self::assertStringContainsString('candidate `0.3.x` release line', $versioning);
+        self::assertStringContainsString('published and security-supported `0.2.x` line', $versioning);
         self::assertStringContainsString('`0.2.x` maintenance branch', $versioning);
 
         $root = $this->readJson($this->root . '/composer.json');

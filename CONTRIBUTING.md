@@ -54,7 +54,7 @@ composer test:mutation
 
 `test:coverage` measures the full unit suite and compares it with the committed exact baseline. Overall and critical-module ratios may not decline, and newly uncovered source-line fingerprints fail the ratchet; there is no hand-picked percentage threshold. Update the baseline with `php tools/verify-coverage.php build/coverage/clover.xml --write-baseline` only after reviewing a successful full-unit Clover report.
 
-`test:mutation` runs after coverage and must kill the six configured mutants for scenario selection, blocker parsing, schema validation, risk and effort, Laravel transition selection, and release verification. The integration suite also enforces the v0.2 representative-corpus limits for runtime, peak memory, per-report size, and combined report size.
+`test:mutation` runs after coverage and must kill every configured selective mutant, including profile completeness and precedence, restricted execution, stage chaining, fingerprint validation, stop-on-gap behavior, blocker aggregation, old-adapter compatibility, schema validation, and release policy. The integration suite also enforces the v0.3 per-stage and worst-supported-chain limits for Composer processes, runtime, peak memory, report size, redaction, and deterministic reruns.
 
 Use the Docker prefix when the host lacks PHP or Composer:
 

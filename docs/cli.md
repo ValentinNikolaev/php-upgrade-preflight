@@ -64,13 +64,21 @@ The supported classes are `php`, `ext-*`, `lib-*`, PHP subtypes such as `php-64b
 
 Composer 2.2 or newer is required for complete closed-world profiles. With Composer 2.0 or 2.1, analysis stops before workspace creation with an operationally unknown result; the analyzer never downgrades a complete request to partial. Profile completeness covers only the declared platform-package classes. Repository contents, network access, credentials, and the Composer executable remain separate inputs and can still change resolution. `composer_execution` records those execution-policy dimensions independently.
 
+### Build and validate a target-platform profile
+
+The analyzer does not guess or generate a complete profile from its own host. Inventory the actual target environment first—for example, use `composer show --platform`, the target image or host build manifest, and the deployment team's extension/library configuration—then construct the schema `1.0` JSON explicitly. Treat `composer show --platform` as inventory input, not as a file that can be passed directly: normalize names to Composer platform-package names, record exact versions where the profile claims presence, and use `false` only for verified absence.
+
+Use `partial` when the inventory is intentionally incomplete. Use `complete` only when every supported safely simulated class has been considered and every unlisted value should be modeled absent. Values tied to the selected Composer executable (`composer`, `composer-plugin-api`, and `composer-runtime-api`) remain `toolchain_bound` even when listed.
+
+Validation occurs before Composer creates a scenario workspace. The command rejects malformed JSON, unknown schema versions or completeness values, unsupported package names, non-exact versions, contradictory entries, and request/profile conflicts. A successful report repeats the canonical profile SHA-256 and normalized decisions under `platform.profile`; compare those values with the intended deployment inventory before relying on the result.
+
 ## Framework selection
 
 The CLI discovers installed adapters from their `extra.php-upgrade-preflight.framework-adapters` Composer metadata. Without `--framework`, each discovered adapter performs automatic target detection. Laravel continues to detect `laravel/framework` or `illuminate/*` requirements and lock entries. Use `--framework=laravel` to request Laravel analysis explicitly and bypass detection.
 
 Explicit names are case-insensitive. An explicit request fails with exit code `2` when no installed adapter has that name. Invalid metadata and adapter name or class collisions fail the analysis rather than selecting a winner. The complete registration contract and deterministic ordering rules are documented in [Framework adapters](adapters.md).
 
-The v0.2 Laravel catalog supports 7→8, the retained direct 7→9 path, and adjacent 8→9 through 12→13 packs. Gapless adjacent packs compose multi-major guidance; ambiguous or unknown majors, same-major requests, downgrades, catalog boundaries, and a missing first hop are unsupported. A covered prefix followed by a missing hop is `partially_supported`, and findings never cross that gap. These guidance statuses do not change `resolution.status`, which describes only final-target Composer scenarios.
+The v0.3 Laravel catalog supports 7→8, the retained direct 7→9 path, and adjacent 8→9 through 12→13 packs. Gapless adjacent packs compose multi-major guidance; ambiguous or unknown majors, same-major requests, downgrades, catalog boundaries, and a missing first hop are unsupported. A covered prefix followed by a missing hop is `partially_supported`, and findings never cross that gap. These guidance statuses do not change `resolution.status`, which describes only final-target Composer scenarios.
 
 ## Report interpretation
 

@@ -7,13 +7,23 @@ This project follows [Semantic Versioning](https://semver.org/). Report schema v
 ### Added
 
 - Froze the signed v0.2.1 compatibility surface and canonical reports, created the `0.2.x` maintenance line, and locked the machine-readable v0.3 contract with schema `0.8` migration evidence.
+- Added schema `1.0` partial and complete target-platform profiles with closed-world semantics for safely simulated PHP, extension, library, PHP-subtype, and Composer-platform package classes.
+- Added compatible and restricted Composer execution policies with redacted provenance, bounded timeouts, analyzer-owned restricted configuration, controlled credential and proxy scrubbing, and best-effort offline operation.
 - Added bounded staged Composer analysis across every contiguous rooted `laravel/framework` path from 7→8 through 12→13, deterministic remediation attempts, carried candidate state, blocker lifecycle tracking, exact request-backed stage PHP selection, and an offline five-minute demo fixture.
+- Added stage-scoped package changes, source impact, blockers, risk, effort, tests, recommendations, and fingerprint-linked evidence under report schema `0.8` while preserving direct-final resolution independently.
+- Added the optional framework-neutral stage-target provider, third-party and legacy-adapter conformance fixtures, CLI/Artisan parity coverage, worst-case staged budgets, and selective mutation protection.
 
 ### Changed
 
 - Declared the project a source-available public beta, clarified the noncommercial PolyForm licensing model, documented the v0.2.x compatibility commitment and v0.3 change boundary, and made explicit that analyzer output is not a production-readiness or runtime-compatibility guarantee.
 - Published a commercial-license request form and limited external contributions to documentation-only changes until a legally reviewed contributor license agreement or other suitable inbound license grant is adopted; bug reports, private security reports, and product feedback remain welcome.
-- Advanced active development identity to `0.3.x-dev`, report metadata to tool `0.3.0-dev`, and the canonical report schema to `0.8`; released v0.2.1 artifacts remain immutable.
+- Advanced the active release line to `0.3.x`, report metadata to tool `0.3.0`, and the canonical report schema to `0.8`; `main` keeps `0.3.x-dev` aliases and `^0.3` internal constraints while released v0.2.1 artifacts remain immutable.
+- Kept the PHP `^8.0` runtime floor, the three-package release set, normal/lowest Laravel 8–13 host-installability coverage, and the separate Composer tools-directory delivery model.
+
+### Security
+
+- Added restricted Composer execution that removes controlled inherited credentials and proxy settings, uses fresh analyzer-owned Composer state, requests offline behavior, and reports repository cache misses as operational uncertainty without claiming OS-level isolation.
+- Retained credential and path redaction, synthetic secret canaries, read-only target checks, dependency audits, commit-pinned actions, archive checksums, dependency inventory, and source/build provenance gates.
 
 ## [0.2.1] - 2026-08-11
 

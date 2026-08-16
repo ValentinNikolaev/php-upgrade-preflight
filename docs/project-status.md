@@ -2,9 +2,22 @@
 
 ## Public beta
 
-PHP Upgrade Preflight is a public beta. The v0.2.x packages are released and their documented contracts are tested, but the public PHP API, CLI and Artisan surfaces, adapter extension points, package boundaries, and report semantics are still being proven before `1.0`.
+PHP Upgrade Preflight is a public beta. v0.2.1 is the latest published release. v0.3.0 is a locally verified release candidate whose signed tags, archives, cross-host release checks, Packagist synchronization, and published-package quick start are still pending. The public PHP API, CLI and Artisan surfaces, adapter extension points, package boundaries, and report semantics are still being proven before `1.0`.
 
 Public beta is not a production-readiness claim. The analyzer produces decision-support evidence. It does not modify the target project, perform the upgrade, boot or execute the analyzed application, prove runtime compatibility, or guarantee a successful deployment. Users must review every report and validate any resulting upgrade with the application's own tests, runtime checks, security review, and deployment process.
+
+## Planned v0.3.x compatibility commitment
+
+After v0.3.0 is published and verified, patch releases in the v0.3.x line will preserve:
+
+- the public PHP operation;
+- CLI and Artisan behavior;
+- required adapter interfaces and discovery metadata;
+- the documented exit policy;
+- report schema `0.8` compatibility;
+- supported framework-transition and staged-analysis claims.
+
+Patch releases may correct findings, evidence, diagnostics, security behavior, or documentation while retaining those contracts. This commitment does not describe an already published v0.3 package. Published schemas, signed artifacts, and archived compatibility evidence remain immutable.
 
 ## v0.2.x compatibility commitment
 
@@ -21,9 +34,9 @@ Bug fixes, security fixes, dependency maintenance, evidence corrections, and doc
 
 ## v0.3 change boundary
 
-The v0.3 development line is a new `0.MINOR` release during SemVer's initial-development phase. It may introduce documented breaking changes to request inputs, report shape, package constraints, and adapter extension points. Development now includes schema `0.8`, explicit target-platform profiles, and the first stage-scoped Composer evidence; none of that work describes current v0.2.x behavior.
+The v0.3.0 release candidate prepares a new `0.MINOR` release during SemVer's initial-development phase. It introduces documented changes to request inputs, report shape, package constraints, and optional adapter extension points: schema `0.8`, explicit target-platform profiles, restricted Composer execution, and stage-scoped Composer evidence. Those features do not describe the currently published v0.2.x behavior.
 
-Every intentional v0.3 compatibility break must be identified in the changelog and migration documentation. Historical v0.2 schemas and signed compatibility artifacts remain available as immutable evidence rather than being rewritten for v0.3.
+The intentional v0.2→v0.3 changes are identified in the changelog, release notes, schema migration, and adapter migration guidance. Historical v0.2 schemas and signed compatibility artifacts remain available as immutable evidence rather than being rewritten for v0.3.
 
 ## Source-available licensing
 

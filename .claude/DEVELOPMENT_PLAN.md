@@ -286,10 +286,11 @@ Status: complete.
 
 Priority: P0.
 
-- [ ] Update README, installation, external-analysis, CLI, Artisan, schema, limitations, troubleshooting, adapters, versioning, contribution, security, and release documentation for the approved v0.3 behavior.
-- [ ] Document target-platform profile generation and validation, partial versus complete guarantees, execution modes, staged versus direct resolution, skipped stages, original-snapshot source limits, and schema `0.7` to `0.8` migration.
+- [x] Update README, installation, external-analysis, CLI, Artisan, schema, limitations, troubleshooting, adapters, versioning, contribution, security, and release documentation for the approved v0.3 behavior.
+- [x] Document target-platform profile generation and validation, partial versus complete guarantees, execution modes, staged versus direct resolution, skipped stages, original-snapshot source limits, and schema `0.7` to `0.8` migration.
 - [ ] Verify the protected v0.2.x maintenance branch still carries compatible `0.2.x` aliases, constraints, schema, and release verification after all v0.3 work on `main`.
-- [ ] Replace the v0.3 development report identity with exact `0.3.0`, finalize changelog and release notes, and re-verify the schema `0.8`, `0.3.x-dev` alias, `^0.3` constraint, release-verifier, and workflow contract together.
+- [x] Replace the v0.3 development report identity with exact `0.3.0`, prepare candidate changelog and release notes, and re-verify the schema `0.8`, `0.3.x-dev` alias, `^0.3` constraint, and workflow contract together.
+- [ ] After cross-host candidate verification, finalize the dated changelog and public release-state documentation, then rerun the release verifier before creating signed tags.
 - [ ] Run the deterministic gate on every supported PHP runtime plus required Windows coverage.
 - [ ] Run complete-profile cross-host proofs, the restricted Composer-layer offline and credential harness, worst-case staged-corpus budgets, and all privacy canaries.
 - [ ] Run normal and lowest-dependency consumers for every advertised Laravel host line.
@@ -300,7 +301,7 @@ Priority: P0.
 
 Acceptance gate: published v0.3 packages validate schema `0.8`, reproduce every claimed stage under the declared platform and execution policy, preserve v0.2 migration evidence, and retain all read-only, privacy, compatibility, and supply-chain guarantees.
 
-Status: not started.
+Status: in progress. Local candidate documentation, migration guidance, exact `0.3.0` report identity, deterministic tests, static analysis, formatting, selective mutations, and dependency audit pass. Public pages still identify v0.2.1 as the latest published and security-supported release; the final dated changelog and release verifier intentionally remain pending until the release candidate passes cross-host checks. The public `0.2.x` branch exists but is not protected; archives, signed tags, Packagist synchronization, and the published-package quick start also remain pending.
 
 ## Principal Risks and Controls
 
@@ -331,4 +332,4 @@ Status: not started.
 
 ## Recommended Next Work Session
 
-Complete GitHub reauthentication so the prepared `0.2.x` protection rule can be saved, then begin Milestone 7 documentation, migration, and release preparation.
+Unlock the configured SSH signing key to commit the verified Milestone 6 change, protect the public `0.2.x` maintenance branch, then commit and push the prepared v0.3.0 release candidate so the full cross-host release workflow can produce and validate archives before signed tags and Packagist publication.
