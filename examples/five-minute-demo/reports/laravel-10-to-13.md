@@ -17,7 +17,7 @@ Resolution: **blocked** | Staged: **blocked** | Schema: `0.8` | Tool: `php-upgra
   - `php`: `8.3.0`
 
 ## Platform Provenance
-- Analyzer PHP: `8.4.24` (provenance: `runtime`)
+- Analyzer PHP: `8.3.33` (provenance: `runtime`)
 - Current project PHP: `8.1` (provenance: `request`)
 - Target PHP: `8.3.0` (provenance: `request`)
 - Extensions: provenance `mixed`; explicitly modeled: yes; completeness: `partial`; unmodeled values: `analyzer_runtime`
@@ -44,7 +44,7 @@ Resolution: **blocked** | Staged: **blocked** | Schema: `0.8` | Tool: `php-upgra
   - `phpunit/phpunit`: `^10.0`
 
 ## Composer Scenarios
-- `baseline-validation`: succeeded (outcome `success`, Composer `2.10.2`, duration `139 ms`, exit `0`, failure type `none`)
+- `baseline-validation`: succeeded (outcome `success`, Composer `2.10.2`, duration `134 ms`, exit `0`, failure type `none`)
   - command argv: `["composer","validate","--check-lock","--no-check-publish","--no-scripts","--no-plugins","--no-interaction"]`
   - temporary workspace: `not preserved`
   - stdout excerpt:
@@ -55,7 +55,7 @@ Resolution: **blocked** | Staged: **blocked** | Schema: `0.8` | Tool: `php-upgra
   - stderr excerpt: *(empty)*
   - candidate lock: SHA-256 `889eb4af8a022251d13a50fc551257ee75d2580c792e05cd3c11fa1995188f8b`, content hash `0e3e25bea4860bcbbe5529ec8924aab5`, packages `5`
   - diagnostics: none
-- `exact-target`: failed (outcome `solver_failure`, Composer `2.10.2`, duration `288 ms`, exit `2`, failure type `solver`)
+- `exact-target`: failed (outcome `solver_failure`, Composer `2.10.2`, duration `276 ms`, exit `2`, failure type `solver`)
   - command argv: `["composer","update","laravel/framework","--no-scripts","--no-plugins","--no-install","--no-audit","--no-progress","--no-interaction"]`
   - temporary workspace: `not preserved`
   - stdout excerpt: *(empty)*
@@ -101,7 +101,7 @@ Resolution: **blocked** | Staged: **blocked** | Schema: `0.8` | Tool: `php-upgra
       There is no installed package depending on "php" in versions not matching 8.3.0
 
       ```
-- `target-with-all-dependencies`: failed (outcome `solver_failure`, Composer `2.10.2`, duration `276 ms`, exit `2`, failure type `solver`)
+- `target-with-all-dependencies`: failed (outcome `solver_failure`, Composer `2.10.2`, duration `286 ms`, exit `2`, failure type `solver`)
   - command argv: `["composer","update","laravel/framework","--with-all-dependencies","--no-scripts","--no-plugins","--no-install","--no-audit","--no-progress","--no-interaction"]`
   - temporary workspace: `not preserved`
   - stdout excerpt: *(empty)*
@@ -145,7 +145,7 @@ Resolution: **blocked** | Staged: **blocked** | Schema: `0.8` | Tool: `php-upgra
       There is no installed package depending on "php" in versions not matching 8.3.0
 
       ```
-- `minimal-changes`: failed (outcome `solver_failure`, Composer `2.10.2`, duration `309 ms`, exit `2`, failure type `solver`)
+- `minimal-changes`: failed (outcome `solver_failure`, Composer `2.10.2`, duration `280 ms`, exit `2`, failure type `solver`)
   - command argv: `["composer","update","laravel/framework","--with-all-dependencies","--minimal-changes","--no-scripts","--no-plugins","--no-install","--no-audit","--no-progress","--no-interaction"]`
   - temporary workspace: `not preserved`
   - stdout excerpt: *(empty)*
@@ -189,7 +189,7 @@ Resolution: **blocked** | Staged: **blocked** | Schema: `0.8` | Tool: `php-upgra
       There is no installed package depending on "php" in versions not matching 8.3.0
 
       ```
-- `target-platform-only`: succeeded (outcome `success`, Composer `2.10.2`, duration `363 ms`, exit `0`, failure type `none`)
+- `target-platform-only`: succeeded (outcome `success`, Composer `2.10.2`, duration `313 ms`, exit `0`, failure type `none`)
   - command argv: `["composer","update","--no-scripts","--no-plugins","--no-install","--no-audit","--no-progress","--no-interaction"]`
   - temporary workspace: `not preserved`
   - stdout excerpt: *(empty)*
@@ -203,7 +203,7 @@ Resolution: **blocked** | Staged: **blocked** | Schema: `0.8` | Tool: `php-upgra
     ```
   - candidate lock: SHA-256 `ef43c1cef17de8f82cbbfb8858fa737167a1d6b20789a847ef4fd6e9b9986121`, content hash `2550fd71deb90c9bcff4ce41546ee066`, packages `5`
   - diagnostics: none
-- `staged-targets`: failed (outcome `solver_failure`, Composer `2.10.2`, duration `335 ms`, exit `2`, failure type `solver`)
+- `staged-targets`: failed (outcome `solver_failure`, Composer `2.10.2`, duration `295 ms`, exit `2`, failure type `solver`)
   - command argv: `["composer","update","laravel/framework","--with-all-dependencies","--no-scripts","--no-plugins","--no-install","--no-audit","--no-progress","--no-interaction"]`
   - temporary workspace: `not preserved`
   - stdout excerpt: *(empty)*
@@ -215,7 +215,7 @@ Resolution: **blocked** | Staged: **blocked** | Schema: `0.8` | Tool: `php-upgra
 
       Problem 1
         - Root composer.json requires laravel/framework ^13.0 -> satisfiable by laravel/framework[13.0.0].
-        - laravel/framework 13.0.0 requires php ^8.3 -> your php version (8.1.0; overridden via config.platform, actual: 8.4.24) does not satisfy that requirement.
+        - laravel/framework 13.0.0 requires php ^8.3 -> your php version (8.1.0; overridden via config.platform, actual: 8.3.33) does not satisfy that requirement.
 
 
     ```
@@ -239,13 +239,16 @@ Resolution: **blocked** | Staged: **blocked** | Schema: `0.8` | Tool: `php-upgra
 - Execution: `evaluated`; status: `blocked`; provider: `laravel`; stop reason: `blocking_registry_not_cleared`
 - **laravel-10-to-11** (`10` -> `11`): execution `evaluated`; resolution `feasible_with_changes`; selected attempt `3`
   - analysis PHP: `8.3.0`; source snapshot: `original_project`
+  - effective platform: `6c689c2a945689da7693f0293117541fb3fbc27cb4f072489e15428fd844dbd7`; completeness `partial`; profile `none`
+  - Composer policy: `f7867541fa8d250aab14dc390187c1a8930cdd8fb3b76e3dd72486cc5512107e`; mode `restricted`; stage duration `846 ms`
+  - stage evidence: `laravel-stage-target-1`, `laravel-stage-remediation-1`, `laravel-stage-remediation-2`, `stage-attempt-1`, `stage-root-change-1`, `stage-attempt-2`, `stage-root-change-2`, `stage-root-change-3`, `stage-attempt-3`, `stage-root-change-4`, `stage-root-change-5`, `stage-root-change-6`
   - state chain: predecessor `8313655c69c96b842467b5f5693af8d676cf581cba93e27ab396ecdedfe33d1c`; input `8313655c69c96b842467b5f5693af8d676cf581cba93e27ab396ecdedfe33d1c`; output `c859f67517c31f3218b80121630e382892bd44d7e7fa6c66413f6e24086eea1d`
-  - attempt `1` `target_only`: outcome `solver_failure`; selected no; blockers `stage-blocker-da9ed30e1b45cf7243c4`, `stage-blocker-78808d7e6ec6a483ae60`
+  - attempt `1` `target_only`: outcome `solver_failure`; duration `286 ms`; selected no; blockers `stage-blocker-da9ed30e1b45cf7243c4`, `stage-blocker-78808d7e6ec6a483ae60`
     - analyzer-only root change `laravel/framework`: `^10.0` -> `^11.0`
-  - attempt `2` `root_constraint_remediation`: outcome `solver_failure`; selected no; blockers `stage-blocker-78808d7e6ec6a483ae60`
+  - attempt `2` `root_constraint_remediation`: outcome `solver_failure`; duration `284 ms`; selected no; blockers `stage-blocker-78808d7e6ec6a483ae60`
     - analyzer-only root change `laravel/framework`: `^10.0` -> `^11.0`
     - analyzer-only root change `nunomaduro/collision`: `^7.11` -> `^8.1`
-  - attempt `3` `root_and_locked_package_remediation`: outcome `success`; selected yes; blockers `none`
+  - attempt `3` `root_and_locked_package_remediation`: outcome `success`; duration `276 ms`; selected yes; blockers `none`
     - analyzer-only root change `laravel/framework`: `^10.0` -> `^11.0`
     - analyzer-only root change `nunomaduro/collision`: `^7.11` -> `^8.1`
     - analyzer-only root change `phpunit/phpunit`: `^10.0` -> `^11.0.1`
@@ -256,8 +259,11 @@ Resolution: **blocked** | Staged: **blocked** | Schema: `0.8` | Tool: `php-upgra
   - original-source finding (`medium`): phpunit/phpunit 10.0.0 is outside the encoded Laravel 11 review range `^11.0.1`; review its upgrade or replacement.
 - **laravel-11-to-12** (`11` -> `12`): execution `evaluated`; resolution `feasible_with_changes`; selected attempt `1`
   - analysis PHP: `8.3.0`; source snapshot: `original_project`
+  - effective platform: `6c689c2a945689da7693f0293117541fb3fbc27cb4f072489e15428fd844dbd7`; completeness `partial`; profile `none`
+  - Composer policy: `f7867541fa8d250aab14dc390187c1a8930cdd8fb3b76e3dd72486cc5512107e`; mode `restricted`; stage duration `278 ms`
+  - stage evidence: `laravel-stage-target-2`, `laravel-stage-remediation-4`, `laravel-stage-remediation-5`, `laravel-stage-remediation-3`, `stage-attempt-4`, `stage-root-change-7`
   - state chain: predecessor `c859f67517c31f3218b80121630e382892bd44d7e7fa6c66413f6e24086eea1d`; input `c859f67517c31f3218b80121630e382892bd44d7e7fa6c66413f6e24086eea1d`; output `5f2e15a7ea08a48b656a14e38337734b2b8a25b834cecfa5b5449fb984ddc2fb`
-  - attempt `1` `target_only`: outcome `success`; selected yes; blockers `none`
+  - attempt `1` `target_only`: outcome `success`; duration `278 ms`; selected yes; blockers `none`
     - analyzer-only root change `laravel/framework`: `^11.0` -> `^12.0`
   - selected package change `laravel/framework`: `11.0.0` -> `12.0.0`
   - original-source finding (`high`): phpunit/phpunit 10.0.0 is outside the encoded Laravel 12 review range `^11.0`; review its upgrade or replacement.
@@ -265,13 +271,16 @@ Resolution: **blocked** | Staged: **blocked** | Schema: `0.8` | Tool: `php-upgra
   - original-source finding (`medium`): nunomaduro/collision 7.11.0 is outside the encoded Laravel 12 review range `^8.6`; review its upgrade or replacement.
 - **laravel-12-to-13** (`12` -> `13`): execution `evaluated`; resolution `blocked`; selected attempt `none`
   - analysis PHP: `8.3.0`; source snapshot: `original_project`
+  - effective platform: `6c689c2a945689da7693f0293117541fb3fbc27cb4f072489e15428fd844dbd7`; completeness `partial`; profile `none`
+  - Composer policy: `f7867541fa8d250aab14dc390187c1a8930cdd8fb3b76e3dd72486cc5512107e`; mode `restricted`; stage duration `820 ms`
+  - stage evidence: `laravel-stage-target-3`, `laravel-stage-remediation-6`, `laravel-stage-remediation-8`, `laravel-stage-remediation-7`, `stage-attempt-5`, `stage-root-change-8`, `stage-attempt-6`, `stage-root-change-9`, `stage-root-change-10`, `stage-attempt-7`, `stage-root-change-11`, `stage-root-change-12`, `stage-root-change-13`, `stage-root-change-14`
   - state chain: predecessor `5f2e15a7ea08a48b656a14e38337734b2b8a25b834cecfa5b5449fb984ddc2fb`; input `5f2e15a7ea08a48b656a14e38337734b2b8a25b834cecfa5b5449fb984ddc2fb`; output `none`
-  - attempt `1` `target_only`: outcome `solver_failure`; selected no; blockers `stage-blocker-b40442291e7ce748c0df`
+  - attempt `1` `target_only`: outcome `solver_failure`; duration `268 ms`; selected no; blockers `stage-blocker-b40442291e7ce748c0df`
     - analyzer-only root change `laravel/framework`: `^12.0` -> `^13.0`
-  - attempt `2` `root_constraint_remediation`: outcome `solver_failure`; selected no; blockers `stage-blocker-b40442291e7ce748c0df`
+  - attempt `2` `root_constraint_remediation`: outcome `solver_failure`; duration `280 ms`; selected no; blockers `stage-blocker-b40442291e7ce748c0df`
     - analyzer-only root change `laravel/framework`: `^12.0` -> `^13.0`
     - analyzer-only root change `laravel/tinker`: `^2.9` -> `^3.0`
-  - attempt `3` `root_and_locked_package_remediation`: outcome `solver_failure`; selected no; blockers `stage-blocker-b40442291e7ce748c0df`
+  - attempt `3` `root_and_locked_package_remediation`: outcome `solver_failure`; duration `272 ms`; selected no; blockers `stage-blocker-b40442291e7ce748c0df`
     - analyzer-only root change `laravel/framework`: `^12.0` -> `^13.0`
     - analyzer-only root change `laravel/tinker`: `^2.9` -> `^3.0`
     - analyzer-only root change `nunomaduro/collision`: `^8.1` -> `^8.6`
@@ -386,15 +395,15 @@ Resolution: **blocked** | Staged: **blocked** | Schema: `0.8` | Tool: `php-upgra
 - `solver-1` (`E1`, high confidence): Composer scenario "exact-target" failed. Context: ``{"scenario":"exact-target","targets":[{"package":"laravel/framework","constraint":"^13.0"},{"package":"php","constraint":"8.3.0"}],"exit_code":2,"output_excerpt":"Loading composer repositories with package information\nUpdating dependencies\nYour requirements could not be resolved to an installable set of packages.\n\n  Problem 1\n    - Root composer.json requires laravel/framework ^13.0 -> satisfiable by laravel/framework[13.0.0].\n    - laravel/framework 13.0.0 requires ext-preflight-stage ^2.0 -> it is missing from your system. Install or enable PHP's preflight-stage extension.\n\nTo enable extensions, verify that they are enabled in your .ini files:\n    - /usr/local/etc/php/conf.d/docker-php-ext-opcache.ini\n    - /usr/local/etc/php/conf.d/docker-php-ext-sodium.ini\n    - /usr/local/etc/php/conf.d/docker-php-ext-zip.ini\nYou can also run `php --ini` in a terminal to see which files are used by PHP in CLI mode.\nAlternatively, you can run Composer with `--ignore-platform-req=ext-preflight-stage` to temporarily ignore these required extensions.\n\nUse the option --with-all-dependencies (-W) to allow upgrades, downgrades and removals for packages currently locked to specific versions.","diagnostics":[{"package":"laravel/framework","constraint":"^13.0","command":["composer","prohibits","laravel/framework","^13.0","--tree","--locked","--no-scripts","--no-plugins","--no-interaction"],"exit_code":1,"stdout_excerpt":"laravel/framework 10.0.0 Metadata-only Laravel 10 package for the offline demo.\n|--nunomaduro/collision 7.11.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n|--phpunit/phpunit 10.0.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n`--laravel/framework 13.0.0 (requires ext-preflight-stage ^2.0 but it is missing) (circular dependency aborted here)\n","stderr_excerpt":"Not finding what you were looking for? Try calling `composer require \"laravel/framework:^13.0\" --dry-run` to get another view on the problem.\n"},{"package":"php","constraint":"8.3.0","command":["composer","prohibits","php","8.3.0","--tree","--locked","--no-scripts","--no-plugins","--no-interaction"],"exit_code":0,"stdout_excerpt":"","stderr_excerpt":"There is no installed package depending on \"php\" in versions not matching 8.3.0\n"}]}``
 - `solver-2` (`E1`, high confidence): Composer scenario "target-with-all-dependencies" failed. Context: ``{"scenario":"target-with-all-dependencies","targets":[{"package":"laravel/framework","constraint":"^13.0"},{"package":"php","constraint":"8.3.0"}],"exit_code":2,"output_excerpt":"Loading composer repositories with package information\nUpdating dependencies\nYour requirements could not be resolved to an installable set of packages.\n\n  Problem 1\n    - Root composer.json requires laravel/framework ^13.0 -> satisfiable by laravel/framework[13.0.0].\n    - laravel/framework 13.0.0 requires ext-preflight-stage ^2.0 -> it is missing from your system. Install or enable PHP's preflight-stage extension.\n\nTo enable extensions, verify that they are enabled in your .ini files:\n    - /usr/local/etc/php/conf.d/docker-php-ext-opcache.ini\n    - /usr/local/etc/php/conf.d/docker-php-ext-sodium.ini\n    - /usr/local/etc/php/conf.d/docker-php-ext-zip.ini\nYou can also run `php --ini` in a terminal to see which files are used by PHP in CLI mode.\nAlternatively, you can run Composer with `--ignore-platform-req=ext-preflight-stage` to temporarily ignore these required extensions.","diagnostics":[{"package":"laravel/framework","constraint":"^13.0","command":["composer","prohibits","laravel/framework","^13.0","--tree","--locked","--no-scripts","--no-plugins","--no-interaction"],"exit_code":1,"stdout_excerpt":"laravel/framework 10.0.0 Metadata-only Laravel 10 package for the offline demo.\n|--nunomaduro/collision 7.11.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n|--phpunit/phpunit 10.0.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n`--laravel/framework 13.0.0 (requires ext-preflight-stage ^2.0 but it is missing) (circular dependency aborted here)\n","stderr_excerpt":"Not finding what you were looking for? Try calling `composer require \"laravel/framework:^13.0\" --dry-run` to get another view on the problem.\n"},{"package":"php","constraint":"8.3.0","command":["composer","prohibits","php","8.3.0","--tree","--locked","--no-scripts","--no-plugins","--no-interaction"],"exit_code":0,"stdout_excerpt":"","stderr_excerpt":"There is no installed package depending on \"php\" in versions not matching 8.3.0\n"}]}``
 - `solver-3` (`E1`, high confidence): Composer scenario "minimal-changes" failed. Context: ``{"scenario":"minimal-changes","targets":[{"package":"laravel/framework","constraint":"^13.0"},{"package":"php","constraint":"8.3.0"}],"exit_code":2,"output_excerpt":"Loading composer repositories with package information\nUpdating dependencies\nYour requirements could not be resolved to an installable set of packages.\n\n  Problem 1\n    - Root composer.json requires laravel/framework ^13.0 -> satisfiable by laravel/framework[13.0.0].\n    - laravel/framework 13.0.0 requires ext-preflight-stage ^2.0 -> it is missing from your system. Install or enable PHP's preflight-stage extension.\n\nTo enable extensions, verify that they are enabled in your .ini files:\n    - /usr/local/etc/php/conf.d/docker-php-ext-opcache.ini\n    - /usr/local/etc/php/conf.d/docker-php-ext-sodium.ini\n    - /usr/local/etc/php/conf.d/docker-php-ext-zip.ini\nYou can also run `php --ini` in a terminal to see which files are used by PHP in CLI mode.\nAlternatively, you can run Composer with `--ignore-platform-req=ext-preflight-stage` to temporarily ignore these required extensions.","diagnostics":[{"package":"laravel/framework","constraint":"^13.0","command":["composer","prohibits","laravel/framework","^13.0","--tree","--locked","--no-scripts","--no-plugins","--no-interaction"],"exit_code":1,"stdout_excerpt":"laravel/framework 10.0.0 Metadata-only Laravel 10 package for the offline demo.\n|--nunomaduro/collision 7.11.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n|--phpunit/phpunit 10.0.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n`--laravel/framework 13.0.0 (requires ext-preflight-stage ^2.0 but it is missing) (circular dependency aborted here)\n","stderr_excerpt":"Not finding what you were looking for? Try calling `composer require \"laravel/framework:^13.0\" --dry-run` to get another view on the problem.\n"},{"package":"php","constraint":"8.3.0","command":["composer","prohibits","php","8.3.0","--tree","--locked","--no-scripts","--no-plugins","--no-interaction"],"exit_code":0,"stdout_excerpt":"","stderr_excerpt":"There is no installed package depending on \"php\" in versions not matching 8.3.0\n"}]}``
-- `solver-4` (`E1`, high confidence): Composer scenario "staged-targets" failed. Context: ``{"scenario":"staged-targets","targets":[{"package":"laravel/framework","constraint":"^13.0"},{"package":"php","constraint":"8.1.0"}],"exit_code":2,"output_excerpt":"Loading composer repositories with package information\nUpdating dependencies\nYour requirements could not be resolved to an installable set of packages.\n\n  Problem 1\n    - Root composer.json requires laravel/framework ^13.0 -> satisfiable by laravel/framework[13.0.0].\n    - laravel/framework 13.0.0 requires php ^8.3 -> your php version (8.1.0; overridden via config.platform, actual: 8.4.24) does not satisfy that requirement.","diagnostics":[{"package":"laravel/framework","constraint":"^13.0","command":["composer","prohibits","laravel/framework","^13.0","--tree","--locked","--no-scripts","--no-plugins","--no-interaction"],"exit_code":1,"stdout_excerpt":"laravel/framework 10.0.0 Metadata-only Laravel 10 package for the offline demo.\n|--nunomaduro/collision 7.11.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n|--phpunit/phpunit 10.0.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n`--laravel/framework 13.0.0 (requires ext-preflight-stage ^2.0 but it is missing) (circular dependency aborted here)\n","stderr_excerpt":"Not finding what you were looking for? Try calling `composer require \"laravel/framework:^13.0\" --dry-run` to get another view on the problem.\n"}]}``
-- `laravel-stage-target-1` (`E4`, high confidence): Laravel adapter metadata supplies the exact package target for stage 10 to 11. Context: `{"stage_id":"laravel-10-to-11","package":"laravel/framework","constraint":"^11.0","analysis_php":"8.3.0","minimum_php_constraint":"^8.2","analysis_php_provenance":"request_exact_value_checked_against_adapter_constraint","sources":["https://laravel.com/docs/11.x/upgrade","https://github.com/laravel/framework/blob/e353708c960ec5066d76b0da4b81c8a68d183b93/composer.json"]}`
+- `solver-4` (`E1`, high confidence): Composer scenario "staged-targets" failed. Context: ``{"scenario":"staged-targets","targets":[{"package":"laravel/framework","constraint":"^13.0"},{"package":"php","constraint":"8.1.0"}],"exit_code":2,"output_excerpt":"Loading composer repositories with package information\nUpdating dependencies\nYour requirements could not be resolved to an installable set of packages.\n\n  Problem 1\n    - Root composer.json requires laravel/framework ^13.0 -> satisfiable by laravel/framework[13.0.0].\n    - laravel/framework 13.0.0 requires php ^8.3 -> your php version (8.1.0; overridden via config.platform, actual: 8.3.33) does not satisfy that requirement.","diagnostics":[{"package":"laravel/framework","constraint":"^13.0","command":["composer","prohibits","laravel/framework","^13.0","--tree","--locked","--no-scripts","--no-plugins","--no-interaction"],"exit_code":1,"stdout_excerpt":"laravel/framework 10.0.0 Metadata-only Laravel 10 package for the offline demo.\n|--nunomaduro/collision 7.11.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n|--phpunit/phpunit 10.0.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n`--laravel/framework 13.0.0 (requires ext-preflight-stage ^2.0 but it is missing) (circular dependency aborted here)\n","stderr_excerpt":"Not finding what you were looking for? Try calling `composer require \"laravel/framework:^13.0\" --dry-run` to get another view on the problem.\n"}]}``
+- `laravel-stage-target-1` (`E4`, high confidence): Laravel adapter metadata supplies the exact package target for stage 10 to 11. Context: `{"stage_id":"laravel-10-to-11","package":"laravel/framework","constraint":"^11.0","analysis_php":"8.3.0","minimum_php_constraint":"^8.2","analysis_php_provenance":"final_target_php_exact_value_checked_against_adapter_constraint","sources":["https://laravel.com/docs/11.x/upgrade","https://github.com/laravel/framework/blob/e353708c960ec5066d76b0da4b81c8a68d183b93/composer.json"]}`
 - `laravel-stage-remediation-1` (`E4`, medium confidence): Laravel adapter metadata permits an analyzer-only root constraint candidate for nunomaduro/collision in stage laravel-10-to-11. Context: `{"stage_id":"laravel-10-to-11","package":"nunomaduro/collision","constraint":"^8.1","sources":["https://laravel.com/docs/11.x/upgrade"]}`
 - `laravel-stage-remediation-2` (`E4`, medium confidence): Laravel adapter metadata permits an analyzer-only root constraint candidate for phpunit/phpunit in stage laravel-10-to-11. Context: `{"stage_id":"laravel-10-to-11","package":"phpunit/phpunit","constraint":"^11.0.1","sources":["https://github.com/laravel/laravel/blob/11.x/composer.json"]}`
-- `laravel-stage-target-2` (`E4`, high confidence): Laravel adapter metadata supplies the exact package target for stage 11 to 12. Context: `{"stage_id":"laravel-11-to-12","package":"laravel/framework","constraint":"^12.0","analysis_php":"8.3.0","minimum_php_constraint":"^8.2","analysis_php_provenance":"request_exact_value_checked_against_adapter_constraint","sources":["https://laravel.com/docs/12.x/upgrade","https://github.com/laravel/framework/blob/5260836df1b953a558d9b810880f20db15568c01/composer.json"]}`
+- `laravel-stage-target-2` (`E4`, high confidence): Laravel adapter metadata supplies the exact package target for stage 11 to 12. Context: `{"stage_id":"laravel-11-to-12","package":"laravel/framework","constraint":"^12.0","analysis_php":"8.3.0","minimum_php_constraint":"^8.2","analysis_php_provenance":"final_target_php_exact_value_checked_against_adapter_constraint","sources":["https://laravel.com/docs/12.x/upgrade","https://github.com/laravel/framework/blob/5260836df1b953a558d9b810880f20db15568c01/composer.json"]}`
 - `laravel-stage-remediation-3` (`E4`, medium confidence): Laravel adapter metadata permits an analyzer-only root constraint candidate for phpunit/phpunit in stage laravel-11-to-12. Context: `{"stage_id":"laravel-11-to-12","package":"phpunit/phpunit","constraint":"^11.0","sources":["https://laravel.com/docs/12.x/upgrade"]}`
 - `laravel-stage-remediation-4` (`E4`, medium confidence): Laravel adapter metadata permits an analyzer-only root constraint candidate for nesbot/carbon in stage laravel-11-to-12. Context: `{"stage_id":"laravel-11-to-12","package":"nesbot/carbon","constraint":"^3.0","sources":["https://laravel.com/docs/12.x/upgrade"]}`
 - `laravel-stage-remediation-5` (`E4`, medium confidence): Laravel adapter metadata permits an analyzer-only root constraint candidate for nunomaduro/collision in stage laravel-11-to-12. Context: `{"stage_id":"laravel-11-to-12","package":"nunomaduro/collision","constraint":"^8.6","sources":["https://github.com/laravel/laravel/blob/12.x/composer.json"]}`
-- `laravel-stage-target-3` (`E4`, high confidence): Laravel adapter metadata supplies the exact package target for stage 12 to 13. Context: `{"stage_id":"laravel-12-to-13","package":"laravel/framework","constraint":"^13.0","analysis_php":"8.3.0","minimum_php_constraint":"^8.3","analysis_php_provenance":"request_exact_value_checked_against_adapter_constraint","sources":["https://github.com/laravel/docs/blob/9c5a062c14069bab9054b558829e282f9593a065/upgrade.md","https://github.com/laravel/framework/blob/8df67f9d176d1d0375a866d8c6780be95ce0336e/composer.json"]}`
+- `laravel-stage-target-3` (`E4`, high confidence): Laravel adapter metadata supplies the exact package target for stage 12 to 13. Context: `{"stage_id":"laravel-12-to-13","package":"laravel/framework","constraint":"^13.0","analysis_php":"8.3.0","minimum_php_constraint":"^8.3","analysis_php_provenance":"final_target_php_exact_value_checked_against_adapter_constraint","sources":["https://github.com/laravel/docs/blob/9c5a062c14069bab9054b558829e282f9593a065/upgrade.md","https://github.com/laravel/framework/blob/8df67f9d176d1d0375a866d8c6780be95ce0336e/composer.json"]}`
 - `laravel-stage-remediation-6` (`E4`, medium confidence): Laravel adapter metadata permits an analyzer-only root constraint candidate for laravel/tinker in stage laravel-12-to-13. Context: `{"stage_id":"laravel-12-to-13","package":"laravel/tinker","constraint":"^3.0","sources":["https://github.com/laravel/docs/blob/9c5a062c14069bab9054b558829e282f9593a065/upgrade.md"]}`
 - `laravel-stage-remediation-7` (`E4`, medium confidence): Laravel adapter metadata permits an analyzer-only root constraint candidate for phpunit/phpunit in stage laravel-12-to-13. Context: `{"stage_id":"laravel-12-to-13","package":"phpunit/phpunit","constraint":"^12.0","sources":["https://github.com/laravel/docs/blob/9c5a062c14069bab9054b558829e282f9593a065/upgrade.md","https://github.com/laravel/laravel/blob/c926b8ca7fa01e71852e19141f2bdd7fabfb6ade/composer.json"]}`
 - `laravel-stage-remediation-8` (`E4`, medium confidence): Laravel adapter metadata permits an analyzer-only root constraint candidate for nunomaduro/collision in stage laravel-12-to-13. Context: `{"stage_id":"laravel-12-to-13","package":"nunomaduro/collision","constraint":"^8.6","sources":["https://github.com/laravel/laravel/blob/c926b8ca7fa01e71852e19141f2bdd7fabfb6ade/composer.json"]}`

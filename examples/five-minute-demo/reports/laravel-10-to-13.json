@@ -52,7 +52,7 @@
     },
     "platform": {
         "analyzer": {
-            "php_version": "8.4.24",
+            "php_version": "8.3.33",
             "provenance": "runtime"
         },
         "current_php": {
@@ -117,7 +117,7 @@
                     "--no-plugins",
                     "--no-interaction"
                 ],
-                "duration_ms": 139,
+                "duration_ms": 134,
                 "exit_code": 0,
                 "succeeded": true,
                 "outcome": "success",
@@ -146,7 +146,7 @@
                     "--no-progress",
                     "--no-interaction"
                 ],
-                "duration_ms": 288,
+                "duration_ms": 276,
                 "exit_code": 2,
                 "succeeded": false,
                 "outcome": "solver_failure",
@@ -209,7 +209,7 @@
                     "--no-progress",
                     "--no-interaction"
                 ],
-                "duration_ms": 276,
+                "duration_ms": 286,
                 "exit_code": 2,
                 "succeeded": false,
                 "outcome": "solver_failure",
@@ -273,7 +273,7 @@
                     "--no-progress",
                     "--no-interaction"
                 ],
-                "duration_ms": 309,
+                "duration_ms": 280,
                 "exit_code": 2,
                 "succeeded": false,
                 "outcome": "solver_failure",
@@ -334,7 +334,7 @@
                     "--no-progress",
                     "--no-interaction"
                 ],
-                "duration_ms": 363,
+                "duration_ms": 313,
                 "exit_code": 0,
                 "succeeded": true,
                 "outcome": "success",
@@ -364,13 +364,13 @@
                     "--no-progress",
                     "--no-interaction"
                 ],
-                "duration_ms": 335,
+                "duration_ms": 295,
                 "exit_code": 2,
                 "succeeded": false,
                 "outcome": "solver_failure",
                 "failure_type": "solver",
                 "stdout_excerpt": "",
-                "stderr_excerpt": "Loading composer repositories with package information\nUpdating dependencies\nYour requirements could not be resolved to an installable set of packages.\n\n  Problem 1\n    - Root composer.json requires laravel/framework ^13.0 -> satisfiable by laravel/framework[13.0.0].\n    - laravel/framework 13.0.0 requires php ^8.3 -> your php version (8.1.0; overridden via config.platform, actual: 8.4.24) does not satisfy that requirement.\n\n",
+                "stderr_excerpt": "Loading composer repositories with package information\nUpdating dependencies\nYour requirements could not be resolved to an installable set of packages.\n\n  Problem 1\n    - Root composer.json requires laravel/framework ^13.0 -> satisfiable by laravel/framework[13.0.0].\n    - laravel/framework 13.0.0 requires php ^8.3 -> your php version (8.1.0; overridden via config.platform, actual: 8.3.33) does not satisfy that requirement.\n\n",
                 "candidate_lock": null,
                 "diagnostics": [
                     {
@@ -421,6 +421,39 @@
                 "analysis_php": "8.3.0",
                 "target_evidence": [
                     "laravel-stage-target-1"
+                ],
+                "platform": {
+                    "analysis_php": "8.3.0",
+                    "completeness": "partial",
+                    "profile_sha256": null,
+                    "effective_sha256": "6c689c2a945689da7693f0293117541fb3fbc27cb4f072489e15428fd844dbd7"
+                },
+                "composer_execution": {
+                    "configuration": {
+                        "mode": "restricted",
+                        "executable_selection": "path_search",
+                        "expected_version": ">=2.0.0 <3.0.0",
+                        "scenario_timeout_seconds": 300,
+                        "diagnostic_timeout_seconds": 60,
+                        "environment_mode": "sanitized",
+                        "network_policy": "best_effort_offline"
+                    },
+                    "effective_sha256": "f7867541fa8d250aab14dc390187c1a8930cdd8fb3b76e3dd72486cc5512107e"
+                },
+                "duration_ms": 846,
+                "evidence": [
+                    "laravel-stage-target-1",
+                    "laravel-stage-remediation-1",
+                    "laravel-stage-remediation-2",
+                    "stage-attempt-1",
+                    "stage-root-change-1",
+                    "stage-attempt-2",
+                    "stage-root-change-2",
+                    "stage-root-change-3",
+                    "stage-attempt-3",
+                    "stage-root-change-4",
+                    "stage-root-change-5",
+                    "stage-root-change-6"
                 ],
                 "predecessor_state": {
                     "manifest_sha256": "22160d52f264c172f20c7d35924efb796209e4a7515039470744756799f4dc7d",
@@ -474,7 +507,7 @@
                                 "--no-progress",
                                 "--no-interaction"
                             ],
-                            "duration_ms": 325,
+                            "duration_ms": 286,
                             "exit_code": 2,
                             "succeeded": false,
                             "outcome": "solver_failure",
@@ -581,7 +614,7 @@
                                 "--no-progress",
                                 "--no-interaction"
                             ],
-                            "duration_ms": 283,
+                            "duration_ms": 284,
                             "exit_code": 2,
                             "succeeded": false,
                             "outcome": "solver_failure",
@@ -718,7 +751,7 @@
                                 "--no-progress",
                                 "--no-interaction"
                             ],
-                            "duration_ms": 283,
+                            "duration_ms": 276,
                             "exit_code": 0,
                             "succeeded": true,
                             "outcome": "success",
@@ -871,6 +904,33 @@
                 "target_evidence": [
                     "laravel-stage-target-2"
                 ],
+                "platform": {
+                    "analysis_php": "8.3.0",
+                    "completeness": "partial",
+                    "profile_sha256": null,
+                    "effective_sha256": "6c689c2a945689da7693f0293117541fb3fbc27cb4f072489e15428fd844dbd7"
+                },
+                "composer_execution": {
+                    "configuration": {
+                        "mode": "restricted",
+                        "executable_selection": "path_search",
+                        "expected_version": ">=2.0.0 <3.0.0",
+                        "scenario_timeout_seconds": 300,
+                        "diagnostic_timeout_seconds": 60,
+                        "environment_mode": "sanitized",
+                        "network_policy": "best_effort_offline"
+                    },
+                    "effective_sha256": "f7867541fa8d250aab14dc390187c1a8930cdd8fb3b76e3dd72486cc5512107e"
+                },
+                "duration_ms": 278,
+                "evidence": [
+                    "laravel-stage-target-2",
+                    "laravel-stage-remediation-4",
+                    "laravel-stage-remediation-5",
+                    "laravel-stage-remediation-3",
+                    "stage-attempt-4",
+                    "stage-root-change-7"
+                ],
                 "predecessor_state": {
                     "manifest_sha256": "b4d332e29f50556da15f7e65d5007c9ad793c21662a0b14443c07636e54f32c0",
                     "lock_sha256": "c808969d66df29ada282fe266237b7d7e7cfa49caa9679cdf20b5df3d2c94a2f",
@@ -923,7 +983,7 @@
                                 "--no-progress",
                                 "--no-interaction"
                             ],
-                            "duration_ms": 293,
+                            "duration_ms": 278,
                             "exit_code": 0,
                             "succeeded": true,
                             "outcome": "success",
@@ -1066,6 +1126,41 @@
                 "target_evidence": [
                     "laravel-stage-target-3"
                 ],
+                "platform": {
+                    "analysis_php": "8.3.0",
+                    "completeness": "partial",
+                    "profile_sha256": null,
+                    "effective_sha256": "6c689c2a945689da7693f0293117541fb3fbc27cb4f072489e15428fd844dbd7"
+                },
+                "composer_execution": {
+                    "configuration": {
+                        "mode": "restricted",
+                        "executable_selection": "path_search",
+                        "expected_version": ">=2.0.0 <3.0.0",
+                        "scenario_timeout_seconds": 300,
+                        "diagnostic_timeout_seconds": 60,
+                        "environment_mode": "sanitized",
+                        "network_policy": "best_effort_offline"
+                    },
+                    "effective_sha256": "f7867541fa8d250aab14dc390187c1a8930cdd8fb3b76e3dd72486cc5512107e"
+                },
+                "duration_ms": 820,
+                "evidence": [
+                    "laravel-stage-target-3",
+                    "laravel-stage-remediation-6",
+                    "laravel-stage-remediation-8",
+                    "laravel-stage-remediation-7",
+                    "stage-attempt-5",
+                    "stage-root-change-8",
+                    "stage-attempt-6",
+                    "stage-root-change-9",
+                    "stage-root-change-10",
+                    "stage-attempt-7",
+                    "stage-root-change-11",
+                    "stage-root-change-12",
+                    "stage-root-change-13",
+                    "stage-root-change-14"
+                ],
                 "predecessor_state": {
                     "manifest_sha256": "e8a0d3db618d2b1e67045c2048e2e3c21a506a0a0ea0bed88d7fd555f3ef7186",
                     "lock_sha256": "8ae5ca981ee0006bdb91bc2d8cd87f5658806b86b4ef603456cf175f71150330",
@@ -1112,7 +1207,7 @@
                                 "--no-progress",
                                 "--no-interaction"
                             ],
-                            "duration_ms": 278,
+                            "duration_ms": 268,
                             "exit_code": 2,
                             "succeeded": false,
                             "outcome": "solver_failure",
@@ -1218,7 +1313,7 @@
                                 "--no-progress",
                                 "--no-interaction"
                             ],
-                            "duration_ms": 278,
+                            "duration_ms": 280,
                             "exit_code": 2,
                             "succeeded": false,
                             "outcome": "solver_failure",
@@ -1367,7 +1462,7 @@
                                 "--no-progress",
                                 "--no-interaction"
                             ],
-                            "duration_ms": 287,
+                            "duration_ms": 272,
                             "exit_code": 2,
                             "succeeded": false,
                             "outcome": "solver_failure",
@@ -2499,7 +2594,7 @@
                     }
                 ],
                 "exit_code": 2,
-                "output_excerpt": "Loading composer repositories with package information\nUpdating dependencies\nYour requirements could not be resolved to an installable set of packages.\n\n  Problem 1\n    - Root composer.json requires laravel/framework ^13.0 -> satisfiable by laravel/framework[13.0.0].\n    - laravel/framework 13.0.0 requires php ^8.3 -> your php version (8.1.0; overridden via config.platform, actual: 8.4.24) does not satisfy that requirement.",
+                "output_excerpt": "Loading composer repositories with package information\nUpdating dependencies\nYour requirements could not be resolved to an installable set of packages.\n\n  Problem 1\n    - Root composer.json requires laravel/framework ^13.0 -> satisfiable by laravel/framework[13.0.0].\n    - laravel/framework 13.0.0 requires php ^8.3 -> your php version (8.1.0; overridden via config.platform, actual: 8.3.33) does not satisfy that requirement.",
                 "diagnostics": [
                     {
                         "package": "laravel/framework",
@@ -2533,7 +2628,7 @@
                 "constraint": "^11.0",
                 "analysis_php": "8.3.0",
                 "minimum_php_constraint": "^8.2",
-                "analysis_php_provenance": "request_exact_value_checked_against_adapter_constraint",
+                "analysis_php_provenance": "final_target_php_exact_value_checked_against_adapter_constraint",
                 "sources": [
                     "https://laravel.com/docs/11.x/upgrade",
                     "https://github.com/laravel/framework/blob/e353708c960ec5066d76b0da4b81c8a68d183b93/composer.json"
@@ -2579,7 +2674,7 @@
                 "constraint": "^12.0",
                 "analysis_php": "8.3.0",
                 "minimum_php_constraint": "^8.2",
-                "analysis_php_provenance": "request_exact_value_checked_against_adapter_constraint",
+                "analysis_php_provenance": "final_target_php_exact_value_checked_against_adapter_constraint",
                 "sources": [
                     "https://laravel.com/docs/12.x/upgrade",
                     "https://github.com/laravel/framework/blob/5260836df1b953a558d9b810880f20db15568c01/composer.json"
@@ -2639,7 +2734,7 @@
                 "constraint": "^13.0",
                 "analysis_php": "8.3.0",
                 "minimum_php_constraint": "^8.3",
-                "analysis_php_provenance": "request_exact_value_checked_against_adapter_constraint",
+                "analysis_php_provenance": "final_target_php_exact_value_checked_against_adapter_constraint",
                 "sources": [
                     "https://github.com/laravel/docs/blob/9c5a062c14069bab9054b558829e282f9593a065/upgrade.md",
                     "https://github.com/laravel/framework/blob/8df67f9d176d1d0375a866d8c6780be95ce0336e/composer.json"

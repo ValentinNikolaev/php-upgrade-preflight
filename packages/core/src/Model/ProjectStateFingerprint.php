@@ -71,6 +71,16 @@ final class ProjectStateFingerprint
         return $this->stateSha256;
     }
 
+    public function platformSha256(): string
+    {
+        return $this->platformSha256;
+    }
+
+    public function executionPolicySha256(): string
+    {
+        return $this->executionPolicySha256;
+    }
+
     /** @return array{manifest_sha256: string, lock_sha256: string, platform_sha256: string, execution_policy_sha256: string, state_sha256: string} */
     public function toArray(): array
     {

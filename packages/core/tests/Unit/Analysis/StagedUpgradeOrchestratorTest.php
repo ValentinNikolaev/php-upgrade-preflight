@@ -11,6 +11,7 @@ use PhpUpgradePreflight\Core\Framework\FrameworkDetection;
 use PhpUpgradePreflight\Core\Framework\FrameworkIntegration;
 use PhpUpgradePreflight\Core\Framework\FrameworkStageTargetProvider;
 use PhpUpgradePreflight\Core\Model\Blocker;
+use PhpUpgradePreflight\Core\Model\ComposerExecutionConfiguration;
 use PhpUpgradePreflight\Core\Model\ComposerJson;
 use PhpUpgradePreflight\Core\Model\ComposerLock;
 use PhpUpgradePreflight\Core\Model\Evidence;
@@ -81,6 +82,58 @@ final class StagedUpgradeOrchestratorTest extends TestCase
         $ledger->validateReferences($resolution->evidenceReferences());
     }
 
+    public function testItRejectsProviderIdentityMismatchesBeforeComposerRuns(): void
+    {
+        [$project, $request, $platform] = $this->context();
+        $ledger = new EvidenceLedger();
+        $reference = $ledger->add('stage-target', Evidence::E2_PACKAGE_METADATA, 'Mismatched provider stage.')->id();
+        $plan = new FrameworkStagePlan('fixture', [$this->stage(0, 1, $reference)], null, [$reference]);
+
+        $resolution = $this->orchestrator()->analyze(
+            [$this->provider('different-provider', $plan)],
+            $project,
+            $request,
+            $platform,
+            $ledger
+        );
+
+        self::assertSame(StagedResolution::SKIPPED, $resolution->executionState());
+        self::assertSame('invalid_stage_plan', $resolution->toArray()['stop_reason']);
+        self::assertStringContainsString(
+            'provider_identity_mismatch',
+            $ledger->all()[count($ledger->all()) - 1]->context()['reason']
+        );
+    }
+
+    public function testItRejectsProviderIdentityMismatchesForUnavailablePlans(): void
+    {
+        [$project, $request, $platform] = $this->context();
+        $ledger = new EvidenceLedger();
+        $reference = $ledger->add('stage-target', Evidence::E2_PACKAGE_METADATA, 'Unavailable mismatched plan.')->id();
+        $plan = new FrameworkStagePlan(
+            'fixture',
+            [],
+            FrameworkStagePlan::REASON_GUIDANCE_GAP,
+            [$reference]
+        );
+
+        $resolution = $this->orchestrator()->analyze(
+            [$this->provider('different-provider', $plan)],
+            $project,
+            $request,
+            $platform,
+            $ledger
+        );
+
+        self::assertSame(StagedResolution::SKIPPED, $resolution->executionState());
+        self::assertSame('invalid_stage_plan', $resolution->toArray()['stop_reason']);
+        self::assertSame(
+            'provider_identity_mismatch',
+            $ledger->all()[count($ledger->all()) - 1]->context()['reason']
+        );
+        $ledger->validateReferences($resolution->evidenceReferences());
+    }
+
     public function testItEnforcesTheHopBudgetBeforeRunningComposerAndRetainsPlanEvidence(): void
     {
         [$project, $request, $platform] = $this->context();
@@ -125,6 +178,73 @@ final class StagedUpgradeOrchestratorTest extends TestCase
         self::assertSame(StagedResolution::UNKNOWN, $canonical['stages'][0]['resolution_status']);
         self::assertSame('aggregate_timeout', $canonical['stages'][0]['stop_reason']);
         self::assertCount(1, $canonical['stages'][0]['attempts']);
+    }
+
+    public function testItDoesNotStartAnAttemptWhoseTimeoutExceedsTheRemainingAggregateBudget(): void
+    {
+        [$project, $request, $platform] = $this->context();
+        $ledger = new EvidenceLedger();
+        $reference = $ledger->add('stage-target', Evidence::E2_PACKAGE_METADATA, 'Remaining-budget stage.')->id();
+        $plan = new FrameworkStagePlan('fixture', [$this->stage(0, 1, $reference)], null, [$reference]);
+
+        $resolution = $this->solverFailureOrchestrator(
+            ['ext-first', 'ext-must-not-run'],
+            [1600.0, 0.1]
+        )->analyze([$this->provider('fixture', $plan)], $project, $request, $platform, $ledger);
+        $canonical = $resolution->toArray();
+
+        self::assertSame(StagedResolution::UNKNOWN, $resolution->status());
+        self::assertSame('aggregate_timeout', $canonical['stop_reason']);
+        self::assertCount(1, $canonical['stages'][0]['attempts']);
+    }
+
+    public function testItCapsConfiguredScenarioTimeoutsForStagedExecutionAndReportsTheEffectivePolicy(): void
+    {
+        [$project, $request] = $this->context();
+        $request = $request->withComposerExecution(new ComposerExecutionConfiguration(
+            'composer',
+            ComposerExecutionConfiguration::DEFAULT_EXPECTED_VERSION,
+            3600
+        ));
+        $platform = TargetPlatform::fromRequest($request, $project, [], '8.3.0');
+        $ledger = new EvidenceLedger();
+        $reference = $ledger->add('stage-target', Evidence::E2_PACKAGE_METADATA, 'Capped timeout stage.')->id();
+        $plan = new FrameworkStagePlan('fixture', [$this->stage(0, 1, $reference)], null, [$reference]);
+        $timeouts = [];
+        $runner = new ComposerScenarioRunner(
+            null,
+            null,
+            static function (array $_command, string $workspace, array $_environment, int $timeout) use (&$timeouts): array {
+                $timeouts[] = $timeout;
+                file_put_contents($workspace . '/composer.lock', json_encode([
+                    'packages' => [['name' => 'vendor/framework', 'version' => '1.0.0']],
+                    'packages-dev' => [],
+                ], JSON_THROW_ON_ERROR));
+
+                return ['exit_code' => 0, 'stdout' => 'Resolved.', 'stderr' => ''];
+            },
+            static fn (): string => '2.8.12'
+        );
+
+        $resolution = (new StagedUpgradeOrchestrator($runner))->analyze(
+            [$this->provider('fixture', $plan)],
+            $project,
+            $request,
+            $platform,
+            $ledger
+        );
+        $stage = $resolution->toArray()['stages'][0];
+
+        self::assertSame([StagedAnalysisPolicy::SCENARIO_TIMEOUT_SECONDS], $timeouts);
+        self::assertSame(3600, $request->composerExecution()->scenarioTimeoutSeconds());
+        self::assertSame(
+            StagedAnalysisPolicy::SCENARIO_TIMEOUT_SECONDS,
+            $stage['composer_execution']['configuration']['scenario_timeout_seconds']
+        );
+        self::assertSame(
+            $stage['input_state']['execution_policy_sha256'],
+            $stage['composer_execution']['effective_sha256']
+        );
     }
 
     public function testItUsesTheContractedLockedRemediationOrderWithoutRootCandidates(): void
@@ -218,6 +338,8 @@ final class StagedUpgradeOrchestratorTest extends TestCase
         self::assertSame('timeout', $canonical['stages'][0]['stop_reason']);
         self::assertSame('skipped', $canonical['stages'][1]['execution_state']);
         self::assertSame('previous_stage_unknown', $canonical['stages'][1]['stop_reason']);
+        self::assertNotSame([], $canonical['stages'][1]['evidence']);
+        self::assertSame('8.3.0', $canonical['stages'][1]['platform']['analysis_php']);
     }
 
     public function testOperationalFailureStopsAsUnknownAndSkipsLaterStages(): void
@@ -285,6 +407,18 @@ final class StagedUpgradeOrchestratorTest extends TestCase
             'name'
         ));
         self::assertTrue($canonical['stages'][0]['attempts'][0]['selected']);
+        self::assertSame('8.3.0', $canonical['stages'][0]['platform']['analysis_php']);
+        self::assertSame('partial', $canonical['stages'][0]['platform']['completeness']);
+        self::assertSame(
+            $canonical['stages'][0]['input_state']['platform_sha256'],
+            $canonical['stages'][0]['platform']['effective_sha256']
+        );
+        self::assertSame(
+            $canonical['stages'][0]['input_state']['execution_policy_sha256'],
+            $canonical['stages'][0]['composer_execution']['effective_sha256']
+        );
+        self::assertGreaterThanOrEqual(0, $canonical['stages'][0]['duration_ms']);
+        self::assertNotSame([], $canonical['stages'][0]['evidence']);
         self::assertSame([], $canonical['blocker_registry']);
         $ledger->validateReferences($resolution->evidenceReferences());
     }

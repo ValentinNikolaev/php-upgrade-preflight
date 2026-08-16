@@ -249,13 +249,24 @@ final class MarkdownReportWriterTest extends TestCase
                 'selected_attempt' => null,
                 'analysis_php' => '8.3.0',
                 'source_snapshot' => 'original_project',
+                'platform' => [
+                    'effective_sha256' => 'platform-sha',
+                    'completeness' => 'complete',
+                    'profile_sha256' => 'profile-sha',
+                ],
+                'composer_execution' => [
+                    'effective_sha256' => 'execution-sha',
+                    'configuration' => ['mode' => 'restricted'],
+                ],
+                'duration_ms' => 12,
+                'evidence' => ['stage-evidence-1'],
                 'predecessor_state' => ['state_sha256' => 'predecessor-sha'],
                 'input_state' => ['state_sha256' => 'input-sha'],
                 'output_state' => null,
                 'attempts' => [[
                     'number' => 1,
                     'strategy' => 'root_constraint_remediation',
-                    'scenario' => ['outcome' => 'solver_failure'],
+                    'scenario' => ['outcome' => 'solver_failure', 'duration_ms' => 12],
                     'selected' => false,
                     'blocker_ids' => ['stage-blocker-1'],
                     'root_constraint_changes' => [[
@@ -294,7 +305,10 @@ final class MarkdownReportWriterTest extends TestCase
 
         self::assertStringContainsString('**laravel-10-to-11** (`10` -> `11`)', $stagedMarkdown);
         self::assertStringContainsString('state chain: predecessor `predecessor-sha`; input `input-sha`; output `none`', $stagedMarkdown);
-        self::assertStringContainsString('attempt `1` `root_constraint_remediation`: outcome `solver_failure`; selected no; blockers `stage-blocker-1`', $stagedMarkdown);
+        self::assertStringContainsString('effective platform: `platform-sha`; completeness `complete`; profile `profile-sha`', $stagedMarkdown);
+        self::assertStringContainsString('Composer policy: `execution-sha`; mode `restricted`; stage duration `12 ms`', $stagedMarkdown);
+        self::assertStringContainsString('stage evidence: `stage-evidence-1`', $stagedMarkdown);
+        self::assertStringContainsString('attempt `1` `root_constraint_remediation`: outcome `solver_failure`; duration `12 ms`; selected no; blockers `stage-blocker-1`', $stagedMarkdown);
         self::assertStringContainsString('analyzer-only root change `phpunit/phpunit`: `^10.0` -> `^11.0.1`', $stagedMarkdown);
         self::assertStringContainsString('selected package change `laravel/framework`: `10.48.28` -> `11.44.7`', $stagedMarkdown);
         self::assertStringContainsString('original-source finding (`high`): Review the Laravel 11 application structure.', $stagedMarkdown);

@@ -321,7 +321,7 @@ final class LaravelFrameworkIntegrationTest extends TestCase
         self::assertSame([], $guidance->toArray()['uncertainties']);
     }
 
-    public function testMilestoneZeroStagesSkipIlluminateOnlyProjectsWithoutAddingLaravelFramework(): void
+    public function testStagesSkipIlluminateOnlyProjectsWithoutAddingLaravelFramework(): void
     {
         $project = new ProjectState(
             __DIR__,
@@ -352,7 +352,7 @@ final class LaravelFrameworkIntegrationTest extends TestCase
         self::assertSame([], $plan->stages());
     }
 
-    public function testMilestoneZeroStagesSkipMixedLaravelFamilyTargets(): void
+    public function testStagesSkipMixedLaravelFamilyTargets(): void
     {
         $project = new ProjectState(
             __DIR__,
@@ -448,6 +448,87 @@ final class LaravelFrameworkIntegrationTest extends TestCase
         )));
     }
 
+    /** @dataProvider supportedStagePathProvider */
+    public function testItBuildsEverySupportedContiguousLaravelStagePath(
+        int $sourceMajor,
+        int $targetMajor,
+        array $expectedStageIds
+    ): void {
+        $project = new ProjectState(
+            __DIR__,
+            new ComposerJson(['require' => ['laravel/framework' => '^' . $sourceMajor . '.0']]),
+            new ComposerLock(['packages' => [[
+                'name' => 'laravel/framework',
+                'version' => 'v' . $sourceMajor . '.0.0',
+            ]]])
+        );
+        $request = new UpgradeRequest(
+            __DIR__,
+            [new UpgradeTarget('laravel/framework', '^' . $targetMajor . '.0')],
+            '7.4.0',
+            '8.3.0'
+        );
+
+        $plan = (new LaravelFrameworkIntegration())->planStages($project, $request, new EvidenceLedger());
+
+        self::assertTrue($plan->isAvailable());
+        self::assertSame($expectedStageIds, array_map(
+            static fn ($stage): string => $stage->id(),
+            $plan->stages()
+        ));
+        self::assertSame(
+            array_fill(0, count($expectedStageIds), '8.3.0'),
+            array_map(static fn ($stage): string => $stage->analysisPhp(), $plan->stages())
+        );
+    }
+
+    /** @return iterable<string, array{int, int, list<string>}> */
+    public function supportedStagePathProvider(): iterable
+    {
+        yield 'retained 7 to 8 foundation' => [7, 8, ['laravel-7-to-8']];
+        yield 'direct 7 to 9 request uses evidenced adjacent stages' => [
+            7,
+            9,
+            ['laravel-7-to-8', 'laravel-8-to-9'],
+        ];
+        yield 'single modern hop' => [12, 13, ['laravel-12-to-13']];
+        yield 'maximum supported chain' => [
+            7,
+            13,
+            [
+                'laravel-7-to-8',
+                'laravel-8-to-9',
+                'laravel-9-to-10',
+                'laravel-10-to-11',
+                'laravel-11-to-12',
+                'laravel-12-to-13',
+            ],
+        ];
+    }
+
+    public function testItUsesCurrentPhpOnlyWhenNoExactFinalPhpWasRequested(): void
+    {
+        $project = new ProjectState(
+            __DIR__,
+            new ComposerJson(['require' => ['laravel/framework' => '^10.0']]),
+            new ComposerLock(['packages' => [['name' => 'laravel/framework', 'version' => 'v10.48.28']]])
+        );
+        $request = new UpgradeRequest(
+            __DIR__,
+            [new UpgradeTarget('laravel/framework', '^11.0')],
+            '8.2.4'
+        );
+        $ledger = new EvidenceLedger();
+
+        $plan = (new LaravelFrameworkIntegration())->planStages($project, $request, $ledger);
+
+        self::assertSame('8.2.4', $plan->stages()[0]->analysisPhp());
+        self::assertSame(
+            'current_php_exact_value_checked_against_adapter_constraint',
+            $ledger->all()[0]->context()['analysis_php_provenance']
+        );
+    }
+
     /** @dataProvider unavailableStagePlanProvider */
     public function testItExplainsWhyAStagePlanCannotBeBuilt(
         ProjectState $project,
@@ -458,7 +539,7 @@ final class LaravelFrameworkIntegrationTest extends TestCase
 
         self::assertFalse($plan->isAvailable());
         self::assertSame($reason, $plan->unavailableReason());
-        self::assertSame([], $plan->evidence());
+        self::assertCount(1, $plan->evidence());
     }
 
     /** @return iterable<string, array{ProjectState, UpgradeRequest, string}> */
@@ -485,20 +566,15 @@ final class LaravelFrameworkIntegrationTest extends TestCase
             new UpgradeRequest(__DIR__, [new UpgradeTarget('laravel/framework', '^10.0')], '8.1', '8.3.0'),
             FrameworkStagePlan::REASON_UNSUPPORTED_TRANSITION,
         ];
-        yield 'outside milestone slice' => [
-            $laravelTen,
-            new UpgradeRequest(__DIR__, [new UpgradeTarget('laravel/framework', '^12.0')], '8.1', '8.3.0'),
-            FrameworkStagePlan::REASON_GUIDANCE_GAP,
-        ];
         yield 'missing target PHP' => [
             $laravelTen,
             new UpgradeRequest(__DIR__, [new UpgradeTarget('laravel/framework', '^13.0')]),
-            FrameworkStagePlan::REASON_MISSING_TARGET,
+            FrameworkStagePlan::REASON_ANALYSIS_PHP_UNAVAILABLE,
         ];
         yield 'incompatible target PHP' => [
             $laravelTen,
             new UpgradeRequest(__DIR__, [new UpgradeTarget('laravel/framework', '^13.0')], '8.1', '8.1.0'),
-            FrameworkStagePlan::REASON_MISSING_TARGET,
+            FrameworkStagePlan::REASON_ANALYSIS_PHP_UNAVAILABLE,
         ];
     }
 

@@ -228,50 +228,92 @@ final class LaravelFrameworkIntegration implements FrameworkIntegration, Framewo
         EvidenceLedger $evidence
     ): FrameworkStagePlan {
         if (!$this->hasLaravelTarget($request)) {
-            return new FrameworkStagePlan('laravel', [], FrameworkStagePlan::REASON_MISSING_TARGET);
+            return $this->unavailableStagePlan(
+                FrameworkStagePlan::REASON_MISSING_TARGET,
+                'No Laravel-family upgrade target was supplied.',
+                $project,
+                $request,
+                $evidence
+            );
         }
 
-        $sourceMajor = LaravelSource::fromProject($project)->major();
+        $source = LaravelSource::fromProject($project);
+        $sourceMajor = $source->major();
         $target = LaravelTarget::fromRequest($request);
         if ($sourceMajor === null || $target === null) {
-            return new FrameworkStagePlan('laravel', [], FrameworkStagePlan::REASON_AMBIGUOUS_TRANSITION);
+            return $this->unavailableStagePlan(
+                FrameworkStagePlan::REASON_AMBIGUOUS_TRANSITION,
+                'The source or target Laravel major could not be resolved unambiguously.',
+                $project,
+                $request,
+                $evidence,
+                ['source_uncertainties' => $source->uncertainties()]
+            );
         }
         $targetMajor = $target->major();
-        if (!$this->supportsMilestoneZeroStageSlice($project, $target)) {
-            return new FrameworkStagePlan('laravel', [], FrameworkStagePlan::REASON_GUIDANCE_GAP);
+        if (!$this->supportsFrameworkStageProject($project, $target)) {
+            return $this->unavailableStagePlan(
+                FrameworkStagePlan::REASON_GUIDANCE_GAP,
+                'Staged Laravel solving requires one rooted laravel/framework project and target.',
+                $project,
+                $request,
+                $evidence
+            );
         }
         if ($sourceMajor >= $targetMajor) {
-            return new FrameworkStagePlan('laravel', [], FrameworkStagePlan::REASON_UNSUPPORTED_TRANSITION);
+            return $this->unavailableStagePlan(
+                FrameworkStagePlan::REASON_UNSUPPORTED_TRANSITION,
+                'The requested Laravel endpoint is not an ascending framework transition.',
+                $project,
+                $request,
+                $evidence
+            );
         }
-
-        // Milestone 0 intentionally proves one production-shaped vertical slice.
-        // Milestone 3 expands this provider to every supported adjacent path.
-        if ($sourceMajor !== 10 || $targetMajor !== 13) {
-            return new FrameworkStagePlan('laravel', [], FrameworkStagePlan::REASON_GUIDANCE_GAP);
-        }
-
-        $analysisPhp = $request->targetPhp();
-        if ($analysisPhp === null) {
-            return new FrameworkStagePlan('laravel', [], FrameworkStagePlan::REASON_MISSING_TARGET);
+        if ($sourceMajor < $this->catalog->minimumMajor() || $targetMajor > $this->catalog->maximumMajor()) {
+            return $this->unavailableStagePlan(
+                FrameworkStagePlan::REASON_UNSUPPORTED_TRANSITION,
+                'The requested Laravel endpoints fall outside the staged target catalog.',
+                $project,
+                $request,
+                $evidence
+            );
         }
 
         $stageMetadata = [];
-        for ($from = 10; $from < 13; ++$from) {
+        for ($from = $sourceMajor; $from < $targetMajor; ++$from) {
             $to = $from + 1;
             $definition = $this->catalog->target($to);
             $transition = $this->catalog->transition($from, $to, TransitionDefinition::ADJACENT);
             if ($definition === null || $transition === null || !$transition->isSupported()) {
-                return new FrameworkStagePlan('laravel', [], FrameworkStagePlan::REASON_GUIDANCE_GAP);
+                return $this->unavailableStagePlan(
+                    FrameworkStagePlan::REASON_GUIDANCE_GAP,
+                    sprintf('No contiguous supported adjacent rule pack exists for Laravel %d to %d.', $from, $to),
+                    $project,
+                    $request,
+                    $evidence,
+                    ['gap_from_major' => $from, 'gap_to_major' => $to]
+                );
             }
-            if (!LaravelTarget::versionSatisfies($analysisPhp, $definition->phpConstraint())) {
-                return new FrameworkStagePlan('laravel', [], FrameworkStagePlan::REASON_MISSING_TARGET);
+            $analysisPhp = $this->selectAnalysisPhp($request, $definition->phpConstraint());
+            if ($analysisPhp === null) {
+                return $this->unavailableStagePlan(
+                    FrameworkStagePlan::REASON_ANALYSIS_PHP_UNAVAILABLE,
+                    sprintf('No exact request PHP value safely satisfies the Laravel %d stage requirement.', $to),
+                    $project,
+                    $request,
+                    $evidence,
+                    [
+                        'stage_to_major' => $to,
+                        'minimum_php_constraint' => $definition->phpConstraint(),
+                    ]
+                );
             }
-            $stageMetadata[] = [$from, $to, $definition, $transition];
+            $stageMetadata[] = [$from, $to, $definition, $transition, $analysisPhp];
         }
 
         $stages = [];
         $planEvidence = [];
-        foreach ($stageMetadata as [$from, $to, $definition, $transition]) {
+        foreach ($stageMetadata as [$from, $to, $definition, $transition, $analysisPhp]) {
             $stageId = sprintf('laravel-%d-to-%d', $from, $to);
             $stageEvidence = $evidence->add(
                 'laravel-stage-target',
@@ -282,9 +324,9 @@ final class LaravelFrameworkIntegration implements FrameworkIntegration, Framewo
                     'stage_id' => $stageId,
                     'package' => 'laravel/framework',
                     'constraint' => '^' . $to . '.0',
-                    'analysis_php' => $analysisPhp,
+                    'analysis_php' => $analysisPhp['version'],
                     'minimum_php_constraint' => $definition->phpConstraint(),
-                    'analysis_php_provenance' => 'request_exact_value_checked_against_adapter_constraint',
+                    'analysis_php_provenance' => $analysisPhp['provenance'],
                     'sources' => array_values(array_unique(array_merge(
                         $transition->sources(),
                         $definition->phpSources()
@@ -307,9 +349,9 @@ final class LaravelFrameworkIntegration implements FrameworkIntegration, Framewo
                 $to,
                 new UpgradeTargetSet(
                     [new UpgradeTarget('laravel/framework', '^' . $to . '.0')],
-                    $analysisPhp
+                    $analysisPhp['version']
                 ),
-                $analysisPhp,
+                $analysisPhp['version'],
                 $remediationTargets,
                 $remediationEvidence,
                 [$stageEvidence]
@@ -317,6 +359,57 @@ final class LaravelFrameworkIntegration implements FrameworkIntegration, Framewo
         }
 
         return new FrameworkStagePlan('laravel', $stages, null, $planEvidence);
+    }
+
+    /** @return ?array{version: string, provenance: string} */
+    private function selectAnalysisPhp(UpgradeRequest $request, string $minimumConstraint): ?array
+    {
+        $candidates = [
+            'final_target_php_exact_value_checked_against_adapter_constraint' => $request->targetPhp(),
+            'current_php_exact_value_checked_against_adapter_constraint' => $request->fromPhp(),
+        ];
+        $seen = [];
+        foreach ($candidates as $provenance => $candidate) {
+            if ($candidate === null) {
+                continue;
+            }
+            $normalized = (new UpgradeTargetSet([], $candidate))->targetPhp();
+            if ($normalized === null || isset($seen[$normalized])) {
+                continue;
+            }
+            $seen[$normalized] = true;
+            if (LaravelTarget::versionSatisfies($normalized, $minimumConstraint)) {
+                return ['version' => $normalized, 'provenance' => $provenance];
+            }
+        }
+
+        return null;
+    }
+
+    /** @param array<string, mixed> $context */
+    private function unavailableStagePlan(
+        string $reason,
+        string $summary,
+        ProjectState $project,
+        UpgradeRequest $request,
+        EvidenceLedger $evidence,
+        array $context = []
+    ): FrameworkStagePlan {
+        $evidenceId = $evidence->add(
+            'laravel-stage-plan-unavailable',
+            Evidence::E2_PACKAGE_METADATA,
+            $summary,
+            'high',
+            $context + [
+                'reason' => $reason,
+                'source_requirements' => $project->composerJson()->rootRequirements(),
+                'target_constraints' => $this->laravelTargetConstraints($request),
+                'current_php' => $request->fromPhp(),
+                'final_target_php' => $request->targetPhp(),
+            ]
+        )->id();
+
+        return new FrameworkStagePlan('laravel', [], $reason, [$evidenceId]);
     }
 
     /**
@@ -592,7 +685,7 @@ final class LaravelFrameworkIntegration implements FrameworkIntegration, Framewo
         return false;
     }
 
-    private function supportsMilestoneZeroStageSlice(ProjectState $project, LaravelTarget $target): bool
+    private function supportsFrameworkStageProject(ProjectState $project, LaravelTarget $target): bool
     {
         $requestedConstraints = $target->requestedConstraints();
         $rootRequirements = $project->composerJson()->rootRequirements();

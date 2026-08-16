@@ -5,7 +5,7 @@
 
 PHP Upgrade Preflight analyzes Composer-based PHP upgrades before you change the target project. It copies `composer.json` and `composer.lock` into temporary workspaces, runs isolated Composer scenarios, scans source files, and produces a canonical JSON report or a Markdown projection.
 
-The v0.3 development line runs on PHP `^8.0` (PHP 8.0 through PHP 8.x). Its Laravel adapter retains Laravel 7 to 8 and direct 7 to 9 guidance plus adjacent Laravel 8 to 9 through 12 to 13 rule packs. The Milestone 0 vertical slice adds sequential Composer evidence for Laravel 10→11→12→13 while preserving the direct final-target result independently.
+The v0.3 development line runs on PHP `^8.0` (PHP 8.0 through PHP 8.x). Its Laravel adapter retains Laravel 7 to 8 and direct 7 to 9 guidance plus adjacent Laravel 8 to 9 through 12 to 13 rule packs. Rooted `laravel/framework` projects can run sequential Composer evidence across every contiguous adjacent path from Laravel 7 through 13, while the direct final-target result remains independent.
 
 The Laravel adapter can be installed alongside Laravel 8 on PHP 8.0, Laravel 9 on PHP 8.0.2, Laravel 10 on PHP 8.1, Laravel 11/12 on PHP 8.2, and Laravel 13 on PHP 8.3. Host installability and analyzed target requirements remain separate: an external analyzer may model a newer target through Composer platform simulation.
 

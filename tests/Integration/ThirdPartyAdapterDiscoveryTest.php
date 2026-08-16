@@ -84,6 +84,9 @@ final class ThirdPartyAdapterDiscoveryTest extends TestCase
             ['test-framework'],
             $report['transition']['package_changes'][0]['package_families']
         );
+        self::assertSame('skipped', $report['staged_resolution']['execution_state']);
+        self::assertSame('unknown', $report['staged_resolution']['status']);
+        self::assertSame('stage_target_provider_unavailable', $report['staged_resolution']['stop_reason']);
     }
 
     /** @param resource $stream */

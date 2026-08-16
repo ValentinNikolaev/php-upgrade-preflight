@@ -25,12 +25,16 @@ final class StageAnalysis
     /** @var list<SourceImpactFinding> */
     private array $sourceImpact;
     private ?string $stopReason;
+    private ?StageExecutionContext $executionContext;
+    /** @var list<string> */
+    private array $analysisEvidence;
 
     /**
      * @param list<StageAttempt> $attempts
      * @param list<PackageChange> $packageChanges
      * @param list<CompatibilityFinding> $sourceFindings
      * @param list<SourceImpactFinding> $sourceImpact
+     * @param list<string> $analysisEvidence
      */
     public function __construct(
         FrameworkStageTarget $target,
@@ -44,7 +48,9 @@ final class StageAnalysis
         array $packageChanges,
         ?string $stopReason = null,
         array $sourceFindings = [],
-        array $sourceImpact = []
+        array $sourceImpact = [],
+        ?StageExecutionContext $executionContext = null,
+        array $analysisEvidence = []
     ) {
         if (!in_array($executionState, [self::EXECUTED, self::SKIPPED], true)) {
             throw new \InvalidArgumentException(sprintf('Unsupported stage execution state "%s".', $executionState));
@@ -78,6 +84,8 @@ final class StageAnalysis
         $this->sourceFindings = array_values($sourceFindings);
         $this->sourceImpact = array_values($sourceImpact);
         $this->stopReason = $stopReason;
+        $this->executionContext = $executionContext;
+        $this->analysisEvidence = array_values(array_unique($analysisEvidence));
     }
 
     public function target(): FrameworkStageTarget
@@ -124,14 +132,16 @@ final class StageAnalysis
             $this->packageChanges,
             $this->stopReason,
             $sourceFindings,
-            $sourceImpact
+            $sourceImpact,
+            $this->executionContext,
+            $this->analysisEvidence
         );
     }
 
     /** @return list<string> */
     public function evidenceReferences(): array
     {
-        $references = $this->target->evidence();
+        $references = array_merge($this->target->evidence(), $this->analysisEvidence);
         foreach ($this->target->remediationTargets() as $target) {
             $references = array_merge($references, $this->target->remediationEvidence($target->package()));
         }
@@ -149,6 +159,13 @@ final class StageAnalysis
         $findingCount = count($this->sourceFindings) + count($this->sourceImpact);
         $changeCount = count($this->packageChanges);
         $effortBase = $findingCount + $changeCount;
+        $context = $this->executionContext === null
+            ? ['platform' => null, 'composer_execution' => null]
+            : $this->executionContext->toArray();
+        $durationMs = array_sum(array_map(
+            static fn (StageAttempt $attempt): int => $attempt->scenario()->durationMs(),
+            $this->attempts
+        ));
 
         return [
             'id' => $this->target->id(),
@@ -160,6 +177,10 @@ final class StageAnalysis
             'targets' => $this->target->targets()->toArray(),
             'analysis_php' => $this->target->analysisPhp(),
             'target_evidence' => $this->target->evidence(),
+            'platform' => $context['platform'],
+            'composer_execution' => $context['composer_execution'],
+            'duration_ms' => $durationMs,
+            'evidence' => $this->evidenceReferences(),
             'predecessor_state' => $this->predecessorState === null ? null : $this->predecessorState->toArray(),
             'input_state' => $this->inputState === null ? null : $this->inputState->toArray(),
             'output_state' => $this->outputState === null ? null : $this->outputState->toArray(),

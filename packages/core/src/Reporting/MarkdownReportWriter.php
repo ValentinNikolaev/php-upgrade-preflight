@@ -279,6 +279,22 @@ final class MarkdownReportWriter
                 );
                 $lines[] = sprintf('  - analysis PHP: %s; source snapshot: %s', $this->code((string) $stage['analysis_php']), $this->code((string) $stage['source_snapshot']));
                 $lines[] = sprintf(
+                    '  - effective platform: %s; completeness %s; profile %s',
+                    $this->code($stage['platform']['effective_sha256'] ?? 'not recorded'),
+                    $this->code($stage['platform']['completeness'] ?? 'not recorded'),
+                    $this->code($stage['platform']['profile_sha256'] ?? 'none')
+                );
+                $lines[] = sprintf(
+                    '  - Composer policy: %s; mode %s; stage duration %s',
+                    $this->code($stage['composer_execution']['effective_sha256'] ?? 'not recorded'),
+                    $this->code($stage['composer_execution']['configuration']['mode'] ?? 'not recorded'),
+                    $this->code(sprintf('%d ms', (int) ($stage['duration_ms'] ?? 0)))
+                );
+                $lines[] = sprintf(
+                    '  - stage evidence: %s',
+                    $this->inlineList($stage['evidence'] ?? [], 'none')
+                );
+                $lines[] = sprintf(
                     '  - state chain: predecessor %s; input %s; output %s',
                     $this->code($stage['predecessor_state']['state_sha256'] ?? 'none'),
                     $this->code($stage['input_state']['state_sha256'] ?? 'none'),
@@ -286,10 +302,11 @@ final class MarkdownReportWriter
                 );
                 foreach ($stage['attempts'] as $attempt) {
                     $lines[] = sprintf(
-                        '  - attempt `%d` %s: outcome %s; selected %s; blockers %s',
+                        '  - attempt `%d` %s: outcome %s; duration %s; selected %s; blockers %s',
                         $attempt['number'],
                         $this->code((string) $attempt['strategy']),
                         $this->code((string) $attempt['scenario']['outcome']),
+                        $this->code(sprintf('%d ms', (int) ($attempt['scenario']['duration_ms'] ?? 0))),
                         $attempt['selected'] ? 'yes' : 'no',
                         $this->inlineList($attempt['blocker_ids'], 'none')
                     );

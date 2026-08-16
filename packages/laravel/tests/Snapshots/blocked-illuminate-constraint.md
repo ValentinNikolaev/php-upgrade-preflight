@@ -1,6 +1,6 @@
 # PHP Upgrade Preflight Report
 
-Resolution: **blocked** | Staged: **unknown** | Schema: `0.8` | Tool: `php-upgrade-preflight 0.3.0-dev`
+Resolution: **blocked** | Staged: **blocked** | Schema: `0.8` | Tool: `php-upgrade-preflight 0.3.0-dev`
 
 ## Analysis Request
 - Project: `<PROJECT_PATH>`
@@ -150,10 +150,29 @@ Resolution: **blocked** | Staged: **unknown** | Schema: `0.8` | Tool: `php-upgra
       ```
 
 ## Staged Composer Resolution
-- Execution: `skipped`; status: `unknown`; provider: `laravel`; stop reason: `guidance_gap`
-- No framework stages were executed.
+- Execution: `evaluated`; status: `blocked`; provider: `laravel`; stop reason: `blocking_registry_not_cleared`
+- **laravel-7-to-8** (`7` -> `8`): execution `evaluated`; resolution `blocked`; selected attempt `none`
+  - analysis PHP: `8.1.0`; source snapshot: `original_project`
+  - effective platform: `c2b227c251d4ec9ccf885e95404feaceedd627ff0c7104bc213f254935e62537`; completeness `partial`; profile `none`
+  - Composer policy: `0c155d2582c9452186059dbe78d0da2d730f798c6c1d69f356c43ca832fcf1b9`; mode `compatible`; stage duration `1 ms`
+  - stage evidence: `laravel-stage-target-1`, `stage-attempt-1`, `stage-root-change-1`, `stage-attempt-2`, `stage-root-change-2`
+  - state chain: predecessor `ae61f76dad3c6af973734bad704adaad5861aa0c16d437ea5878066664b2b737`; input `ae61f76dad3c6af973734bad704adaad5861aa0c16d437ea5878066664b2b737`; output `none`
+  - attempt `1` `target_only`: outcome `solver_failure`; duration `1 ms`; selected no; blockers `stage-blocker-a3bd37c51e9a796aef74`
+    - analyzer-only root change `laravel/framework`: `^7.0` -> `^8.0`
+  - attempt `2` `locked_package_remediation`: outcome `solver_failure`; duration `1 ms`; selected no; blockers `stage-blocker-a3bd37c51e9a796aef74`
+    - analyzer-only root change `laravel/framework`: `^7.0` -> `^8.0`
+  - original-source finding (`high`): Update or replace incompatible illuminate/support constraints before targeting Laravel 8: fixture/illuminate-consumer.
+  - stop reason: `blocking_registry_not_cleared`
+- **laravel-8-to-9** (`8` -> `9`): execution `skipped`; resolution `not evaluated`; selected attempt `none`
+  - analysis PHP: `8.1.0`; source snapshot: `original_project`
+  - effective platform: `c2b227c251d4ec9ccf885e95404feaceedd627ff0c7104bc213f254935e62537`; completeness `partial`; profile `none`
+  - Composer policy: `0c155d2582c9452186059dbe78d0da2d730f798c6c1d69f356c43ca832fcf1b9`; mode `compatible`; stage duration `1 ms`
+  - stage evidence: `laravel-stage-target-2`, `stage-skipped-1`
+  - state chain: predecessor `none`; input `none`; output `none`
+  - original-source finding (`high`): Update the root laravel/framework constraint from `^7.0` to a constraint compatible with Laravel 9.
+  - stop reason: `previous_stage_blocked`
 - Blocker registry:
-  - None recorded.
+  - `stage-blocker-a3bd37c51e9a796aef74` stage `laravel-7-to-8`: `transitive-package-conflict` `illuminate/support`; lifecycle `persists` (detected@1 -> persists@2); blocking package `fixture/illuminate-consumer`; constraint `^7.0`; path `fixture/illuminate-consumer -> illuminate/support`
 
 ## Package Changes
 - No lockfile changes detected.
@@ -229,6 +248,15 @@ Resolution: **blocked** | Staged: **unknown** | Schema: `0.8` | Tool: `php-upgra
 - `solver-3` (`E1`, high confidence): Composer scenario "minimal-changes" failed. Context: `{"scenario":"minimal-changes","targets":[{"package":"laravel/framework","constraint":"^9.0"},{"package":"php","constraint":"8.1.0"}],"exit_code":2,"output_excerpt":"Your requirements could not be resolved to an installable set of packages.\n- fixture/illuminate-consumer 1.0.0 requires illuminate/support ^7.0 -> found illuminate/support[v7.30.7] but it conflicts with the requested Laravel target.","diagnostics":[{"package":"laravel/framework","constraint":"^9.0","command":["composer","prohibits","laravel/framework","^9.0","--tree","--locked","--no-scripts","--no-plugins","--no-interaction"],"exit_code":1,"stdout_excerpt":"","stderr_excerpt":"No additional fixture diagnostic."},{"package":"php","constraint":"8.1.0","command":["composer","prohibits","php","8.1.0","--tree","--locked","--no-scripts","--no-plugins","--no-interaction"],"exit_code":1,"stdout_excerpt":"","stderr_excerpt":"No additional fixture diagnostic."}]}`
 - `solver-4` (`E1`, high confidence): Composer scenario "target-platform-only" failed. Context: `{"scenario":"target-platform-only","targets":[{"package":"php","constraint":"8.1.0"}],"exit_code":2,"output_excerpt":"Your requirements could not be resolved to an installable set of packages.\n- fixture/illuminate-consumer 1.0.0 requires illuminate/support ^7.0 -> found illuminate/support[v7.30.7] but it conflicts with the requested Laravel target.","diagnostics":[{"package":"php","constraint":"8.1.0","command":["composer","prohibits","php","8.1.0","--tree","--locked","--no-scripts","--no-plugins","--no-interaction"],"exit_code":1,"stdout_excerpt":"","stderr_excerpt":"No additional fixture diagnostic."}]}`
 - `solver-5` (`E1`, high confidence): Composer scenario "staged-targets" failed. Context: `{"scenario":"staged-targets","targets":[{"package":"laravel/framework","constraint":"^9.0"},{"package":"php","constraint":"7.4.0"}],"exit_code":2,"output_excerpt":"Your requirements could not be resolved to an installable set of packages.\n- fixture/illuminate-consumer 1.0.0 requires illuminate/support ^7.0 -> found illuminate/support[v7.30.7] but it conflicts with the requested Laravel target.","diagnostics":[{"package":"laravel/framework","constraint":"^9.0","command":["composer","prohibits","laravel/framework","^9.0","--tree","--locked","--no-scripts","--no-plugins","--no-interaction"],"exit_code":1,"stdout_excerpt":"","stderr_excerpt":"No additional fixture diagnostic."}]}`
+- `laravel-stage-target-1` (`E4`, high confidence): Laravel adapter metadata supplies the exact package target for stage 7 to 8. Context: `{"stage_id":"laravel-7-to-8","package":"laravel/framework","constraint":"^8.0","analysis_php":"8.1.0","minimum_php_constraint":"^7.3|^8.0","analysis_php_provenance":"final_target_php_exact_value_checked_against_adapter_constraint","sources":["https://laravel.com/docs/8.x/upgrade"]}`
+- `laravel-stage-target-2` (`E4`, high confidence): Laravel adapter metadata supplies the exact package target for stage 8 to 9. Context: `{"stage_id":"laravel-8-to-9","package":"laravel/framework","constraint":"^9.0","analysis_php":"8.1.0","minimum_php_constraint":"^8.0.2","analysis_php_provenance":"final_target_php_exact_value_checked_against_adapter_constraint","sources":["https://laravel.com/docs/9.x/upgrade"]}`
+- `stage-attempt-1` (`E1`, high confidence): Executed Composer attempt 1 for stage laravel-7-to-8. Context: `{"stage_id":"laravel-7-to-8","attempt":1,"strategy":"target_only","scenario":"laravel-7-to-8-attempt-1-target_only","outcome":"solver_failure"}`
+- `solver-6` (`E1`, high confidence): Composer scenario "laravel-7-to-8-attempt-1-target_only" failed. Context: `{"scenario":"laravel-7-to-8-attempt-1-target_only","targets":[{"package":"laravel/framework","constraint":"^8.0"},{"package":"php","constraint":"8.1.0"}],"exit_code":2,"output_excerpt":"Your requirements could not be resolved to an installable set of packages.\n- fixture/illuminate-consumer 1.0.0 requires illuminate/support ^7.0 -> found illuminate/support[v7.30.7] but it conflicts with the requested Laravel target.","diagnostics":[{"package":"laravel/framework","constraint":"^8.0","command":["composer","prohibits","laravel/framework","^8.0","--tree","--locked","--no-scripts","--no-plugins","--no-interaction"],"exit_code":1,"stdout_excerpt":"","stderr_excerpt":"No additional fixture diagnostic."},{"package":"php","constraint":"8.1.0","command":["composer","prohibits","php","8.1.0","--tree","--locked","--no-scripts","--no-plugins","--no-interaction"],"exit_code":1,"stdout_excerpt":"","stderr_excerpt":"No additional fixture diagnostic."}]}`
+- `stage-root-change-1` (`E2`, high confidence): Recorded an analyzer-only root constraint change for stage laravel-7-to-8. Context: `{"stage_id":"laravel-7-to-8","package":"laravel/framework","from_constraint":"^7.0","to_constraint":"^8.0","supporting_evidence":["laravel-stage-target-1"]}`
+- `stage-attempt-2` (`E1`, high confidence): Executed Composer attempt 2 for stage laravel-7-to-8. Context: `{"stage_id":"laravel-7-to-8","attempt":2,"strategy":"locked_package_remediation","scenario":"laravel-7-to-8-attempt-2-locked_package_remediation","outcome":"solver_failure"}`
+- `solver-7` (`E1`, high confidence): Composer scenario "laravel-7-to-8-attempt-2-locked_package_remediation" failed. Context: `{"scenario":"laravel-7-to-8-attempt-2-locked_package_remediation","targets":[{"package":"laravel/framework","constraint":"^8.0"},{"package":"php","constraint":"8.1.0"}],"exit_code":2,"output_excerpt":"Your requirements could not be resolved to an installable set of packages.\n- fixture/illuminate-consumer 1.0.0 requires illuminate/support ^7.0 -> found illuminate/support[v7.30.7] but it conflicts with the requested Laravel target.","diagnostics":[{"package":"laravel/framework","constraint":"^8.0","command":["composer","prohibits","laravel/framework","^8.0","--tree","--locked","--no-scripts","--no-plugins","--no-interaction"],"exit_code":1,"stdout_excerpt":"","stderr_excerpt":"No additional fixture diagnostic."},{"package":"php","constraint":"8.1.0","command":["composer","prohibits","php","8.1.0","--tree","--locked","--no-scripts","--no-plugins","--no-interaction"],"exit_code":1,"stdout_excerpt":"","stderr_excerpt":"No additional fixture diagnostic."}]}`
+- `stage-root-change-2` (`E2`, high confidence): Recorded an analyzer-only root constraint change for stage laravel-7-to-8. Context: `{"stage_id":"laravel-7-to-8","package":"laravel/framework","from_constraint":"^7.0","to_constraint":"^8.0","supporting_evidence":["laravel-stage-target-1"]}`
+- `stage-skipped-1` (`E1`, high confidence): Stage laravel-8-to-9 was skipped after the preceding stage stopped the candidate-state chain. Context: `{"stage_id":"laravel-8-to-9","preceding_status":"blocked","reason":"previous_stage_blocked"}`
 - `laravel-transition-1` (`E4`, medium confidence): The retained Laravel 7 to 8 rule pack covers this requested transition. Context: `{"source_major":7,"target_major":8,"rule_pack":"laravel-7-to-8","source":"https://laravel.com/docs/8.x/upgrade"}`
 - `laravel-transition-2` (`E4`, medium confidence): The implemented Laravel 8 to 9 rule pack covers this requested transition. Context: `{"source_major":8,"target_major":9,"rule_pack":"laravel-8-to-9","source":"https://laravel.com/docs/9.x/upgrade"}`
 - `laravel-framework-constraint-1` (`E2`, high confidence): The root Laravel framework constraint does not include the requested target major. Context: `{"package":"laravel/framework","root_constraint":"^7.0","target_constraint":"^9.0","target_laravel_major":9}`

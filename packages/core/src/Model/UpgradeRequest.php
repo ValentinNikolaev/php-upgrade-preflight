@@ -142,6 +142,14 @@ final class UpgradeRequest
         return $this->composerExecution;
     }
 
+    public function withComposerExecution(ComposerExecutionConfiguration $composerExecution): self
+    {
+        $request = clone $this;
+        $request->composerExecution = $composerExecution;
+
+        return $request;
+    }
+
     /** @return array<string, mixed> */
     public function toArray(): array
     {

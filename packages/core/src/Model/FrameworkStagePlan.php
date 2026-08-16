@@ -10,6 +10,7 @@ final class FrameworkStagePlan
     public const REASON_AMBIGUOUS_TRANSITION = 'ambiguous_transition';
     public const REASON_GUIDANCE_GAP = 'guidance_gap';
     public const REASON_UNSUPPORTED_TRANSITION = 'unsupported_transition';
+    public const REASON_ANALYSIS_PHP_UNAVAILABLE = 'analysis_php_unavailable';
 
     private string $provider;
     /** @var list<FrameworkStageTarget> */
@@ -34,6 +35,11 @@ final class FrameworkStagePlan
         foreach ($stages as $stage) {
             if (!$stage instanceof FrameworkStageTarget) {
                 throw new \InvalidArgumentException('Framework stage plans may contain only FrameworkStageTarget instances.');
+            }
+        }
+        foreach ($evidence as $reference) {
+            if (!is_string($reference) || trim($reference) === '') {
+                throw new \InvalidArgumentException('Framework stage-plan evidence IDs must be nonempty strings.');
             }
         }
         if ($stages !== [] && $unavailableReason !== null) {
@@ -87,6 +93,7 @@ final class FrameworkStagePlan
             self::REASON_AMBIGUOUS_TRANSITION,
             self::REASON_GUIDANCE_GAP,
             self::REASON_UNSUPPORTED_TRANSITION,
+            self::REASON_ANALYSIS_PHP_UNAVAILABLE,
         ];
     }
 }

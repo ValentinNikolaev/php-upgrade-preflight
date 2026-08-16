@@ -891,6 +891,10 @@
                 "targets",
                 "analysis_php",
                 "target_evidence",
+                "platform",
+                "composer_execution",
+                "duration_ms",
+                "evidence",
                 "predecessor_state",
                 "input_state",
                 "output_state",
@@ -921,6 +925,20 @@
                 },
                 "analysis_php": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
                 "target_evidence": {"$ref": "#/$defs/evidenceReferences"},
+                "platform": {
+                    "oneOf": [
+                        {"$ref": "#/$defs/stagePlatform"},
+                        {"type": "null"}
+                    ]
+                },
+                "composer_execution": {
+                    "oneOf": [
+                        {"$ref": "#/$defs/stageComposerExecution"},
+                        {"type": "null"}
+                    ]
+                },
+                "duration_ms": {"type": "integer", "minimum": 0},
+                "evidence": {"$ref": "#/$defs/evidenceReferences"},
                 "predecessor_state": {"$ref": "#/$defs/nullableStateFingerprint"},
                 "input_state": {"$ref": "#/$defs/nullableStateFingerprint"},
                 "output_state": {"$ref": "#/$defs/nullableStateFingerprint"},
@@ -949,6 +967,31 @@
                     "items": {"type": "string", "minLength": 1}
                 },
                 "stop_reason": {"type": ["string", "null"], "minLength": 1}
+            }
+        },
+        "stagePlatform": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["analysis_php", "completeness", "profile_sha256", "effective_sha256"],
+            "properties": {
+                "analysis_php": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
+                "completeness": {"enum": ["partial", "complete"]},
+                "profile_sha256": {
+                    "oneOf": [
+                        {"$ref": "#/$defs/sha256"},
+                        {"type": "null"}
+                    ]
+                },
+                "effective_sha256": {"$ref": "#/$defs/sha256"}
+            }
+        },
+        "stageComposerExecution": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["configuration", "effective_sha256"],
+            "properties": {
+                "configuration": {"$ref": "#/$defs/composerExecutionConfiguration"},
+                "effective_sha256": {"$ref": "#/$defs/sha256"}
             }
         },
         "stageEffort": {

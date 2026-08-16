@@ -19,6 +19,7 @@ use PhpUpgradePreflight\Core\Model\Scenario;
 use PhpUpgradePreflight\Core\Model\StageAnalysis;
 use PhpUpgradePreflight\Core\Model\StageAttempt;
 use PhpUpgradePreflight\Core\Model\StageBlockerEntry;
+use PhpUpgradePreflight\Core\Model\StageExecutionContext;
 use PhpUpgradePreflight\Core\Model\StagedResolution;
 use PhpUpgradePreflight\Core\Model\TargetPlatform;
 use PhpUpgradePreflight\Core\Model\UpgradeRequest;
@@ -74,14 +75,6 @@ final class StagedUpgradeOrchestrator
         /** @var FrameworkIntegration&FrameworkStageTargetProvider $provider */
         $provider = $providers[0];
         $plan = $provider->planStages($project, $request, $evidence);
-        if (!$plan->isAvailable()) {
-            return StagedResolution::skipped(
-                (string) $plan->unavailableReason(),
-                $plan->provider(),
-                $plan->evidence()
-            );
-        }
-
         $stages = $plan->stages();
         $planEvidence = $plan->evidence();
         foreach ($stages as $stage) {
@@ -91,7 +84,7 @@ final class StagedUpgradeOrchestrator
             }
         }
         $planEvidence = array_values(array_unique($planEvidence));
-        $validationFailure = $this->validatePlan($stages);
+        $validationFailure = $this->validatePlan($stages, $plan->provider(), $provider->name());
         if ($validationFailure !== null) {
             $evidenceId = $evidence->add(
                 'stage-plan-invalid',
@@ -105,6 +98,13 @@ final class StagedUpgradeOrchestrator
                 'invalid_stage_plan',
                 $plan->provider(),
                 array_values(array_unique(array_merge($planEvidence, [$evidenceId])))
+            );
+        }
+        if (!$plan->isAvailable()) {
+            return StagedResolution::skipped(
+                (string) $plan->unavailableReason(),
+                $plan->provider(),
+                $plan->evidence()
             );
         }
         if (count($stages) > StagedAnalysisPolicy::MAX_HOPS) {
@@ -133,9 +133,28 @@ final class StagedUpgradeOrchestrator
         $stopReason = null;
         $overallStatus = StagedResolution::FEASIBLE;
         $hasChanges = false;
+        $stagedRequest = $this->stagedRequest($request);
+        $scenarioTimeoutMs = $stagedRequest->composerExecution()->scenarioTimeoutSeconds() * 1000;
 
         foreach ($stages as $index => $stage) {
             if ($stopReason !== null) {
+                $skippedFingerprint = ProjectStateFingerprint::fromState(
+                    $currentState,
+                    $platform,
+                    $stage->analysisPhp(),
+                    $stagedRequest->composerExecution()->stateFingerprintData()
+                );
+                $skipEvidence = $evidence->add(
+                    'stage-skipped',
+                    Evidence::E1_SOLVER,
+                    sprintf('Stage %s was skipped after the preceding stage stopped the candidate-state chain.', $stage->id()),
+                    'high',
+                    [
+                        'stage_id' => $stage->id(),
+                        'preceding_status' => $overallStatus,
+                        'reason' => 'previous_stage_' . $overallStatus,
+                    ]
+                )->id();
                 $stageAnalyses[] = new StageAnalysis(
                     $stage,
                     StageAnalysis::SKIPPED,
@@ -146,7 +165,16 @@ final class StagedUpgradeOrchestrator
                     null,
                     null,
                     [],
-                    'previous_stage_' . $overallStatus
+                    'previous_stage_' . $overallStatus,
+                    [],
+                    [],
+                    new StageExecutionContext(
+                        $stage->analysisPhp(),
+                        $platform,
+                        $stagedRequest->composerExecution(),
+                        $skippedFingerprint
+                    ),
+                    [$skipEvidence]
                 );
                 continue;
             }
@@ -155,7 +183,7 @@ final class StagedUpgradeOrchestrator
                 $currentState,
                 $platform,
                 $stage->analysisPhp(),
-                $request->composerExecution()->stateFingerprintData()
+                $stagedRequest->composerExecution()->stateFingerprintData()
             );
             $attempts = [];
             $selectedAttempt = null;
@@ -166,7 +194,9 @@ final class StagedUpgradeOrchestrator
             $definitions = $this->attemptDefinitions($stage);
 
             foreach ($definitions as $attemptIndex => $definition) {
-                if ($aggregateDurationMs >= StagedAnalysisPolicy::AGGREGATE_TIMEOUT_SECONDS * 1000) {
+                $remainingAggregateMs = StagedAnalysisPolicy::AGGREGATE_TIMEOUT_SECONDS * 1000
+                    - $aggregateDurationMs;
+                if ($remainingAggregateMs < $scenarioTimeoutMs) {
                     $stageStopReason = 'aggregate_timeout';
                     $stageStatus = StagedResolution::UNKNOWN;
                     break;
@@ -178,7 +208,7 @@ final class StagedUpgradeOrchestrator
                     $definition['targets'],
                     $definition['with_all_dependencies']
                 );
-                $result = $this->runner->run($currentState, $request, $scenario, $platform);
+                $result = $this->runner->run($currentState, $stagedRequest, $scenario, $platform);
                 $aggregateDurationMs += $result->durationMs();
 
                 $attemptEvidence = $evidence->add(
@@ -224,7 +254,7 @@ final class StagedUpgradeOrchestrator
                         $candidate,
                         $platform,
                         $stage->analysisPhp(),
-                        $request->composerExecution()->stateFingerprintData()
+                        $stagedRequest->composerExecution()->stateFingerprintData()
                     );
                 $rootChanges = $this->rootConstraintChanges(
                     $currentState,
@@ -287,7 +317,15 @@ final class StagedUpgradeOrchestrator
                 $predecessor,
                 $selectedFingerprint,
                 $packageChanges,
-                $stageStopReason
+                $stageStopReason,
+                [],
+                [],
+                new StageExecutionContext(
+                    $stage->analysisPhp(),
+                    $platform,
+                    $stagedRequest->composerExecution(),
+                    $predecessor
+                )
             );
 
             if ($selectedState === null) {
@@ -485,11 +523,17 @@ final class StagedUpgradeOrchestrator
     }
 
     /** @param list<FrameworkStageTarget> $stages */
-    private function validatePlan(array $stages): ?string
+    private function validatePlan(array $stages, string $planProvider, string $activeProvider): ?string
     {
+        if ($planProvider !== $activeProvider) {
+            return 'provider_identity_mismatch';
+        }
         $ids = [];
         $previous = null;
         foreach ($stages as $stage) {
+            if ($stage->framework() !== $planProvider) {
+                return 'stage_framework_mismatch';
+            }
             if (isset($ids[$stage->id()])) {
                 return 'duplicate_stage_id';
             }
@@ -503,5 +547,18 @@ final class StagedUpgradeOrchestrator
         }
 
         return null;
+    }
+
+    private function stagedRequest(UpgradeRequest $request): UpgradeRequest
+    {
+        $execution = $request->composerExecution();
+        $timeout = min(
+            $execution->scenarioTimeoutSeconds(),
+            StagedAnalysisPolicy::SCENARIO_TIMEOUT_SECONDS
+        );
+
+        return $timeout === $execution->scenarioTimeoutSeconds()
+            ? $request
+            : $request->withComposerExecution($execution->withScenarioTimeoutSeconds($timeout));
     }
 }

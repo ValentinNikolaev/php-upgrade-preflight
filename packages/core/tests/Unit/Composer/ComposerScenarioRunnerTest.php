@@ -15,6 +15,7 @@ use PhpUpgradePreflight\Core\Model\ScenarioResult;
 use PhpUpgradePreflight\Core\Model\UpgradeRequest;
 use PhpUpgradePreflight\Core\Model\UpgradeTarget;
 use PhpUpgradePreflight\Core\Support\PathExposurePolicy;
+use PhpUpgradePreflight\Tests\Support\FixtureSnapshot;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
@@ -536,6 +537,7 @@ final class ComposerScenarioRunnerTest extends TestCase
 
     public function testTimeoutIsAStructuredOutcome(): void
     {
+        $snapshot = FixtureSnapshot::capture($this->fixtureProjectPath());
         $process = new Process(['composer', 'update']);
         $process->setTimeout(300);
         $runner = new ComposerScenarioRunner(null, null, static function () use ($process): array {
@@ -547,6 +549,7 @@ final class ComposerScenarioRunnerTest extends TestCase
         self::assertSame(ScenarioResult::OUTCOME_TIMEOUT, $result->outcome());
         self::assertTrue($result->isOperationalFailure());
         self::assertStringContainsString('exceeded the timeout', $result->stderr());
+        $snapshot->assertUnchanged($this);
     }
 
     public function testInvalidCandidateLockJsonIsAStructuredOutcome(): void
@@ -927,6 +930,7 @@ final class ComposerScenarioRunnerTest extends TestCase
 
     public function testNonDebugWorkspaceIsRemovedAfterAProcessFailure(): void
     {
+        $snapshot = FixtureSnapshot::capture($this->fixtureProjectPath());
         $workspaceManager = new TrackingWorkspaceManager();
         $runner = new ComposerScenarioRunner($workspaceManager, null, static function (): array {
             throw new \RuntimeException('Synthetic process failure.');
@@ -939,10 +943,12 @@ final class ComposerScenarioRunnerTest extends TestCase
         self::assertCount(1, $workspaceManager->createdPaths);
         self::assertSame($workspaceManager->createdPaths, $workspaceManager->removedPaths);
         self::assertDirectoryDoesNotExist($workspaceManager->createdPaths[0]);
+        $snapshot->assertUnchanged($this);
     }
 
     public function testDebugWorkspaceIsTheOnlyIntentionallyPreservedWorkspace(): void
     {
+        $snapshot = FixtureSnapshot::capture($this->fixtureProjectPath());
         $workspaceManager = new TrackingWorkspaceManager();
         $runner = new ComposerScenarioRunner($workspaceManager, null, static function (array $command, string $directory): array {
             file_put_contents($directory . DIRECTORY_SEPARATOR . 'composer.lock', json_encode([
@@ -975,6 +981,7 @@ final class ComposerScenarioRunnerTest extends TestCase
             self::assertSame($workspaceManager->createdPaths[0], $result->tempPath());
             self::assertSame($workspaceManager->createdPaths[0], $result->toArray()['temp_path']);
             self::assertDirectoryExists($result->tempPath());
+            $snapshot->assertUnchanged($this);
         } finally {
             $workspaceManager->forceCleanup();
         }
@@ -982,6 +989,7 @@ final class ComposerScenarioRunnerTest extends TestCase
 
     public function testDebugWorkspaceIsPreservedAfterAProcessFailure(): void
     {
+        $snapshot = FixtureSnapshot::capture($this->fixtureProjectPath());
         $workspaceManager = new TrackingWorkspaceManager();
         $runner = new ComposerScenarioRunner($workspaceManager, null, static function (): array {
             throw new \RuntimeException('Synthetic process failure.');
@@ -1009,6 +1017,7 @@ final class ComposerScenarioRunnerTest extends TestCase
             self::assertSame($workspaceManager->createdPaths[0], $result->tempPath());
             self::assertSame($workspaceManager->createdPaths[0], $result->toArray()['temp_path']);
             self::assertDirectoryExists($result->tempPath());
+            $snapshot->assertUnchanged($this);
         } finally {
             $workspaceManager->forceCleanup();
         }
@@ -1040,6 +1049,7 @@ final class ComposerScenarioRunnerTest extends TestCase
 
     public function testWorkspaceCleanupFailureBecomesAnOperationalResult(): void
     {
+        $snapshot = FixtureSnapshot::capture($this->fixtureProjectPath());
         $workspaceManager = new FailingCleanupWorkspaceManager();
         $runner = new ComposerScenarioRunner($workspaceManager, null, static function (array $command, string $directory): array {
             file_put_contents($directory . DIRECTORY_SEPARATOR . 'composer.lock', json_encode([
@@ -1064,6 +1074,7 @@ final class ComposerScenarioRunnerTest extends TestCase
             self::assertNotNull($result->tempPath());
             self::assertSame(PathExposurePolicy::ANALYZER_WORKSPACE, $result->toArray()['temp_path']);
             self::assertNotNull($result->candidateLockEvidence());
+            $snapshot->assertUnchanged($this);
         } finally {
             $workspaceManager->forceCleanup();
         }
@@ -1177,11 +1188,17 @@ final class ComposerScenarioRunnerTest extends TestCase
 
     private function runFixtureScenario(ComposerScenarioRunner $runner): ScenarioResult
     {
-        $projectPath = dirname(__DIR__, 5) . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'fixtures' . DIRECTORY_SEPARATOR . 'project-isolation';
+        $projectPath = $this->fixtureProjectPath();
         $project = (new ProjectStateBuilder())->build($projectPath);
         $request = new UpgradeRequest($projectPath, [new UpgradeTarget('fixture/dependency', '^2.0')]);
 
         return $runner->run($project, $request, new Scenario('exact-target', $request->targets()));
+    }
+
+    private function fixtureProjectPath(): string
+    {
+        return dirname(__DIR__, 5) . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR
+            . 'fixtures' . DIRECTORY_SEPARATOR . 'project-isolation';
     }
 }
 

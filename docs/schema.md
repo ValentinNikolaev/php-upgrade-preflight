@@ -64,7 +64,8 @@ For a 0.7/0.8 consumer:
 5. Advance through stages only when the stage has a selected attempt and its output fingerprint matches the next stage's input fingerprint.
 6. Read profile identity from its canonical SHA-256 digest and safe `php_api` or `file` provenance. A profile path is never part of canonical output.
 7. For a non-null profile, use `closed_world` and `effective[]`; do not infer completeness from the legacy `platform.extensions` projection.
-8. Do not infer an empty staged result or a null profile for schema 0.7; field absence identifies the older contract.
+8. For each 0.8 stage, read its exact `analysis_php`, `platform`, `composer_execution`, `duration_ms`, and `evidence` together with the candidate-state fingerprints. The stage context digests must equal the corresponding input fingerprint digests.
+9. Do not infer an empty staged result or a null profile for schema 0.7; field absence identifies the older contract.
 
 The minimal canonical 0.8 fixture is [`tests/fixtures/contracts/v0.3/minimal-report-v0.8.json`](../tests/fixtures/contracts/v0.3/minimal-report-v0.8.json). The complete staged semantics are locked in the [v0.3 contract](v0.3-contract.md).
 

@@ -1,6 +1,6 @@
 # PHP Upgrade Preflight Report
 
-Resolution: **feasible_with_changes** | Staged: **unknown** | Schema: `0.8` | Tool: `php-upgrade-preflight 0.3.0-dev`
+Resolution: **feasible_with_changes** | Staged: **feasible_with_changes** | Schema: `0.8` | Tool: `php-upgrade-preflight 0.3.0-dev`
 
 ## Analysis Request
 - Project: `<PROJECT_PATH>`
@@ -101,8 +101,26 @@ Resolution: **feasible_with_changes** | Staged: **unknown** | Schema: `0.8` | To
   - diagnostics: none
 
 ## Staged Composer Resolution
-- Execution: `skipped`; status: `unknown`; provider: `laravel`; stop reason: `guidance_gap`
-- No framework stages were executed.
+- Execution: `evaluated`; status: `feasible_with_changes`; provider: `laravel`; stop reason: `none`
+- **laravel-7-to-8** (`7` -> `8`): execution `evaluated`; resolution `feasible_with_changes`; selected attempt `1`
+  - analysis PHP: `8.1.0`; source snapshot: `original_project`
+  - effective platform: `c2b227c251d4ec9ccf885e95404feaceedd627ff0c7104bc213f254935e62537`; completeness `partial`; profile `none`
+  - Composer policy: `0c155d2582c9452186059dbe78d0da2d730f798c6c1d69f356c43ca832fcf1b9`; mode `compatible`; stage duration `1 ms`
+  - stage evidence: `laravel-stage-target-1`, `stage-attempt-1`, `stage-root-change-1`
+  - state chain: predecessor `89e3284b81221d9df71561bd4abe4ff9e818339f3a35acf89f6cd661f75165fb`; input `89e3284b81221d9df71561bd4abe4ff9e818339f3a35acf89f6cd661f75165fb`; output `7158199540319a2f3573a9cd098dede100577faad8e25dc64ca49a86a779ca6f`
+  - attempt `1` `target_only`: outcome `success`; duration `1 ms`; selected yes; blockers `none`
+    - analyzer-only root change `laravel/framework`: `^7.0` -> `^8.0`
+  - selected package change `laravel/framework`: `v7.30.7` -> `v8.83.27`
+- **laravel-8-to-9** (`8` -> `9`): execution `evaluated`; resolution `feasible_with_changes`; selected attempt `1`
+  - analysis PHP: `8.1.0`; source snapshot: `original_project`
+  - effective platform: `c2b227c251d4ec9ccf885e95404feaceedd627ff0c7104bc213f254935e62537`; completeness `partial`; profile `none`
+  - Composer policy: `0c155d2582c9452186059dbe78d0da2d730f798c6c1d69f356c43ca832fcf1b9`; mode `compatible`; stage duration `1 ms`
+  - stage evidence: `laravel-stage-target-2`, `stage-attempt-2`, `stage-root-change-2`
+  - state chain: predecessor `7158199540319a2f3573a9cd098dede100577faad8e25dc64ca49a86a779ca6f`; input `7158199540319a2f3573a9cd098dede100577faad8e25dc64ca49a86a779ca6f`; output `0a58b033b3734b2b3297d7551c0597b9af27cab69b3fe6c4bde9338fc456561a`
+  - attempt `1` `target_only`: outcome `success`; duration `1 ms`; selected yes; blockers `none`
+    - analyzer-only root change `laravel/framework`: `^8.0` -> `^9.0`
+  - selected package change `laravel/framework`: `v8.83.27` -> `v9.52.16`
+  - original-source finding (`high`): Update the root laravel/framework constraint from `^7.0` to a constraint compatible with Laravel 9.
 - Blocker registry:
   - None recorded.
 
@@ -169,6 +187,12 @@ Resolution: **feasible_with_changes** | Staged: **unknown** | Schema: `0.8` | To
 - Compatible Composer execution may inherit global configuration, credentials, proxies, caches, repository access, and other analyzer-host state.
 
 ## Evidence
+- `laravel-stage-target-1` (`E4`, high confidence): Laravel adapter metadata supplies the exact package target for stage 7 to 8. Context: `{"stage_id":"laravel-7-to-8","package":"laravel/framework","constraint":"^8.0","analysis_php":"8.1.0","minimum_php_constraint":"^7.3|^8.0","analysis_php_provenance":"final_target_php_exact_value_checked_against_adapter_constraint","sources":["https://laravel.com/docs/8.x/upgrade"]}`
+- `laravel-stage-target-2` (`E4`, high confidence): Laravel adapter metadata supplies the exact package target for stage 8 to 9. Context: `{"stage_id":"laravel-8-to-9","package":"laravel/framework","constraint":"^9.0","analysis_php":"8.1.0","minimum_php_constraint":"^8.0.2","analysis_php_provenance":"final_target_php_exact_value_checked_against_adapter_constraint","sources":["https://laravel.com/docs/9.x/upgrade"]}`
+- `stage-attempt-1` (`E1`, high confidence): Executed Composer attempt 1 for stage laravel-7-to-8. Context: `{"stage_id":"laravel-7-to-8","attempt":1,"strategy":"target_only","scenario":"laravel-7-to-8-attempt-1-target_only","outcome":"success"}`
+- `stage-root-change-1` (`E2`, high confidence): Recorded an analyzer-only root constraint change for stage laravel-7-to-8. Context: `{"stage_id":"laravel-7-to-8","package":"laravel/framework","from_constraint":"^7.0","to_constraint":"^8.0","supporting_evidence":["laravel-stage-target-1"]}`
+- `stage-attempt-2` (`E1`, high confidence): Executed Composer attempt 1 for stage laravel-8-to-9. Context: `{"stage_id":"laravel-8-to-9","attempt":1,"strategy":"target_only","scenario":"laravel-8-to-9-attempt-1-target_only","outcome":"success"}`
+- `stage-root-change-2` (`E2`, high confidence): Recorded an analyzer-only root constraint change for stage laravel-8-to-9. Context: `{"stage_id":"laravel-8-to-9","package":"laravel/framework","from_constraint":"^8.0","to_constraint":"^9.0","supporting_evidence":["laravel-stage-target-2"]}`
 - `laravel-transition-1` (`E4`, medium confidence): The retained Laravel 7 to 8 rule pack covers this requested transition. Context: `{"source_major":7,"target_major":8,"rule_pack":"laravel-7-to-8","source":"https://laravel.com/docs/8.x/upgrade"}`
 - `laravel-transition-2` (`E4`, medium confidence): The implemented Laravel 8 to 9 rule pack covers this requested transition. Context: `{"source_major":8,"target_major":9,"rule_pack":"laravel-8-to-9","source":"https://laravel.com/docs/9.x/upgrade"}`
 - `laravel-framework-constraint-1` (`E2`, high confidence): The root Laravel framework constraint does not include the requested target major. Context: `{"package":"laravel/framework","root_constraint":"^7.0","target_constraint":"^9.0","target_laravel_major":9}`

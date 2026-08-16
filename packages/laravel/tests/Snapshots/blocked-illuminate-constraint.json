@@ -400,12 +400,466 @@
         ]
     },
     "staged_resolution": {
-        "execution_state": "skipped",
-        "status": "unknown",
+        "execution_state": "evaluated",
+        "status": "blocked",
         "provider": "laravel",
-        "stages": [],
-        "blocker_registry": [],
-        "stop_reason": "guidance_gap",
+        "stages": [
+            {
+                "id": "laravel-7-to-8",
+                "framework": "laravel",
+                "from_major": 7,
+                "to_major": 8,
+                "execution_state": "evaluated",
+                "resolution_status": "blocked",
+                "targets": [
+                    {
+                        "package": "laravel/framework",
+                        "constraint": "^8.0"
+                    },
+                    {
+                        "package": "php",
+                        "constraint": "8.1.0"
+                    }
+                ],
+                "analysis_php": "8.1.0",
+                "target_evidence": [
+                    "laravel-stage-target-1"
+                ],
+                "platform": {
+                    "analysis_php": "8.1.0",
+                    "completeness": "partial",
+                    "profile_sha256": null,
+                    "effective_sha256": "c2b227c251d4ec9ccf885e95404feaceedd627ff0c7104bc213f254935e62537"
+                },
+                "composer_execution": {
+                    "configuration": {
+                        "mode": "compatible",
+                        "executable_selection": "path_search",
+                        "expected_version": ">=2.0.0 <3.0.0",
+                        "scenario_timeout_seconds": 300,
+                        "diagnostic_timeout_seconds": 60,
+                        "environment_mode": "inherited",
+                        "network_policy": "inherited"
+                    },
+                    "effective_sha256": "0c155d2582c9452186059dbe78d0da2d730f798c6c1d69f356c43ca832fcf1b9"
+                },
+                "duration_ms": 2,
+                "evidence": [
+                    "laravel-stage-target-1",
+                    "stage-attempt-1",
+                    "stage-root-change-1",
+                    "stage-attempt-2",
+                    "stage-root-change-2"
+                ],
+                "predecessor_state": {
+                    "manifest_sha256": "4e2a55301c55c00eae8fc9384ecf9beeb3166e73b6ec33e720444ddd358f9042",
+                    "lock_sha256": "7123305eaef914deefba1cbc004057df2acb849f7fbf28a01c8a5c432a4c17aa",
+                    "platform_sha256": "c2b227c251d4ec9ccf885e95404feaceedd627ff0c7104bc213f254935e62537",
+                    "execution_policy_sha256": "0c155d2582c9452186059dbe78d0da2d730f798c6c1d69f356c43ca832fcf1b9",
+                    "state_sha256": "ae61f76dad3c6af973734bad704adaad5861aa0c16d437ea5878066664b2b737"
+                },
+                "input_state": {
+                    "manifest_sha256": "4e2a55301c55c00eae8fc9384ecf9beeb3166e73b6ec33e720444ddd358f9042",
+                    "lock_sha256": "7123305eaef914deefba1cbc004057df2acb849f7fbf28a01c8a5c432a4c17aa",
+                    "platform_sha256": "c2b227c251d4ec9ccf885e95404feaceedd627ff0c7104bc213f254935e62537",
+                    "execution_policy_sha256": "0c155d2582c9452186059dbe78d0da2d730f798c6c1d69f356c43ca832fcf1b9",
+                    "state_sha256": "ae61f76dad3c6af973734bad704adaad5861aa0c16d437ea5878066664b2b737"
+                },
+                "output_state": null,
+                "attempts": [
+                    {
+                        "number": 1,
+                        "strategy": "target_only",
+                        "root_constraint_changes": [
+                            {
+                                "package": "laravel/framework",
+                                "change_type": "updated",
+                                "from_constraint": "^7.0",
+                                "to_constraint": "^8.0",
+                                "reason": "Analyzer-only staged Composer simulation; the analyzed project was not changed.",
+                                "evidence": [
+                                    "laravel-stage-target-1",
+                                    "stage-root-change-1"
+                                ]
+                            }
+                        ],
+                        "scenario": {
+                            "name": "laravel-7-to-8-attempt-1-target_only",
+                            "composer_version": null,
+                            "command": [
+                                "composer",
+                                "update",
+                                "laravel/framework",
+                                "--no-scripts",
+                                "--no-plugins",
+                                "--no-install",
+                                "--no-audit",
+                                "--no-progress",
+                                "--no-interaction"
+                            ],
+                            "duration_ms": 1,
+                            "exit_code": 2,
+                            "succeeded": false,
+                            "outcome": "solver_failure",
+                            "failure_type": "solver",
+                            "stdout_excerpt": "",
+                            "stderr_excerpt": "Your requirements could not be resolved to an installable set of packages.\n- fixture/illuminate-consumer 1.0.0 requires illuminate/support ^7.0 -> found illuminate/support[v7.30.7] but it conflicts with the requested Laravel target.",
+                            "candidate_lock": null,
+                            "diagnostics": [
+                                {
+                                    "package": "laravel/framework",
+                                    "constraint": "^8.0",
+                                    "command": [
+                                        "composer",
+                                        "prohibits",
+                                        "laravel/framework",
+                                        "^8.0",
+                                        "--tree",
+                                        "--locked",
+                                        "--no-scripts",
+                                        "--no-plugins",
+                                        "--no-interaction"
+                                    ],
+                                    "exit_code": 1,
+                                    "stdout_excerpt": "",
+                                    "stderr_excerpt": "No additional fixture diagnostic."
+                                },
+                                {
+                                    "package": "php",
+                                    "constraint": "8.1.0",
+                                    "command": [
+                                        "composer",
+                                        "prohibits",
+                                        "php",
+                                        "8.1.0",
+                                        "--tree",
+                                        "--locked",
+                                        "--no-scripts",
+                                        "--no-plugins",
+                                        "--no-interaction"
+                                    ],
+                                    "exit_code": 1,
+                                    "stdout_excerpt": "",
+                                    "stderr_excerpt": "No additional fixture diagnostic."
+                                }
+                            ],
+                            "temp_path": null
+                        },
+                        "input_state": {
+                            "manifest_sha256": "4e2a55301c55c00eae8fc9384ecf9beeb3166e73b6ec33e720444ddd358f9042",
+                            "lock_sha256": "7123305eaef914deefba1cbc004057df2acb849f7fbf28a01c8a5c432a4c17aa",
+                            "platform_sha256": "c2b227c251d4ec9ccf885e95404feaceedd627ff0c7104bc213f254935e62537",
+                            "execution_policy_sha256": "0c155d2582c9452186059dbe78d0da2d730f798c6c1d69f356c43ca832fcf1b9",
+                            "state_sha256": "ae61f76dad3c6af973734bad704adaad5861aa0c16d437ea5878066664b2b737"
+                        },
+                        "output_state": null,
+                        "blocker_ids": [
+                            "stage-blocker-a3bd37c51e9a796aef74"
+                        ],
+                        "evidence": [
+                            "stage-attempt-1"
+                        ],
+                        "selected": false
+                    },
+                    {
+                        "number": 2,
+                        "strategy": "locked_package_remediation",
+                        "root_constraint_changes": [
+                            {
+                                "package": "laravel/framework",
+                                "change_type": "updated",
+                                "from_constraint": "^7.0",
+                                "to_constraint": "^8.0",
+                                "reason": "Analyzer-only staged Composer simulation; the analyzed project was not changed.",
+                                "evidence": [
+                                    "laravel-stage-target-1",
+                                    "stage-root-change-2"
+                                ]
+                            }
+                        ],
+                        "scenario": {
+                            "name": "laravel-7-to-8-attempt-2-locked_package_remediation",
+                            "composer_version": null,
+                            "command": [
+                                "composer",
+                                "update",
+                                "laravel/framework",
+                                "--with-all-dependencies",
+                                "--no-scripts",
+                                "--no-plugins",
+                                "--no-install",
+                                "--no-audit",
+                                "--no-progress",
+                                "--no-interaction"
+                            ],
+                            "duration_ms": 1,
+                            "exit_code": 2,
+                            "succeeded": false,
+                            "outcome": "solver_failure",
+                            "failure_type": "solver",
+                            "stdout_excerpt": "",
+                            "stderr_excerpt": "Your requirements could not be resolved to an installable set of packages.\n- fixture/illuminate-consumer 1.0.0 requires illuminate/support ^7.0 -> found illuminate/support[v7.30.7] but it conflicts with the requested Laravel target.",
+                            "candidate_lock": null,
+                            "diagnostics": [
+                                {
+                                    "package": "laravel/framework",
+                                    "constraint": "^8.0",
+                                    "command": [
+                                        "composer",
+                                        "prohibits",
+                                        "laravel/framework",
+                                        "^8.0",
+                                        "--tree",
+                                        "--locked",
+                                        "--no-scripts",
+                                        "--no-plugins",
+                                        "--no-interaction"
+                                    ],
+                                    "exit_code": 1,
+                                    "stdout_excerpt": "",
+                                    "stderr_excerpt": "No additional fixture diagnostic."
+                                },
+                                {
+                                    "package": "php",
+                                    "constraint": "8.1.0",
+                                    "command": [
+                                        "composer",
+                                        "prohibits",
+                                        "php",
+                                        "8.1.0",
+                                        "--tree",
+                                        "--locked",
+                                        "--no-scripts",
+                                        "--no-plugins",
+                                        "--no-interaction"
+                                    ],
+                                    "exit_code": 1,
+                                    "stdout_excerpt": "",
+                                    "stderr_excerpt": "No additional fixture diagnostic."
+                                }
+                            ],
+                            "temp_path": null
+                        },
+                        "input_state": {
+                            "manifest_sha256": "4e2a55301c55c00eae8fc9384ecf9beeb3166e73b6ec33e720444ddd358f9042",
+                            "lock_sha256": "7123305eaef914deefba1cbc004057df2acb849f7fbf28a01c8a5c432a4c17aa",
+                            "platform_sha256": "c2b227c251d4ec9ccf885e95404feaceedd627ff0c7104bc213f254935e62537",
+                            "execution_policy_sha256": "0c155d2582c9452186059dbe78d0da2d730f798c6c1d69f356c43ca832fcf1b9",
+                            "state_sha256": "ae61f76dad3c6af973734bad704adaad5861aa0c16d437ea5878066664b2b737"
+                        },
+                        "output_state": null,
+                        "blocker_ids": [
+                            "stage-blocker-a3bd37c51e9a796aef74"
+                        ],
+                        "evidence": [
+                            "stage-attempt-2"
+                        ],
+                        "selected": false
+                    }
+                ],
+                "selected_attempt": null,
+                "package_changes": [],
+                "source_snapshot": "original_project",
+                "source_findings": [
+                    {
+                        "framework": "laravel",
+                        "severity": "high",
+                        "summary": "Update or replace incompatible illuminate/support constraints before targeting Laravel 8: fixture/illuminate-consumer.",
+                        "applies_to_hops": [
+                            {
+                                "from_major": 7,
+                                "to_major": 8
+                            }
+                        ],
+                        "evidence": [
+                            "old-illuminate-consumer-1"
+                        ]
+                    }
+                ],
+                "source_impact": [],
+                "risk": {
+                    "level": "high",
+                    "drivers": [
+                        "The stage did not produce a selectable Composer state.",
+                        "Update or replace incompatible illuminate/support constraints before targeting Laravel 8: fixture/illuminate-consumer."
+                    ]
+                },
+                "effort": {
+                    "range_hours": [
+                        1,
+                        2
+                    ],
+                    "confidence": "medium"
+                },
+                "recommended_actions": [
+                    "Resolve every active blocking registry entry, then rerun the complete stage.",
+                    "Update or replace incompatible illuminate/support constraints before targeting Laravel 8: fixture/illuminate-consumer."
+                ],
+                "stop_reason": "blocking_registry_not_cleared"
+            },
+            {
+                "id": "laravel-8-to-9",
+                "framework": "laravel",
+                "from_major": 8,
+                "to_major": 9,
+                "execution_state": "skipped",
+                "resolution_status": null,
+                "targets": [
+                    {
+                        "package": "laravel/framework",
+                        "constraint": "^9.0"
+                    },
+                    {
+                        "package": "php",
+                        "constraint": "8.1.0"
+                    }
+                ],
+                "analysis_php": "8.1.0",
+                "target_evidence": [
+                    "laravel-stage-target-2"
+                ],
+                "platform": {
+                    "analysis_php": "8.1.0",
+                    "completeness": "partial",
+                    "profile_sha256": null,
+                    "effective_sha256": "c2b227c251d4ec9ccf885e95404feaceedd627ff0c7104bc213f254935e62537"
+                },
+                "composer_execution": {
+                    "configuration": {
+                        "mode": "compatible",
+                        "executable_selection": "path_search",
+                        "expected_version": ">=2.0.0 <3.0.0",
+                        "scenario_timeout_seconds": 300,
+                        "diagnostic_timeout_seconds": 60,
+                        "environment_mode": "inherited",
+                        "network_policy": "inherited"
+                    },
+                    "effective_sha256": "0c155d2582c9452186059dbe78d0da2d730f798c6c1d69f356c43ca832fcf1b9"
+                },
+                "duration_ms": 0,
+                "evidence": [
+                    "laravel-stage-target-2",
+                    "stage-skipped-1"
+                ],
+                "predecessor_state": null,
+                "input_state": null,
+                "output_state": null,
+                "attempts": [],
+                "selected_attempt": null,
+                "package_changes": [],
+                "source_snapshot": "original_project",
+                "source_findings": [
+                    {
+                        "framework": "laravel",
+                        "severity": "high",
+                        "summary": "Update the root laravel/framework constraint from `^7.0` to a constraint compatible with Laravel 9.",
+                        "applies_to_hops": [
+                            {
+                                "from_major": 8,
+                                "to_major": 9
+                            }
+                        ],
+                        "evidence": [
+                            "laravel-framework-constraint-1"
+                        ]
+                    }
+                ],
+                "source_impact": [],
+                "risk": {
+                    "level": "high",
+                    "drivers": [
+                        "Update the root laravel/framework constraint from `^7.0` to a constraint compatible with Laravel 9."
+                    ]
+                },
+                "effort": {
+                    "range_hours": [
+                        1,
+                        2
+                    ],
+                    "confidence": "low"
+                },
+                "recommended_actions": [
+                    "Do not advance to this stage until the preceding stop condition is resolved and the analysis is rerun."
+                ],
+                "stop_reason": "previous_stage_blocked"
+            }
+        ],
+        "blocker_registry": [
+            {
+                "id": "stage-blocker-a3bd37c51e9a796aef74",
+                "stage_id": "laravel-7-to-8",
+                "attempt": 1,
+                "scenario": "laravel-7-to-8-attempt-1-target_only",
+                "category": "transitive-package-conflict",
+                "subject": "illuminate/support",
+                "blocking_package": "fixture/illuminate-consumer",
+                "requested_constraint": null,
+                "constraint": "^7.0",
+                "dependency_path": [
+                    "fixture/illuminate-consumer",
+                    "illuminate/support"
+                ],
+                "confidence": "high",
+                "summary": "A transitive package constraint blocks the requested target.",
+                "options": [
+                    "Upgrade or replace `fixture/illuminate-consumer`.",
+                    "Choose a `illuminate/support` version compatible with the transitive constraint."
+                ],
+                "blocking": true,
+                "evidence": [
+                    "solver-6",
+                    "stage-attempt-1",
+                    "solver-7"
+                ],
+                "first_seen": {
+                    "stage_id": "laravel-7-to-8",
+                    "attempt": 1,
+                    "scenario": "laravel-7-to-8-attempt-1-target_only"
+                },
+                "last_seen": {
+                    "stage_id": "laravel-7-to-8",
+                    "attempt": 2,
+                    "scenario": "laravel-7-to-8-attempt-2-locked_package_remediation"
+                },
+                "lifecycle": "persists",
+                "lifecycle_history": [
+                    {
+                        "status": "detected",
+                        "attempt": 1,
+                        "scenario": "laravel-7-to-8-attempt-1-target_only",
+                        "evidence": [
+                            "solver-6",
+                            "stage-attempt-1"
+                        ]
+                    },
+                    {
+                        "status": "persists",
+                        "attempt": 2,
+                        "scenario": "laravel-7-to-8-attempt-2-locked_package_remediation",
+                        "evidence": [
+                            "solver-7"
+                        ]
+                    }
+                ],
+                "observations": [
+                    {
+                        "attempt": 1,
+                        "scenario": "laravel-7-to-8-attempt-1-target_only",
+                        "evidence": [
+                            "solver-6"
+                        ]
+                    },
+                    {
+                        "attempt": 2,
+                        "scenario": "laravel-7-to-8-attempt-2-locked_package_remediation",
+                        "evidence": [
+                            "solver-7"
+                        ]
+                    }
+                ]
+            }
+        ],
+        "stop_reason": "blocking_registry_not_cleared",
         "budgets": {
             "max_hops": 6,
             "max_attempts_per_stage": 3,
@@ -416,7 +870,10 @@
             "json_report_bytes": 524288,
             "markdown_report_bytes": 262144
         },
-        "evidence": []
+        "evidence": [
+            "laravel-stage-target-1",
+            "laravel-stage-target-2"
+        ]
     },
     "transition": {
         "package_changes": [],
@@ -897,6 +1354,225 @@
                         "stderr_excerpt": "No additional fixture diagnostic."
                     }
                 ]
+            }
+        },
+        {
+            "id": "laravel-stage-target-1",
+            "class": "E4",
+            "summary": "Laravel adapter metadata supplies the exact package target for stage 7 to 8.",
+            "confidence": "high",
+            "context": {
+                "stage_id": "laravel-7-to-8",
+                "package": "laravel/framework",
+                "constraint": "^8.0",
+                "analysis_php": "8.1.0",
+                "minimum_php_constraint": "^7.3|^8.0",
+                "analysis_php_provenance": "final_target_php_exact_value_checked_against_adapter_constraint",
+                "sources": [
+                    "https://laravel.com/docs/8.x/upgrade"
+                ]
+            }
+        },
+        {
+            "id": "laravel-stage-target-2",
+            "class": "E4",
+            "summary": "Laravel adapter metadata supplies the exact package target for stage 8 to 9.",
+            "confidence": "high",
+            "context": {
+                "stage_id": "laravel-8-to-9",
+                "package": "laravel/framework",
+                "constraint": "^9.0",
+                "analysis_php": "8.1.0",
+                "minimum_php_constraint": "^8.0.2",
+                "analysis_php_provenance": "final_target_php_exact_value_checked_against_adapter_constraint",
+                "sources": [
+                    "https://laravel.com/docs/9.x/upgrade"
+                ]
+            }
+        },
+        {
+            "id": "stage-attempt-1",
+            "class": "E1",
+            "summary": "Executed Composer attempt 1 for stage laravel-7-to-8.",
+            "confidence": "high",
+            "context": {
+                "stage_id": "laravel-7-to-8",
+                "attempt": 1,
+                "strategy": "target_only",
+                "scenario": "laravel-7-to-8-attempt-1-target_only",
+                "outcome": "solver_failure"
+            }
+        },
+        {
+            "id": "solver-6",
+            "class": "E1",
+            "summary": "Composer scenario \"laravel-7-to-8-attempt-1-target_only\" failed.",
+            "confidence": "high",
+            "context": {
+                "scenario": "laravel-7-to-8-attempt-1-target_only",
+                "targets": [
+                    {
+                        "package": "laravel/framework",
+                        "constraint": "^8.0"
+                    },
+                    {
+                        "package": "php",
+                        "constraint": "8.1.0"
+                    }
+                ],
+                "exit_code": 2,
+                "output_excerpt": "Your requirements could not be resolved to an installable set of packages.\n- fixture/illuminate-consumer 1.0.0 requires illuminate/support ^7.0 -> found illuminate/support[v7.30.7] but it conflicts with the requested Laravel target.",
+                "diagnostics": [
+                    {
+                        "package": "laravel/framework",
+                        "constraint": "^8.0",
+                        "command": [
+                            "composer",
+                            "prohibits",
+                            "laravel/framework",
+                            "^8.0",
+                            "--tree",
+                            "--locked",
+                            "--no-scripts",
+                            "--no-plugins",
+                            "--no-interaction"
+                        ],
+                        "exit_code": 1,
+                        "stdout_excerpt": "",
+                        "stderr_excerpt": "No additional fixture diagnostic."
+                    },
+                    {
+                        "package": "php",
+                        "constraint": "8.1.0",
+                        "command": [
+                            "composer",
+                            "prohibits",
+                            "php",
+                            "8.1.0",
+                            "--tree",
+                            "--locked",
+                            "--no-scripts",
+                            "--no-plugins",
+                            "--no-interaction"
+                        ],
+                        "exit_code": 1,
+                        "stdout_excerpt": "",
+                        "stderr_excerpt": "No additional fixture diagnostic."
+                    }
+                ]
+            }
+        },
+        {
+            "id": "stage-root-change-1",
+            "class": "E2",
+            "summary": "Recorded an analyzer-only root constraint change for stage laravel-7-to-8.",
+            "confidence": "high",
+            "context": {
+                "stage_id": "laravel-7-to-8",
+                "package": "laravel/framework",
+                "from_constraint": "^7.0",
+                "to_constraint": "^8.0",
+                "supporting_evidence": [
+                    "laravel-stage-target-1"
+                ]
+            }
+        },
+        {
+            "id": "stage-attempt-2",
+            "class": "E1",
+            "summary": "Executed Composer attempt 2 for stage laravel-7-to-8.",
+            "confidence": "high",
+            "context": {
+                "stage_id": "laravel-7-to-8",
+                "attempt": 2,
+                "strategy": "locked_package_remediation",
+                "scenario": "laravel-7-to-8-attempt-2-locked_package_remediation",
+                "outcome": "solver_failure"
+            }
+        },
+        {
+            "id": "solver-7",
+            "class": "E1",
+            "summary": "Composer scenario \"laravel-7-to-8-attempt-2-locked_package_remediation\" failed.",
+            "confidence": "high",
+            "context": {
+                "scenario": "laravel-7-to-8-attempt-2-locked_package_remediation",
+                "targets": [
+                    {
+                        "package": "laravel/framework",
+                        "constraint": "^8.0"
+                    },
+                    {
+                        "package": "php",
+                        "constraint": "8.1.0"
+                    }
+                ],
+                "exit_code": 2,
+                "output_excerpt": "Your requirements could not be resolved to an installable set of packages.\n- fixture/illuminate-consumer 1.0.0 requires illuminate/support ^7.0 -> found illuminate/support[v7.30.7] but it conflicts with the requested Laravel target.",
+                "diagnostics": [
+                    {
+                        "package": "laravel/framework",
+                        "constraint": "^8.0",
+                        "command": [
+                            "composer",
+                            "prohibits",
+                            "laravel/framework",
+                            "^8.0",
+                            "--tree",
+                            "--locked",
+                            "--no-scripts",
+                            "--no-plugins",
+                            "--no-interaction"
+                        ],
+                        "exit_code": 1,
+                        "stdout_excerpt": "",
+                        "stderr_excerpt": "No additional fixture diagnostic."
+                    },
+                    {
+                        "package": "php",
+                        "constraint": "8.1.0",
+                        "command": [
+                            "composer",
+                            "prohibits",
+                            "php",
+                            "8.1.0",
+                            "--tree",
+                            "--locked",
+                            "--no-scripts",
+                            "--no-plugins",
+                            "--no-interaction"
+                        ],
+                        "exit_code": 1,
+                        "stdout_excerpt": "",
+                        "stderr_excerpt": "No additional fixture diagnostic."
+                    }
+                ]
+            }
+        },
+        {
+            "id": "stage-root-change-2",
+            "class": "E2",
+            "summary": "Recorded an analyzer-only root constraint change for stage laravel-7-to-8.",
+            "confidence": "high",
+            "context": {
+                "stage_id": "laravel-7-to-8",
+                "package": "laravel/framework",
+                "from_constraint": "^7.0",
+                "to_constraint": "^8.0",
+                "supporting_evidence": [
+                    "laravel-stage-target-1"
+                ]
+            }
+        },
+        {
+            "id": "stage-skipped-1",
+            "class": "E1",
+            "summary": "Stage laravel-8-to-9 was skipped after the preceding stage stopped the candidate-state chain.",
+            "confidence": "high",
+            "context": {
+                "stage_id": "laravel-8-to-9",
+                "preceding_status": "blocked",
+                "reason": "previous_stage_blocked"
             }
         },
         {

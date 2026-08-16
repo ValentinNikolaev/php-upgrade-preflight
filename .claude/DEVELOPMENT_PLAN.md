@@ -211,21 +211,21 @@ Status: complete. The PHP 8.0 and 8.3 unit gates, real-Composer integration suit
 
 Priority: P0.
 
-- [ ] Harden the Milestone 0 optional framework-neutral stage-target provider without changing the existing required interfaces. Old-style implementations remain source-compatible when re-released with a Core v0.3-compatible Composer constraint.
-- [ ] Extend the Laravel vertical-slice targets to every already supported hop, including the retained 7→8 foundation, with evidence-backed PHP requirements and stable stage IDs.
-- [ ] Generalize the Milestone 0 stage plan across the assessed contiguous framework path of the one active stage provider. Do not cross a provider conflict, ambiguous endpoint, missing hop, unsupported range, or post-gap rule pack.
-- [ ] Apply the approved exact-stage-PHP selection rule using current PHP, final target PHP, and adapter evidence; emit uncertainty instead of guessing when no safe exact value exists.
-- [ ] Run bounded isolated Composer strategies and remediation rounds for the first stage from the original manifest, lock, effective platform, and execution policy, then build each later stage only from the preceding selected candidate project state.
-- [ ] Preserve the existing direct final-target resolution independently so consumers can compare direct feasibility with staged feasibility.
-- [ ] Stop only after the bounded remediation policy leaves one or more blocking registry entries unresolved, or after an unknown, operationally failed, or unselectable stage; mark later stages skipped with evidence-backed reasons.
-- [ ] Record each stage's targets, remediation attempts, scenarios, selected result, root changes relative to the preceding state, package changes, complete blocker registry, platform, execution policy, duration, and evidence. Fingerprint the canonical input and output manifest, lock, effective platform, and execution policy as one candidate-project-state chain.
-- [ ] Deduplicate diagnostics without merging evidence from different attempts or stages, without collapsing multiple blockers into a primary blocker, and without allowing a later success to erase a resolved blocker's history.
-- [ ] Cover feasible single- and multi-hop chains, several simultaneous blockers, partial remediation, a newly revealed blocker, a blocked middle hop, timeout, cleanup failure, missing hop, ambiguous source and target, modular Illuminate, direct 7→9, and deterministic scenario/remediation-cap behavior.
-- [ ] Prove the original target fixture remains byte-for-byte unchanged for success, failure, timeout, and debug cleanup paths.
+- [x] Harden the Milestone 0 optional framework-neutral stage-target provider without changing the existing required interfaces. Old-style implementations remain source-compatible when re-released with a Core v0.3-compatible Composer constraint.
+- [x] Extend the Laravel vertical-slice targets to every already supported hop, including the retained 7→8 foundation, with evidence-backed PHP requirements and stable stage IDs.
+- [x] Generalize the Milestone 0 stage plan across the assessed contiguous framework path of the one active stage provider. Do not cross a provider conflict, ambiguous endpoint, missing hop, unsupported range, or post-gap rule pack.
+- [x] Apply the approved exact-stage-PHP selection rule using current PHP, final target PHP, and adapter evidence; emit uncertainty instead of guessing when no safe exact value exists.
+- [x] Run bounded isolated Composer strategies and remediation rounds for the first stage from the original manifest, lock, effective platform, and execution policy, then build each later stage only from the preceding selected candidate project state.
+- [x] Preserve the existing direct final-target resolution independently so consumers can compare direct feasibility with staged feasibility.
+- [x] Stop only after the bounded remediation policy leaves one or more blocking registry entries unresolved, or after an unknown, operationally failed, or unselectable stage; mark later stages skipped with evidence-backed reasons.
+- [x] Record each stage's targets, remediation attempts, scenarios, selected result, root changes relative to the preceding state, package changes, complete blocker registry, platform, execution policy, duration, and evidence. Fingerprint the canonical input and output manifest, lock, effective platform, and execution policy as one candidate-project-state chain.
+- [x] Deduplicate diagnostics without merging evidence from different attempts or stages, without collapsing multiple blockers into a primary blocker, and without allowing a later success to erase a resolved blocker's history.
+- [x] Cover feasible single- and multi-hop chains, several simultaneous blockers, partial remediation, a newly revealed blocker, a blocked middle hop, timeout, cleanup failure, missing hop, ambiguous source and target, modular Illuminate, direct 7→9, and deterministic scenario/remediation-cap behavior.
+- [x] Prove the original target fixture remains byte-for-byte unchanged for success, failure, timeout, and debug cleanup paths.
 
 Acceptance gate: every reported feasible stage has its own Composer evidence; every later manifest/lock/platform/execution input is digest-linked to the selected preceding output; every blocker remains individually traceable through all attempts and lifecycle transitions; direct and staged results remain independent; and no result appears after a provider conflict, unresolved blocker set, or unresolved gap.
 
-Status: not started.
+Status: complete.
 
 ## Milestone 4: Stage-Scoped Impact, Risk, Effort, and Schema 0.8
 
@@ -331,4 +331,4 @@ Status: not started.
 
 ## Recommended Next Work Session
 
-Complete GitHub reauthentication so the prepared `0.2.x` protection rule can be saved, then begin Milestone 2 restricted Composer execution.
+Complete GitHub reauthentication so the prepared `0.2.x` protection rule can be saved, then begin Milestone 4 stage-scoped impact, risk, effort, and plan assembly.

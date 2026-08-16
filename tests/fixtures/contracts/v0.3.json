@@ -50,6 +50,7 @@
             "missing_target": "skipped:unknown",
             "ambiguous_transition": "skipped:unknown",
             "guidance_gap": "skipped:unknown",
+            "analysis_php_unavailable": "skipped:unknown",
             "solver_blocker": "evaluated:blocked",
             "timeout": "evaluated:unknown",
             "aggregate_timeout": "evaluated:unknown",
@@ -124,8 +125,10 @@
     "stage_targets": {
         "package_targets": "exact adapter targets for one adjacent framework hop",
         "analysis_php": "exact request evidence checked against adapter minimum metadata",
+        "analysis_php_selection": "prefer the exact final target PHP when adapter-compatible; otherwise use the exact current PHP; never synthesize a version",
         "minimum_constraint_is_not_exact_deployment_claim": true,
         "milestone_0_slice": "rooted laravel/framework 10 with only laravel/framework targeted at 13",
+        "production_laravel_scope": "rooted laravel/framework contiguous adjacent paths from 7 through 13",
         "optional_provider_interface": "PhpUpgradePreflight\\Core\\Framework\\FrameworkStageTargetProvider",
         "required_v0_2_interfaces_unchanged": true,
         "active_provider_limit": 1
@@ -264,6 +267,8 @@
         "max_scenarios": 18,
         "scenario_timeout_seconds": 300,
         "aggregate_timeout_seconds": 1800,
+        "scenario_timeout_application": "effective staged timeout is the lesser of the request timeout and scenario_timeout_seconds",
+        "aggregate_start_gate": "an attempt starts only when its full effective scenario timeout fits within the remaining aggregate budget",
         "memory_bytes": 268435456,
         "json_report_bytes": 524288,
         "markdown_report_bytes": 262144
@@ -287,7 +292,11 @@
         "new_required_nested_fields": [
             "request_summary.target_platform_profile",
             "request_summary.composer_execution",
-            "platform.profile"
+            "platform.profile",
+            "staged_resolution.stages[].platform",
+            "staged_resolution.stages[].composer_execution",
+            "staged_resolution.stages[].duration_ms",
+            "staged_resolution.stages[].evidence"
         ],
         "migration_from_0_7": {
             "dispatch_on": "metadata.schema_version",

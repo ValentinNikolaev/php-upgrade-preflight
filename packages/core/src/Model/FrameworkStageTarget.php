@@ -38,23 +38,44 @@ final class FrameworkStageTarget
         if (preg_match('/^[a-z0-9][a-z0-9_.-]*$/', $id) !== 1) {
             throw new \InvalidArgumentException('Framework stage IDs must be stable lowercase identifiers.');
         }
-        if ($framework === '' || $fromMajor < 0 || $toMajor !== $fromMajor + 1) {
+        if (trim($framework) === '' || $fromMajor < 0 || $toMajor !== $fromMajor + 1) {
             throw new \InvalidArgumentException('Framework stages must describe one ascending adjacent hop.');
+        }
+        if ($targets->packageTargets() === []) {
+            throw new \InvalidArgumentException('A framework stage must contain at least one exact package target.');
         }
         if ($targets->targetPhp() !== $analysisPhp) {
             throw new \InvalidArgumentException('A stage analysis PHP value must equal its exact Composer PHP target.');
         }
-        if ($evidence === []) {
+        if ($evidence === [] || $this->containsInvalidEvidence($evidence)) {
             throw new \InvalidArgumentException('A framework stage target must reference evidence.');
         }
 
+        $targetPackages = [];
+        foreach ($targets->packageTargets() as $target) {
+            $targetPackages[$target->package()] = true;
+        }
+        $normalizedEvidence = [];
+        foreach ($remediationEvidence as $package => $references) {
+            $package = strtolower(trim((string) $package));
+            if ($package === '' || !is_array($references) || $this->containsInvalidEvidence($references)) {
+                throw new \InvalidArgumentException('Stage remediation evidence must map package names to evidence IDs.');
+            }
+            $normalizedEvidence[$package] = array_values(array_unique($references));
+        }
         $normalizedRemediations = [];
         foreach ($remediationTargets as $target) {
             if (!$target instanceof UpgradeTarget) {
                 throw new \InvalidArgumentException('Stage remediation targets must be UpgradeTarget instances.');
             }
             $package = strtolower($target->package());
-            if (!isset($remediationEvidence[$package]) || $remediationEvidence[$package] === []) {
+            if (isset($targetPackages[$package])) {
+                throw new \InvalidArgumentException(sprintf(
+                    'Stage remediation target "%s" cannot replace an exact stage target.',
+                    $package
+                ));
+            }
+            if (!isset($normalizedEvidence[$package]) || $normalizedEvidence[$package] === []) {
                 throw new \InvalidArgumentException(sprintf('Stage remediation target "%s" must reference evidence.', $package));
             }
             $normalizedRemediations[$package] = new UpgradeTarget($package, $target->constraint());
@@ -62,13 +83,13 @@ final class FrameworkStageTarget
         ksort($normalizedRemediations, SORT_STRING);
 
         $this->id = $id;
-        $this->framework = strtolower($framework);
+        $this->framework = strtolower(trim($framework));
         $this->fromMajor = $fromMajor;
         $this->toMajor = $toMajor;
         $this->targets = $targets;
         $this->analysisPhp = $analysisPhp;
         $this->remediationTargets = array_values($normalizedRemediations);
-        $this->remediationEvidence = $remediationEvidence;
+        $this->remediationEvidence = $normalizedEvidence;
         $this->evidence = array_values(array_unique($evidence));
     }
 
@@ -138,5 +159,17 @@ final class FrameworkStageTarget
             }, $this->remediationTargets),
             'evidence' => $this->evidence,
         ];
+    }
+
+    /** @param array<mixed> $references */
+    private function containsInvalidEvidence(array $references): bool
+    {
+        foreach ($references as $reference) {
+            if (!is_string($reference) || trim($reference) === '') {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

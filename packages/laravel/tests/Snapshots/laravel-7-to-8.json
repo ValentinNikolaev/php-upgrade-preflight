@@ -270,12 +270,199 @@
         ]
     },
     "staged_resolution": {
-        "execution_state": "skipped",
-        "status": "unknown",
+        "execution_state": "evaluated",
+        "status": "feasible_with_changes",
         "provider": "laravel",
-        "stages": [],
+        "stages": [
+            {
+                "id": "laravel-7-to-8",
+                "framework": "laravel",
+                "from_major": 7,
+                "to_major": 8,
+                "execution_state": "evaluated",
+                "resolution_status": "feasible_with_changes",
+                "targets": [
+                    {
+                        "package": "laravel/framework",
+                        "constraint": "^8.0"
+                    },
+                    {
+                        "package": "php",
+                        "constraint": "8.0.0"
+                    }
+                ],
+                "analysis_php": "8.0.0",
+                "target_evidence": [
+                    "laravel-stage-target-1"
+                ],
+                "platform": {
+                    "analysis_php": "8.0.0",
+                    "completeness": "partial",
+                    "profile_sha256": null,
+                    "effective_sha256": "1227859358166ebdf070c802a94bc3d37e5f430d3f57f52f7c9db345bcc2356e"
+                },
+                "composer_execution": {
+                    "configuration": {
+                        "mode": "compatible",
+                        "executable_selection": "path_search",
+                        "expected_version": ">=2.0.0 <3.0.0",
+                        "scenario_timeout_seconds": 300,
+                        "diagnostic_timeout_seconds": 60,
+                        "environment_mode": "inherited",
+                        "network_policy": "inherited"
+                    },
+                    "effective_sha256": "0c155d2582c9452186059dbe78d0da2d730f798c6c1d69f356c43ca832fcf1b9"
+                },
+                "duration_ms": 1,
+                "evidence": [
+                    "laravel-stage-target-1",
+                    "stage-attempt-1",
+                    "stage-root-change-1"
+                ],
+                "predecessor_state": {
+                    "manifest_sha256": "65ce566851c0ed77f1ab9d0eae292e01dbb1305fcb56040077d7c75682c7ea8f",
+                    "lock_sha256": "d1e153f7e9a5b3eac2ff47c5561ae9c1be854ce0f7854a5a36664370a5306da7",
+                    "platform_sha256": "1227859358166ebdf070c802a94bc3d37e5f430d3f57f52f7c9db345bcc2356e",
+                    "execution_policy_sha256": "0c155d2582c9452186059dbe78d0da2d730f798c6c1d69f356c43ca832fcf1b9",
+                    "state_sha256": "ab67efe913995aee16ffbbec83ecb42a3f9a87200228bc782eae4685662a27cb"
+                },
+                "input_state": {
+                    "manifest_sha256": "65ce566851c0ed77f1ab9d0eae292e01dbb1305fcb56040077d7c75682c7ea8f",
+                    "lock_sha256": "d1e153f7e9a5b3eac2ff47c5561ae9c1be854ce0f7854a5a36664370a5306da7",
+                    "platform_sha256": "1227859358166ebdf070c802a94bc3d37e5f430d3f57f52f7c9db345bcc2356e",
+                    "execution_policy_sha256": "0c155d2582c9452186059dbe78d0da2d730f798c6c1d69f356c43ca832fcf1b9",
+                    "state_sha256": "ab67efe913995aee16ffbbec83ecb42a3f9a87200228bc782eae4685662a27cb"
+                },
+                "output_state": {
+                    "manifest_sha256": "2e8549a7771d743dc6d0498ac901859eaef9a73d6cfd936885c5eb48453a7d8e",
+                    "lock_sha256": "9f040a711602f58aeb3ae77a0a553968f3848f485caa05e40ab22e6b3e308eef",
+                    "platform_sha256": "1227859358166ebdf070c802a94bc3d37e5f430d3f57f52f7c9db345bcc2356e",
+                    "execution_policy_sha256": "0c155d2582c9452186059dbe78d0da2d730f798c6c1d69f356c43ca832fcf1b9",
+                    "state_sha256": "9fb8b461401035d16306eeb9c73c9c3eb8dec8104f91aba834039f5b9b036fbe"
+                },
+                "attempts": [
+                    {
+                        "number": 1,
+                        "strategy": "target_only",
+                        "root_constraint_changes": [
+                            {
+                                "package": "laravel/framework",
+                                "change_type": "updated",
+                                "from_constraint": "^7.0",
+                                "to_constraint": "^8.0",
+                                "reason": "Analyzer-only staged Composer simulation; the analyzed project was not changed.",
+                                "evidence": [
+                                    "laravel-stage-target-1",
+                                    "stage-root-change-1"
+                                ]
+                            }
+                        ],
+                        "scenario": {
+                            "name": "laravel-7-to-8-attempt-1-target_only",
+                            "composer_version": null,
+                            "command": [
+                                "composer",
+                                "update",
+                                "laravel/framework",
+                                "--no-scripts",
+                                "--no-plugins",
+                                "--no-install",
+                                "--no-audit",
+                                "--no-progress",
+                                "--no-interaction"
+                            ],
+                            "duration_ms": 1,
+                            "exit_code": 0,
+                            "succeeded": true,
+                            "outcome": "success",
+                            "failure_type": null,
+                            "stdout_excerpt": "Fixture target resolved.",
+                            "stderr_excerpt": "",
+                            "candidate_lock": {
+                                "sha256": "8ae5491363cf02faf31066502efc71434bfea78b873276b1cabb7962f9f8371a",
+                                "content_hash": "candidate-v8.83.27",
+                                "package_count": 1
+                            },
+                            "diagnostics": [],
+                            "temp_path": null
+                        },
+                        "input_state": {
+                            "manifest_sha256": "65ce566851c0ed77f1ab9d0eae292e01dbb1305fcb56040077d7c75682c7ea8f",
+                            "lock_sha256": "d1e153f7e9a5b3eac2ff47c5561ae9c1be854ce0f7854a5a36664370a5306da7",
+                            "platform_sha256": "1227859358166ebdf070c802a94bc3d37e5f430d3f57f52f7c9db345bcc2356e",
+                            "execution_policy_sha256": "0c155d2582c9452186059dbe78d0da2d730f798c6c1d69f356c43ca832fcf1b9",
+                            "state_sha256": "ab67efe913995aee16ffbbec83ecb42a3f9a87200228bc782eae4685662a27cb"
+                        },
+                        "output_state": {
+                            "manifest_sha256": "2e8549a7771d743dc6d0498ac901859eaef9a73d6cfd936885c5eb48453a7d8e",
+                            "lock_sha256": "9f040a711602f58aeb3ae77a0a553968f3848f485caa05e40ab22e6b3e308eef",
+                            "platform_sha256": "1227859358166ebdf070c802a94bc3d37e5f430d3f57f52f7c9db345bcc2356e",
+                            "execution_policy_sha256": "0c155d2582c9452186059dbe78d0da2d730f798c6c1d69f356c43ca832fcf1b9",
+                            "state_sha256": "9fb8b461401035d16306eeb9c73c9c3eb8dec8104f91aba834039f5b9b036fbe"
+                        },
+                        "blocker_ids": [],
+                        "evidence": [
+                            "stage-attempt-1"
+                        ],
+                        "selected": true
+                    }
+                ],
+                "selected_attempt": 1,
+                "package_changes": [
+                    {
+                        "name": "laravel/framework",
+                        "change_type": "upgraded",
+                        "from_version": "v7.30.7",
+                        "to_version": "v8.83.27",
+                        "direct": true,
+                        "major_change": true,
+                        "package_families": [],
+                        "from_source_reference": null,
+                        "to_source_reference": null,
+                        "from_dist_reference": null,
+                        "to_dist_reference": null
+                    }
+                ],
+                "source_snapshot": "original_project",
+                "source_findings": [
+                    {
+                        "framework": "laravel",
+                        "severity": "high",
+                        "summary": "Update the root laravel/framework constraint from `^7.0` to a constraint compatible with Laravel 8.",
+                        "applies_to_hops": [
+                            {
+                                "from_major": 7,
+                                "to_major": 8
+                            }
+                        ],
+                        "evidence": [
+                            "laravel-framework-constraint-1"
+                        ]
+                    }
+                ],
+                "source_impact": [],
+                "risk": {
+                    "level": "high",
+                    "drivers": [
+                        "Update the root laravel/framework constraint from `^7.0` to a constraint compatible with Laravel 8."
+                    ]
+                },
+                "effort": {
+                    "range_hours": [
+                        2,
+                        4
+                    ],
+                    "confidence": "medium"
+                },
+                "recommended_actions": [
+                    "Use only the selected candidate state as evidence for the next stage.",
+                    "Update the root laravel/framework constraint from `^7.0` to a constraint compatible with Laravel 8."
+                ],
+                "stop_reason": null
+            }
+        ],
         "blocker_registry": [],
-        "stop_reason": "guidance_gap",
+        "stop_reason": null,
         "budgets": {
             "max_hops": 6,
             "max_attempts_per_stage": 3,
@@ -286,7 +473,9 @@
             "json_report_bytes": 524288,
             "markdown_report_bytes": 262144
         },
-        "evidence": []
+        "evidence": [
+            "laravel-stage-target-1"
+        ]
     },
     "transition": {
         "package_changes": [
@@ -472,6 +661,51 @@
         "Compatible Composer execution may inherit global configuration, credentials, proxies, caches, repository access, and other analyzer-host state."
     ],
     "evidence": [
+        {
+            "id": "laravel-stage-target-1",
+            "class": "E4",
+            "summary": "Laravel adapter metadata supplies the exact package target for stage 7 to 8.",
+            "confidence": "high",
+            "context": {
+                "stage_id": "laravel-7-to-8",
+                "package": "laravel/framework",
+                "constraint": "^8.0",
+                "analysis_php": "8.0.0",
+                "minimum_php_constraint": "^7.3|^8.0",
+                "analysis_php_provenance": "final_target_php_exact_value_checked_against_adapter_constraint",
+                "sources": [
+                    "https://laravel.com/docs/8.x/upgrade"
+                ]
+            }
+        },
+        {
+            "id": "stage-attempt-1",
+            "class": "E1",
+            "summary": "Executed Composer attempt 1 for stage laravel-7-to-8.",
+            "confidence": "high",
+            "context": {
+                "stage_id": "laravel-7-to-8",
+                "attempt": 1,
+                "strategy": "target_only",
+                "scenario": "laravel-7-to-8-attempt-1-target_only",
+                "outcome": "success"
+            }
+        },
+        {
+            "id": "stage-root-change-1",
+            "class": "E2",
+            "summary": "Recorded an analyzer-only root constraint change for stage laravel-7-to-8.",
+            "confidence": "high",
+            "context": {
+                "stage_id": "laravel-7-to-8",
+                "package": "laravel/framework",
+                "from_constraint": "^7.0",
+                "to_constraint": "^8.0",
+                "supporting_evidence": [
+                    "laravel-stage-target-1"
+                ]
+            }
+        },
         {
             "id": "laravel-transition-1",
             "class": "E4",

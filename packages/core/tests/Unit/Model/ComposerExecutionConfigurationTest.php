@@ -33,6 +33,13 @@ final class ComposerExecutionConfigurationTest extends TestCase
         self::assertTrue($restricted->matchesVersion('2.8.12'));
         self::assertFalse($restricted->matchesVersion('2.7.9'));
         self::assertNull($restricted->matchesVersion(null));
+
+        $capped = $restricted->withScenarioTimeoutSeconds(45);
+        self::assertSame(120, $restricted->scenarioTimeoutSeconds());
+        self::assertSame(45, $capped->scenarioTimeoutSeconds());
+        self::assertSame($restricted->executable(), $capped->executable());
+        self::assertSame($restricted->diagnosticTimeoutSeconds(), $capped->diagnosticTimeoutSeconds());
+        self::assertSame($restricted->mode(), $capped->mode());
     }
 
     /** @dataProvider invalidConfigurationProvider */

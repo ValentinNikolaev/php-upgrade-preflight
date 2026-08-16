@@ -142,6 +142,19 @@ final class ComposerExecutionConfiguration
         return $this->mode === self::MODE_RESTRICTED;
     }
 
+    public function withScenarioTimeoutSeconds(int $scenarioTimeoutSeconds): self
+    {
+        return new self(
+            $this->executable,
+            $this->expectedVersion,
+            $scenarioTimeoutSeconds,
+            $this->diagnosticTimeoutSeconds,
+            $this->mode,
+            $this->environmentMode,
+            $this->networkPolicy
+        );
+    }
+
     public function matchesVersion(?string $version): ?bool
     {
         if ($version === null || preg_match('/^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$/', $version) !== 1) {

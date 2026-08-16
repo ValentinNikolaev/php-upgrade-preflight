@@ -7,7 +7,7 @@ This project follows [Semantic Versioning](https://semver.org/). Report schema v
 ### Added
 
 - Froze the signed v0.2.1 compatibility surface and canonical reports, created the `0.2.x` maintenance line, and locked the machine-readable v0.3 contract with schema `0.8` migration evidence.
-- Added bounded staged Composer analysis with adjacent Laravel 10→11→12→13 hops, deterministic remediation attempts, carried candidate state, blocker lifecycle tracking, and an offline five-minute demo fixture.
+- Added bounded staged Composer analysis across every contiguous rooted `laravel/framework` path from 7→8 through 12→13, deterministic remediation attempts, carried candidate state, blocker lifecycle tracking, exact request-backed stage PHP selection, and an offline five-minute demo fixture.
 
 ### Changed
 

@@ -9,6 +9,7 @@ use Opis\JsonSchema\Validator;
 use PhpUpgradePreflight\Core\Analysis\StagedAnalysisPolicy;
 use PhpUpgradePreflight\Core\Framework\FrameworkStageTargetProvider;
 use PhpUpgradePreflight\Core\Model\ComposerExecutionConfiguration;
+use PhpUpgradePreflight\Core\Model\FrameworkStagePlan;
 use PhpUpgradePreflight\Core\Model\ReportMetadata;
 use PhpUpgradePreflight\Core\Model\StageAnalysis;
 use PhpUpgradePreflight\Core\Model\StageBlockerEntry;
@@ -49,6 +50,7 @@ final class V03ContractTest extends TestCase
             'missing_target',
             'ambiguous_transition',
             'guidance_gap',
+            FrameworkStagePlan::REASON_ANALYSIS_PHP_UNAVAILABLE,
             'solver_blocker',
             'timeout',
             'aggregate_timeout',
@@ -130,6 +132,8 @@ final class V03ContractTest extends TestCase
             'rooted laravel/framework 10 with only laravel/framework targeted at 13',
             $targets['milestone_0_slice']
         );
+        self::assertStringContainsString('7 through 13', $targets['production_laravel_scope']);
+        self::assertStringContainsString('never synthesize', $targets['analysis_php_selection']);
 
         $profile = $this->contract['target_platform_profile'];
         self::assertTrue($profile['versioned']);
@@ -172,6 +176,8 @@ final class V03ContractTest extends TestCase
             'max_scenarios' => StagedAnalysisPolicy::MAX_SCENARIOS,
             'scenario_timeout_seconds' => StagedAnalysisPolicy::SCENARIO_TIMEOUT_SECONDS,
             'aggregate_timeout_seconds' => StagedAnalysisPolicy::AGGREGATE_TIMEOUT_SECONDS,
+            'scenario_timeout_application' => 'effective staged timeout is the lesser of the request timeout and scenario_timeout_seconds',
+            'aggregate_start_gate' => 'an attempt starts only when its full effective scenario timeout fits within the remaining aggregate budget',
             'memory_bytes' => StagedAnalysisPolicy::MEMORY_BUDGET_BYTES,
             'json_report_bytes' => StagedAnalysisPolicy::JSON_REPORT_BUDGET_BYTES,
             'markdown_report_bytes' => StagedAnalysisPolicy::MARKDOWN_REPORT_BUDGET_BYTES,
@@ -207,6 +213,10 @@ final class V03ContractTest extends TestCase
             'request_summary.target_platform_profile',
             'request_summary.composer_execution',
             'platform.profile',
+            'staged_resolution.stages[].platform',
+            'staged_resolution.stages[].composer_execution',
+            'staged_resolution.stages[].duration_ms',
+            'staged_resolution.stages[].evidence',
         ], $schemaContract['new_required_nested_fields']);
         self::assertTrue($schemaContract['migration_from_0_7']['historical_reports_immutable']);
         self::assertTrue($schemaContract['migration_from_0_7']['missing_staged_resolution_means_v0_7_not_empty_v0_8']);
