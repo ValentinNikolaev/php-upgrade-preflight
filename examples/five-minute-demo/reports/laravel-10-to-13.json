@@ -52,7 +52,7 @@
     },
     "platform": {
         "analyzer": {
-            "php_version": "8.3.33",
+            "php_version": "8.2.33",
             "provenance": "runtime"
         },
         "current_php": {
@@ -117,7 +117,7 @@
                     "--no-plugins",
                     "--no-interaction"
                 ],
-                "duration_ms": 134,
+                "duration_ms": 133,
                 "exit_code": 0,
                 "succeeded": true,
                 "outcome": "success",
@@ -146,7 +146,7 @@
                     "--no-progress",
                     "--no-interaction"
                 ],
-                "duration_ms": 276,
+                "duration_ms": 279,
                 "exit_code": 2,
                 "succeeded": false,
                 "outcome": "solver_failure",
@@ -170,7 +170,7 @@
                             "--no-interaction"
                         ],
                         "exit_code": 1,
-                        "stdout_excerpt": "laravel/framework 10.0.0 Metadata-only Laravel 10 package for the offline demo.\n|--nunomaduro/collision 7.11.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n|--phpunit/phpunit 10.0.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n`--laravel/framework 13.0.0 (requires ext-preflight-stage ^2.0 but it is missing) (circular dependency aborted here)\n",
+                        "stdout_excerpt": "laravel/framework 10.0.0 Metadata-only Laravel 10 package for the offline demo.\n|--nunomaduro/collision 7.11.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n|--phpunit/phpunit 10.0.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n|--laravel/framework 13.0.0 (requires php ^8.3 but 8.2.33 is installed) (circular dependency aborted here)\n`--laravel/framework 13.0.0 (requires ext-preflight-stage ^2.0 but it is missing) (circular dependency aborted here)\n",
                         "stderr_excerpt": "Not finding what you were looking for? Try calling `composer require \"laravel/framework:^13.0\" --dry-run` to get another view on the problem.\n"
                     },
                     {
@@ -209,7 +209,7 @@
                     "--no-progress",
                     "--no-interaction"
                 ],
-                "duration_ms": 286,
+                "duration_ms": 277,
                 "exit_code": 2,
                 "succeeded": false,
                 "outcome": "solver_failure",
@@ -233,7 +233,7 @@
                             "--no-interaction"
                         ],
                         "exit_code": 1,
-                        "stdout_excerpt": "laravel/framework 10.0.0 Metadata-only Laravel 10 package for the offline demo.\n|--nunomaduro/collision 7.11.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n|--phpunit/phpunit 10.0.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n`--laravel/framework 13.0.0 (requires ext-preflight-stage ^2.0 but it is missing) (circular dependency aborted here)\n",
+                        "stdout_excerpt": "laravel/framework 10.0.0 Metadata-only Laravel 10 package for the offline demo.\n|--nunomaduro/collision 7.11.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n|--phpunit/phpunit 10.0.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n|--laravel/framework 13.0.0 (requires php ^8.3 but 8.2.33 is installed) (circular dependency aborted here)\n`--laravel/framework 13.0.0 (requires ext-preflight-stage ^2.0 but it is missing) (circular dependency aborted here)\n",
                         "stderr_excerpt": "Not finding what you were looking for? Try calling `composer require \"laravel/framework:^13.0\" --dry-run` to get another view on the problem.\n"
                     },
                     {
@@ -297,7 +297,7 @@
                             "--no-interaction"
                         ],
                         "exit_code": 1,
-                        "stdout_excerpt": "laravel/framework 10.0.0 Metadata-only Laravel 10 package for the offline demo.\n|--nunomaduro/collision 7.11.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n|--phpunit/phpunit 10.0.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n`--laravel/framework 13.0.0 (requires ext-preflight-stage ^2.0 but it is missing) (circular dependency aborted here)\n",
+                        "stdout_excerpt": "laravel/framework 10.0.0 Metadata-only Laravel 10 package for the offline demo.\n|--nunomaduro/collision 7.11.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n|--phpunit/phpunit 10.0.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n|--laravel/framework 13.0.0 (requires php ^8.3 but 8.2.33 is installed) (circular dependency aborted here)\n`--laravel/framework 13.0.0 (requires ext-preflight-stage ^2.0 but it is missing) (circular dependency aborted here)\n",
                         "stderr_excerpt": "Not finding what you were looking for? Try calling `composer require \"laravel/framework:^13.0\" --dry-run` to get another view on the problem.\n"
                     },
                     {
@@ -334,7 +334,7 @@
                     "--no-progress",
                     "--no-interaction"
                 ],
-                "duration_ms": 313,
+                "duration_ms": 288,
                 "exit_code": 0,
                 "succeeded": true,
                 "outcome": "success",
@@ -364,13 +364,13 @@
                     "--no-progress",
                     "--no-interaction"
                 ],
-                "duration_ms": 295,
+                "duration_ms": 282,
                 "exit_code": 2,
                 "succeeded": false,
                 "outcome": "solver_failure",
                 "failure_type": "solver",
                 "stdout_excerpt": "",
-                "stderr_excerpt": "Loading composer repositories with package information\nUpdating dependencies\nYour requirements could not be resolved to an installable set of packages.\n\n  Problem 1\n    - Root composer.json requires laravel/framework ^13.0 -> satisfiable by laravel/framework[13.0.0].\n    - laravel/framework 13.0.0 requires php ^8.3 -> your php version (8.1.0; overridden via config.platform, actual: 8.3.33) does not satisfy that requirement.\n\n",
+                "stderr_excerpt": "Loading composer repositories with package information\nUpdating dependencies\nYour requirements could not be resolved to an installable set of packages.\n\n  Problem 1\n    - Root composer.json requires laravel/framework ^13.0 -> satisfiable by laravel/framework[13.0.0].\n    - laravel/framework 13.0.0 requires php ^8.3 -> your php version (8.1.0; overridden via config.platform, actual: 8.2.33) does not satisfy that requirement.\n\n",
                 "candidate_lock": null,
                 "diagnostics": [
                     {
@@ -388,7 +388,7 @@
                             "--no-interaction"
                         ],
                         "exit_code": 1,
-                        "stdout_excerpt": "laravel/framework 10.0.0 Metadata-only Laravel 10 package for the offline demo.\n|--nunomaduro/collision 7.11.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n|--phpunit/phpunit 10.0.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n`--laravel/framework 13.0.0 (requires ext-preflight-stage ^2.0 but it is missing) (circular dependency aborted here)\n",
+                        "stdout_excerpt": "laravel/framework 10.0.0 Metadata-only Laravel 10 package for the offline demo.\n|--nunomaduro/collision 7.11.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n|--phpunit/phpunit 10.0.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n|--laravel/framework 13.0.0 (requires php ^8.3 but 8.2.33 is installed) (circular dependency aborted here)\n`--laravel/framework 13.0.0 (requires ext-preflight-stage ^2.0 but it is missing) (circular dependency aborted here)\n",
                         "stderr_excerpt": "Not finding what you were looking for? Try calling `composer require \"laravel/framework:^13.0\" --dry-run` to get another view on the problem.\n"
                     }
                 ],
@@ -440,7 +440,7 @@
                     },
                     "effective_sha256": "f7867541fa8d250aab14dc390187c1a8930cdd8fb3b76e3dd72486cc5512107e"
                 },
-                "duration_ms": 846,
+                "duration_ms": 884,
                 "evidence": [
                     "laravel-stage-target-1",
                     "laravel-stage-remediation-1",
@@ -453,7 +453,13 @@
                     "stage-attempt-3",
                     "stage-root-change-4",
                     "stage-root-change-5",
-                    "stage-root-change-6"
+                    "stage-root-change-6",
+                    "laravel-package-nunomaduro_collision-1",
+                    "laravel-package-guidance-1",
+                    "laravel-package-phpunit_phpunit-1",
+                    "laravel-package-guidance-2",
+                    "solver-5",
+                    "solver-6"
                 ],
                 "predecessor_state": {
                     "manifest_sha256": "22160d52f264c172f20c7d35924efb796209e4a7515039470744756799f4dc7d",
@@ -507,7 +513,7 @@
                                 "--no-progress",
                                 "--no-interaction"
                             ],
-                            "duration_ms": 286,
+                            "duration_ms": 285,
                             "exit_code": 2,
                             "succeeded": false,
                             "outcome": "solver_failure",
@@ -614,7 +620,7 @@
                                 "--no-progress",
                                 "--no-interaction"
                             ],
-                            "duration_ms": 284,
+                            "duration_ms": 308,
                             "exit_code": 2,
                             "succeeded": false,
                             "outcome": "solver_failure",
@@ -751,7 +757,7 @@
                                 "--no-progress",
                                 "--no-interaction"
                             ],
-                            "duration_ms": 276,
+                            "duration_ms": 291,
                             "exit_code": 0,
                             "succeeded": true,
                             "outcome": "success",
@@ -829,7 +835,12 @@
                         "to_dist_reference": null
                     }
                 ],
+                "blockers": [
+                    "stage-blocker-da9ed30e1b45cf7243c4",
+                    "stage-blocker-78808d7e6ec6a483ae60"
+                ],
                 "source_snapshot": "original_project",
+                "source_snapshot_note": "This stage assessment inspects the original project source snapshot; it does not assume edits from an earlier stage were applied.",
                 "source_findings": [
                     {
                         "framework": "laravel",
@@ -864,22 +875,69 @@
                 ],
                 "source_impact": [],
                 "risk": {
+                    "stage_id": "laravel-10-to-11",
                     "level": "medium",
-                    "drivers": [
-                        "The stage changes dependencies or has source review findings."
-                    ]
+                    "drivers": []
                 },
                 "effort": {
+                    "stage_id": "laravel-10-to-11",
                     "range_hours": [
-                        5,
-                        10
+                        4,
+                        15
                     ],
-                    "confidence": "medium"
+                    "confidence": "low",
+                    "components": {
+                        "dependency_resolution": [
+                            1,
+                            3
+                        ],
+                        "source_changes": [
+                            1,
+                            4
+                        ],
+                        "tests_and_debugging": [
+                            2,
+                            8
+                        ]
+                    },
+                    "assumptions": [
+                        "Stage laravel-10-to-11 is estimated from unique package and original-snapshot findings; Composer attempt count is excluded."
+                    ]
                 },
                 "recommended_actions": [
-                    "Use only the selected candidate state as evidence for the next stage.",
-                    "nunomaduro/collision 7.11.0 is outside the encoded Laravel 11 review range `^8.1`; review its upgrade or replacement.",
-                    "phpunit/phpunit 10.0.0 is outside the encoded Laravel 11 review range `^11.0.1`; review its upgrade or replacement."
+                    "[laravel-10-to-11] Reproduce and review only the selected Composer candidate state before advancing.",
+                    "[laravel-10-to-11] Review the original-source finding: nunomaduro/collision 7.11.0 is outside the encoded Laravel 11 review range `^8.1`; review its upgrade or replacement.",
+                    "[laravel-10-to-11] Review the original-source finding: phpunit/phpunit 10.0.0 is outside the encoded Laravel 11 review range `^11.0.1`; review its upgrade or replacement."
+                ],
+                "tests": [
+                    {
+                        "stage_id": "laravel-10-to-11",
+                        "name": "composer-validation",
+                        "purpose": "Validate the stage laravel-10-to-11 manifest.",
+                        "command": "composer validate --strict",
+                        "priority": "required"
+                    },
+                    {
+                        "stage_id": "laravel-10-to-11",
+                        "name": "project-test-suite",
+                        "purpose": "Run the project test suite for stage laravel-10-to-11 after applying its evidenced changes.",
+                        "command": null,
+                        "priority": "required"
+                    },
+                    {
+                        "stage_id": "laravel-10-to-11",
+                        "name": "platform-requirements",
+                        "purpose": "Validate stage laravel-10-to-11 against analysis PHP 8.3.0 and its recorded platform.",
+                        "command": "composer check-platform-reqs",
+                        "priority": "required"
+                    },
+                    {
+                        "stage_id": "laravel-10-to-11",
+                        "name": "focused-regressions",
+                        "purpose": "Exercise the original-snapshot findings correlated with stage laravel-10-to-11.",
+                        "command": null,
+                        "priority": "recommended"
+                    }
                 ],
                 "stop_reason": null
             },
@@ -922,14 +980,20 @@
                     },
                     "effective_sha256": "f7867541fa8d250aab14dc390187c1a8930cdd8fb3b76e3dd72486cc5512107e"
                 },
-                "duration_ms": 278,
+                "duration_ms": 284,
                 "evidence": [
                     "laravel-stage-target-2",
                     "laravel-stage-remediation-4",
                     "laravel-stage-remediation-5",
                     "laravel-stage-remediation-3",
                     "stage-attempt-4",
-                    "stage-root-change-7"
+                    "stage-root-change-7",
+                    "laravel-package-phpunit_phpunit-2",
+                    "laravel-package-guidance-3",
+                    "laravel-package-nesbot_carbon-1",
+                    "laravel-package-guidance-4",
+                    "laravel-package-nunomaduro_collision-2",
+                    "laravel-package-guidance-5"
                 ],
                 "predecessor_state": {
                     "manifest_sha256": "b4d332e29f50556da15f7e65d5007c9ad793c21662a0b14443c07636e54f32c0",
@@ -983,7 +1047,7 @@
                                 "--no-progress",
                                 "--no-interaction"
                             ],
-                            "duration_ms": 278,
+                            "duration_ms": 284,
                             "exit_code": 0,
                             "succeeded": true,
                             "outcome": "success",
@@ -1035,7 +1099,9 @@
                         "to_dist_reference": null
                     }
                 ],
+                "blockers": [],
                 "source_snapshot": "original_project",
+                "source_snapshot_note": "This stage assessment inspects the original project source snapshot; it does not assume edits from an earlier stage were applied.",
                 "source_findings": [
                     {
                         "framework": "laravel",
@@ -1085,23 +1151,72 @@
                 ],
                 "source_impact": [],
                 "risk": {
+                    "stage_id": "laravel-11-to-12",
                     "level": "high",
                     "drivers": [
-                        "phpunit/phpunit 10.0.0 is outside the encoded Laravel 12 review range `^11.0`; review its upgrade or replacement."
+                        "Stage laravel-11-to-12: phpunit/phpunit 10.0.0 is outside the encoded Laravel 12 review range `^11.0`; review its upgrade or replacement."
                     ]
                 },
                 "effort": {
+                    "stage_id": "laravel-11-to-12",
                     "range_hours": [
                         4,
-                        8
+                        16
                     ],
-                    "confidence": "medium"
+                    "confidence": "low",
+                    "components": {
+                        "dependency_resolution": [
+                            1,
+                            2
+                        ],
+                        "source_changes": [
+                            1,
+                            6
+                        ],
+                        "tests_and_debugging": [
+                            2,
+                            8
+                        ]
+                    },
+                    "assumptions": [
+                        "Stage laravel-11-to-12 is estimated from unique package and original-snapshot findings; Composer attempt count is excluded."
+                    ]
                 },
                 "recommended_actions": [
-                    "Use only the selected candidate state as evidence for the next stage.",
-                    "phpunit/phpunit 10.0.0 is outside the encoded Laravel 12 review range `^11.0`; review its upgrade or replacement.",
-                    "nesbot/carbon 2.72.0 is outside the encoded Laravel 12 review range `^3.0`; review its upgrade or replacement.",
-                    "nunomaduro/collision 7.11.0 is outside the encoded Laravel 12 review range `^8.6`; review its upgrade or replacement."
+                    "[laravel-11-to-12] Reproduce and review only the selected Composer candidate state before advancing.",
+                    "[laravel-11-to-12] Review the original-source finding: phpunit/phpunit 10.0.0 is outside the encoded Laravel 12 review range `^11.0`; review its upgrade or replacement.",
+                    "[laravel-11-to-12] Review the original-source finding: nesbot/carbon 2.72.0 is outside the encoded Laravel 12 review range `^3.0`; review its upgrade or replacement.",
+                    "[laravel-11-to-12] Review the original-source finding: nunomaduro/collision 7.11.0 is outside the encoded Laravel 12 review range `^8.6`; review its upgrade or replacement."
+                ],
+                "tests": [
+                    {
+                        "stage_id": "laravel-11-to-12",
+                        "name": "composer-validation",
+                        "purpose": "Validate the stage laravel-11-to-12 manifest.",
+                        "command": "composer validate --strict",
+                        "priority": "required"
+                    },
+                    {
+                        "stage_id": "laravel-11-to-12",
+                        "name": "project-test-suite",
+                        "purpose": "Run the project test suite for stage laravel-11-to-12 after applying its evidenced changes.",
+                        "command": null,
+                        "priority": "required"
+                    },
+                    {
+                        "stage_id": "laravel-11-to-12",
+                        "name": "platform-requirements",
+                        "purpose": "Validate stage laravel-11-to-12 against analysis PHP 8.3.0 and its recorded platform.",
+                        "command": "composer check-platform-reqs",
+                        "priority": "required"
+                    },
+                    {
+                        "stage_id": "laravel-11-to-12",
+                        "name": "focused-regressions",
+                        "purpose": "Exercise the original-snapshot findings correlated with stage laravel-11-to-12.",
+                        "command": null,
+                        "priority": "recommended"
+                    }
                 ],
                 "stop_reason": null
             },
@@ -1144,7 +1259,7 @@
                     },
                     "effective_sha256": "f7867541fa8d250aab14dc390187c1a8930cdd8fb3b76e3dd72486cc5512107e"
                 },
-                "duration_ms": 820,
+                "duration_ms": 875,
                 "evidence": [
                     "laravel-stage-target-3",
                     "laravel-stage-remediation-6",
@@ -1159,7 +1274,19 @@
                     "stage-root-change-11",
                     "stage-root-change-12",
                     "stage-root-change-13",
-                    "stage-root-change-14"
+                    "stage-root-change-14",
+                    "laravel-framework-constraint-1",
+                    "laravel-package-laravel_tinker-1",
+                    "laravel-package-guidance-6",
+                    "laravel-package-phpunit_phpunit-3",
+                    "laravel-package-guidance-7",
+                    "laravel-package-nunomaduro_collision-3",
+                    "laravel-package-guidance-8",
+                    "laravel-request-forgery-guidance-1",
+                    "source-3",
+                    "solver-7",
+                    "solver-8",
+                    "solver-9"
                 ],
                 "predecessor_state": {
                     "manifest_sha256": "e8a0d3db618d2b1e67045c2048e2e3c21a506a0a0ea0bed88d7fd555f3ef7186",
@@ -1207,7 +1334,7 @@
                                 "--no-progress",
                                 "--no-interaction"
                             ],
-                            "duration_ms": 268,
+                            "duration_ms": 295,
                             "exit_code": 2,
                             "succeeded": false,
                             "outcome": "solver_failure",
@@ -1313,7 +1440,7 @@
                                 "--no-progress",
                                 "--no-interaction"
                             ],
-                            "duration_ms": 280,
+                            "duration_ms": 291,
                             "exit_code": 2,
                             "succeeded": false,
                             "outcome": "solver_failure",
@@ -1462,7 +1589,7 @@
                                 "--no-progress",
                                 "--no-interaction"
                             ],
-                            "duration_ms": 272,
+                            "duration_ms": 289,
                             "exit_code": 2,
                             "succeeded": false,
                             "outcome": "solver_failure",
@@ -1565,7 +1692,11 @@
                 ],
                 "selected_attempt": null,
                 "package_changes": [],
+                "blockers": [
+                    "stage-blocker-b40442291e7ce748c0df"
+                ],
                 "source_snapshot": "original_project",
+                "source_snapshot_note": "This stage assessment inspects the original project source snapshot; it does not assume edits from an earlier stage were applied.",
                 "source_findings": [
                     {
                         "framework": "laravel",
@@ -1643,53 +1774,58 @@
                     }
                 ],
                 "source_impact": [
-                    {
-                        "affected_package": null,
-                        "ownership": "unknown",
-                        "relevance": "framework_rule",
-                        "reason": "Referenced by active laravel compatibility guidance; package ownership has not been established.",
-                        "severity": "high",
-                        "occurrences": [
-                            {
-                                "file": "tests/Feature/LegacyCsrfTest.php",
-                                "symbol": "Illuminate\\Foundation\\Http\\Middleware\\VerifyCsrfToken",
-                                "usage_type": "middleware_reference",
-                                "line": 13,
-                                "evidence": [
-                                    "source-3"
-                                ]
-                            }
-                        ],
-                        "evidence": [
-                            "source-3",
-                            "laravel-request-forgery-guidance-1"
-                        ]
-                    }
+                    "source-impact-967745ebc2016f78d1c2"
                 ],
                 "risk": {
+                    "stage_id": "laravel-12-to-13",
                     "level": "high",
                     "drivers": [
-                        "The stage did not produce a selectable Composer state.",
-                        "Update the root laravel/framework constraint from `^10.0` to a constraint compatible with Laravel 13.",
-                        "laravel/tinker 2.9.0 is outside the encoded Laravel 13 review range `^3.0`; review its upgrade or replacement.",
-                        "phpunit/phpunit 10.0.0 is outside the encoded Laravel 13 review range `^12.0`; review its upgrade or replacement.",
-                        "Replace 1 detected direct reference to VerifyCsrfToken or ValidateCsrfToken with PreventRequestForgery before targeting Laravel 13."
+                        "Stage laravel-12-to-13 did not produce a selectable Composer state.",
+                        "Stage laravel-12-to-13 retains an active Composer blocker.",
+                        "Stage laravel-12-to-13: Update the root laravel/framework constraint from `^10.0` to a constraint compatible with Laravel 13.",
+                        "Stage laravel-12-to-13: laravel/tinker 2.9.0 is outside the encoded Laravel 13 review range `^3.0`; review its upgrade or replacement.",
+                        "Stage laravel-12-to-13: phpunit/phpunit 10.0.0 is outside the encoded Laravel 13 review range `^12.0`; review its upgrade or replacement.",
+                        "Stage laravel-12-to-13: Replace 1 detected direct reference to VerifyCsrfToken or ValidateCsrfToken with PreventRequestForgery before targeting Laravel 13."
                     ]
                 },
                 "effort": {
+                    "stage_id": "laravel-12-to-13",
                     "range_hours": [
                         6,
-                        12
+                        31
                     ],
-                    "confidence": "medium"
+                    "confidence": "low",
+                    "components": {
+                        "dependency_resolution": [
+                            3,
+                            8
+                        ],
+                        "source_changes": [
+                            1,
+                            15
+                        ],
+                        "tests_and_debugging": [
+                            2,
+                            8
+                        ]
+                    },
+                    "assumptions": [
+                        "Stage laravel-12-to-13 is estimated from unique package and original-snapshot findings; Composer attempt count is excluded."
+                    ]
                 },
                 "recommended_actions": [
-                    "Resolve every active blocking registry entry, then rerun the complete stage.",
-                    "Update the root laravel/framework constraint from `^10.0` to a constraint compatible with Laravel 13.",
-                    "laravel/tinker 2.9.0 is outside the encoded Laravel 13 review range `^3.0`; review its upgrade or replacement.",
-                    "phpunit/phpunit 10.0.0 is outside the encoded Laravel 13 review range `^12.0`; review its upgrade or replacement.",
-                    "nunomaduro/collision 7.11.0 is outside the encoded Laravel 13 review range `^8.6`; review its upgrade or replacement.",
-                    "Replace 1 detected direct reference to VerifyCsrfToken or ValidateCsrfToken with PreventRequestForgery before targeting Laravel 13."
+                    "[laravel-12-to-13] Resolve every active blocker and rerun this complete stage; do not advance.",
+                    "[laravel-12-to-13] Install and enable `ext-preflight-stage` for the target runtime.",
+                    "[laravel-12-to-13] Choose package versions that do not require `ext-preflight-stage`."
+                ],
+                "tests": [
+                    {
+                        "stage_id": "laravel-12-to-13",
+                        "name": "composer-stage-rerun",
+                        "purpose": "Resolve this stage stop condition, then rerun the complete Composer stage laravel-12-to-13.",
+                        "command": null,
+                        "priority": "required"
+                    }
                 ],
                 "stop_reason": "blocking_registry_not_cleared"
             }
@@ -1933,6 +2069,34 @@
                 ]
             }
         ],
+        "source_impact": [
+            {
+                "id": "source-impact-967745ebc2016f78d1c2",
+                "stage_ids": [
+                    "laravel-12-to-13"
+                ],
+                "affected_package": null,
+                "ownership": "unknown",
+                "relevance": "framework_rule",
+                "reason": "Referenced by active laravel compatibility guidance; package ownership has not been established.",
+                "severity": "high",
+                "occurrences": [
+                    {
+                        "file": "tests/Feature/LegacyCsrfTest.php",
+                        "symbol": "Illuminate\\Foundation\\Http\\Middleware\\VerifyCsrfToken",
+                        "usage_type": "middleware_reference",
+                        "line": 13,
+                        "evidence": [
+                            "source-3"
+                        ]
+                    }
+                ],
+                "evidence": [
+                    "source-3",
+                    "laravel-request-forgery-guidance-1"
+                ]
+            }
+        ],
         "stop_reason": "blocking_registry_not_cleared",
         "budgets": {
             "max_hops": 6,
@@ -2089,6 +2253,8 @@
     ],
     "source_impact": [
         {
+            "id": "source-impact-967745ebc2016f78d1c2",
+            "stage_ids": [],
             "affected_package": null,
             "ownership": "unknown",
             "relevance": "framework_rule",
@@ -2265,71 +2431,107 @@
     "plan": {
         "stages": [
             {
-                "name": "constraints",
-                "summary": "Prepare the requested root constraint changes before dependency resolution.",
+                "stage_id": "laravel-10-to-11",
+                "name": "laravel-10-to-11",
+                "summary": "Apply only the selected laravel-10-to-11 candidate, then validate before advancing.",
                 "actions": [
-                    "Update the `laravel/framework` root constraint to `^13.0`."
+                    "[laravel-10-to-11] Reproduce and review only the selected Composer candidate state before advancing.",
+                    "[laravel-10-to-11] Review the original-source finding: nunomaduro/collision 7.11.0 is outside the encoded Laravel 11 review range `^8.1`; review its upgrade or replacement.",
+                    "[laravel-10-to-11] Review the original-source finding: phpunit/phpunit 10.0.0 is outside the encoded Laravel 11 review range `^11.0.1`; review its upgrade or replacement.",
+                    "[laravel-10-to-11] composer-validation: Validate the stage laravel-10-to-11 manifest.",
+                    "[laravel-10-to-11] project-test-suite: Run the project test suite for stage laravel-10-to-11 after applying its evidenced changes.",
+                    "[laravel-10-to-11] platform-requirements: Validate stage laravel-10-to-11 against analysis PHP 8.3.0 and its recorded platform.",
+                    "[laravel-10-to-11] focused-regressions: Exercise the original-snapshot findings correlated with stage laravel-10-to-11."
                 ],
                 "evidence": [
-                    "plan-1",
-                    "root-constraint-1"
-                ]
-            },
-            {
-                "name": "dependencies",
-                "summary": "Resolve dependency blockers and review the resulting lockfile transition.",
-                "actions": [
-                    "Resolve the `replace-provide-conflict` blocker affecting `laravel/framework`.",
-                    "Resolve the `replace-provide-conflict` blocker affecting `laravel/framework`.",
-                    "Rerun the isolated Composer scenarios after resolving the reported blockers."
-                ],
-                "evidence": [
-                    "plan-1",
-                    "solver-1",
-                    "solver-2",
-                    "solver-3",
-                    "solver-4"
-                ]
-            },
-            {
-                "name": "application",
-                "summary": "Apply source and framework migration work after dependency resolution is stable.",
-                "actions": [
-                    "Review the reported source locations and adapt affected application code.",
-                    "Address framework compatibility findings before runtime validation."
-                ],
-                "evidence": [
-                    "plan-1",
-                    "source-3",
-                    "laravel-request-forgery-guidance-1",
-                    "laravel-framework-constraint-1",
+                    "stage-plan-1",
+                    "laravel-stage-target-1",
+                    "laravel-stage-remediation-1",
+                    "laravel-stage-remediation-2",
+                    "stage-attempt-1",
+                    "stage-root-change-1",
+                    "stage-attempt-2",
+                    "stage-root-change-2",
+                    "stage-root-change-3",
+                    "stage-attempt-3",
+                    "stage-root-change-4",
+                    "stage-root-change-5",
+                    "stage-root-change-6",
                     "laravel-package-nunomaduro_collision-1",
                     "laravel-package-guidance-1",
                     "laravel-package-phpunit_phpunit-1",
                     "laravel-package-guidance-2",
+                    "solver-5",
+                    "solver-6"
+                ]
+            },
+            {
+                "stage_id": "laravel-11-to-12",
+                "name": "laravel-11-to-12",
+                "summary": "Apply only the selected laravel-11-to-12 candidate, then validate before advancing.",
+                "actions": [
+                    "[laravel-11-to-12] Reproduce and review only the selected Composer candidate state before advancing.",
+                    "[laravel-11-to-12] Review the original-source finding: phpunit/phpunit 10.0.0 is outside the encoded Laravel 12 review range `^11.0`; review its upgrade or replacement.",
+                    "[laravel-11-to-12] Review the original-source finding: nesbot/carbon 2.72.0 is outside the encoded Laravel 12 review range `^3.0`; review its upgrade or replacement.",
+                    "[laravel-11-to-12] Review the original-source finding: nunomaduro/collision 7.11.0 is outside the encoded Laravel 12 review range `^8.6`; review its upgrade or replacement.",
+                    "[laravel-11-to-12] composer-validation: Validate the stage laravel-11-to-12 manifest.",
+                    "[laravel-11-to-12] project-test-suite: Run the project test suite for stage laravel-11-to-12 after applying its evidenced changes.",
+                    "[laravel-11-to-12] platform-requirements: Validate stage laravel-11-to-12 against analysis PHP 8.3.0 and its recorded platform.",
+                    "[laravel-11-to-12] focused-regressions: Exercise the original-snapshot findings correlated with stage laravel-11-to-12."
+                ],
+                "evidence": [
+                    "stage-plan-2",
+                    "laravel-stage-target-2",
+                    "laravel-stage-remediation-4",
+                    "laravel-stage-remediation-5",
+                    "laravel-stage-remediation-3",
+                    "stage-attempt-4",
+                    "stage-root-change-7",
                     "laravel-package-phpunit_phpunit-2",
                     "laravel-package-guidance-3",
                     "laravel-package-nesbot_carbon-1",
                     "laravel-package-guidance-4",
                     "laravel-package-nunomaduro_collision-2",
-                    "laravel-package-guidance-5",
+                    "laravel-package-guidance-5"
+                ]
+            },
+            {
+                "stage_id": "laravel-12-to-13",
+                "name": "laravel-12-to-13",
+                "summary": "Stop at laravel-12-to-13; its transition is not proved and must be rerun.",
+                "actions": [
+                    "[laravel-12-to-13] Resolve every active blocker and rerun this complete stage; do not advance.",
+                    "[laravel-12-to-13] Install and enable `ext-preflight-stage` for the target runtime.",
+                    "[laravel-12-to-13] Choose package versions that do not require `ext-preflight-stage`."
+                ],
+                "evidence": [
+                    "stage-plan-3",
+                    "laravel-stage-target-3",
+                    "laravel-stage-remediation-6",
+                    "laravel-stage-remediation-8",
+                    "laravel-stage-remediation-7",
+                    "stage-attempt-5",
+                    "stage-root-change-8",
+                    "stage-attempt-6",
+                    "stage-root-change-9",
+                    "stage-root-change-10",
+                    "stage-attempt-7",
+                    "stage-root-change-11",
+                    "stage-root-change-12",
+                    "stage-root-change-13",
+                    "stage-root-change-14",
+                    "laravel-framework-constraint-1",
                     "laravel-package-laravel_tinker-1",
                     "laravel-package-guidance-6",
                     "laravel-package-phpunit_phpunit-3",
                     "laravel-package-guidance-7",
                     "laravel-package-nunomaduro_collision-3",
-                    "laravel-package-guidance-8"
-                ]
-            },
-            {
-                "name": "validation",
-                "summary": "Validate the upgraded project on the target runtime before release.",
-                "actions": [
-                    "Validate the Composer manifest and installed platform requirements.",
-                    "Run the project test suite and focused regression tests."
-                ],
-                "evidence": [
-                    "plan-1"
+                    "laravel-package-guidance-8",
+                    "laravel-request-forgery-guidance-1",
+                    "source-3",
+                    "solver-7",
+                    "solver-8",
+                    "solver-9"
                 ]
             }
         ]
@@ -2339,7 +2541,8 @@
         "drivers": [
             "Composer resolution is blocked.",
             "Framework compatibility findings require review.",
-            "Weighted actionable source findings require review."
+            "Weighted actionable source findings require review.",
+            "Executed stage laravel-12-to-13 retains an active Composer blocker."
         ]
     },
     "effort": {
@@ -2363,7 +2566,7 @@
             ]
         },
         "assumptions": [
-            "Estimate is heuristic until project-specific tests and Composer solver output are reviewed."
+            "Aggregate effort counts each exact package transition, framework finding, and source occurrence once; scenario and repeated-hop counts are excluded."
         ]
     },
     "tests": [
@@ -2434,7 +2637,7 @@
                             "--no-interaction"
                         ],
                         "exit_code": 1,
-                        "stdout_excerpt": "laravel/framework 10.0.0 Metadata-only Laravel 10 package for the offline demo.\n|--nunomaduro/collision 7.11.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n|--phpunit/phpunit 10.0.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n`--laravel/framework 13.0.0 (requires ext-preflight-stage ^2.0 but it is missing) (circular dependency aborted here)\n",
+                        "stdout_excerpt": "laravel/framework 10.0.0 Metadata-only Laravel 10 package for the offline demo.\n|--nunomaduro/collision 7.11.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n|--phpunit/phpunit 10.0.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n|--laravel/framework 13.0.0 (requires php ^8.3 but 8.2.33 is installed) (circular dependency aborted here)\n`--laravel/framework 13.0.0 (requires ext-preflight-stage ^2.0 but it is missing) (circular dependency aborted here)\n",
                         "stderr_excerpt": "Not finding what you were looking for? Try calling `composer require \"laravel/framework:^13.0\" --dry-run` to get another view on the problem.\n"
                     },
                     {
@@ -2493,7 +2696,7 @@
                             "--no-interaction"
                         ],
                         "exit_code": 1,
-                        "stdout_excerpt": "laravel/framework 10.0.0 Metadata-only Laravel 10 package for the offline demo.\n|--nunomaduro/collision 7.11.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n|--phpunit/phpunit 10.0.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n`--laravel/framework 13.0.0 (requires ext-preflight-stage ^2.0 but it is missing) (circular dependency aborted here)\n",
+                        "stdout_excerpt": "laravel/framework 10.0.0 Metadata-only Laravel 10 package for the offline demo.\n|--nunomaduro/collision 7.11.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n|--phpunit/phpunit 10.0.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n|--laravel/framework 13.0.0 (requires php ^8.3 but 8.2.33 is installed) (circular dependency aborted here)\n`--laravel/framework 13.0.0 (requires ext-preflight-stage ^2.0 but it is missing) (circular dependency aborted here)\n",
                         "stderr_excerpt": "Not finding what you were looking for? Try calling `composer require \"laravel/framework:^13.0\" --dry-run` to get another view on the problem.\n"
                     },
                     {
@@ -2552,7 +2755,7 @@
                             "--no-interaction"
                         ],
                         "exit_code": 1,
-                        "stdout_excerpt": "laravel/framework 10.0.0 Metadata-only Laravel 10 package for the offline demo.\n|--nunomaduro/collision 7.11.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n|--phpunit/phpunit 10.0.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n`--laravel/framework 13.0.0 (requires ext-preflight-stage ^2.0 but it is missing) (circular dependency aborted here)\n",
+                        "stdout_excerpt": "laravel/framework 10.0.0 Metadata-only Laravel 10 package for the offline demo.\n|--nunomaduro/collision 7.11.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n|--phpunit/phpunit 10.0.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n|--laravel/framework 13.0.0 (requires php ^8.3 but 8.2.33 is installed) (circular dependency aborted here)\n`--laravel/framework 13.0.0 (requires ext-preflight-stage ^2.0 but it is missing) (circular dependency aborted here)\n",
                         "stderr_excerpt": "Not finding what you were looking for? Try calling `composer require \"laravel/framework:^13.0\" --dry-run` to get another view on the problem.\n"
                     },
                     {
@@ -2594,7 +2797,7 @@
                     }
                 ],
                 "exit_code": 2,
-                "output_excerpt": "Loading composer repositories with package information\nUpdating dependencies\nYour requirements could not be resolved to an installable set of packages.\n\n  Problem 1\n    - Root composer.json requires laravel/framework ^13.0 -> satisfiable by laravel/framework[13.0.0].\n    - laravel/framework 13.0.0 requires php ^8.3 -> your php version (8.1.0; overridden via config.platform, actual: 8.3.33) does not satisfy that requirement.",
+                "output_excerpt": "Loading composer repositories with package information\nUpdating dependencies\nYour requirements could not be resolved to an installable set of packages.\n\n  Problem 1\n    - Root composer.json requires laravel/framework ^13.0 -> satisfiable by laravel/framework[13.0.0].\n    - laravel/framework 13.0.0 requires php ^8.3 -> your php version (8.1.0; overridden via config.platform, actual: 8.2.33) does not satisfy that requirement.",
                 "diagnostics": [
                     {
                         "package": "laravel/framework",
@@ -2611,7 +2814,7 @@
                             "--no-interaction"
                         ],
                         "exit_code": 1,
-                        "stdout_excerpt": "laravel/framework 10.0.0 Metadata-only Laravel 10 package for the offline demo.\n|--nunomaduro/collision 7.11.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n|--phpunit/phpunit 10.0.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n`--laravel/framework 13.0.0 (requires ext-preflight-stage ^2.0 but it is missing) (circular dependency aborted here)\n",
+                        "stdout_excerpt": "laravel/framework 10.0.0 Metadata-only Laravel 10 package for the offline demo.\n|--nunomaduro/collision 7.11.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n|--phpunit/phpunit 10.0.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n|--laravel/framework 13.0.0 (requires php ^8.3 but 8.2.33 is installed) (circular dependency aborted here)\n`--laravel/framework 13.0.0 (requires ext-preflight-stage ^2.0 but it is missing) (circular dependency aborted here)\n",
                         "stderr_excerpt": "Not finding what you were looking for? Try calling `composer require \"laravel/framework:^13.0\" --dry-run` to get another view on the problem.\n"
                     }
                 ]
@@ -3796,16 +3999,39 @@
             }
         },
         {
-            "id": "plan-1",
+            "id": "stage-plan-1",
             "class": "E5",
-            "summary": "Generated conservative staged actions from the requested targets and detected findings.",
+            "summary": "Generated recommendations from the executed outcome of stage laravel-10-to-11.",
+            "confidence": "medium",
+            "context": {
+                "stage_id": "laravel-10-to-11",
+                "execution_state": "evaluated",
+                "resolution_status": "feasible_with_changes",
+                "transition_recommended": true
+            }
+        },
+        {
+            "id": "stage-plan-2",
+            "class": "E5",
+            "summary": "Generated recommendations from the executed outcome of stage laravel-11-to-12.",
+            "confidence": "medium",
+            "context": {
+                "stage_id": "laravel-11-to-12",
+                "execution_state": "evaluated",
+                "resolution_status": "feasible_with_changes",
+                "transition_recommended": true
+            }
+        },
+        {
+            "id": "stage-plan-3",
+            "class": "E5",
+            "summary": "Generated recommendations from the executed outcome of stage laravel-12-to-13.",
             "confidence": "low",
             "context": {
-                "target_count": 2,
-                "root_constraint_change_count": 1,
-                "blocker_count": 2,
-                "source_finding_count": 1,
-                "framework_finding_count": 10
+                "stage_id": "laravel-12-to-13",
+                "execution_state": "evaluated",
+                "resolution_status": "blocked",
+                "transition_recommended": false
             }
         }
     ]

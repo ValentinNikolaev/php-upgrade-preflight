@@ -58,6 +58,10 @@ final class FiveMinuteDemoTest extends TestCase
         self::assertSame('blocked', $staged['status']);
         self::assertSame('blocking_registry_not_cleared', $staged['stop_reason']);
         self::assertCount(3, $staged['stages']);
+        self::assertSame(
+            ['laravel-10-to-11', 'laravel-11-to-12', 'laravel-12-to-13'],
+            array_column($canonical['plan']['stages'], 'stage_id')
+        );
 
         $first = $staged['stages'][0];
         self::assertSame('laravel-10-to-11', $first['id']);
@@ -81,7 +85,20 @@ final class FiveMinuteDemoTest extends TestCase
         self::assertNull($last['output_state']);
         self::assertSame($middle['output_state']['state_sha256'], $last['input_state']['state_sha256']);
         self::assertSame('original_project', $last['source_snapshot']);
-        self::assertSame('tests/Feature/LegacyCsrfTest.php', $last['source_impact'][0]['occurrences'][0]['file']);
+        foreach ($staged['stages'] as $stage) {
+            self::assertStringContainsString('original project source snapshot', $stage['source_snapshot_note']);
+            self::assertSame($stage['id'], $stage['risk']['stage_id']);
+            self::assertSame($stage['id'], $stage['effort']['stage_id']);
+        }
+        self::assertNotSame([], $last['source_impact']);
+        $stagedImpact = [];
+        foreach ($staged['source_impact'] as $finding) {
+            $stagedImpact[$finding['id']] = $finding;
+        }
+        self::assertSame(
+            'tests/Feature/LegacyCsrfTest.php',
+            $stagedImpact[$last['source_impact'][0]]['occurrences'][0]['file']
+        );
 
         $registry = [];
         foreach ($staged['blocker_registry'] as $entry) {

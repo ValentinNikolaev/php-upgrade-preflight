@@ -153,24 +153,40 @@ Resolution: **blocked** | Staged: **blocked** | Schema: `0.8` | Tool: `php-upgra
 - Execution: `evaluated`; status: `blocked`; provider: `laravel`; stop reason: `blocking_registry_not_cleared`
 - **laravel-7-to-8** (`7` -> `8`): execution `evaluated`; resolution `blocked`; selected attempt `none`
   - analysis PHP: `8.1.0`; source snapshot: `original_project`
+  - This stage assessment inspects the original project source snapshot; it does not assume edits from an earlier stage were applied.
   - effective platform: `c2b227c251d4ec9ccf885e95404feaceedd627ff0c7104bc213f254935e62537`; completeness `partial`; profile `none`
   - Composer policy: `0c155d2582c9452186059dbe78d0da2d730f798c6c1d69f356c43ca832fcf1b9`; mode `compatible`; stage duration `1 ms`
-  - stage evidence: `laravel-stage-target-1`, `stage-attempt-1`, `stage-root-change-1`, `stage-attempt-2`, `stage-root-change-2`
+  - stage evidence: `laravel-stage-target-1`, `stage-attempt-1`, `stage-root-change-1`, `stage-attempt-2`, `stage-root-change-2`, `old-illuminate-consumer-1`, `solver-6`, `solver-7`
   - state chain: predecessor `ae61f76dad3c6af973734bad704adaad5861aa0c16d437ea5878066664b2b737`; input `ae61f76dad3c6af973734bad704adaad5861aa0c16d437ea5878066664b2b737`; output `none`
   - attempt `1` `target_only`: outcome `solver_failure`; duration `1 ms`; selected no; blockers `stage-blocker-a3bd37c51e9a796aef74`
     - analyzer-only root change `laravel/framework`: `^7.0` -> `^8.0`
   - attempt `2` `locked_package_remediation`: outcome `solver_failure`; duration `1 ms`; selected no; blockers `stage-blocker-a3bd37c51e9a796aef74`
     - analyzer-only root change `laravel/framework`: `^7.0` -> `^8.0`
   - original-source finding (`high`): Update or replace incompatible illuminate/support constraints before targeting Laravel 8: fixture/illuminate-consumer.
+  - blocker references: `stage-blocker-a3bd37c51e9a796aef74`
+  - source-impact references: `none`
+  - risk for `laravel-7-to-8`: `high`; effort: 6-19 hours (`low` confidence)
+  - action: [laravel-7-to-8] Resolve every active blocker and rerun this complete stage; do not advance.
+  - action: [laravel-7-to-8] Upgrade or replace `fixture/illuminate-consumer`.
+  - action: [laravel-7-to-8] Choose a `illuminate/support` version compatible with the transitive constraint.
+  - test for `laravel-7-to-8`: Resolve this stage stop condition, then rerun the complete Composer stage laravel-7-to-8. (`required`)
   - stop reason: `blocking_registry_not_cleared`
 - **laravel-8-to-9** (`8` -> `9`): execution `skipped`; resolution `not evaluated`; selected attempt `none`
   - analysis PHP: `8.1.0`; source snapshot: `original_project`
+  - This stage assessment inspects the original project source snapshot; it does not assume edits from an earlier stage were applied.
   - effective platform: `c2b227c251d4ec9ccf885e95404feaceedd627ff0c7104bc213f254935e62537`; completeness `partial`; profile `none`
   - Composer policy: `0c155d2582c9452186059dbe78d0da2d730f798c6c1d69f356c43ca832fcf1b9`; mode `compatible`; stage duration `1 ms`
-  - stage evidence: `laravel-stage-target-2`, `stage-skipped-1`
+  - stage evidence: `laravel-stage-target-2`, `stage-skipped-1`, `laravel-framework-constraint-1`
   - state chain: predecessor `none`; input `none`; output `none`
   - original-source finding (`high`): Update the root laravel/framework constraint from `^7.0` to a constraint compatible with Laravel 9.
+  - blocker references: `none`
+  - source-impact references: `none`
+  - risk for `laravel-8-to-9`: `high`; effort: 0-0 hours (`low` confidence)
+  - action: [laravel-8-to-9] Do not advance: this stage was skipped and has no Composer feasibility evidence.
+  - test for `laravel-8-to-9`: Resolve the preceding stop condition, then execute stage laravel-8-to-9 before selecting migration tests. (`required`)
   - stop reason: `previous_stage_blocked`
+- Staged source-impact registry:
+  - None recorded.
 - Blocker registry:
   - `stage-blocker-a3bd37c51e9a796aef74` stage `laravel-7-to-8`: `transitive-package-conflict` `illuminate/support`; lifecycle `persists` (detected@1 -> persists@2); blocking package `fixture/illuminate-consumer`; constraint `^7.0`; path `fixture/illuminate-consumer -> illuminate/support`
 
@@ -205,29 +221,24 @@ Resolution: **blocked** | Staged: **blocked** | Schema: `0.8` | Tool: `php-upgra
   - applies to hops: `7 -> 8`
 
 ## Staged Plan
-1. **constraints** — Prepare the requested root constraint changes before dependency resolution. (evidence: `plan-1`, `root-constraint-1`)
-   - Update the `laravel/framework` root constraint to `^9.0`.
-2. **dependencies** — Resolve dependency blockers and review the resulting lockfile transition. (evidence: `plan-1`, `solver-1`, `solver-2`, `solver-3`, `solver-4`, `solver-5`)
-   - Resolve the `transitive-package-conflict` blocker affecting `illuminate/support`.
-   - Rerun the isolated Composer scenarios after resolving the reported blockers.
-3. **application** — Apply source and framework migration work after dependency resolution is stable. (evidence: `plan-1`, `laravel-framework-constraint-1`, `old-illuminate-consumer-1`)
-   - Address framework compatibility findings before runtime validation.
-4. **validation** — Validate the upgraded project on the target runtime before release. (evidence: `plan-1`)
-   - Validate the Composer manifest and installed platform requirements.
-   - Run the project test suite and focused regression tests.
+1. **laravel-7-to-8** — Stop at laravel-7-to-8; its transition is not proved and must be rerun.; executed stage `laravel-7-to-8` (evidence: `stage-plan-1`, `laravel-stage-target-1`, `stage-attempt-1`, `stage-root-change-1`, `stage-attempt-2`, `stage-root-change-2`, `old-illuminate-consumer-1`, `solver-6`, `solver-7`)
+   - [laravel-7-to-8] Resolve every active blocker and rerun this complete stage; do not advance.
+   - [laravel-7-to-8] Upgrade or replace `fixture/illuminate-consumer`.
+   - [laravel-7-to-8] Choose a `illuminate/support` version compatible with the transitive constraint.
 
 ## Risk And Effort
 - Risk: `high`
 - Risk drivers:
   - Composer resolution is blocked.
   - Framework compatibility findings require review.
+  - Executed stage laravel-7-to-8 retains an active Composer blocker.
 - Effort: `6-20` hours (low confidence)
 - Effort components:
   - `dependency_resolution`: `3-8` hours
   - `source_changes`: `1-4` hours
   - `tests_and_debugging`: `2-8` hours
 - Effort assumptions:
-  - Estimate is heuristic until project-specific tests and Composer solver output are reviewed.
+  - Aggregate effort counts each exact package transition, framework finding, and source occurrence once; scenario and repeated-hop counts are excluded.
 
 ## Test Guidance
 - **composer-validation** (`required`): Validate the edited Composer manifest before dependency installation. Command: `composer validate --strict`.
@@ -262,4 +273,4 @@ Resolution: **blocked** | Staged: **blocked** | Schema: `0.8` | Tool: `php-upgra
 - `laravel-framework-constraint-1` (`E2`, high confidence): The root Laravel framework constraint does not include the requested target major. Context: `{"package":"laravel/framework","root_constraint":"^7.0","target_constraint":"^9.0","target_laravel_major":9}`
 - `old-illuminate-consumer-1` (`E2`, high confidence): fixture/illuminate-consumer declares an illuminate/support constraint that excludes the requested Laravel 8 range. Context: `{"package":"fixture/illuminate-consumer","locked_version":"1.0.0","illuminate_support_constraint":"^7.0","target_laravel_major":8}`
 - `root-constraint-1` (`E2`, high confidence): Compared the root requirement for laravel/framework with the requested target. Context: `{"package":"laravel/framework","from_constraint":"^7.0","to_constraint":"^9.0"}`
-- `plan-1` (`E5`, low confidence): Generated conservative staged actions from the requested targets and detected findings. Context: `{"target_count":2,"root_constraint_change_count":1,"blocker_count":1,"source_finding_count":0,"framework_finding_count":2}`
+- `stage-plan-1` (`E5`, low confidence): Generated recommendations from the executed outcome of stage laravel-7-to-8. Context: `{"stage_id":"laravel-7-to-8","execution_state":"evaluated","resolution_status":"blocked","transition_recommended":false}`

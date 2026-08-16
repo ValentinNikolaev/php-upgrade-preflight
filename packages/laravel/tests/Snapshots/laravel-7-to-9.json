@@ -423,24 +423,66 @@
                         "to_dist_reference": null
                     }
                 ],
+                "blockers": [],
                 "source_snapshot": "original_project",
+                "source_snapshot_note": "This stage assessment inspects the original project source snapshot; it does not assume edits from an earlier stage were applied.",
                 "source_findings": [],
                 "source_impact": [],
                 "risk": {
+                    "stage_id": "laravel-7-to-8",
                     "level": "medium",
-                    "drivers": [
-                        "The stage changes dependencies or has source review findings."
-                    ]
+                    "drivers": []
                 },
                 "effort": {
+                    "stage_id": "laravel-7-to-8",
                     "range_hours": [
-                        1,
-                        2
+                        3,
+                        10
                     ],
-                    "confidence": "medium"
+                    "confidence": "low",
+                    "components": {
+                        "dependency_resolution": [
+                            1,
+                            2
+                        ],
+                        "source_changes": [
+                            0,
+                            0
+                        ],
+                        "tests_and_debugging": [
+                            2,
+                            8
+                        ]
+                    },
+                    "assumptions": [
+                        "Stage laravel-7-to-8 is estimated from unique package and original-snapshot findings; Composer attempt count is excluded."
+                    ]
                 },
                 "recommended_actions": [
-                    "Use only the selected candidate state as evidence for the next stage."
+                    "[laravel-7-to-8] Reproduce and review only the selected Composer candidate state before advancing."
+                ],
+                "tests": [
+                    {
+                        "stage_id": "laravel-7-to-8",
+                        "name": "composer-validation",
+                        "purpose": "Validate the stage laravel-7-to-8 manifest.",
+                        "command": "composer validate --strict",
+                        "priority": "required"
+                    },
+                    {
+                        "stage_id": "laravel-7-to-8",
+                        "name": "project-test-suite",
+                        "purpose": "Run the project test suite for stage laravel-7-to-8 after applying its evidenced changes.",
+                        "command": null,
+                        "priority": "required"
+                    },
+                    {
+                        "stage_id": "laravel-7-to-8",
+                        "name": "platform-requirements",
+                        "purpose": "Validate stage laravel-7-to-8 against analysis PHP 8.1.0 and its recorded platform.",
+                        "command": "composer check-platform-reqs",
+                        "priority": "required"
+                    }
                 ],
                 "stop_reason": null
             },
@@ -487,7 +529,8 @@
                 "evidence": [
                     "laravel-stage-target-2",
                     "stage-attempt-2",
-                    "stage-root-change-2"
+                    "stage-root-change-2",
+                    "laravel-framework-constraint-1"
                 ],
                 "predecessor_state": {
                     "manifest_sha256": "8bc844a282b199f53b414a3024490fe2f728ad571cf6f2a4baeef85f3c2e5046",
@@ -593,7 +636,9 @@
                         "to_dist_reference": null
                     }
                 ],
+                "blockers": [],
                 "source_snapshot": "original_project",
+                "source_snapshot_note": "This stage assessment inspects the original project source snapshot; it does not assume edits from an earlier stage were applied.",
                 "source_findings": [
                     {
                         "framework": "laravel",
@@ -612,26 +657,76 @@
                 ],
                 "source_impact": [],
                 "risk": {
+                    "stage_id": "laravel-8-to-9",
                     "level": "high",
                     "drivers": [
-                        "Update the root laravel/framework constraint from `^7.0` to a constraint compatible with Laravel 9."
+                        "Stage laravel-8-to-9: Update the root laravel/framework constraint from `^7.0` to a constraint compatible with Laravel 9."
                     ]
                 },
                 "effort": {
+                    "stage_id": "laravel-8-to-9",
                     "range_hours": [
-                        2,
-                        4
+                        4,
+                        13
                     ],
-                    "confidence": "medium"
+                    "confidence": "low",
+                    "components": {
+                        "dependency_resolution": [
+                            1,
+                            2
+                        ],
+                        "source_changes": [
+                            1,
+                            3
+                        ],
+                        "tests_and_debugging": [
+                            2,
+                            8
+                        ]
+                    },
+                    "assumptions": [
+                        "Stage laravel-8-to-9 is estimated from unique package and original-snapshot findings; Composer attempt count is excluded."
+                    ]
                 },
                 "recommended_actions": [
-                    "Use only the selected candidate state as evidence for the next stage.",
-                    "Update the root laravel/framework constraint from `^7.0` to a constraint compatible with Laravel 9."
+                    "[laravel-8-to-9] Reproduce and review only the selected Composer candidate state before advancing.",
+                    "[laravel-8-to-9] Review the original-source finding: Update the root laravel/framework constraint from `^7.0` to a constraint compatible with Laravel 9."
+                ],
+                "tests": [
+                    {
+                        "stage_id": "laravel-8-to-9",
+                        "name": "composer-validation",
+                        "purpose": "Validate the stage laravel-8-to-9 manifest.",
+                        "command": "composer validate --strict",
+                        "priority": "required"
+                    },
+                    {
+                        "stage_id": "laravel-8-to-9",
+                        "name": "project-test-suite",
+                        "purpose": "Run the project test suite for stage laravel-8-to-9 after applying its evidenced changes.",
+                        "command": null,
+                        "priority": "required"
+                    },
+                    {
+                        "stage_id": "laravel-8-to-9",
+                        "name": "platform-requirements",
+                        "purpose": "Validate stage laravel-8-to-9 against analysis PHP 8.1.0 and its recorded platform.",
+                        "command": "composer check-platform-reqs",
+                        "priority": "required"
+                    },
+                    {
+                        "stage_id": "laravel-8-to-9",
+                        "name": "focused-regressions",
+                        "purpose": "Exercise the original-snapshot findings correlated with stage laravel-8-to-9.",
+                        "command": null,
+                        "priority": "recommended"
+                    }
                 ],
                 "stop_reason": null
             }
         ],
         "blocker_registry": [],
+        "source_impact": [],
         "stop_reason": null,
         "budgets": {
             "max_hops": 6,
@@ -734,46 +829,40 @@
     "plan": {
         "stages": [
             {
-                "name": "constraints",
-                "summary": "Prepare the requested root constraint changes before dependency resolution.",
+                "stage_id": "laravel-7-to-8",
+                "name": "laravel-7-to-8",
+                "summary": "Apply only the selected laravel-7-to-8 candidate, then validate before advancing.",
                 "actions": [
-                    "Update the `laravel/framework` root constraint to `^9.0`."
+                    "[laravel-7-to-8] Reproduce and review only the selected Composer candidate state before advancing.",
+                    "[laravel-7-to-8] composer-validation: Validate the stage laravel-7-to-8 manifest.",
+                    "[laravel-7-to-8] project-test-suite: Run the project test suite for stage laravel-7-to-8 after applying its evidenced changes.",
+                    "[laravel-7-to-8] platform-requirements: Validate stage laravel-7-to-8 against analysis PHP 8.1.0 and its recorded platform."
                 ],
                 "evidence": [
-                    "plan-1",
-                    "root-constraint-1"
+                    "stage-plan-1",
+                    "laravel-stage-target-1",
+                    "stage-attempt-1",
+                    "stage-root-change-1"
                 ]
             },
             {
-                "name": "dependencies",
-                "summary": "Apply and review the successful dependency transition.",
+                "stage_id": "laravel-8-to-9",
+                "name": "laravel-8-to-9",
+                "summary": "Apply only the selected laravel-8-to-9 candidate, then validate before advancing.",
                 "actions": [
-                    "Regenerate `composer.lock` with the smallest successful dependency transition."
+                    "[laravel-8-to-9] Reproduce and review only the selected Composer candidate state before advancing.",
+                    "[laravel-8-to-9] Review the original-source finding: Update the root laravel/framework constraint from `^7.0` to a constraint compatible with Laravel 9.",
+                    "[laravel-8-to-9] composer-validation: Validate the stage laravel-8-to-9 manifest.",
+                    "[laravel-8-to-9] project-test-suite: Run the project test suite for stage laravel-8-to-9 after applying its evidenced changes.",
+                    "[laravel-8-to-9] platform-requirements: Validate stage laravel-8-to-9 against analysis PHP 8.1.0 and its recorded platform.",
+                    "[laravel-8-to-9] focused-regressions: Exercise the original-snapshot findings correlated with stage laravel-8-to-9."
                 ],
                 "evidence": [
-                    "plan-1"
-                ]
-            },
-            {
-                "name": "application",
-                "summary": "Apply source and framework migration work after dependency resolution is stable.",
-                "actions": [
-                    "Address framework compatibility findings before runtime validation."
-                ],
-                "evidence": [
-                    "plan-1",
+                    "stage-plan-2",
+                    "laravel-stage-target-2",
+                    "stage-attempt-2",
+                    "stage-root-change-2",
                     "laravel-framework-constraint-1"
-                ]
-            },
-            {
-                "name": "validation",
-                "summary": "Validate the upgraded project on the target runtime before release.",
-                "actions": [
-                    "Validate the Composer manifest and installed platform requirements.",
-                    "Run the project test suite and focused regression tests."
-                ],
-                "evidence": [
-                    "plan-1"
                 ]
             }
         ]
@@ -787,13 +876,13 @@
     "effort": {
         "range_hours": [
             4,
-            13
+            14
         ],
         "confidence": "low",
         "components": {
             "dependency_resolution": [
                 1,
-                2
+                3
             ],
             "source_changes": [
                 1,
@@ -805,7 +894,7 @@
             ]
         },
         "assumptions": [
-            "Estimate is heuristic until project-specific tests and Composer solver output are reviewed."
+            "Aggregate effort counts each exact package transition, framework finding, and source occurrence once; scenario and repeated-hop counts are excluded."
         ]
     },
     "tests": [
@@ -980,16 +1069,27 @@
             }
         },
         {
-            "id": "plan-1",
+            "id": "stage-plan-1",
             "class": "E5",
-            "summary": "Generated conservative staged actions from the requested targets and detected findings.",
-            "confidence": "low",
+            "summary": "Generated recommendations from the executed outcome of stage laravel-7-to-8.",
+            "confidence": "medium",
             "context": {
-                "target_count": 2,
-                "root_constraint_change_count": 1,
-                "blocker_count": 0,
-                "source_finding_count": 0,
-                "framework_finding_count": 1
+                "stage_id": "laravel-7-to-8",
+                "execution_state": "evaluated",
+                "resolution_status": "feasible_with_changes",
+                "transition_recommended": true
+            }
+        },
+        {
+            "id": "stage-plan-2",
+            "class": "E5",
+            "summary": "Generated recommendations from the executed outcome of stage laravel-8-to-9.",
+            "confidence": "medium",
+            "context": {
+                "stage_id": "laravel-8-to-9",
+                "execution_state": "evaluated",
+                "resolution_status": "feasible_with_changes",
+                "transition_recommended": true
             }
         }
     ]

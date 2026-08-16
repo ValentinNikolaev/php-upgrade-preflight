@@ -104,6 +104,7 @@ Resolution: **feasible_with_changes** | Staged: **feasible_with_changes** | Sche
 - Execution: `evaluated`; status: `feasible_with_changes`; provider: `laravel`; stop reason: `none`
 - **laravel-7-to-8** (`7` -> `8`): execution `evaluated`; resolution `feasible_with_changes`; selected attempt `1`
   - analysis PHP: `8.1.0`; source snapshot: `original_project`
+  - This stage assessment inspects the original project source snapshot; it does not assume edits from an earlier stage were applied.
   - effective platform: `c2b227c251d4ec9ccf885e95404feaceedd627ff0c7104bc213f254935e62537`; completeness `partial`; profile `none`
   - Composer policy: `0c155d2582c9452186059dbe78d0da2d730f798c6c1d69f356c43ca832fcf1b9`; mode `compatible`; stage duration `1 ms`
   - stage evidence: `laravel-stage-target-1`, `stage-attempt-1`, `stage-root-change-1`
@@ -111,16 +112,35 @@ Resolution: **feasible_with_changes** | Staged: **feasible_with_changes** | Sche
   - attempt `1` `target_only`: outcome `success`; duration `1 ms`; selected yes; blockers `none`
     - analyzer-only root change `laravel/framework`: `^7.0` -> `^8.0`
   - selected package change `laravel/framework`: `v7.30.7` -> `v8.83.27`
+  - blocker references: `none`
+  - source-impact references: `none`
+  - risk for `laravel-7-to-8`: `medium`; effort: 3-10 hours (`low` confidence)
+  - action: [laravel-7-to-8] Reproduce and review only the selected Composer candidate state before advancing.
+  - test for `laravel-7-to-8`: Validate the stage laravel-7-to-8 manifest. (`required`)
+  - test for `laravel-7-to-8`: Run the project test suite for stage laravel-7-to-8 after applying its evidenced changes. (`required`)
+  - test for `laravel-7-to-8`: Validate stage laravel-7-to-8 against analysis PHP 8.1.0 and its recorded platform. (`required`)
 - **laravel-8-to-9** (`8` -> `9`): execution `evaluated`; resolution `feasible_with_changes`; selected attempt `1`
   - analysis PHP: `8.1.0`; source snapshot: `original_project`
+  - This stage assessment inspects the original project source snapshot; it does not assume edits from an earlier stage were applied.
   - effective platform: `c2b227c251d4ec9ccf885e95404feaceedd627ff0c7104bc213f254935e62537`; completeness `partial`; profile `none`
   - Composer policy: `0c155d2582c9452186059dbe78d0da2d730f798c6c1d69f356c43ca832fcf1b9`; mode `compatible`; stage duration `1 ms`
-  - stage evidence: `laravel-stage-target-2`, `stage-attempt-2`, `stage-root-change-2`
+  - stage evidence: `laravel-stage-target-2`, `stage-attempt-2`, `stage-root-change-2`, `laravel-framework-constraint-1`
   - state chain: predecessor `7158199540319a2f3573a9cd098dede100577faad8e25dc64ca49a86a779ca6f`; input `7158199540319a2f3573a9cd098dede100577faad8e25dc64ca49a86a779ca6f`; output `0a58b033b3734b2b3297d7551c0597b9af27cab69b3fe6c4bde9338fc456561a`
   - attempt `1` `target_only`: outcome `success`; duration `1 ms`; selected yes; blockers `none`
     - analyzer-only root change `laravel/framework`: `^8.0` -> `^9.0`
   - selected package change `laravel/framework`: `v8.83.27` -> `v9.52.16`
   - original-source finding (`high`): Update the root laravel/framework constraint from `^7.0` to a constraint compatible with Laravel 9.
+  - blocker references: `none`
+  - source-impact references: `none`
+  - risk for `laravel-8-to-9`: `high`; effort: 4-13 hours (`low` confidence)
+  - action: [laravel-8-to-9] Reproduce and review only the selected Composer candidate state before advancing.
+  - action: [laravel-8-to-9] Review the original-source finding: Update the root laravel/framework constraint from `^7.0` to a constraint compatible with Laravel 9.
+  - test for `laravel-8-to-9`: Validate the stage laravel-8-to-9 manifest. (`required`)
+  - test for `laravel-8-to-9`: Run the project test suite for stage laravel-8-to-9 after applying its evidenced changes. (`required`)
+  - test for `laravel-8-to-9`: Validate stage laravel-8-to-9 against analysis PHP 8.1.0 and its recorded platform. (`required`)
+  - test for `laravel-8-to-9`: Exercise the original-snapshot findings correlated with stage laravel-8-to-9. (`recommended`)
+- Staged source-impact registry:
+  - None recorded.
 - Blocker registry:
   - None recorded.
 
@@ -151,27 +171,30 @@ Resolution: **feasible_with_changes** | Staged: **feasible_with_changes** | Sche
   - applies to hops: `8 -> 9`
 
 ## Staged Plan
-1. **constraints** — Prepare the requested root constraint changes before dependency resolution. (evidence: `plan-1`, `root-constraint-1`)
-   - Update the `laravel/framework` root constraint to `^9.0`.
-2. **dependencies** — Apply and review the successful dependency transition. (evidence: `plan-1`)
-   - Regenerate `composer.lock` with the smallest successful dependency transition.
-3. **application** — Apply source and framework migration work after dependency resolution is stable. (evidence: `plan-1`, `laravel-framework-constraint-1`)
-   - Address framework compatibility findings before runtime validation.
-4. **validation** — Validate the upgraded project on the target runtime before release. (evidence: `plan-1`)
-   - Validate the Composer manifest and installed platform requirements.
-   - Run the project test suite and focused regression tests.
+1. **laravel-7-to-8** — Apply only the selected laravel-7-to-8 candidate, then validate before advancing.; executed stage `laravel-7-to-8` (evidence: `stage-plan-1`, `laravel-stage-target-1`, `stage-attempt-1`, `stage-root-change-1`)
+   - [laravel-7-to-8] Reproduce and review only the selected Composer candidate state before advancing.
+   - [laravel-7-to-8] composer-validation: Validate the stage laravel-7-to-8 manifest.
+   - [laravel-7-to-8] project-test-suite: Run the project test suite for stage laravel-7-to-8 after applying its evidenced changes.
+   - [laravel-7-to-8] platform-requirements: Validate stage laravel-7-to-8 against analysis PHP 8.1.0 and its recorded platform.
+2. **laravel-8-to-9** — Apply only the selected laravel-8-to-9 candidate, then validate before advancing.; executed stage `laravel-8-to-9` (evidence: `stage-plan-2`, `laravel-stage-target-2`, `stage-attempt-2`, `stage-root-change-2`, `laravel-framework-constraint-1`)
+   - [laravel-8-to-9] Reproduce and review only the selected Composer candidate state before advancing.
+   - [laravel-8-to-9] Review the original-source finding: Update the root laravel/framework constraint from `^7.0` to a constraint compatible with Laravel 9.
+   - [laravel-8-to-9] composer-validation: Validate the stage laravel-8-to-9 manifest.
+   - [laravel-8-to-9] project-test-suite: Run the project test suite for stage laravel-8-to-9 after applying its evidenced changes.
+   - [laravel-8-to-9] platform-requirements: Validate stage laravel-8-to-9 against analysis PHP 8.1.0 and its recorded platform.
+   - [laravel-8-to-9] focused-regressions: Exercise the original-snapshot findings correlated with stage laravel-8-to-9.
 
 ## Risk And Effort
 - Risk: `low`
 - Risk drivers:
   - Framework compatibility findings require review.
-- Effort: `4-13` hours (low confidence)
+- Effort: `4-14` hours (low confidence)
 - Effort components:
-  - `dependency_resolution`: `1-2` hours
+  - `dependency_resolution`: `1-3` hours
   - `source_changes`: `1-3` hours
   - `tests_and_debugging`: `2-8` hours
 - Effort assumptions:
-  - Estimate is heuristic until project-specific tests and Composer solver output are reviewed.
+  - Aggregate effort counts each exact package transition, framework finding, and source occurrence once; scenario and repeated-hop counts are excluded.
 
 ## Test Guidance
 - **composer-validation** (`required`): Validate the edited Composer manifest before dependency installation. Command: `composer validate --strict`.
@@ -197,4 +220,5 @@ Resolution: **feasible_with_changes** | Staged: **feasible_with_changes** | Sche
 - `laravel-transition-2` (`E4`, medium confidence): The implemented Laravel 8 to 9 rule pack covers this requested transition. Context: `{"source_major":8,"target_major":9,"rule_pack":"laravel-8-to-9","source":"https://laravel.com/docs/9.x/upgrade"}`
 - `laravel-framework-constraint-1` (`E2`, high confidence): The root Laravel framework constraint does not include the requested target major. Context: `{"package":"laravel/framework","root_constraint":"^7.0","target_constraint":"^9.0","target_laravel_major":9}`
 - `root-constraint-1` (`E2`, high confidence): Compared the root requirement for laravel/framework with the requested target. Context: `{"package":"laravel/framework","from_constraint":"^7.0","to_constraint":"^9.0"}`
-- `plan-1` (`E5`, low confidence): Generated conservative staged actions from the requested targets and detected findings. Context: `{"target_count":2,"root_constraint_change_count":1,"blocker_count":0,"source_finding_count":0,"framework_finding_count":1}`
+- `stage-plan-1` (`E5`, medium confidence): Generated recommendations from the executed outcome of stage laravel-7-to-8. Context: `{"stage_id":"laravel-7-to-8","execution_state":"evaluated","resolution_status":"feasible_with_changes","transition_recommended":true}`
+- `stage-plan-2` (`E5`, medium confidence): Generated recommendations from the executed outcome of stage laravel-8-to-9. Context: `{"stage_id":"laravel-8-to-9","execution_state":"evaluated","resolution_status":"feasible_with_changes","transition_recommended":true}`

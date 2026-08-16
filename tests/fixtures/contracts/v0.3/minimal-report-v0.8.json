@@ -92,6 +92,7 @@
         "provider": null,
         "stages": [],
         "blocker_registry": [],
+        "source_impact": [],
         "stop_reason": "stage_target_provider_unavailable",
         "budgets": {
             "max_hops": 6,

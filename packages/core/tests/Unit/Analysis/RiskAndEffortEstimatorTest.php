@@ -10,10 +10,61 @@ use PhpUpgradePreflight\Core\Model\CompatibilityFinding;
 use PhpUpgradePreflight\Core\Model\PackageChange;
 use PhpUpgradePreflight\Core\Model\SourceImpactFinding;
 use PhpUpgradePreflight\Core\Model\SourceUsage;
+use PhpUpgradePreflight\Core\Model\StagedResolution;
 use PHPUnit\Framework\TestCase;
 
 final class RiskAndEffortEstimatorTest extends TestCase
 {
+    public function testRepeatedSourceImpactDoesNotInflateAggregateEffort(): void
+    {
+        $usage = new \PhpUpgradePreflight\Core\Model\SourceUsage(
+            'src/Fixture.php',
+            'Fixture\\Client',
+            'instantiated_class',
+            ['source-1'],
+            10
+        );
+        $impact = new \PhpUpgradePreflight\Core\Model\SourceImpactFinding(
+            'fixture/package',
+            'exact',
+            'package_change',
+            'The owning package changes.',
+            'medium',
+            [$usage],
+            ['source-1']
+        );
+        $estimator = new RiskAndEffortEstimator();
+        $single = $estimator->estimateEffort([], [], [$impact], []);
+        $repeated = $estimator->estimateEffort([], [], [$impact->merge($impact)], []);
+
+        self::assertSame($single->rangeHours(), $repeated->rangeHours());
+    }
+
+    public function testRepeatedHopFindingDoesNotInflateAggregateEffort(): void
+    {
+        $first = new CompatibilityFinding(
+            'fixture',
+            'medium',
+            'Review the same framework change.',
+            ['docs-1'],
+            [['from_major' => 1, 'to_major' => 2]]
+        );
+        $second = new CompatibilityFinding(
+            'fixture',
+            'medium',
+            'Review the same framework change.',
+            ['docs-2'],
+            [['from_major' => 2, 'to_major' => 3]]
+        );
+        $estimator = new RiskAndEffortEstimator();
+        $staged = StagedResolution::skipped('stage_target_provider_unavailable');
+
+        self::assertSame(
+            $estimator->estimateAggregateEffort([], [], [], [$first], $staged)->rangeHours(),
+            $estimator->estimateAggregateEffort([], [], [], [$first, $second], $staged)->rangeHours()
+        );
+    }
+
     public function testBlockersDriveHighRiskAndTheDependencyEffortRange(): void
     {
         $estimator = new RiskAndEffortEstimator();

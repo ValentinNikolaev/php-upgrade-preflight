@@ -278,6 +278,8 @@ final class MarkdownReportWriter
                     $this->code($stage['selected_attempt'] === null ? 'none' : (string) $stage['selected_attempt'])
                 );
                 $lines[] = sprintf('  - analysis PHP: %s; source snapshot: %s', $this->code((string) $stage['analysis_php']), $this->code((string) $stage['source_snapshot']));
+                $lines[] = '  - ' . $this->singleLine((string) ($stage['source_snapshot_note']
+                    ?? 'This assessment inspects the original project source snapshot.'));
                 $lines[] = sprintf(
                     '  - effective platform: %s; completeness %s; profile %s',
                     $this->code($stage['platform']['effective_sha256'] ?? 'not recorded'),
@@ -334,9 +336,49 @@ final class MarkdownReportWriter
                         $this->singleLine((string) $finding['summary'])
                     );
                 }
+                $lines[] = sprintf('  - blocker references: %s', $this->inlineList($stage['blockers'] ?? [], 'none'));
+                $lines[] = sprintf('  - source-impact references: %s', $this->inlineList($stage['source_impact'] ?? [], 'none'));
+                if (isset($stage['risk']['stage_id'], $stage['effort']['range_hours'])) {
+                    $lines[] = sprintf(
+                        '  - risk for %s: %s; effort: %d-%d hours (%s confidence)',
+                        $this->code((string) $stage['risk']['stage_id']),
+                        $this->code((string) $stage['risk']['level']),
+                        $stage['effort']['range_hours'][0],
+                        $stage['effort']['range_hours'][1],
+                        $this->code((string) $stage['effort']['confidence'])
+                    );
+                }
+                foreach (($stage['recommended_actions'] ?? []) as $action) {
+                    $lines[] = '  - action: ' . $this->singleLine((string) $action);
+                }
+                foreach (($stage['tests'] ?? []) as $test) {
+                    $lines[] = sprintf(
+                        '  - test for %s: %s (%s)',
+                        $this->code((string) $test['stage_id']),
+                        $this->singleLine((string) $test['purpose']),
+                        $this->code((string) $test['priority'])
+                    );
+                }
                 if ($stage['stop_reason'] !== null) {
                     $lines[] = sprintf('  - stop reason: %s', $this->code((string) $stage['stop_reason']));
                 }
+            }
+        }
+
+        $lines[] = '- Staged source-impact registry:';
+        if (($stagedResolution['source_impact'] ?? []) === []) {
+            $lines[] = '  - None recorded.';
+        } else {
+            foreach ($stagedResolution['source_impact'] as $finding) {
+                $lines[] = sprintf(
+                    '  - %s stages %s: %s impact for %s; %d unique occurrence(s) (evidence: %s)',
+                    $this->code((string) ($finding['id'] ?? 'legacy-source-impact')),
+                    $this->inlineList($finding['stage_ids'] ?? [], 'none'),
+                    $this->code((string) $finding['severity']),
+                    $this->code($finding['affected_package'] ?? 'package unknown'),
+                    count($finding['occurrences']),
+                    $this->references($finding['evidence'])
+                );
             }
         }
 
@@ -511,7 +553,7 @@ final class MarkdownReportWriter
             }
         }
 
-        /** @var list<array{affected_package:?string, ownership:string, relevance:string, reason:string, severity:string, occurrences:list<array{file:string, symbol:string, usage_type:string, line:?int, evidence:list<string>}>, evidence:list<string>}> $sourceImpact */
+        /** @var list<array{id:string, stage_ids:list<string>, affected_package:?string, ownership:string, relevance:string, reason:string, severity:string, occurrences:list<array{file:string, symbol:string, usage_type:string, line:?int, evidence:list<string>}>, evidence:list<string>}> $sourceImpact */
         $sourceImpact = $canonical['source_impact'];
         $lines[] = '';
         $lines[] = '## Actionable Source Impact';
@@ -520,11 +562,13 @@ final class MarkdownReportWriter
         } else {
             foreach ($sourceImpact as $finding) {
                 $lines[] = sprintf(
-                    '- %s impact for %s (%s ownership; %s): %s (evidence: %s)',
+                    '- %s %s impact for %s (%s ownership; %s; stage references: %s): %s (evidence: %s)',
+                    $this->code($finding['id'] ?? 'legacy-source-impact'),
                     $this->code($finding['severity']),
                     $this->code($finding['affected_package'] ?? 'package unknown'),
                     $this->code($finding['ownership']),
                     $this->code($finding['relevance']),
+                    $this->inlineList($finding['stage_ids'] ?? [], 'direct-final only'),
                     $this->singleLine($finding['reason']),
                     $this->references($finding['evidence'])
                 );
@@ -565,7 +609,7 @@ final class MarkdownReportWriter
             }
         }
 
-        /** @var array{stages:list<array{name:string, summary:string, actions:list<string>, evidence:list<string>}>} $plan */
+        /** @var array{stages:list<array{stage_id:?string, name:string, summary:string, actions:list<string>, evidence:list<string>}>} $plan */
         $plan = $canonical['plan'];
         $lines[] = '';
         $lines[] = '## Staged Plan';
@@ -574,10 +618,11 @@ final class MarkdownReportWriter
         } else {
             foreach ($plan['stages'] as $index => $stage) {
                 $lines[] = sprintf(
-                    '%d. **%s** — %s (evidence: %s)',
+                    '%d. **%s** — %s; executed stage %s (evidence: %s)',
                     $index + 1,
                     $this->singleLine($stage['name']),
                     $this->singleLine($stage['summary']),
+                    $this->code($stage['stage_id'] ?? 'direct-final'),
                     $this->references($stage['evidence'])
                 );
                 if ($stage['actions'] === []) {

@@ -16,6 +16,8 @@ use PhpUpgradePreflight\Core\Model\ReportSections;
 use PhpUpgradePreflight\Core\Model\RootConstraintChange;
 use PhpUpgradePreflight\Core\Model\ScenarioResult;
 use PhpUpgradePreflight\Core\Model\SourceImpactFinding;
+use PhpUpgradePreflight\Core\Model\StageAnalysis;
+use PhpUpgradePreflight\Core\Model\StagedResolution;
 use PhpUpgradePreflight\Core\Model\TestGuidance;
 use PhpUpgradePreflight\Core\Model\UpgradeRequest;
 
@@ -37,7 +39,8 @@ final class ReportSectionBuilder
         array $sourceImpact,
         array $frameworkFindings,
         array $sourceUncertainties,
-        EvidenceLedger $evidence
+        EvidenceLedger $evidence,
+        ?StagedResolution $stagedResolution = null
     ): ReportSections {
         $rootConstraintChanges = $this->rootConstraintChanges($request, $project, $evidence);
         $planStages = $this->planStages(
@@ -49,7 +52,8 @@ final class ReportSectionBuilder
             $blockers,
             $sourceImpact,
             $frameworkFindings,
-            $evidence
+            $evidence,
+            $stagedResolution
         );
 
         return new ReportSections(
@@ -124,8 +128,13 @@ final class ReportSectionBuilder
         array $blockers,
         array $sourceImpact,
         array $frameworkFindings,
-        EvidenceLedger $evidence
+        EvidenceLedger $evidence,
+        ?StagedResolution $stagedResolution = null
     ): array {
+        if ($stagedResolution !== null && $stagedResolution->stages() !== []) {
+            return $this->executedStagePlan($stagedResolution, $evidence);
+        }
+
         $guidanceEvidence = $evidence->add(
             'plan',
             Evidence::E5_HEURISTIC,
@@ -249,6 +258,58 @@ final class ReportSectionBuilder
         );
 
         return $stages;
+    }
+
+    /** @return list<PlanStage> */
+    private function executedStagePlan(StagedResolution $resolution, EvidenceLedger $evidence): array
+    {
+        $plan = [];
+        foreach ($resolution->stages() as $stage) {
+            $stageId = $stage->target()->id();
+            $status = $stage->resolutionStatus();
+            $isProved = $stage->executionState() === StageAnalysis::EXECUTED
+                && in_array($status, [StagedResolution::FEASIBLE, StagedResolution::FEASIBLE_WITH_CHANGES], true)
+                && $stage->outputState() !== null;
+            $evidenceId = $evidence->add(
+                'stage-plan',
+                Evidence::E5_HEURISTIC,
+                sprintf('Generated recommendations from the executed outcome of stage %s.', $stageId),
+                $isProved ? 'medium' : 'low',
+                [
+                    'stage_id' => $stageId,
+                    'execution_state' => $stage->executionState(),
+                    'resolution_status' => $status,
+                    'transition_recommended' => $isProved,
+                ]
+            )->id();
+
+            $actions = $stage->recommendedActions();
+            if ($actions === []) {
+                $actions[] = sprintf('[%s] No transition is recommended without an executed selectable candidate.', $stageId);
+            }
+            if ($isProved) {
+                foreach ($stage->tests() as $test) {
+                    $testData = $test->toArray();
+                    $actions[] = sprintf('[%s] %s: %s', $stageId, $testData['name'], $testData['purpose']);
+                }
+            }
+            $summary = $isProved
+                ? sprintf('Apply only the selected %s candidate, then validate before advancing.', $stageId)
+                : sprintf('Stop at %s; its transition is not proved and must be rerun.', $stageId);
+            $plan[] = new PlanStage(
+                $stageId,
+                $summary,
+                array_values(array_unique($actions)),
+                array_values(array_unique(array_merge([$evidenceId], $stage->evidenceReferences()))),
+                $stageId
+            );
+
+            if (!$isProved) {
+                break;
+            }
+        }
+
+        return $plan;
     }
 
     /**

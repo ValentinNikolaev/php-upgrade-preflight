@@ -41,6 +41,7 @@ final class DefaultUpgradeAnalyzer implements UpgradeAnalyzer
     private AutoloadOwnershipIndexBuilder $ownershipIndexBuilder;
     private SourceImpactBuilder $sourceImpactBuilder;
     private StagedUpgradeOrchestrator $stagedUpgradeOrchestrator;
+    private StageAssessmentBuilder $stageAssessmentBuilder;
 
     /** @param list<FrameworkIntegration> $frameworks */
     public function __construct(
@@ -57,7 +58,8 @@ final class DefaultUpgradeAnalyzer implements UpgradeAnalyzer
         ?ScenarioSelector $scenarioSelector = null,
         ?AutoloadOwnershipIndexBuilder $ownershipIndexBuilder = null,
         ?SourceImpactBuilder $sourceImpactBuilder = null,
-        ?StagedUpgradeOrchestrator $stagedUpgradeOrchestrator = null
+        ?StagedUpgradeOrchestrator $stagedUpgradeOrchestrator = null,
+        ?StageAssessmentBuilder $stageAssessmentBuilder = null
     ) {
         $this->projectStateBuilder = $projectStateBuilder ?? new ProjectStateBuilder();
         $this->scenarioRunner = $scenarioRunner ?? new ComposerScenarioRunner();
@@ -73,6 +75,8 @@ final class DefaultUpgradeAnalyzer implements UpgradeAnalyzer
         $this->sourceImpactBuilder = $sourceImpactBuilder ?? new SourceImpactBuilder();
         $this->stagedUpgradeOrchestrator = $stagedUpgradeOrchestrator
             ?? new StagedUpgradeOrchestrator($this->scenarioRunner, $this->blockerGrouper, $this->lockDiffBuilder);
+        $this->stageAssessmentBuilder = $stageAssessmentBuilder
+            ?? new StageAssessmentBuilder($this->sourceImpactBuilder, $this->riskAndEffortEstimator);
     }
 
     public function analyzeUpgrade(UpgradeRequest $request): UpgradeReport
@@ -162,17 +166,29 @@ final class DefaultUpgradeAnalyzer implements UpgradeAnalyzer
             $ownershipIndex,
             $evidence
         );
-        $stagedResolution = $stagedResolution->withSourceAssessments(
+        $stagedResolution = $this->stageAssessmentBuilder->build(
+            $stagedResolution,
+            $sourceInventory,
             $frameworkFindings,
-            $actionableSourceImpact
+            $ownershipIndex,
+            $evidence,
+            $project,
+            $request
         );
-        $risk = $this->riskAndEffortEstimator->estimateRisk(
+        $risk = $this->riskAndEffortEstimator->estimateAggregateRisk(
             $blockers,
             $lockDiff->packageChanges(),
             $frameworkFindings,
-            $actionableSourceImpact
+            $actionableSourceImpact,
+            $stagedResolution
         );
-        $effort = $this->riskAndEffortEstimator->estimateEffort($blockers, $lockDiff->packageChanges(), $actionableSourceImpact, $frameworkFindings);
+        $effort = $this->riskAndEffortEstimator->estimateAggregateEffort(
+            $blockers,
+            $lockDiff->packageChanges(),
+            $actionableSourceImpact,
+            $frameworkFindings,
+            $stagedResolution
+        );
 
         return $this->reportAssembler->assemble(
             $request,

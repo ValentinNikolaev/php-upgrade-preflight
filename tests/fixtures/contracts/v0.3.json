@@ -285,6 +285,7 @@
     "schema_0_8": {
         "path": "packages/core/resources/schema/upgrade-report-v0.8.schema.json",
         "minimal_fixture": "tests/fixtures/contracts/v0.3/minimal-report-v0.8.json",
+        "migration_fixture": "tests/fixtures/contracts/v0.3/v0.7-to-v0.8-consumer-migration.json",
         "new_required_top_level_fields": [
             "composer_execution",
             "staged_resolution"
@@ -296,7 +297,16 @@
             "staged_resolution.stages[].platform",
             "staged_resolution.stages[].composer_execution",
             "staged_resolution.stages[].duration_ms",
-            "staged_resolution.stages[].evidence"
+            "staged_resolution.stages[].evidence",
+            "staged_resolution.source_impact",
+            "staged_resolution.stages[].blockers",
+            "staged_resolution.stages[].source_snapshot_note",
+            "staged_resolution.stages[].risk.stage_id",
+            "staged_resolution.stages[].effort.stage_id",
+            "staged_resolution.stages[].tests",
+            "source_impact[].id",
+            "source_impact[].stage_ids",
+            "plan.stages[].stage_id"
         ],
         "migration_from_0_7": {
             "dispatch_on": "metadata.schema_version",

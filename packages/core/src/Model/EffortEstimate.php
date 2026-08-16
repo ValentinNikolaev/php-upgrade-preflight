@@ -56,8 +56,19 @@ final class EffortEstimate
         return [
             'range_hours' => $this->rangeHours,
             'confidence' => $this->confidence,
-            'components' => $this->components === [] ? new \stdClass() : $this->components,
+            'components' => $this->components === [] ? self::emptyComponents() : $this->components,
             'assumptions' => $this->assumptions,
         ];
+    }
+
+    private static function emptyComponents(): \stdClass
+    {
+        static $empty;
+
+        if (!$empty instanceof \stdClass) {
+            $empty = new \stdClass();
+        }
+
+        return $empty;
     }
 }

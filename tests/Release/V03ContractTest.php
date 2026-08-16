@@ -217,6 +217,15 @@ final class V03ContractTest extends TestCase
             'staged_resolution.stages[].composer_execution',
             'staged_resolution.stages[].duration_ms',
             'staged_resolution.stages[].evidence',
+            'staged_resolution.source_impact',
+            'staged_resolution.stages[].blockers',
+            'staged_resolution.stages[].source_snapshot_note',
+            'staged_resolution.stages[].risk.stage_id',
+            'staged_resolution.stages[].effort.stage_id',
+            'staged_resolution.stages[].tests',
+            'source_impact[].id',
+            'source_impact[].stage_ids',
+            'plan.stages[].stage_id',
         ], $schemaContract['new_required_nested_fields']);
         self::assertTrue($schemaContract['migration_from_0_7']['historical_reports_immutable']);
         self::assertTrue($schemaContract['migration_from_0_7']['missing_staged_resolution_means_v0_7_not_empty_v0_8']);
@@ -236,6 +245,17 @@ final class V03ContractTest extends TestCase
             self::fail(json_encode((new ErrorFormatter())->format($error), JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR));
         }
         self::assertTrue($result->isValid());
+
+        $migrationContents = file_get_contents($this->root . '/' . $schemaContract['migration_fixture']);
+        self::assertIsString($migrationContents);
+        $migration = json_decode($migrationContents, true, 512, JSON_THROW_ON_ERROR);
+        self::assertSame('0.7', $migration['source_schema_version']);
+        self::assertSame('0.8', $migration['target_schema_version']);
+        self::assertSame('metadata.schema_version', $migration['dispatch_path']);
+        $source = $this->readJson($this->root . '/' . $migration['source_fixture']);
+        self::assertSame('0.7', $source['metadata']['schema_version']);
+        self::assertArrayNotHasKey('staged_resolution', $source);
+        self::assertContains('staged_resolution.source_impact', $migration['v0_8_only_paths']);
     }
 
     public function testTargetPlatformProfileMachineContractMatchesThePublishedSchema(): void

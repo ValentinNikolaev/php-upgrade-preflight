@@ -168,24 +168,42 @@ Resolution: **blocked** | Staged: **blocked** | Schema: `0.8` | Tool: `php-upgra
 - Execution: `evaluated`; status: `blocked`; provider: `laravel`; stop reason: `blocking_registry_not_cleared`
 - **laravel-7-to-8** (`7` -> `8`): execution `evaluated`; resolution `blocked`; selected attempt `none`
   - analysis PHP: `8.1.0`; source snapshot: `original_project`
+  - This stage assessment inspects the original project source snapshot; it does not assume edits from an earlier stage were applied.
   - effective platform: `c2b227c251d4ec9ccf885e95404feaceedd627ff0c7104bc213f254935e62537`; completeness `partial`; profile `none`
   - Composer policy: `0c155d2582c9452186059dbe78d0da2d730f798c6c1d69f356c43ca832fcf1b9`; mode `compatible`; stage duration `1 ms`
-  - stage evidence: `laravel-stage-target-1`, `stage-attempt-1`, `stage-root-change-1`, `stage-attempt-2`, `stage-root-change-2`
+  - stage evidence: `laravel-stage-target-1`, `stage-attempt-1`, `stage-root-change-1`, `stage-attempt-2`, `stage-root-change-2`, `solver-6`, `solver-7`
   - state chain: predecessor `2d9560e8e9a06d7d43645ebb2126babbe5c867faaf123b79b40897250058f59d`; input `2d9560e8e9a06d7d43645ebb2126babbe5c867faaf123b79b40897250058f59d`; output `none`
   - attempt `1` `target_only`: outcome `solver_failure`; duration `1 ms`; selected no; blockers `stage-blocker-bb481a2b123c889ad668`, `stage-blocker-1bb4bb614fcc89d42a14`
     - analyzer-only root change `laravel/framework`: `^7.0` -> `^8.0`
   - attempt `2` `locked_package_remediation`: outcome `solver_failure`; duration `1 ms`; selected no; blockers `stage-blocker-bb481a2b123c889ad668`, `stage-blocker-1bb4bb614fcc89d42a14`
     - analyzer-only root change `laravel/framework`: `^7.0` -> `^8.0`
+  - blocker references: `stage-blocker-bb481a2b123c889ad668`, `stage-blocker-1bb4bb614fcc89d42a14`
+  - source-impact references: `none`
+  - risk for `laravel-7-to-8`: `high`; effort: 5-16 hours (`low` confidence)
+  - action: [laravel-7-to-8] Resolve every active blocker and rerun this complete stage; do not advance.
+  - action: [laravel-7-to-8] Upgrade or replace `fixture/runtime-guard` with a version that supports the target PHP.
+  - action: [laravel-7-to-8] Select a supported PHP target.
+  - action: [laravel-7-to-8] Install and enable `ext-preflight_fixture` for the target runtime.
+  - action: [laravel-7-to-8] Choose package versions that do not require `ext-preflight_fixture`.
+  - test for `laravel-7-to-8`: Resolve this stage stop condition, then rerun the complete Composer stage laravel-7-to-8. (`required`)
   - stop reason: `blocking_registry_not_cleared`
 - **laravel-8-to-9** (`8` -> `9`): execution `skipped`; resolution `not evaluated`; selected attempt `none`
   - analysis PHP: `8.1.0`; source snapshot: `original_project`
+  - This stage assessment inspects the original project source snapshot; it does not assume edits from an earlier stage were applied.
   - effective platform: `c2b227c251d4ec9ccf885e95404feaceedd627ff0c7104bc213f254935e62537`; completeness `partial`; profile `none`
   - Composer policy: `0c155d2582c9452186059dbe78d0da2d730f798c6c1d69f356c43ca832fcf1b9`; mode `compatible`; stage duration `1 ms`
-  - stage evidence: `laravel-stage-target-2`, `stage-skipped-1`
+  - stage evidence: `laravel-stage-target-2`, `stage-skipped-1`, `laravel-framework-constraint-1`, `laravel-php-constraint-1`
   - state chain: predecessor `none`; input `none`; output `none`
   - original-source finding (`high`): Update the root laravel/framework constraint from `^7.0` to a constraint compatible with Laravel 9.
   - original-source finding (`high`): The root PHP constraint `^7.4` excludes target PHP `8.1.0`; update it for the Laravel 9 upgrade.
+  - blocker references: `none`
+  - source-impact references: `none`
+  - risk for `laravel-8-to-9`: `high`; effort: 0-0 hours (`low` confidence)
+  - action: [laravel-8-to-9] Do not advance: this stage was skipped and has no Composer feasibility evidence.
+  - test for `laravel-8-to-9`: Resolve the preceding stop condition, then execute stage laravel-8-to-9 before selecting migration tests. (`required`)
   - stop reason: `previous_stage_blocked`
+- Staged source-impact registry:
+  - None recorded.
 - Blocker registry:
   - `stage-blocker-bb481a2b123c889ad668` stage `laravel-7-to-8`: `php-platform-too-high` `php`; lifecycle `persists` (detected@1 -> persists@2); blocking package `fixture/runtime-guard`; constraint `^7.4`; path `fixture/runtime-guard -> php`
   - `stage-blocker-1bb4bb614fcc89d42a14` stage `laravel-7-to-8`: `extension-missing` `ext-preflight_fixture`; lifecycle `persists` (detected@1 -> persists@2); blocking package `fixture/runtime-guard`; constraint `*`; path `fixture/runtime-guard -> ext-preflight_fixture`
@@ -231,32 +249,26 @@ Resolution: **blocked** | Staged: **blocked** | Schema: `0.8` | Tool: `php-upgra
   - applies to hops: `8 -> 9`
 
 ## Staged Plan
-1. **constraints** — Prepare the requested root constraint changes before dependency resolution. (evidence: `plan-1`, `root-constraint-1`)
-   - Update the `laravel/framework` root constraint to `^9.0`.
-   - Select a root PHP constraint that includes target platform PHP 8.1.0 without pinning an exact patch version.
-2. **dependencies** — Resolve dependency blockers and review the resulting lockfile transition. (evidence: `plan-1`, `solver-1`, `solver-2`, `solver-3`, `solver-4`, `solver-5`)
-   - Resolve the `php-platform-too-high` blocker affecting `php`.
-   - Resolve the `extension-missing` blocker affecting `ext-preflight_fixture`.
-   - Resolve the `php-platform-too-low` blocker affecting `php`.
-   - Rerun the isolated Composer scenarios after resolving the reported blockers.
-3. **application** — Apply source and framework migration work after dependency resolution is stable. (evidence: `plan-1`, `laravel-framework-constraint-1`, `laravel-php-constraint-1`)
-   - Address framework compatibility findings before runtime validation.
-4. **validation** — Validate the upgraded project on the target runtime before release. (evidence: `plan-1`)
-   - Validate the Composer manifest and installed platform requirements.
-   - Run the project test suite and focused regression tests.
+1. **laravel-7-to-8** — Stop at laravel-7-to-8; its transition is not proved and must be rerun.; executed stage `laravel-7-to-8` (evidence: `stage-plan-1`, `laravel-stage-target-1`, `stage-attempt-1`, `stage-root-change-1`, `stage-attempt-2`, `stage-root-change-2`, `solver-6`, `solver-7`)
+   - [laravel-7-to-8] Resolve every active blocker and rerun this complete stage; do not advance.
+   - [laravel-7-to-8] Upgrade or replace `fixture/runtime-guard` with a version that supports the target PHP.
+   - [laravel-7-to-8] Select a supported PHP target.
+   - [laravel-7-to-8] Install and enable `ext-preflight_fixture` for the target runtime.
+   - [laravel-7-to-8] Choose package versions that do not require `ext-preflight_fixture`.
 
 ## Risk And Effort
 - Risk: `high`
 - Risk drivers:
   - Composer resolution is blocked.
   - Framework compatibility findings require review.
+  - Executed stage laravel-7-to-8 retains an active Composer blocker.
 - Effort: `6-20` hours (low confidence)
 - Effort components:
   - `dependency_resolution`: `3-8` hours
   - `source_changes`: `1-4` hours
   - `tests_and_debugging`: `2-8` hours
 - Effort assumptions:
-  - Estimate is heuristic until project-specific tests and Composer solver output are reviewed.
+  - Aggregate effort counts each exact package transition, framework finding, and source occurrence once; scenario and repeated-hop counts are excluded.
 
 ## Test Guidance
 - **composer-validation** (`required`): Validate the edited Composer manifest before dependency installation. Command: `composer validate --strict`.
@@ -292,4 +304,4 @@ Resolution: **blocked** | Staged: **blocked** | Schema: `0.8` | Tool: `php-upgra
 - `laravel-framework-constraint-1` (`E2`, high confidence): The root Laravel framework constraint does not include the requested target major. Context: `{"package":"laravel/framework","root_constraint":"^7.0","target_constraint":"^9.0","target_laravel_major":9}`
 - `laravel-php-constraint-1` (`E2`, high confidence): The detected PHP target or root constraint does not satisfy the Laravel target PHP range. Context: `{"observation":"target_php","observed_php":"8.1.0","root_php_constraint":"^7.4","required_php":"^8.0.2","target_laravel_major":9,"laravel_range_satisfied":true,"root_constraint_satisfied":false}`
 - `root-constraint-1` (`E2`, high confidence): Compared the root requirement for laravel/framework with the requested target. Context: `{"package":"laravel/framework","from_constraint":"^7.0","to_constraint":"^9.0"}`
-- `plan-1` (`E5`, low confidence): Generated conservative staged actions from the requested targets and detected findings. Context: `{"target_count":2,"root_constraint_change_count":1,"blocker_count":3,"source_finding_count":0,"framework_finding_count":2}`
+- `stage-plan-1` (`E5`, low confidence): Generated recommendations from the executed outcome of stage laravel-7-to-8. Context: `{"stage_id":"laravel-7-to-8","execution_state":"evaluated","resolution_status":"blocked","transition_recommended":false}`

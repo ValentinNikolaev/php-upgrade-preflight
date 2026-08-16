@@ -187,7 +187,7 @@ final class SourceImpactBuilder
             : 'framework_rule';
 
         if ($evidence !== null && $ownership['owners'] !== []) {
-            $references[] = $evidence->add(
+            $references[] = $evidence->addOnce(
                 'ownership',
                 Evidence::E2_PACKAGE_METADATA,
                 sprintf('Correlated %s with Composer autoload metadata.', $usage->symbol()),

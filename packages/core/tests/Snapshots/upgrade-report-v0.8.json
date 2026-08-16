@@ -151,6 +151,7 @@
         "provider": null,
         "stages": [],
         "blocker_registry": [],
+        "source_impact": [],
         "stop_reason": "stage_target_provider_unavailable",
         "budgets": {
             "max_hops": 6,
@@ -254,6 +255,8 @@
     ],
     "source_impact": [
         {
+            "id": "source-impact-af5cde04626a80675f51",
+            "stage_ids": [],
             "affected_package": null,
             "ownership": "unknown",
             "relevance": "framework_rule",
@@ -296,6 +299,7 @@
     "plan": {
         "stages": [
             {
+                "stage_id": null,
                 "name": "constraints",
                 "summary": "Prepare the requested root constraint changes before dependency resolution.",
                 "actions": [
@@ -308,6 +312,7 @@
                 ]
             },
             {
+                "stage_id": null,
                 "name": "dependencies",
                 "summary": "Resolve dependency blockers and review the resulting lockfile transition.",
                 "actions": [
@@ -320,6 +325,7 @@
                 ]
             },
             {
+                "stage_id": null,
                 "name": "application",
                 "summary": "Apply source and framework migration work after dependency resolution is stable.",
                 "actions": [
@@ -333,6 +339,7 @@
                 ]
             },
             {
+                "stage_id": null,
                 "name": "validation",
                 "summary": "Validate the upgraded project on the target runtime before release.",
                 "actions": [

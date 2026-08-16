@@ -26,11 +26,14 @@ final class StagedResolution
     private ?string $stopReason;
     /** @var list<string> */
     private array $evidence;
+    /** @var list<SourceImpactFinding> */
+    private array $sourceImpact;
 
     /**
      * @param list<StageAnalysis> $stages
      * @param list<StageBlockerEntry> $blockerRegistry
      * @param list<string> $evidence
+     * @param list<SourceImpactFinding> $sourceImpact
      */
     public function __construct(
         string $executionState,
@@ -39,7 +42,8 @@ final class StagedResolution
         array $stages,
         array $blockerRegistry,
         ?string $stopReason = null,
-        array $evidence = []
+        array $evidence = [],
+        array $sourceImpact = []
     ) {
         if (!in_array($executionState, [self::EVALUATED, self::SKIPPED], true)) {
             throw new \InvalidArgumentException(sprintf('Unsupported staged execution state "%s".', $executionState));
@@ -57,6 +61,11 @@ final class StagedResolution
                 throw new \InvalidArgumentException('The staged blocker registry may contain only StageBlockerEntry instances.');
             }
         }
+        foreach ($sourceImpact as $finding) {
+            if (!$finding instanceof SourceImpactFinding) {
+                throw new \InvalidArgumentException('Staged source impact may contain only SourceImpactFinding instances.');
+            }
+        }
 
         $this->executionState = $executionState;
         $this->status = $status;
@@ -65,6 +74,7 @@ final class StagedResolution
         $this->blockerRegistry = array_values($blockerRegistry);
         $this->stopReason = $stopReason;
         $this->evidence = array_values(array_unique($evidence));
+        $this->sourceImpact = array_values($sourceImpact);
     }
 
     /** @param list<string> $evidence */
@@ -95,6 +105,30 @@ final class StagedResolution
         return $this->blockerRegistry;
     }
 
+    /** @return list<SourceImpactFinding> */
+    public function sourceImpact(): array
+    {
+        return $this->sourceImpact;
+    }
+
+    /**
+     * @param list<StageAnalysis> $stages
+     * @param list<SourceImpactFinding> $sourceImpact
+     */
+    public function withReportingAssessments(array $stages, array $sourceImpact): self
+    {
+        return new self(
+            $this->executionState,
+            $this->status,
+            $this->provider,
+            $stages,
+            $this->blockerRegistry,
+            $this->stopReason,
+            $this->evidence,
+            $sourceImpact
+        );
+    }
+
     /**
      * @param list<CompatibilityFinding> $findings
      * @param list<SourceImpactFinding> $sourceImpact
@@ -103,13 +137,15 @@ final class StagedResolution
     {
         $stages = [];
         foreach ($this->stages as $stage) {
+            $stageFramework = $stage->target()->framework();
             $hop = [
                 'from_major' => $stage->target()->fromMajor(),
                 'to_major' => $stage->target()->toMajor(),
             ];
             $stageFindings = array_values(array_filter(
                 $findings,
-                static fn (CompatibilityFinding $finding): bool => in_array($hop, $finding->appliesToHops(), true)
+                static fn (CompatibilityFinding $finding): bool => strtolower($finding->framework()) === $stageFramework
+                    && in_array($hop, $finding->appliesToHops(), true)
             ));
             $findingEvidence = [];
             foreach ($stageFindings as $finding) {
@@ -131,7 +167,8 @@ final class StagedResolution
             $stages,
             $this->blockerRegistry,
             $this->stopReason,
-            $this->evidence
+            $this->evidence,
+            $sourceImpact
         );
     }
 
@@ -144,6 +181,9 @@ final class StagedResolution
         }
         foreach ($this->blockerRegistry as $entry) {
             $references = array_merge($references, $entry->evidence());
+        }
+        foreach ($this->sourceImpact as $finding) {
+            $references = array_merge($references, $finding->evidence());
         }
 
         return array_values(array_unique($references));
@@ -160,6 +200,10 @@ final class StagedResolution
             'blocker_registry' => array_map(
                 static fn (StageBlockerEntry $entry): array => $entry->toArray(),
                 $this->blockerRegistry
+            ),
+            'source_impact' => array_map(
+                static fn (SourceImpactFinding $finding): array => $finding->toArray(),
+                $this->sourceImpact
             ),
             'stop_reason' => $this->stopReason,
             'budgets' => [

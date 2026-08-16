@@ -454,7 +454,18 @@
                     "stage-root-change-3",
                     "stage-attempt-3",
                     "stage-root-change-4",
-                    "stage-root-change-5"
+                    "stage-root-change-5",
+                    "laravel-framework-constraint-1",
+                    "laravel-php-constraint-1",
+                    "laravel-package-facade_ignition-1",
+                    "laravel-package-guidance-1",
+                    "source-2",
+                    "source-5",
+                    "source-6",
+                    "laravel-skeleton-guidance-1",
+                    "solver-6",
+                    "solver-7",
+                    "solver-8"
                 ],
                 "predecessor_state": {
                     "manifest_sha256": "15d16d0dd69406b1e1c6397b60a59582dfd5effd5b48475e27841d5367636e4a",
@@ -818,7 +829,12 @@
                 ],
                 "selected_attempt": null,
                 "package_changes": [],
+                "blockers": [
+                    "stage-blocker-2b714eef51f2e8e8d649",
+                    "stage-blocker-4314dc8954f6e4383b54"
+                ],
                 "source_snapshot": "original_project",
+                "source_snapshot_note": "This stage assessment inspects the original project source snapshot; it does not assume edits from an earlier stage were applied.",
                 "source_findings": [
                     {
                         "framework": "laravel",
@@ -882,100 +898,58 @@
                     }
                 ],
                 "source_impact": [
-                    {
-                        "affected_package": null,
-                        "ownership": "unknown",
-                        "relevance": "framework_rule",
-                        "reason": "Referenced by active laravel compatibility guidance; package ownership has not been established.",
-                        "severity": "low",
-                        "occurrences": [
-                            {
-                                "file": "app/Http/Kernel.php",
-                                "symbol": "Fruitcake\\Cors\\HandleCors",
-                                "usage_type": "middleware_reference",
-                                "line": 10,
-                                "evidence": [
-                                    "source-2"
-                                ]
-                            }
-                        ],
-                        "evidence": [
-                            "source-2",
-                            "source-5",
-                            "source-6",
-                            "laravel-skeleton-guidance-1"
-                        ]
-                    },
-                    {
-                        "affected_package": null,
-                        "ownership": "unknown",
-                        "relevance": "framework_rule",
-                        "reason": "Referenced by active laravel compatibility guidance; package ownership has not been established.",
-                        "severity": "low",
-                        "occurrences": [
-                            {
-                                "file": "config/app.php",
-                                "symbol": "Facade\\Ignition\\IgnitionServiceProvider",
-                                "usage_type": "service_provider",
-                                "line": 5,
-                                "evidence": [
-                                    "source-5"
-                                ]
-                            }
-                        ],
-                        "evidence": [
-                            "source-5",
-                            "source-2",
-                            "source-6",
-                            "laravel-skeleton-guidance-1"
-                        ]
-                    },
-                    {
-                        "affected_package": null,
-                        "ownership": "unknown",
-                        "relevance": "framework_rule",
-                        "reason": "Referenced by active laravel compatibility guidance; package ownership has not been established.",
-                        "severity": "low",
-                        "occurrences": [
-                            {
-                                "file": "config/app.php",
-                                "symbol": "Facade\\Ignition\\Facades\\Flare",
-                                "usage_type": "facade_alias",
-                                "line": 8,
-                                "evidence": [
-                                    "source-6"
-                                ]
-                            }
-                        ],
-                        "evidence": [
-                            "source-6",
-                            "source-2",
-                            "source-5",
-                            "laravel-skeleton-guidance-1"
-                        ]
-                    }
+                    "source-impact-2c2e82dc82629e7036e5",
+                    "source-impact-c5a0b2861da5dbee397c",
+                    "source-impact-32c25b8a6283c163863e"
                 ],
                 "risk": {
+                    "stage_id": "laravel-7-to-8",
                     "level": "high",
                     "drivers": [
-                        "The stage did not produce a selectable Composer state.",
-                        "Update the root laravel/framework constraint from `^7.0` to a constraint compatible with Laravel 8.",
-                        "The root PHP constraint `^7.4` excludes target PHP `8.0.0`; update it for the Laravel 8 upgrade."
+                        "Stage laravel-7-to-8 did not produce a selectable Composer state.",
+                        "Stage laravel-7-to-8 retains an active Composer blocker.",
+                        "Stage laravel-7-to-8: Update the root laravel/framework constraint from `^7.0` to a constraint compatible with Laravel 8.",
+                        "Stage laravel-7-to-8: The root PHP constraint `^7.4` excludes target PHP `8.0.0`; update it for the Laravel 8 upgrade."
                     ]
                 },
                 "effort": {
+                    "stage_id": "laravel-7-to-8",
                     "range_hours": [
-                        7,
-                        14
+                        6,
+                        30
                     ],
-                    "confidence": "medium"
+                    "confidence": "low",
+                    "components": {
+                        "dependency_resolution": [
+                            3,
+                            8
+                        ],
+                        "source_changes": [
+                            1,
+                            14
+                        ],
+                        "tests_and_debugging": [
+                            2,
+                            8
+                        ]
+                    },
+                    "assumptions": [
+                        "Stage laravel-7-to-8 is estimated from unique package and original-snapshot findings; Composer attempt count is excluded."
+                    ]
                 },
                 "recommended_actions": [
-                    "Resolve every active blocking registry entry, then rerun the complete stage.",
-                    "Update the root laravel/framework constraint from `^7.0` to a constraint compatible with Laravel 8.",
-                    "The root PHP constraint `^7.4` excludes target PHP `8.0.0`; update it for the Laravel 8 upgrade.",
-                    "facade/ignition 1.16.4 is outside the encoded Laravel 8 review range `>=2.3.6 <3.0`; review its upgrade or replacement.",
-                    "Compare detected Laravel skeleton-managed integration locations (Kernel middleware, app config providers/aliases, or TrustProxies inheritance) with the Laravel 8 skeleton; these are review locations, not confirmed incompatibilities."
+                    "[laravel-7-to-8] Resolve every active blocker and rerun this complete stage; do not advance.",
+                    "[laravel-7-to-8] Inspect the linked Composer evidence.",
+                    "[laravel-7-to-8] Run `composer prohibits facade/ignition <constraint> --tree` in an isolated copy."
+                ],
+                "tests": [
+                    {
+                        "stage_id": "laravel-7-to-8",
+                        "name": "composer-stage-rerun",
+                        "purpose": "Resolve this stage stop condition, then rerun the complete Composer stage laravel-7-to-8.",
+                        "command": null,
+                        "priority": "required"
+                    }
                 ],
                 "stop_reason": "blocking_registry_not_cleared"
             }
@@ -1116,6 +1090,92 @@
                             "solver-8"
                         ]
                     }
+                ]
+            }
+        ],
+        "source_impact": [
+            {
+                "id": "source-impact-2c2e82dc82629e7036e5",
+                "stage_ids": [
+                    "laravel-7-to-8"
+                ],
+                "affected_package": null,
+                "ownership": "unknown",
+                "relevance": "framework_rule",
+                "reason": "Referenced by active laravel compatibility guidance; package ownership has not been established.",
+                "severity": "low",
+                "occurrences": [
+                    {
+                        "file": "app/Http/Kernel.php",
+                        "symbol": "Fruitcake\\Cors\\HandleCors",
+                        "usage_type": "middleware_reference",
+                        "line": 10,
+                        "evidence": [
+                            "source-2"
+                        ]
+                    }
+                ],
+                "evidence": [
+                    "source-2",
+                    "source-5",
+                    "source-6",
+                    "laravel-skeleton-guidance-1"
+                ]
+            },
+            {
+                "id": "source-impact-32c25b8a6283c163863e",
+                "stage_ids": [
+                    "laravel-7-to-8"
+                ],
+                "affected_package": null,
+                "ownership": "unknown",
+                "relevance": "framework_rule",
+                "reason": "Referenced by active laravel compatibility guidance; package ownership has not been established.",
+                "severity": "low",
+                "occurrences": [
+                    {
+                        "file": "config/app.php",
+                        "symbol": "Facade\\Ignition\\Facades\\Flare",
+                        "usage_type": "facade_alias",
+                        "line": 8,
+                        "evidence": [
+                            "source-6"
+                        ]
+                    }
+                ],
+                "evidence": [
+                    "source-6",
+                    "source-2",
+                    "source-5",
+                    "laravel-skeleton-guidance-1"
+                ]
+            },
+            {
+                "id": "source-impact-c5a0b2861da5dbee397c",
+                "stage_ids": [
+                    "laravel-7-to-8"
+                ],
+                "affected_package": null,
+                "ownership": "unknown",
+                "relevance": "framework_rule",
+                "reason": "Referenced by active laravel compatibility guidance; package ownership has not been established.",
+                "severity": "low",
+                "occurrences": [
+                    {
+                        "file": "config/app.php",
+                        "symbol": "Facade\\Ignition\\IgnitionServiceProvider",
+                        "usage_type": "service_provider",
+                        "line": 5,
+                        "evidence": [
+                            "source-5"
+                        ]
+                    }
+                ],
+                "evidence": [
+                    "source-5",
+                    "source-2",
+                    "source-6",
+                    "laravel-skeleton-guidance-1"
                 ]
             }
         ],
@@ -1275,6 +1335,8 @@
     ],
     "source_impact": [
         {
+            "id": "source-impact-2c2e82dc82629e7036e5",
+            "stage_ids": [],
             "affected_package": null,
             "ownership": "unknown",
             "relevance": "framework_rule",
@@ -1299,6 +1361,8 @@
             ]
         },
         {
+            "id": "source-impact-c5a0b2861da5dbee397c",
+            "stage_ids": [],
             "affected_package": null,
             "ownership": "unknown",
             "relevance": "framework_rule",
@@ -1323,6 +1387,8 @@
             ]
         },
         {
+            "id": "source-impact-32c25b8a6283c163863e",
+            "stage_ids": [],
             "affected_package": null,
             "ownership": "unknown",
             "relevance": "framework_rule",
@@ -1412,62 +1478,37 @@
     "plan": {
         "stages": [
             {
-                "name": "constraints",
-                "summary": "Prepare the requested root constraint changes before dependency resolution.",
+                "stage_id": "laravel-7-to-8",
+                "name": "laravel-7-to-8",
+                "summary": "Stop at laravel-7-to-8; its transition is not proved and must be rerun.",
                 "actions": [
-                    "Update the `laravel/framework` root constraint to `^8.0`.",
-                    "Select a root PHP constraint that includes target platform PHP 8.0.0 without pinning an exact patch version."
+                    "[laravel-7-to-8] Resolve every active blocker and rerun this complete stage; do not advance.",
+                    "[laravel-7-to-8] Inspect the linked Composer evidence.",
+                    "[laravel-7-to-8] Run `composer prohibits facade/ignition <constraint> --tree` in an isolated copy."
                 ],
                 "evidence": [
-                    "plan-1",
-                    "root-constraint-1"
-                ]
-            },
-            {
-                "name": "dependencies",
-                "summary": "Resolve dependency blockers and review the resulting lockfile transition.",
-                "actions": [
-                    "Resolve the `unknown-composer-failure` blocker affecting `laravel/framework`.",
-                    "Resolve the `unknown-composer-failure` blocker affecting `php`.",
-                    "Rerun the isolated Composer scenarios after resolving the reported blockers."
-                ],
-                "evidence": [
-                    "plan-1",
-                    "solver-1",
-                    "solver-2",
-                    "solver-3",
-                    "solver-5",
-                    "solver-4"
-                ]
-            },
-            {
-                "name": "application",
-                "summary": "Apply source and framework migration work after dependency resolution is stable.",
-                "actions": [
-                    "Review the reported source locations and adapt affected application code.",
-                    "Address framework compatibility findings before runtime validation."
-                ],
-                "evidence": [
-                    "plan-1",
+                    "stage-plan-1",
+                    "laravel-stage-target-1",
+                    "laravel-stage-remediation-1",
+                    "stage-attempt-1",
+                    "stage-root-change-1",
+                    "stage-attempt-2",
+                    "stage-root-change-2",
+                    "stage-root-change-3",
+                    "stage-attempt-3",
+                    "stage-root-change-4",
+                    "stage-root-change-5",
+                    "laravel-framework-constraint-1",
+                    "laravel-php-constraint-1",
+                    "laravel-package-facade_ignition-1",
+                    "laravel-package-guidance-1",
                     "source-2",
                     "source-5",
                     "source-6",
                     "laravel-skeleton-guidance-1",
-                    "laravel-framework-constraint-1",
-                    "laravel-php-constraint-1",
-                    "laravel-package-facade_ignition-1",
-                    "laravel-package-guidance-1"
-                ]
-            },
-            {
-                "name": "validation",
-                "summary": "Validate the upgraded project on the target runtime before release.",
-                "actions": [
-                    "Validate the Composer manifest and installed platform requirements.",
-                    "Run the project test suite and focused regression tests."
-                ],
-                "evidence": [
-                    "plan-1"
+                    "solver-6",
+                    "solver-7",
+                    "solver-8"
                 ]
             }
         ]
@@ -1477,7 +1518,8 @@
         "drivers": [
             "Composer resolution is blocked.",
             "Framework compatibility findings require review.",
-            "Weighted actionable source findings require review."
+            "Weighted actionable source findings require review.",
+            "Executed stage laravel-7-to-8 retains an active Composer blocker."
         ]
     },
     "effort": {
@@ -1501,7 +1543,7 @@
             ]
         },
         "assumptions": [
-            "Estimate is heuristic until project-specific tests and Composer solver output are reviewed."
+            "Aggregate effort counts each exact package transition, framework finding, and source occurrence once; scenario and repeated-hop counts are excluded."
         ]
     },
     "tests": [
@@ -2334,16 +2376,15 @@
             }
         },
         {
-            "id": "plan-1",
+            "id": "stage-plan-1",
             "class": "E5",
-            "summary": "Generated conservative staged actions from the requested targets and detected findings.",
+            "summary": "Generated recommendations from the executed outcome of stage laravel-7-to-8.",
             "confidence": "low",
             "context": {
-                "target_count": 2,
-                "root_constraint_change_count": 1,
-                "blocker_count": 2,
-                "source_finding_count": 3,
-                "framework_finding_count": 4
+                "stage_id": "laravel-7-to-8",
+                "execution_state": "evaluated",
+                "resolution_status": "blocked",
+                "transition_recommended": false
             }
         }
     ]

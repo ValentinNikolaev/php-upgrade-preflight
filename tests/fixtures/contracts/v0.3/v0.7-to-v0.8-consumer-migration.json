@@ -1,0 +1,32 @@
+{
+    "source_schema_version": "0.7",
+    "target_schema_version": "0.8",
+    "source_fixture": "packages/core/tests/Snapshots/upgrade-report-v0.7.json",
+    "dispatch_path": "metadata.schema_version",
+    "preserved_paths": [
+        "resolution",
+        "transition.package_changes",
+        "transition.framework_guidance",
+        "source_inventory",
+        "source_impact",
+        "framework_findings"
+    ],
+    "v0_8_only_paths": [
+        "composer_execution",
+        "staged_resolution",
+        "staged_resolution.source_impact",
+        "staged_resolution.stages[].blockers",
+        "staged_resolution.stages[].source_impact",
+        "staged_resolution.stages[].risk",
+        "staged_resolution.stages[].effort",
+        "staged_resolution.stages[].recommended_actions",
+        "staged_resolution.stages[].tests"
+    ],
+    "rules": [
+        "Do not synthesize staged_resolution when metadata.schema_version is 0.7.",
+        "Keep schema 0.7 source_impact records in their historical shape.",
+        "For schema 0.8, resolve each stage source_impact ID through staged_resolution.source_impact.",
+        "Treat top-level transition.package_changes and source_impact as direct-final evidence, not staged evidence.",
+        "Stop consuming recommended plan stages at the first unproved stage outcome."
+    ]
+}

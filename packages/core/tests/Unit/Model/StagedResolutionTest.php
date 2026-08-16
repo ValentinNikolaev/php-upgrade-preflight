@@ -8,12 +8,14 @@ use PhpUpgradePreflight\Core\Model\Blocker;
 use PhpUpgradePreflight\Core\Model\CompatibilityFinding;
 use PhpUpgradePreflight\Core\Model\ComposerJson;
 use PhpUpgradePreflight\Core\Model\ComposerLock;
+use PhpUpgradePreflight\Core\Model\EffortEstimate;
 use PhpUpgradePreflight\Core\Model\FrameworkStagePlan;
 use PhpUpgradePreflight\Core\Model\FrameworkStageTarget;
 use PhpUpgradePreflight\Core\Model\PackageChange;
 use PhpUpgradePreflight\Core\Model\ProjectState;
 use PhpUpgradePreflight\Core\Model\ProjectStateFingerprint;
 use PhpUpgradePreflight\Core\Model\RootConstraintChange;
+use PhpUpgradePreflight\Core\Model\RiskSummary;
 use PhpUpgradePreflight\Core\Model\Scenario;
 use PhpUpgradePreflight\Core\Model\ScenarioResult;
 use PhpUpgradePreflight\Core\Model\SourceImpactFinding;
@@ -83,7 +85,17 @@ final class StagedResolutionTest extends TestCase
             $fingerprint,
             [$packageChange]
         );
-        $assessedStage = $stage->withSourceAssessment([$finding], [$impact]);
+        $assessedStage = $stage->withReportingAssessment(
+            [$finding],
+            [$impact->withStageIds(['fixture-1-to-2'])],
+            [],
+            new RiskSummary('high', ['Stage fixture-1-to-2 has a high-impact finding.']),
+            new EffortEstimate([4, 12], 'low', ['source_changes' => [1, 4]], [
+                'Stage fixture-1-to-2 uses original-source evidence.',
+            ]),
+            ['[fixture-1-to-2] Review the high-impact framework change.'],
+            []
+        );
         $blocker = new Blocker(
             'transitive-package-conflict',
             'vendor/framework',
@@ -121,7 +133,7 @@ final class StagedResolutionTest extends TestCase
         self::assertSame($fingerprint, $stage->outputState());
         self::assertSame($fingerprint->toArray()['state_sha256'], $fingerprint->stateSha256());
         self::assertSame('high', $assessedStage->toArray()['risk']['level']);
-        self::assertContains('Review the high-impact framework change.', $assessedStage->toArray()['recommended_actions']);
+        self::assertContains('[fixture-1-to-2] Review the high-impact framework change.', $assessedStage->toArray()['recommended_actions']);
         self::assertContains('remediation-evidence', $assessedStage->evidenceReferences());
         self::assertSame([$stage], $resolution->stages());
         self::assertSame([$registryEntry], $resolution->blockerRegistry());
@@ -129,6 +141,57 @@ final class StagedResolutionTest extends TestCase
         self::assertContains('blocker-evidence', $resolution->evidenceReferences());
         self::assertCount(1, $assessed->toArray()['stages'][0]['source_findings']);
         self::assertCount(1, $assessed->toArray()['stages'][0]['source_impact']);
+        self::assertCount(1, $assessed->toArray()['source_impact']);
+    }
+
+    public function testLegacySourceAssessmentsExcludeAnotherFrameworkForTheSameNumericHop(): void
+    {
+        $stage = new StageAnalysis(
+            $this->target(),
+            StageAnalysis::EXECUTED,
+            StagedResolution::FEASIBLE,
+            [],
+            null,
+            null,
+            null,
+            null,
+            []
+        );
+        $resolution = new StagedResolution(
+            StagedResolution::EVALUATED,
+            StagedResolution::FEASIBLE,
+            'fixture',
+            [$stage],
+            []
+        );
+        $foreignFinding = new CompatibilityFinding(
+            'other-framework',
+            'high',
+            'This finding belongs to another framework.',
+            ['foreign-finding-evidence'],
+            [['from_major' => 1, 'to_major' => 2]]
+        );
+        $foreignImpact = new SourceImpactFinding(
+            null,
+            'unknown',
+            'framework_rule',
+            'The source is referenced only by another framework.',
+            'high',
+            [new SourceUsage(
+                'src/Foreign.php',
+                'Other\\Framework\\Client',
+                'instantiated_class',
+                ['foreign-finding-evidence'],
+                24
+            )],
+            ['foreign-finding-evidence']
+        );
+
+        $assessed = $resolution->withSourceAssessments([$foreignFinding], [$foreignImpact])->toArray();
+
+        self::assertSame([], $assessed['stages'][0]['source_findings']);
+        self::assertSame([], $assessed['stages'][0]['source_impact']);
+        self::assertCount(1, $assessed['source_impact']);
     }
 
     public function testStagedModelConstructorsRejectInvalidState(): void

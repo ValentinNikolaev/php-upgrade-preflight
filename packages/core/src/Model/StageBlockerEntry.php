@@ -141,6 +141,22 @@ final class StageBlockerEntry
         return $this->id;
     }
 
+    public function stageId(): string
+    {
+        return $this->stageId;
+    }
+
+    public function summary(): string
+    {
+        return $this->summary;
+    }
+
+    /** @return list<string> */
+    public function options(): array
+    {
+        return $this->options;
+    }
+
     public function identityKey(): string
     {
         return $this->identityKey;

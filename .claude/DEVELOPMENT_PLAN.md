@@ -231,20 +231,20 @@ Status: complete.
 
 Priority: P0.
 
-- [ ] Keep one deterministic raw `source_inventory` from the original project snapshot.
-- [ ] Correlate source usages separately with each stage's selected package changes and applicable framework rules.
-- [ ] Add stable stage references to actionable findings without duplicating exact occurrences or evidence records across stages.
-- [ ] State on every later-stage source assessment that it inspects the original source snapshot, not hypothetical edits from earlier stages.
-- [ ] Produce per-stage blockers, actions, tests, risk, and effort plus a conservative aggregate that does not double-count repeated findings.
-- [ ] Build recommended plan stages from executed outcomes and stop recommendations at the first blocked, unknown, skipped, or missing stage.
-- [ ] Keep direct-final package changes and impacts distinguishable from staged changes; neither representation may overwrite the other.
-- [ ] Complete production population and validation of the strict schema `0.8` scaffold from Milestone 0, canonical snapshots, Markdown projection, evidence-integrity checks, and a consumer migration fixture from schema `0.7`.
-- [ ] Preserve schema `0.7` and every historical snapshot byte-for-byte.
-- [ ] Update the risk/effort estimator so scenario count alone does not inflate application-change estimates and repeated hop findings are bounded.
+- [x] Keep one deterministic raw `source_inventory` from the original project snapshot.
+- [x] Correlate source usages separately with each stage's selected package changes and applicable framework rules.
+- [x] Add stable stage references to actionable findings without duplicating exact occurrences or evidence records across stages.
+- [x] State on every later-stage source assessment that it inspects the original source snapshot, not hypothetical edits from earlier stages.
+- [x] Produce per-stage blockers, actions, tests, risk, and effort plus a conservative aggregate that does not double-count repeated findings.
+- [x] Build recommended plan stages from executed outcomes and stop recommendations at the first blocked, unknown, skipped, or missing stage.
+- [x] Keep direct-final package changes and impacts distinguishable from staged changes; neither representation may overwrite the other.
+- [x] Complete production population and validation of the strict schema `0.8` scaffold from Milestone 0, canonical snapshots, Markdown projection, evidence-integrity checks, and a consumer migration fixture from schema `0.7`.
+- [x] Preserve schema `0.7` and every historical snapshot byte-for-byte.
+- [x] Update the risk/effort estimator so scenario count alone does not inflate application-change estimates and repeated hop findings are bounded.
 
 Acceptance gate: every action and estimate names the executed stage that supports it, aggregate values are deterministic and non-duplicative, the plan never recommends an unproved transition, and every schema `0.8` finding resolves to valid evidence.
 
-Status: not started.
+Status: complete.
 
 ## Milestone 5: Adapter Conformance and Laravel Parity
 
@@ -331,4 +331,4 @@ Status: not started.
 
 ## Recommended Next Work Session
 
-Complete GitHub reauthentication so the prepared `0.2.x` protection rule can be saved, then begin Milestone 4 stage-scoped impact, risk, effort, and plan assembly.
+Complete GitHub reauthentication so the prepared `0.2.x` protection rule can be saved, then begin Milestone 5 adapter conformance and Laravel parity.

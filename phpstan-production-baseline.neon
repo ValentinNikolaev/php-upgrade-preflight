@@ -121,12 +121,6 @@ parameters:
 			path: packages/core/src/Model/ScenarioResult.php
 
 		-
-			message: '#^Method PhpUpgradePreflight\\Core\\Model\\SourceImpactFinding\:\:__construct\(\) has parameter \$evidence with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: packages/core/src/Model/SourceImpactFinding.php
-
-		-
 			message: '#^Method PhpUpgradePreflight\\Core\\Model\\UpgradeReport\:\:appendFindingReferences\(\) has parameter \$findingReferences with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1

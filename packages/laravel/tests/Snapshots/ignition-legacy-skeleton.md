@@ -153,9 +153,10 @@ Resolution: **blocked** | Staged: **blocked** | Schema: `0.8` | Tool: `php-upgra
 - Execution: `evaluated`; status: `blocked`; provider: `laravel`; stop reason: `blocking_registry_not_cleared`
 - **laravel-7-to-8** (`7` -> `8`): execution `evaluated`; resolution `blocked`; selected attempt `none`
   - analysis PHP: `8.0.0`; source snapshot: `original_project`
+  - This stage assessment inspects the original project source snapshot; it does not assume edits from an earlier stage were applied.
   - effective platform: `1227859358166ebdf070c802a94bc3d37e5f430d3f57f52f7c9db345bcc2356e`; completeness `partial`; profile `none`
   - Composer policy: `0c155d2582c9452186059dbe78d0da2d730f798c6c1d69f356c43ca832fcf1b9`; mode `compatible`; stage duration `1 ms`
-  - stage evidence: `laravel-stage-target-1`, `laravel-stage-remediation-1`, `stage-attempt-1`, `stage-root-change-1`, `stage-attempt-2`, `stage-root-change-2`, `stage-root-change-3`, `stage-attempt-3`, `stage-root-change-4`, `stage-root-change-5`
+  - stage evidence: `laravel-stage-target-1`, `laravel-stage-remediation-1`, `stage-attempt-1`, `stage-root-change-1`, `stage-attempt-2`, `stage-root-change-2`, `stage-root-change-3`, `stage-attempt-3`, `stage-root-change-4`, `stage-root-change-5`, `laravel-framework-constraint-1`, `laravel-php-constraint-1`, `laravel-package-facade_ignition-1`, `laravel-package-guidance-1`, `source-2`, `source-5`, `source-6`, `laravel-skeleton-guidance-1`, `solver-6`, `solver-7`, `solver-8`
   - state chain: predecessor `4e20a33c0fcf5cf480e7ddf01dc7a86fb03f43599bc53775206e50f90fdf09cd`; input `4e20a33c0fcf5cf480e7ddf01dc7a86fb03f43599bc53775206e50f90fdf09cd`; output `none`
   - attempt `1` `target_only`: outcome `solver_failure`; duration `1 ms`; selected no; blockers `stage-blocker-2b714eef51f2e8e8d649`
     - analyzer-only root change `laravel/framework`: `^7.0` -> `^8.0`
@@ -169,7 +170,18 @@ Resolution: **blocked** | Staged: **blocked** | Schema: `0.8` | Tool: `php-upgra
   - original-source finding (`high`): The root PHP constraint `^7.4` excludes target PHP `8.0.0`; update it for the Laravel 8 upgrade.
   - original-source finding (`medium`): facade/ignition 1.16.4 is outside the encoded Laravel 8 review range `>=2.3.6 <3.0`; review its upgrade or replacement.
   - original-source finding (`low`): Compare detected Laravel skeleton-managed integration locations (Kernel middleware, app config providers/aliases, or TrustProxies inheritance) with the Laravel 8 skeleton; these are review locations, not confirmed incompatibilities.
+  - blocker references: `stage-blocker-2b714eef51f2e8e8d649`, `stage-blocker-4314dc8954f6e4383b54`
+  - source-impact references: `source-impact-2c2e82dc82629e7036e5`, `source-impact-c5a0b2861da5dbee397c`, `source-impact-32c25b8a6283c163863e`
+  - risk for `laravel-7-to-8`: `high`; effort: 6-30 hours (`low` confidence)
+  - action: [laravel-7-to-8] Resolve every active blocker and rerun this complete stage; do not advance.
+  - action: [laravel-7-to-8] Inspect the linked Composer evidence.
+  - action: [laravel-7-to-8] Run `composer prohibits facade/ignition <constraint> --tree` in an isolated copy.
+  - test for `laravel-7-to-8`: Resolve this stage stop condition, then rerun the complete Composer stage laravel-7-to-8. (`required`)
   - stop reason: `blocking_registry_not_cleared`
+- Staged source-impact registry:
+  - `source-impact-2c2e82dc82629e7036e5` stages `laravel-7-to-8`: `low` impact for `package unknown`; 1 unique occurrence(s) (evidence: `source-2`, `source-5`, `source-6`, `laravel-skeleton-guidance-1`)
+  - `source-impact-32c25b8a6283c163863e` stages `laravel-7-to-8`: `low` impact for `package unknown`; 1 unique occurrence(s) (evidence: `source-6`, `source-2`, `source-5`, `laravel-skeleton-guidance-1`)
+  - `source-impact-c5a0b2861da5dbee397c` stages `laravel-7-to-8`: `low` impact for `package unknown`; 1 unique occurrence(s) (evidence: `source-5`, `source-2`, `source-6`, `laravel-skeleton-guidance-1`)
 - Blocker registry:
   - `stage-blocker-2b714eef51f2e8e8d649` stage `laravel-7-to-8`: `unknown-composer-failure` `laravel/framework`; lifecycle `resolved` (detected@1 -> resolved@2); blocking package `-`; constraint `-`; path `laravel/framework`
   - `stage-blocker-4314dc8954f6e4383b54` stage `laravel-7-to-8`: `unknown-composer-failure` `facade/ignition`; lifecycle `persists` (detected@2 -> persists@3); blocking package `-`; constraint `-`; path `facade/ignition`
@@ -205,11 +217,11 @@ Resolution: **blocked** | Staged: **blocked** | Schema: `0.8` | Tool: `php-upgra
 - `facade_alias` `Facade\Ignition\Facades\Flare` in `config/app.php:8` (evidence: `source-6`)
 
 ## Actionable Source Impact
-- `low` impact for `package unknown` (`unknown` ownership; `framework_rule`): Referenced by active laravel compatibility guidance; package ownership has not been established. (evidence: `source-2`, `source-5`, `source-6`, `laravel-skeleton-guidance-1`)
+- `source-impact-2c2e82dc82629e7036e5` `low` impact for `package unknown` (`unknown` ownership; `framework_rule`; stage references: `direct-final only`): Referenced by active laravel compatibility guidance; package ownership has not been established. (evidence: `source-2`, `source-5`, `source-6`, `laravel-skeleton-guidance-1`)
   - `middleware_reference` `Fruitcake\Cors\HandleCors` in `app/Http/Kernel.php:10` (evidence: `source-2`)
-- `low` impact for `package unknown` (`unknown` ownership; `framework_rule`): Referenced by active laravel compatibility guidance; package ownership has not been established. (evidence: `source-5`, `source-2`, `source-6`, `laravel-skeleton-guidance-1`)
+- `source-impact-c5a0b2861da5dbee397c` `low` impact for `package unknown` (`unknown` ownership; `framework_rule`; stage references: `direct-final only`): Referenced by active laravel compatibility guidance; package ownership has not been established. (evidence: `source-5`, `source-2`, `source-6`, `laravel-skeleton-guidance-1`)
   - `service_provider` `Facade\Ignition\IgnitionServiceProvider` in `config/app.php:5` (evidence: `source-5`)
-- `low` impact for `package unknown` (`unknown` ownership; `framework_rule`): Referenced by active laravel compatibility guidance; package ownership has not been established. (evidence: `source-6`, `source-2`, `source-5`, `laravel-skeleton-guidance-1`)
+- `source-impact-32c25b8a6283c163863e` `low` impact for `package unknown` (`unknown` ownership; `framework_rule`; stage references: `direct-final only`): Referenced by active laravel compatibility guidance; package ownership has not been established. (evidence: `source-6`, `source-2`, `source-5`, `laravel-skeleton-guidance-1`)
   - `facade_alias` `Facade\Ignition\Facades\Flare` in `config/app.php:8` (evidence: `source-6`)
 
 ## Framework Findings
@@ -223,19 +235,10 @@ Resolution: **blocked** | Staged: **blocked** | Schema: `0.8` | Tool: `php-upgra
   - applies to hops: `7 -> 8`
 
 ## Staged Plan
-1. **constraints** — Prepare the requested root constraint changes before dependency resolution. (evidence: `plan-1`, `root-constraint-1`)
-   - Update the `laravel/framework` root constraint to `^8.0`.
-   - Select a root PHP constraint that includes target platform PHP 8.0.0 without pinning an exact patch version.
-2. **dependencies** — Resolve dependency blockers and review the resulting lockfile transition. (evidence: `plan-1`, `solver-1`, `solver-2`, `solver-3`, `solver-5`, `solver-4`)
-   - Resolve the `unknown-composer-failure` blocker affecting `laravel/framework`.
-   - Resolve the `unknown-composer-failure` blocker affecting `php`.
-   - Rerun the isolated Composer scenarios after resolving the reported blockers.
-3. **application** — Apply source and framework migration work after dependency resolution is stable. (evidence: `plan-1`, `source-2`, `source-5`, `source-6`, `laravel-skeleton-guidance-1`, `laravel-framework-constraint-1`, `laravel-php-constraint-1`, `laravel-package-facade_ignition-1`, `laravel-package-guidance-1`)
-   - Review the reported source locations and adapt affected application code.
-   - Address framework compatibility findings before runtime validation.
-4. **validation** — Validate the upgraded project on the target runtime before release. (evidence: `plan-1`)
-   - Validate the Composer manifest and installed platform requirements.
-   - Run the project test suite and focused regression tests.
+1. **laravel-7-to-8** — Stop at laravel-7-to-8; its transition is not proved and must be rerun.; executed stage `laravel-7-to-8` (evidence: `stage-plan-1`, `laravel-stage-target-1`, `laravel-stage-remediation-1`, `stage-attempt-1`, `stage-root-change-1`, `stage-attempt-2`, `stage-root-change-2`, `stage-root-change-3`, `stage-attempt-3`, `stage-root-change-4`, `stage-root-change-5`, `laravel-framework-constraint-1`, `laravel-php-constraint-1`, `laravel-package-facade_ignition-1`, `laravel-package-guidance-1`, `source-2`, `source-5`, `source-6`, `laravel-skeleton-guidance-1`, `solver-6`, `solver-7`, `solver-8`)
+   - [laravel-7-to-8] Resolve every active blocker and rerun this complete stage; do not advance.
+   - [laravel-7-to-8] Inspect the linked Composer evidence.
+   - [laravel-7-to-8] Run `composer prohibits facade/ignition <constraint> --tree` in an isolated copy.
 
 ## Risk And Effort
 - Risk: `high`
@@ -243,13 +246,14 @@ Resolution: **blocked** | Staged: **blocked** | Schema: `0.8` | Tool: `php-upgra
   - Composer resolution is blocked.
   - Framework compatibility findings require review.
   - Weighted actionable source findings require review.
+  - Executed stage laravel-7-to-8 retains an active Composer blocker.
 - Effort: `6-30` hours (low confidence)
 - Effort components:
   - `dependency_resolution`: `3-8` hours
   - `source_changes`: `1-14` hours
   - `tests_and_debugging`: `2-8` hours
 - Effort assumptions:
-  - Estimate is heuristic until project-specific tests and Composer solver output are reviewed.
+  - Aggregate effort counts each exact package transition, framework finding, and source occurrence once; scenario and repeated-hop counts are excluded.
 
 ## Test Guidance
 - **composer-validation** (`required`): Validate the edited Composer manifest before dependency installation. Command: `composer validate --strict`.
@@ -296,4 +300,4 @@ Resolution: **blocked** | Staged: **blocked** | Schema: `0.8` | Tool: `php-upgra
 - `laravel-package-guidance-1` (`E4`, medium confidence): The encoded Laravel 8 guidance maps facade/ignition to `>=2.3.6 <3.0`. Context: `{"package":"facade/ignition","target_laravel_major":8,"compatible_package_constraint":">=2.3.6 <3.0","sources":["https://laravel.com/docs/8.x/upgrade"]}`
 - `laravel-skeleton-guidance-1` (`E5`, low confidence): Detected Kernel middleware, application provider/alias entries, or TrustProxies inheritance identify skeleton-managed integration points for manual comparison. Context: `{"target_laravel_major":8,"indicator_count":3,"indicators":[{"file":"app/Http/Kernel.php","line":10,"symbol":"Fruitcake\\Cors\\HandleCors","usage_type":"middleware_reference"},{"file":"config/app.php","line":5,"symbol":"Facade\\Ignition\\IgnitionServiceProvider","usage_type":"service_provider"},{"file":"config/app.php","line":8,"symbol":"Facade\\Ignition\\Facades\\Flare","usage_type":"facade_alias"}],"claim":"review_location_only"}`
 - `root-constraint-1` (`E2`, high confidence): Compared the root requirement for laravel/framework with the requested target. Context: `{"package":"laravel/framework","from_constraint":"^7.0","to_constraint":"^8.0"}`
-- `plan-1` (`E5`, low confidence): Generated conservative staged actions from the requested targets and detected findings. Context: `{"target_count":2,"root_constraint_change_count":1,"blocker_count":2,"source_finding_count":3,"framework_finding_count":4}`
+- `stage-plan-1` (`E5`, low confidence): Generated recommendations from the executed outcome of stage laravel-7-to-8. Context: `{"stage_id":"laravel-7-to-8","execution_state":"evaluated","resolution_status":"blocked","transition_recommended":false}`

@@ -52,7 +52,7 @@ Schema 0.8 adds one required top-level object, `staged_resolution`, plus require
 | No adjacent Composer-stage result | `staged_resolution` records execution state, independent resolution status, provider, stages, blocker registry, stop reason, budgets, and evidence |
 | Final-target blockers only | `staged_resolution.blocker_registry[]` retains attempt- and stage-scoped lifecycle history |
 | No selected intermediate project state | Each stage links predecessor, input, and selected output manifest/lock/platform/execution-policy fingerprints |
-| Framework findings are hop-scoped | Executed stages also project applicable findings and source impact while explicitly naming `original_project` as the inspected snapshot |
+| Framework findings are hop-scoped | Executed stages project applicable findings and stable source-impact IDs while explicitly naming `original_project` as the inspected snapshot; full staged findings are de-duplicated in `staged_resolution.source_impact` |
 | No versioned target-platform profile | `request_summary.target_platform_profile` records safe input metadata and `platform.profile` records the normalized effective profile or `null` |
 
 For a 0.7/0.8 consumer:
@@ -66,8 +66,11 @@ For a 0.7/0.8 consumer:
 7. For a non-null profile, use `closed_world` and `effective[]`; do not infer completeness from the legacy `platform.extensions` projection.
 8. For each 0.8 stage, read its exact `analysis_php`, `platform`, `composer_execution`, `duration_ms`, and `evidence` together with the candidate-state fingerprints. The stage context digests must equal the corresponding input fingerprint digests.
 9. Do not infer an empty staged result or a null profile for schema 0.7; field absence identifies the older contract.
+10. Resolve `staged_resolution.stages[].source_impact` IDs through the unique `staged_resolution.source_impact` registry. `stage_ids` records every correlated stage without repeating occurrences or evidence objects.
+11. Keep top-level `transition.package_changes` and `source_impact` as direct-final evidence. Stage package changes and staged source-impact references are separate and never overwrite them.
+12. Read each plan stage's `stage_id` and stop at the first blocked, unknown, skipped, or missing stage; no later transition has recommendation evidence.
 
-The minimal canonical 0.8 fixture is [`tests/fixtures/contracts/v0.3/minimal-report-v0.8.json`](../tests/fixtures/contracts/v0.3/minimal-report-v0.8.json). The complete staged semantics are locked in the [v0.3 contract](v0.3-contract.md).
+The minimal canonical 0.8 fixture is [`tests/fixtures/contracts/v0.3/minimal-report-v0.8.json`](../tests/fixtures/contracts/v0.3/minimal-report-v0.8.json). A machine-readable dual-consumer example is [`v0.7-to-v0.8-consumer-migration.json`](../tests/fixtures/contracts/v0.3/v0.7-to-v0.8-consumer-migration.json). The complete staged semantics are locked in the [v0.3 contract](v0.3-contract.md).
 
 ## Path exposure and report privacy
 

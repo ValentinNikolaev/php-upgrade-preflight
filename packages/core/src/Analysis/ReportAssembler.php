@@ -67,7 +67,8 @@ final class ReportAssembler
             $actionableSourceImpact,
             $frameworkFindings,
             $sourceUncertainties,
-            $evidence
+            $evidence,
+            $stagedResolution
         );
 
         return new UpgradeReport(

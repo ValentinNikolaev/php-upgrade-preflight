@@ -48,6 +48,27 @@ final class EvidenceLedger
         return $evidence;
     }
 
+    /** @param array<string, mixed> $context */
+    public function addOnce(
+        string $namespace,
+        string $class,
+        string $summary,
+        string $confidence = 'high',
+        array $context = []
+    ): Evidence {
+        foreach ($this->evidence as $item) {
+            if ($item->evidenceClass() === $class
+                && $item->summary() === $summary
+                && $item->confidence() === $confidence
+                && $item->context() === $context
+                && str_starts_with($item->id(), $namespace . '-')) {
+                return $item;
+            }
+        }
+
+        return $this->add($namespace, $class, $summary, $confidence, $context);
+    }
+
     public function register(Evidence $evidence): void
     {
         if (trim($evidence->id()) === '') {

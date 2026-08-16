@@ -819,6 +819,7 @@
                 "provider",
                 "stages",
                 "blocker_registry",
+                "source_impact",
                 "stop_reason",
                 "budgets",
                 "evidence"
@@ -841,6 +842,10 @@
                 "blocker_registry": {
                     "type": "array",
                     "items": {"$ref": "#/$defs/stageBlocker"}
+                },
+                "source_impact": {
+                    "type": "array",
+                    "items": {"$ref": "#/$defs/sourceImpactFinding"}
                 },
                 "stop_reason": {
                     "type": ["string", "null"],
@@ -901,12 +906,15 @@
                 "attempts",
                 "selected_attempt",
                 "package_changes",
+                "blockers",
                 "source_snapshot",
+                "source_snapshot_note",
                 "source_findings",
                 "source_impact",
                 "risk",
                 "effort",
                 "recommended_actions",
+                "tests",
                 "stop_reason"
             ],
             "properties": {
@@ -951,20 +959,34 @@
                     "type": "array",
                     "items": {"$ref": "#/$defs/packageChange"}
                 },
+                "blockers": {
+                    "type": "array",
+                    "uniqueItems": true,
+                    "items": {"type": "string", "pattern": "^stage-blocker-[a-f0-9]{20}$"}
+                },
                 "source_snapshot": {"const": "original_project"},
+                "source_snapshot_note": {
+                    "type": "string",
+                    "minLength": 1
+                },
                 "source_findings": {
                     "type": "array",
                     "items": {"$ref": "#/$defs/frameworkFinding"}
                 },
                 "source_impact": {
                     "type": "array",
-                    "items": {"$ref": "#/$defs/sourceImpactFinding"}
+                    "uniqueItems": true,
+                    "items": {"type": "string", "pattern": "^source-impact-[a-f0-9]{20}$"}
                 },
-                "risk": {"$ref": "#/$defs/risk"},
+                "risk": {"$ref": "#/$defs/stageRisk"},
                 "effort": {"$ref": "#/$defs/stageEffort"},
                 "recommended_actions": {
                     "type": "array",
                     "items": {"type": "string", "minLength": 1}
+                },
+                "tests": {
+                    "type": "array",
+                    "items": {"$ref": "#/$defs/stageTestGuidance"}
                 },
                 "stop_reason": {"type": ["string", "null"], "minLength": 1}
             }
@@ -997,10 +1019,32 @@
         "stageEffort": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["range_hours", "confidence"],
+            "required": ["stage_id", "range_hours", "confidence", "components", "assumptions"],
             "properties": {
+                "stage_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9_.-]*$"},
                 "range_hours": {"$ref": "#/$defs/hourRange"},
-                "confidence": {"$ref": "#/$defs/confidence"}
+                "confidence": {"$ref": "#/$defs/confidence"},
+                "components": {
+                    "type": "object",
+                    "additionalProperties": {"$ref": "#/$defs/hourRange"}
+                },
+                "assumptions": {
+                    "type": "array",
+                    "items": {"type": "string", "minLength": 1}
+                }
+            }
+        },
+        "stageRisk": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["stage_id", "level", "drivers"],
+            "properties": {
+                "stage_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9_.-]*$"},
+                "level": {"enum": ["low", "medium", "high"]},
+                "drivers": {
+                    "type": "array",
+                    "items": {"type": "string", "minLength": 1}
+                }
             }
         },
         "stageAttempt": {
@@ -1695,6 +1739,8 @@
             "type": "object",
             "additionalProperties": false,
             "required": [
+                "id",
+                "stage_ids",
                 "affected_package",
                 "ownership",
                 "relevance",
@@ -1704,6 +1750,12 @@
                 "evidence"
             ],
             "properties": {
+                "id": {"type": "string", "pattern": "^source-impact-[a-f0-9]{20}$"},
+                "stage_ids": {
+                    "type": "array",
+                    "uniqueItems": true,
+                    "items": {"type": "string", "pattern": "^[a-z0-9][a-z0-9_.-]*$"}
+                },
                 "affected_package": {
                     "type": [
                         "string",
@@ -1824,12 +1876,17 @@
             "type": "object",
             "additionalProperties": false,
             "required": [
+                "stage_id",
                 "name",
                 "summary",
                 "actions",
                 "evidence"
             ],
             "properties": {
+                "stage_id": {
+                    "type": ["string", "null"],
+                    "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+                },
                 "name": {
                     "type": "string",
                     "minLength": 1
@@ -1952,6 +2009,18 @@
                         "recommended"
                     ]
                 }
+            }
+        },
+        "stageTestGuidance": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["stage_id", "name", "purpose", "command", "priority"],
+            "properties": {
+                "stage_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9_.-]*$"},
+                "name": {"type": "string", "minLength": 1},
+                "purpose": {"type": "string", "minLength": 1},
+                "command": {"type": ["string", "null"]},
+                "priority": {"enum": ["required", "recommended"]}
             }
         },
         "evidence": {

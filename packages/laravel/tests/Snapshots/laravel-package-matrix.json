@@ -482,7 +482,10 @@
                     "stage-root-change-10",
                     "stage-root-change-11",
                     "stage-root-change-12",
-                    "stage-root-change-13"
+                    "stage-root-change-13",
+                    "solver-6",
+                    "solver-7",
+                    "solver-8"
                 ],
                 "predecessor_state": {
                     "manifest_sha256": "369d81189a1d2e6b3c13431076d7668ec7451630b5da2704c880ba30b6e4e1cf",
@@ -1086,24 +1089,59 @@
                 ],
                 "selected_attempt": null,
                 "package_changes": [],
+                "blockers": [
+                    "stage-blocker-2b714eef51f2e8e8d649"
+                ],
                 "source_snapshot": "original_project",
+                "source_snapshot_note": "This stage assessment inspects the original project source snapshot; it does not assume edits from an earlier stage were applied.",
                 "source_findings": [],
                 "source_impact": [],
                 "risk": {
+                    "stage_id": "laravel-7-to-8",
                     "level": "high",
                     "drivers": [
-                        "The stage did not produce a selectable Composer state."
+                        "Stage laravel-7-to-8 did not produce a selectable Composer state.",
+                        "Stage laravel-7-to-8 retains an active Composer blocker."
                     ]
                 },
                 "effort": {
+                    "stage_id": "laravel-7-to-8",
                     "range_hours": [
-                        0,
-                        0
+                        5,
+                        16
                     ],
-                    "confidence": "medium"
+                    "confidence": "low",
+                    "components": {
+                        "dependency_resolution": [
+                            3,
+                            8
+                        ],
+                        "source_changes": [
+                            0,
+                            0
+                        ],
+                        "tests_and_debugging": [
+                            2,
+                            8
+                        ]
+                    },
+                    "assumptions": [
+                        "Stage laravel-7-to-8 is estimated from unique package and original-snapshot findings; Composer attempt count is excluded."
+                    ]
                 },
                 "recommended_actions": [
-                    "Resolve every active blocking registry entry, then rerun the complete stage."
+                    "[laravel-7-to-8] Resolve every active blocker and rerun this complete stage; do not advance.",
+                    "[laravel-7-to-8] Inspect the linked Composer evidence.",
+                    "[laravel-7-to-8] Run `composer prohibits laravel/framework <constraint> --tree` in an isolated copy."
+                ],
+                "tests": [
+                    {
+                        "stage_id": "laravel-7-to-8",
+                        "name": "composer-stage-rerun",
+                        "purpose": "Resolve this stage stop condition, then rerun the complete Composer stage laravel-7-to-8.",
+                        "command": null,
+                        "priority": "required"
+                    }
                 ],
                 "stop_reason": "blocking_registry_not_cleared"
             },
@@ -1149,7 +1187,35 @@
                 "duration_ms": 0,
                 "evidence": [
                     "laravel-stage-target-2",
-                    "stage-skipped-1"
+                    "stage-skipped-1",
+                    "laravel-framework-constraint-1",
+                    "laravel-php-constraint-1",
+                    "laravel-package-laravel_passport-1",
+                    "laravel-package-guidance-1",
+                    "laravel-package-laravel_sanctum-1",
+                    "laravel-package-guidance-2",
+                    "laravel-package-laravel_horizon-1",
+                    "laravel-package-guidance-3",
+                    "laravel-package-laravel_telescope-1",
+                    "laravel-package-guidance-4",
+                    "laravel-package-phpunit_phpunit-1",
+                    "laravel-package-guidance-5",
+                    "laravel-package-mockery_mockery-1",
+                    "laravel-package-guidance-6",
+                    "laravel-symfony-constraints-1",
+                    "laravel-symfony-guidance-1",
+                    "laravel-advisory-facade_ignition-1",
+                    "laravel-package-advisory-1",
+                    "laravel-advisory-fideloper_proxy-1",
+                    "laravel-package-advisory-2",
+                    "laravel-advisory-fruitcake_laravel_cors-1",
+                    "laravel-package-advisory-3",
+                    "laravel-package-nunomaduro_collision-1",
+                    "laravel-package-guidance-7",
+                    "laravel-package-laravel_ui-1",
+                    "laravel-package-guidance-8",
+                    "laravel-package-orchestra_testbench-1",
+                    "laravel-package-guidance-9"
                 ],
                 "predecessor_state": null,
                 "input_state": null,
@@ -1157,7 +1223,9 @@
                 "attempts": [],
                 "selected_attempt": null,
                 "package_changes": [],
+                "blockers": [],
                 "source_snapshot": "original_project",
+                "source_snapshot_note": "This stage assessment inspects the original project source snapshot; it does not assume edits from an earlier stage were applied.",
                 "source_findings": [
                     {
                         "framework": "laravel",
@@ -1385,25 +1453,45 @@
                 ],
                 "source_impact": [],
                 "risk": {
+                    "stage_id": "laravel-8-to-9",
                     "level": "high",
                     "drivers": [
-                        "Update the root laravel/framework constraint from `^7.0` to a constraint compatible with Laravel 9.",
-                        "The root PHP constraint `^7.4` excludes target PHP `8.1.0`; update it for the Laravel 9 upgrade.",
-                        "laravel/passport v8.5.0 is outside the encoded Laravel 9 review range `^10.0|^11.0`; review its upgrade or replacement.",
-                        "laravel/horizon v4.3.5 is outside the encoded Laravel 9 review range `^5.0`; review its upgrade or replacement.",
-                        "Review direct Symfony component constraints for Laravel 9 (`^6.0` expected): symfony/http-foundation.",
-                        "Replace facade/ignition with spatie/laravel-ignition for the Laravel 9 target."
+                        "Stage laravel-8-to-9: Update the root laravel/framework constraint from `^7.0` to a constraint compatible with Laravel 9.",
+                        "Stage laravel-8-to-9: The root PHP constraint `^7.4` excludes target PHP `8.1.0`; update it for the Laravel 9 upgrade.",
+                        "Stage laravel-8-to-9: laravel/passport v8.5.0 is outside the encoded Laravel 9 review range `^10.0|^11.0`; review its upgrade or replacement.",
+                        "Stage laravel-8-to-9: laravel/horizon v4.3.5 is outside the encoded Laravel 9 review range `^5.0`; review its upgrade or replacement.",
+                        "Stage laravel-8-to-9: Review direct Symfony component constraints for Laravel 9 (`^6.0` expected): symfony/http-foundation.",
+                        "Stage laravel-8-to-9: Replace facade/ignition with spatie/laravel-ignition for the Laravel 9 target."
                     ]
                 },
                 "effort": {
+                    "stage_id": "laravel-8-to-9",
                     "range_hours": [
-                        15,
-                        30
+                        0,
+                        0
                     ],
-                    "confidence": "low"
+                    "confidence": "low",
+                    "components": {
+                        "not_estimated": [
+                            0,
+                            0
+                        ]
+                    },
+                    "assumptions": [
+                        "Stage laravel-8-to-9 was skipped, so no application-change effort is inferred."
+                    ]
                 },
                 "recommended_actions": [
-                    "Do not advance to this stage until the preceding stop condition is resolved and the analysis is rerun."
+                    "[laravel-8-to-9] Do not advance: this stage was skipped and has no Composer feasibility evidence."
+                ],
+                "tests": [
+                    {
+                        "stage_id": "laravel-8-to-9",
+                        "name": "composer-stage-rerun",
+                        "purpose": "Resolve the preceding stop condition, then execute stage laravel-8-to-9 before selecting migration tests.",
+                        "command": null,
+                        "priority": "required"
+                    }
                 ],
                 "stop_reason": "previous_stage_blocked"
             }
@@ -1498,6 +1586,7 @@
                 ]
             }
         ],
+        "source_impact": [],
         "stop_reason": "blocking_registry_not_cleared",
         "budgets": {
             "max_hops": 6,
@@ -1837,81 +1926,45 @@
     "plan": {
         "stages": [
             {
-                "name": "constraints",
-                "summary": "Prepare the requested root constraint changes before dependency resolution.",
+                "stage_id": "laravel-7-to-8",
+                "name": "laravel-7-to-8",
+                "summary": "Stop at laravel-7-to-8; its transition is not proved and must be rerun.",
                 "actions": [
-                    "Update the `laravel/framework` root constraint to `^9.0`.",
-                    "Select a root PHP constraint that includes target platform PHP 8.1.0 without pinning an exact patch version."
+                    "[laravel-7-to-8] Resolve every active blocker and rerun this complete stage; do not advance.",
+                    "[laravel-7-to-8] Inspect the linked Composer evidence.",
+                    "[laravel-7-to-8] Run `composer prohibits laravel/framework <constraint> --tree` in an isolated copy."
                 ],
                 "evidence": [
-                    "plan-1",
-                    "root-constraint-1"
-                ]
-            },
-            {
-                "name": "dependencies",
-                "summary": "Resolve dependency blockers and review the resulting lockfile transition.",
-                "actions": [
-                    "Resolve the `unknown-composer-failure` blocker affecting `laravel/framework`.",
-                    "Resolve the `unknown-composer-failure` blocker affecting `php`.",
-                    "Rerun the isolated Composer scenarios after resolving the reported blockers."
-                ],
-                "evidence": [
-                    "plan-1",
-                    "solver-1",
-                    "solver-2",
-                    "solver-3",
-                    "solver-5",
-                    "solver-4"
-                ]
-            },
-            {
-                "name": "application",
-                "summary": "Apply source and framework migration work after dependency resolution is stable.",
-                "actions": [
-                    "Address framework compatibility findings before runtime validation."
-                ],
-                "evidence": [
-                    "plan-1",
-                    "laravel-framework-constraint-1",
-                    "laravel-php-constraint-1",
-                    "laravel-package-laravel_passport-1",
-                    "laravel-package-guidance-1",
-                    "laravel-package-laravel_sanctum-1",
-                    "laravel-package-guidance-2",
-                    "laravel-package-laravel_horizon-1",
-                    "laravel-package-guidance-3",
-                    "laravel-package-laravel_telescope-1",
-                    "laravel-package-guidance-4",
-                    "laravel-package-phpunit_phpunit-1",
-                    "laravel-package-guidance-5",
-                    "laravel-package-mockery_mockery-1",
-                    "laravel-package-guidance-6",
-                    "laravel-symfony-constraints-1",
-                    "laravel-symfony-guidance-1",
-                    "laravel-advisory-facade_ignition-1",
-                    "laravel-package-advisory-1",
-                    "laravel-advisory-fideloper_proxy-1",
-                    "laravel-package-advisory-2",
-                    "laravel-advisory-fruitcake_laravel_cors-1",
-                    "laravel-package-advisory-3",
-                    "laravel-package-nunomaduro_collision-1",
-                    "laravel-package-guidance-7",
-                    "laravel-package-laravel_ui-1",
-                    "laravel-package-guidance-8",
-                    "laravel-package-orchestra_testbench-1",
-                    "laravel-package-guidance-9"
-                ]
-            },
-            {
-                "name": "validation",
-                "summary": "Validate the upgraded project on the target runtime before release.",
-                "actions": [
-                    "Validate the Composer manifest and installed platform requirements.",
-                    "Run the project test suite and focused regression tests."
-                ],
-                "evidence": [
-                    "plan-1"
+                    "stage-plan-1",
+                    "laravel-stage-target-1",
+                    "laravel-stage-remediation-3",
+                    "laravel-stage-remediation-1",
+                    "laravel-stage-remediation-2",
+                    "laravel-stage-remediation-4",
+                    "laravel-stage-remediation-8",
+                    "laravel-stage-remediation-6",
+                    "laravel-stage-remediation-7",
+                    "laravel-stage-remediation-9",
+                    "laravel-stage-remediation-5",
+                    "stage-attempt-1",
+                    "stage-root-change-1",
+                    "stage-attempt-2",
+                    "stage-root-change-2",
+                    "stage-root-change-3",
+                    "stage-attempt-3",
+                    "stage-root-change-4",
+                    "stage-root-change-5",
+                    "stage-root-change-6",
+                    "stage-root-change-7",
+                    "stage-root-change-8",
+                    "stage-root-change-9",
+                    "stage-root-change-10",
+                    "stage-root-change-11",
+                    "stage-root-change-12",
+                    "stage-root-change-13",
+                    "solver-6",
+                    "solver-7",
+                    "solver-8"
                 ]
             }
         ]
@@ -1920,7 +1973,8 @@
         "level": "high",
         "drivers": [
             "Composer resolution is blocked.",
-            "Framework compatibility findings require review."
+            "Framework compatibility findings require review.",
+            "Executed stage laravel-7-to-8 retains an active Composer blocker."
         ]
     },
     "effort": {
@@ -1944,7 +1998,7 @@
             ]
         },
         "assumptions": [
-            "Estimate is heuristic until project-specific tests and Composer solver output are reviewed."
+            "Aggregate effort counts each exact package transition, framework finding, and source occurrence once; scenario and repeated-hop counts are excluded."
         ]
     },
     "tests": [
@@ -3441,16 +3495,15 @@
             }
         },
         {
-            "id": "plan-1",
+            "id": "stage-plan-1",
             "class": "E5",
-            "summary": "Generated conservative staged actions from the requested targets and detected findings.",
+            "summary": "Generated recommendations from the executed outcome of stage laravel-7-to-8.",
             "confidence": "low",
             "context": {
-                "target_count": 2,
-                "root_constraint_change_count": 1,
-                "blocker_count": 2,
-                "source_finding_count": 0,
-                "framework_finding_count": 15
+                "stage_id": "laravel-7-to-8",
+                "execution_state": "evaluated",
+                "resolution_status": "blocked",
+                "transition_recommended": false
             }
         }
     ]

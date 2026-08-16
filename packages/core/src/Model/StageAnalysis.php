@@ -24,6 +24,14 @@ final class StageAnalysis
     private array $sourceFindings;
     /** @var list<SourceImpactFinding> */
     private array $sourceImpact;
+    /** @var list<StageBlockerEntry> */
+    private array $blockers;
+    private RiskSummary $risk;
+    private EffortEstimate $effort;
+    /** @var list<string> */
+    private array $recommendedActions;
+    /** @var list<StageTestGuidance> */
+    private array $tests;
     private ?string $stopReason;
     private ?StageExecutionContext $executionContext;
     /** @var list<string> */
@@ -35,6 +43,9 @@ final class StageAnalysis
      * @param list<CompatibilityFinding> $sourceFindings
      * @param list<SourceImpactFinding> $sourceImpact
      * @param list<string> $analysisEvidence
+     * @param list<StageBlockerEntry> $blockers
+     * @param list<string> $recommendedActions
+     * @param list<StageTestGuidance> $tests
      */
     public function __construct(
         FrameworkStageTarget $target,
@@ -50,7 +61,12 @@ final class StageAnalysis
         array $sourceFindings = [],
         array $sourceImpact = [],
         ?StageExecutionContext $executionContext = null,
-        array $analysisEvidence = []
+        array $analysisEvidence = [],
+        array $blockers = [],
+        ?RiskSummary $risk = null,
+        ?EffortEstimate $effort = null,
+        array $recommendedActions = [],
+        array $tests = []
     ) {
         if (!in_array($executionState, [self::EXECUTED, self::SKIPPED], true)) {
             throw new \InvalidArgumentException(sprintf('Unsupported stage execution state "%s".', $executionState));
@@ -71,6 +87,26 @@ final class StageAnalysis
                 throw new \InvalidArgumentException('Stage package changes must be PackageChange instances.');
             }
         }
+        foreach ($sourceFindings as $finding) {
+            if (!$finding instanceof CompatibilityFinding) {
+                throw new \InvalidArgumentException('Stage source findings must be CompatibilityFinding instances.');
+            }
+        }
+        foreach ($sourceImpact as $finding) {
+            if (!$finding instanceof SourceImpactFinding) {
+                throw new \InvalidArgumentException('Stage source impact must contain SourceImpactFinding instances.');
+            }
+        }
+        foreach ($blockers as $blocker) {
+            if (!$blocker instanceof StageBlockerEntry || $blocker->stageId() !== $target->id()) {
+                throw new \InvalidArgumentException('Stage blocker references must belong to the assessed stage.');
+            }
+        }
+        foreach ($tests as $test) {
+            if (!$test instanceof StageTestGuidance) {
+                throw new \InvalidArgumentException('Stage tests must be StageTestGuidance instances.');
+            }
+        }
 
         $this->target = $target;
         $this->executionState = $executionState;
@@ -86,6 +122,13 @@ final class StageAnalysis
         $this->stopReason = $stopReason;
         $this->executionContext = $executionContext;
         $this->analysisEvidence = array_values(array_unique($analysisEvidence));
+        $this->blockers = array_values($blockers);
+        $this->risk = $risk ?? new RiskSummary('low', []);
+        $this->effort = $effort ?? new EffortEstimate([0, 0], 'low', ['not_estimated' => [0, 0]], [
+            sprintf('Stage %s was not assessed for application-change effort.', $target->id()),
+        ]);
+        $this->recommendedActions = array_values(array_unique($recommendedActions));
+        $this->tests = array_values($tests);
     }
 
     public function target(): FrameworkStageTarget
@@ -114,6 +157,30 @@ final class StageAnalysis
         return $this->outputState;
     }
 
+    /** @return list<PackageChange> */
+    public function packageChanges(): array
+    {
+        return $this->packageChanges;
+    }
+
+    /** @return list<SourceImpactFinding> */
+    public function sourceImpact(): array
+    {
+        return $this->sourceImpact;
+    }
+
+    /** @return list<string> */
+    public function recommendedActions(): array
+    {
+        return $this->recommendedActions;
+    }
+
+    /** @return list<StageTestGuidance> */
+    public function tests(): array
+    {
+        return $this->tests;
+    }
+
     /**
      * @param list<CompatibilityFinding> $sourceFindings
      * @param list<SourceImpactFinding> $sourceImpact
@@ -134,7 +201,51 @@ final class StageAnalysis
             $sourceFindings,
             $sourceImpact,
             $this->executionContext,
-            $this->analysisEvidence
+            $this->analysisEvidence,
+            $this->blockers,
+            $this->risk,
+            $this->effort,
+            $this->recommendedActions,
+            $this->tests
+        );
+    }
+
+    /**
+     * @param list<CompatibilityFinding> $sourceFindings
+     * @param list<SourceImpactFinding> $sourceImpact
+     * @param list<StageBlockerEntry> $blockers
+     * @param list<string> $recommendedActions
+     * @param list<StageTestGuidance> $tests
+     */
+    public function withReportingAssessment(
+        array $sourceFindings,
+        array $sourceImpact,
+        array $blockers,
+        RiskSummary $risk,
+        EffortEstimate $effort,
+        array $recommendedActions,
+        array $tests
+    ): self {
+        return new self(
+            $this->target,
+            $this->executionState,
+            $this->resolutionStatus,
+            $this->attempts,
+            $this->selectedAttempt,
+            $this->predecessorState,
+            $this->inputState,
+            $this->outputState,
+            $this->packageChanges,
+            $this->stopReason,
+            $sourceFindings,
+            $sourceImpact,
+            $this->executionContext,
+            $this->analysisEvidence,
+            $blockers,
+            $risk,
+            $effort,
+            $recommendedActions,
+            $tests
         );
     }
 
@@ -148,6 +259,15 @@ final class StageAnalysis
         foreach ($this->attempts as $attempt) {
             $references = array_merge($references, $attempt->evidenceReferences());
         }
+        foreach ($this->sourceFindings as $finding) {
+            $references = array_merge($references, $finding->evidence());
+        }
+        foreach ($this->sourceImpact as $finding) {
+            $references = array_merge($references, $finding->evidence());
+        }
+        foreach ($this->blockers as $blocker) {
+            $references = array_merge($references, $blocker->evidence());
+        }
 
         return array_values(array_unique($references));
     }
@@ -155,10 +275,6 @@ final class StageAnalysis
     /** @return array<string, mixed> */
     public function toArray(): array
     {
-        $risk = $this->stageRisk();
-        $findingCount = count($this->sourceFindings) + count($this->sourceImpact);
-        $changeCount = count($this->packageChanges);
-        $effortBase = $findingCount + $changeCount;
         $context = $this->executionContext === null
             ? ['platform' => null, 'composer_execution' => null]
             : $this->executionContext->toArray();
@@ -187,66 +303,22 @@ final class StageAnalysis
             'attempts' => array_map(static fn (StageAttempt $attempt): array => $attempt->toArray(), $this->attempts),
             'selected_attempt' => $this->selectedAttempt,
             'package_changes' => array_map(static fn (PackageChange $change): array => $change->toArray(), $this->packageChanges),
+            'blockers' => array_map(static fn (StageBlockerEntry $blocker): string => $blocker->id(), $this->blockers),
             'source_snapshot' => 'original_project',
+            'source_snapshot_note' => 'This stage assessment inspects the original project source snapshot; it does not assume edits from an earlier stage were applied.',
             'source_findings' => array_map(
                 static fn (CompatibilityFinding $finding): array => $finding->toArray(),
                 $this->sourceFindings
             ),
             'source_impact' => array_map(
-                static fn (SourceImpactFinding $finding): array => $finding->toArray(),
+                static fn (SourceImpactFinding $finding): string => $finding->id(),
                 $this->sourceImpact
             ),
-            'risk' => $risk,
-            'effort' => [
-                'range_hours' => [$effortBase, $effortBase * 2],
-                'confidence' => $this->executionState === self::EXECUTED ? 'medium' : 'low',
-            ],
-            'recommended_actions' => $this->recommendedActions(),
+            'risk' => array_merge(['stage_id' => $this->target->id()], $this->risk->toArray()),
+            'effort' => array_merge(['stage_id' => $this->target->id()], $this->effort->toArray()),
+            'recommended_actions' => $this->recommendedActions,
+            'tests' => array_map(static fn (StageTestGuidance $test): array => $test->toArray(), $this->tests),
             'stop_reason' => $this->stopReason,
         ];
-    }
-
-    /** @return array{level: string, drivers: list<string>} */
-    private function stageRisk(): array
-    {
-        $drivers = [];
-        if (in_array($this->resolutionStatus, [StagedResolution::BLOCKED, StagedResolution::UNKNOWN], true)) {
-            $drivers[] = 'The stage did not produce a selectable Composer state.';
-        }
-        foreach ($this->sourceFindings as $finding) {
-            if ($finding->severity() === 'high') {
-                $drivers[] = $finding->summary();
-            }
-        }
-        if ($drivers !== []) {
-            return ['level' => 'high', 'drivers' => array_values(array_unique($drivers))];
-        }
-        if ($this->packageChanges !== [] || $this->sourceFindings !== [] || $this->sourceImpact !== []) {
-            return ['level' => 'medium', 'drivers' => ['The stage changes dependencies or has source review findings.']];
-        }
-
-        return ['level' => 'low', 'drivers' => []];
-    }
-
-    /** @return list<string> */
-    private function recommendedActions(): array
-    {
-        if ($this->executionState === self::SKIPPED) {
-            return ['Do not advance to this stage until the preceding stop condition is resolved and the analysis is rerun.'];
-        }
-
-        $actions = [];
-        if ($this->resolutionStatus === StagedResolution::BLOCKED) {
-            $actions[] = 'Resolve every active blocking registry entry, then rerun the complete stage.';
-        } elseif ($this->resolutionStatus === StagedResolution::UNKNOWN) {
-            $actions[] = 'Resolve the operational uncertainty, then rerun the stage without inferring feasibility.';
-        } elseif ($this->outputState !== null) {
-            $actions[] = 'Use only the selected candidate state as evidence for the next stage.';
-        }
-        foreach ($this->sourceFindings as $finding) {
-            $actions[] = $finding->summary();
-        }
-
-        return array_values(array_unique($actions));
     }
 }
