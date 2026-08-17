@@ -52,7 +52,7 @@
     },
     "platform": {
         "analyzer": {
-            "php_version": "8.2.33",
+            "php_version": "8.3.33",
             "provenance": "runtime"
         },
         "current_php": {
@@ -117,7 +117,7 @@
                     "--no-plugins",
                     "--no-interaction"
                 ],
-                "duration_ms": 133,
+                "duration_ms": 234,
                 "exit_code": 0,
                 "succeeded": true,
                 "outcome": "success",
@@ -146,7 +146,7 @@
                     "--no-progress",
                     "--no-interaction"
                 ],
-                "duration_ms": 279,
+                "duration_ms": 1051,
                 "exit_code": 2,
                 "succeeded": false,
                 "outcome": "solver_failure",
@@ -170,7 +170,8 @@
                             "--no-interaction"
                         ],
                         "exit_code": 1,
-                        "stdout_excerpt": "laravel/framework 10.0.0 Metadata-only Laravel 10 package for the offline demo.\n|--nunomaduro/collision 7.11.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n|--phpunit/phpunit 10.0.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n|--laravel/framework 13.0.0 (requires php ^8.3 but 8.2.33 is installed) (circular dependency aborted here)\n`--laravel/framework 13.0.0 (requires ext-preflight-stage ^2.0 but it is missing) (circular dependency aborted here)\n",
+                        "outcome": "success",
+                        "stdout_excerpt": "laravel/framework 10.0.0 Metadata-only Laravel 10 package for the offline demo.\n|--nunomaduro/collision 7.11.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n|--phpunit/phpunit 10.0.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n`--laravel/framework 13.0.0 (requires ext-preflight-stage ^2.0 but it is missing) (circular dependency aborted here)\n",
                         "stderr_excerpt": "Not finding what you were looking for? Try calling `composer require \"laravel/framework:^13.0\" --dry-run` to get another view on the problem.\n"
                     },
                     {
@@ -188,6 +189,7 @@
                             "--no-interaction"
                         ],
                         "exit_code": 0,
+                        "outcome": "success",
                         "stdout_excerpt": "",
                         "stderr_excerpt": "There is no installed package depending on \"php\" in versions not matching 8.3.0\n"
                     }
@@ -209,7 +211,7 @@
                     "--no-progress",
                     "--no-interaction"
                 ],
-                "duration_ms": 277,
+                "duration_ms": 372,
                 "exit_code": 2,
                 "succeeded": false,
                 "outcome": "solver_failure",
@@ -233,7 +235,8 @@
                             "--no-interaction"
                         ],
                         "exit_code": 1,
-                        "stdout_excerpt": "laravel/framework 10.0.0 Metadata-only Laravel 10 package for the offline demo.\n|--nunomaduro/collision 7.11.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n|--phpunit/phpunit 10.0.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n|--laravel/framework 13.0.0 (requires php ^8.3 but 8.2.33 is installed) (circular dependency aborted here)\n`--laravel/framework 13.0.0 (requires ext-preflight-stage ^2.0 but it is missing) (circular dependency aborted here)\n",
+                        "outcome": "success",
+                        "stdout_excerpt": "laravel/framework 10.0.0 Metadata-only Laravel 10 package for the offline demo.\n|--nunomaduro/collision 7.11.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n|--phpunit/phpunit 10.0.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n`--laravel/framework 13.0.0 (requires ext-preflight-stage ^2.0 but it is missing) (circular dependency aborted here)\n",
                         "stderr_excerpt": "Not finding what you were looking for? Try calling `composer require \"laravel/framework:^13.0\" --dry-run` to get another view on the problem.\n"
                     },
                     {
@@ -251,6 +254,7 @@
                             "--no-interaction"
                         ],
                         "exit_code": 0,
+                        "outcome": "success",
                         "stdout_excerpt": "",
                         "stderr_excerpt": "There is no installed package depending on \"php\" in versions not matching 8.3.0\n"
                     }
@@ -273,7 +277,7 @@
                     "--no-progress",
                     "--no-interaction"
                 ],
-                "duration_ms": 280,
+                "duration_ms": 364,
                 "exit_code": 2,
                 "succeeded": false,
                 "outcome": "solver_failure",
@@ -297,7 +301,8 @@
                             "--no-interaction"
                         ],
                         "exit_code": 1,
-                        "stdout_excerpt": "laravel/framework 10.0.0 Metadata-only Laravel 10 package for the offline demo.\n|--nunomaduro/collision 7.11.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n|--phpunit/phpunit 10.0.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n|--laravel/framework 13.0.0 (requires php ^8.3 but 8.2.33 is installed) (circular dependency aborted here)\n`--laravel/framework 13.0.0 (requires ext-preflight-stage ^2.0 but it is missing) (circular dependency aborted here)\n",
+                        "outcome": "success",
+                        "stdout_excerpt": "laravel/framework 10.0.0 Metadata-only Laravel 10 package for the offline demo.\n|--nunomaduro/collision 7.11.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n|--phpunit/phpunit 10.0.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n`--laravel/framework 13.0.0 (requires ext-preflight-stage ^2.0 but it is missing) (circular dependency aborted here)\n",
                         "stderr_excerpt": "Not finding what you were looking for? Try calling `composer require \"laravel/framework:^13.0\" --dry-run` to get another view on the problem.\n"
                     },
                     {
@@ -315,6 +320,7 @@
                             "--no-interaction"
                         ],
                         "exit_code": 0,
+                        "outcome": "success",
                         "stdout_excerpt": "",
                         "stderr_excerpt": "There is no installed package depending on \"php\" in versions not matching 8.3.0\n"
                     }
@@ -334,7 +340,7 @@
                     "--no-progress",
                     "--no-interaction"
                 ],
-                "duration_ms": 288,
+                "duration_ms": 367,
                 "exit_code": 0,
                 "succeeded": true,
                 "outcome": "success",
@@ -364,13 +370,13 @@
                     "--no-progress",
                     "--no-interaction"
                 ],
-                "duration_ms": 282,
+                "duration_ms": 689,
                 "exit_code": 2,
                 "succeeded": false,
                 "outcome": "solver_failure",
                 "failure_type": "solver",
                 "stdout_excerpt": "",
-                "stderr_excerpt": "Loading composer repositories with package information\nUpdating dependencies\nYour requirements could not be resolved to an installable set of packages.\n\n  Problem 1\n    - Root composer.json requires laravel/framework ^13.0 -> satisfiable by laravel/framework[13.0.0].\n    - laravel/framework 13.0.0 requires php ^8.3 -> your php version (8.1.0; overridden via config.platform, actual: 8.2.33) does not satisfy that requirement.\n\n",
+                "stderr_excerpt": "Loading composer repositories with package information\nUpdating dependencies\nYour requirements could not be resolved to an installable set of packages.\n\n  Problem 1\n    - Root composer.json requires laravel/framework ^13.0 -> satisfiable by laravel/framework[13.0.0].\n    - laravel/framework 13.0.0 requires php ^8.3 -> your php version (8.1.0; overridden via config.platform, actual: 8.3.33) does not satisfy that requirement.\n\n",
                 "candidate_lock": null,
                 "diagnostics": [
                     {
@@ -388,7 +394,8 @@
                             "--no-interaction"
                         ],
                         "exit_code": 1,
-                        "stdout_excerpt": "laravel/framework 10.0.0 Metadata-only Laravel 10 package for the offline demo.\n|--nunomaduro/collision 7.11.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n|--phpunit/phpunit 10.0.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n|--laravel/framework 13.0.0 (requires php ^8.3 but 8.2.33 is installed) (circular dependency aborted here)\n`--laravel/framework 13.0.0 (requires ext-preflight-stage ^2.0 but it is missing) (circular dependency aborted here)\n",
+                        "outcome": "success",
+                        "stdout_excerpt": "laravel/framework 10.0.0 Metadata-only Laravel 10 package for the offline demo.\n|--nunomaduro/collision 7.11.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n|--phpunit/phpunit 10.0.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n`--laravel/framework 13.0.0 (requires ext-preflight-stage ^2.0 but it is missing) (circular dependency aborted here)\n",
                         "stderr_excerpt": "Not finding what you were looking for? Try calling `composer require \"laravel/framework:^13.0\" --dry-run` to get another view on the problem.\n"
                     }
                 ],
@@ -440,7 +447,7 @@
                     },
                     "effective_sha256": "f7867541fa8d250aab14dc390187c1a8930cdd8fb3b76e3dd72486cc5512107e"
                 },
-                "duration_ms": 884,
+                "duration_ms": 2690,
                 "evidence": [
                     "laravel-stage-target-1",
                     "laravel-stage-remediation-1",
@@ -513,7 +520,7 @@
                                 "--no-progress",
                                 "--no-interaction"
                             ],
-                            "duration_ms": 285,
+                            "duration_ms": 1003,
                             "exit_code": 2,
                             "succeeded": false,
                             "outcome": "solver_failure",
@@ -537,6 +544,7 @@
                                         "--no-interaction"
                                     ],
                                     "exit_code": 1,
+                                    "outcome": "success",
                                     "stdout_excerpt": "laravel/framework 10.0.0 Metadata-only Laravel 10 package for the offline demo.\n|--nunomaduro/collision 7.11.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n`--phpunit/phpunit 10.0.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n",
                                     "stderr_excerpt": "Not finding what you were looking for? Try calling `composer require \"laravel/framework:^11.0\" --dry-run` to get another view on the problem.\n"
                                 },
@@ -555,6 +563,7 @@
                                         "--no-interaction"
                                     ],
                                     "exit_code": 0,
+                                    "outcome": "success",
                                     "stdout_excerpt": "",
                                     "stderr_excerpt": "There is no installed package depending on \"php\" in versions not matching 8.3.0\n"
                                 }
@@ -620,7 +629,7 @@
                                 "--no-progress",
                                 "--no-interaction"
                             ],
-                            "duration_ms": 308,
+                            "duration_ms": 1318,
                             "exit_code": 2,
                             "succeeded": false,
                             "outcome": "solver_failure",
@@ -644,6 +653,7 @@
                                         "--no-interaction"
                                     ],
                                     "exit_code": 1,
+                                    "outcome": "success",
                                     "stdout_excerpt": "laravel/framework 10.0.0 Metadata-only Laravel 10 package for the offline demo.\n|--nunomaduro/collision 7.11.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n`--phpunit/phpunit 10.0.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n",
                                     "stderr_excerpt": "Not finding what you were looking for? Try calling `composer require \"laravel/framework:^11.0\" --dry-run` to get another view on the problem.\n"
                                 },
@@ -662,6 +672,7 @@
                                         "--no-interaction"
                                     ],
                                     "exit_code": 0,
+                                    "outcome": "success",
                                     "stdout_excerpt": "",
                                     "stderr_excerpt": "There is no installed package depending on \"nunomaduro/collision\" in versions not matching ^8.1\nNot finding what you were looking for? Try calling `composer require --dev \"nunomaduro/collision:^8.1\" --dry-run` to get another view on the problem.\n"
                                 },
@@ -680,6 +691,7 @@
                                         "--no-interaction"
                                     ],
                                     "exit_code": 0,
+                                    "outcome": "success",
                                     "stdout_excerpt": "",
                                     "stderr_excerpt": "There is no installed package depending on \"php\" in versions not matching 8.3.0\n"
                                 }
@@ -757,7 +769,7 @@
                                 "--no-progress",
                                 "--no-interaction"
                             ],
-                            "duration_ms": 291,
+                            "duration_ms": 369,
                             "exit_code": 0,
                             "succeeded": true,
                             "outcome": "success",
@@ -980,7 +992,7 @@
                     },
                     "effective_sha256": "f7867541fa8d250aab14dc390187c1a8930cdd8fb3b76e3dd72486cc5512107e"
                 },
-                "duration_ms": 284,
+                "duration_ms": 377,
                 "evidence": [
                     "laravel-stage-target-2",
                     "laravel-stage-remediation-4",
@@ -1047,7 +1059,7 @@
                                 "--no-progress",
                                 "--no-interaction"
                             ],
-                            "duration_ms": 284,
+                            "duration_ms": 377,
                             "exit_code": 0,
                             "succeeded": true,
                             "outcome": "success",
@@ -1259,7 +1271,7 @@
                     },
                     "effective_sha256": "f7867541fa8d250aab14dc390187c1a8930cdd8fb3b76e3dd72486cc5512107e"
                 },
-                "duration_ms": 875,
+                "duration_ms": 3389,
                 "evidence": [
                     "laravel-stage-target-3",
                     "laravel-stage-remediation-6",
@@ -1334,7 +1346,7 @@
                                 "--no-progress",
                                 "--no-interaction"
                             ],
-                            "duration_ms": 295,
+                            "duration_ms": 792,
                             "exit_code": 2,
                             "succeeded": false,
                             "outcome": "solver_failure",
@@ -1358,6 +1370,7 @@
                                         "--no-interaction"
                                     ],
                                     "exit_code": 1,
+                                    "outcome": "success",
                                     "stdout_excerpt": "laravel/framework 12.0.0 Metadata-only Laravel 12 package for the offline demo.\n`--laravel/framework 13.0.0 (requires ext-preflight-stage ^2.0 but it is missing) (circular dependency aborted here)\n",
                                     "stderr_excerpt": "Not finding what you were looking for? Try calling `composer require \"laravel/framework:^13.0\" --dry-run` to get another view on the problem.\n"
                                 },
@@ -1376,6 +1389,7 @@
                                         "--no-interaction"
                                     ],
                                     "exit_code": 0,
+                                    "outcome": "success",
                                     "stdout_excerpt": "",
                                     "stderr_excerpt": "Package \"php 8.3.0\" found in version \"8.3.0\" (version provided by config.platform).\nThere is no installed package depending on \"php\" in versions not matching 8.3.0\n"
                                 }
@@ -1440,7 +1454,7 @@
                                 "--no-progress",
                                 "--no-interaction"
                             ],
-                            "duration_ms": 291,
+                            "duration_ms": 1116,
                             "exit_code": 2,
                             "succeeded": false,
                             "outcome": "solver_failure",
@@ -1464,6 +1478,7 @@
                                         "--no-interaction"
                                     ],
                                     "exit_code": 1,
+                                    "outcome": "success",
                                     "stdout_excerpt": "laravel/framework 12.0.0 Metadata-only Laravel 12 package for the offline demo.\n`--laravel/framework 13.0.0 (requires ext-preflight-stage ^2.0 but it is missing) (circular dependency aborted here)\n",
                                     "stderr_excerpt": "Not finding what you were looking for? Try calling `composer require \"laravel/framework:^13.0\" --dry-run` to get another view on the problem.\n"
                                 },
@@ -1482,6 +1497,7 @@
                                         "--no-interaction"
                                     ],
                                     "exit_code": 0,
+                                    "outcome": "success",
                                     "stdout_excerpt": "",
                                     "stderr_excerpt": "There is no installed package depending on \"laravel/tinker\" in versions not matching ^3.0\nNot finding what you were looking for? Try calling `composer require \"laravel/tinker:^3.0\" --dry-run` to get another view on the problem.\n"
                                 },
@@ -1500,6 +1516,7 @@
                                         "--no-interaction"
                                     ],
                                     "exit_code": 0,
+                                    "outcome": "success",
                                     "stdout_excerpt": "",
                                     "stderr_excerpt": "Package \"php 8.3.0\" found in version \"8.3.0\" (version provided by config.platform).\nThere is no installed package depending on \"php\" in versions not matching 8.3.0\n"
                                 }
@@ -1589,7 +1606,7 @@
                                 "--no-progress",
                                 "--no-interaction"
                             ],
-                            "duration_ms": 289,
+                            "duration_ms": 1481,
                             "exit_code": 2,
                             "succeeded": false,
                             "outcome": "solver_failure",
@@ -1613,6 +1630,7 @@
                                         "--no-interaction"
                                     ],
                                     "exit_code": 1,
+                                    "outcome": "success",
                                     "stdout_excerpt": "laravel/framework 12.0.0 Metadata-only Laravel 12 package for the offline demo.\n`--laravel/framework 13.0.0 (requires ext-preflight-stage ^2.0 but it is missing) (circular dependency aborted here)\n",
                                     "stderr_excerpt": "Not finding what you were looking for? Try calling `composer require \"laravel/framework:^13.0\" --dry-run` to get another view on the problem.\n"
                                 },
@@ -1631,6 +1649,7 @@
                                         "--no-interaction"
                                     ],
                                     "exit_code": 0,
+                                    "outcome": "success",
                                     "stdout_excerpt": "",
                                     "stderr_excerpt": "There is no installed package depending on \"laravel/tinker\" in versions not matching ^3.0\nNot finding what you were looking for? Try calling `composer require \"laravel/tinker:^3.0\" --dry-run` to get another view on the problem.\n"
                                 },
@@ -1649,6 +1668,7 @@
                                         "--no-interaction"
                                     ],
                                     "exit_code": 0,
+                                    "outcome": "success",
                                     "stdout_excerpt": "",
                                     "stderr_excerpt": "Package \"php 8.3.0\" found in version \"8.3.0\" (version provided by config.platform).\nThere is no installed package depending on \"php\" in versions not matching 8.3.0\n"
                                 },
@@ -1667,6 +1687,7 @@
                                         "--no-interaction"
                                     ],
                                     "exit_code": 0,
+                                    "outcome": "success",
                                     "stdout_excerpt": "",
                                     "stderr_excerpt": "There is no installed package depending on \"phpunit/phpunit\" in versions not matching ^12.0\nNot finding what you were looking for? Try calling `composer require --dev \"phpunit/phpunit:^12.0\" --dry-run` to get another view on the problem.\n"
                                 }
@@ -2639,7 +2660,8 @@
                             "--no-interaction"
                         ],
                         "exit_code": 1,
-                        "stdout_excerpt": "laravel/framework 10.0.0 Metadata-only Laravel 10 package for the offline demo.\n|--nunomaduro/collision 7.11.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n|--phpunit/phpunit 10.0.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n|--laravel/framework 13.0.0 (requires php ^8.3 but 8.2.33 is installed) (circular dependency aborted here)\n`--laravel/framework 13.0.0 (requires ext-preflight-stage ^2.0 but it is missing) (circular dependency aborted here)\n",
+                        "outcome": "success",
+                        "stdout_excerpt": "laravel/framework 10.0.0 Metadata-only Laravel 10 package for the offline demo.\n|--nunomaduro/collision 7.11.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n|--phpunit/phpunit 10.0.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n`--laravel/framework 13.0.0 (requires ext-preflight-stage ^2.0 but it is missing) (circular dependency aborted here)\n",
                         "stderr_excerpt": "Not finding what you were looking for? Try calling `composer require \"laravel/framework:^13.0\" --dry-run` to get another view on the problem.\n"
                     },
                     {
@@ -2657,6 +2679,7 @@
                             "--no-interaction"
                         ],
                         "exit_code": 0,
+                        "outcome": "success",
                         "stdout_excerpt": "",
                         "stderr_excerpt": "There is no installed package depending on \"php\" in versions not matching 8.3.0\n"
                     }
@@ -2698,7 +2721,8 @@
                             "--no-interaction"
                         ],
                         "exit_code": 1,
-                        "stdout_excerpt": "laravel/framework 10.0.0 Metadata-only Laravel 10 package for the offline demo.\n|--nunomaduro/collision 7.11.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n|--phpunit/phpunit 10.0.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n|--laravel/framework 13.0.0 (requires php ^8.3 but 8.2.33 is installed) (circular dependency aborted here)\n`--laravel/framework 13.0.0 (requires ext-preflight-stage ^2.0 but it is missing) (circular dependency aborted here)\n",
+                        "outcome": "success",
+                        "stdout_excerpt": "laravel/framework 10.0.0 Metadata-only Laravel 10 package for the offline demo.\n|--nunomaduro/collision 7.11.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n|--phpunit/phpunit 10.0.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n`--laravel/framework 13.0.0 (requires ext-preflight-stage ^2.0 but it is missing) (circular dependency aborted here)\n",
                         "stderr_excerpt": "Not finding what you were looking for? Try calling `composer require \"laravel/framework:^13.0\" --dry-run` to get another view on the problem.\n"
                     },
                     {
@@ -2716,6 +2740,7 @@
                             "--no-interaction"
                         ],
                         "exit_code": 0,
+                        "outcome": "success",
                         "stdout_excerpt": "",
                         "stderr_excerpt": "There is no installed package depending on \"php\" in versions not matching 8.3.0\n"
                     }
@@ -2757,7 +2782,8 @@
                             "--no-interaction"
                         ],
                         "exit_code": 1,
-                        "stdout_excerpt": "laravel/framework 10.0.0 Metadata-only Laravel 10 package for the offline demo.\n|--nunomaduro/collision 7.11.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n|--phpunit/phpunit 10.0.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n|--laravel/framework 13.0.0 (requires php ^8.3 but 8.2.33 is installed) (circular dependency aborted here)\n`--laravel/framework 13.0.0 (requires ext-preflight-stage ^2.0 but it is missing) (circular dependency aborted here)\n",
+                        "outcome": "success",
+                        "stdout_excerpt": "laravel/framework 10.0.0 Metadata-only Laravel 10 package for the offline demo.\n|--nunomaduro/collision 7.11.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n|--phpunit/phpunit 10.0.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n`--laravel/framework 13.0.0 (requires ext-preflight-stage ^2.0 but it is missing) (circular dependency aborted here)\n",
                         "stderr_excerpt": "Not finding what you were looking for? Try calling `composer require \"laravel/framework:^13.0\" --dry-run` to get another view on the problem.\n"
                     },
                     {
@@ -2775,6 +2801,7 @@
                             "--no-interaction"
                         ],
                         "exit_code": 0,
+                        "outcome": "success",
                         "stdout_excerpt": "",
                         "stderr_excerpt": "There is no installed package depending on \"php\" in versions not matching 8.3.0\n"
                     }
@@ -2799,7 +2826,7 @@
                     }
                 ],
                 "exit_code": 2,
-                "output_excerpt": "Loading composer repositories with package information\nUpdating dependencies\nYour requirements could not be resolved to an installable set of packages.\n\n  Problem 1\n    - Root composer.json requires laravel/framework ^13.0 -> satisfiable by laravel/framework[13.0.0].\n    - laravel/framework 13.0.0 requires php ^8.3 -> your php version (8.1.0; overridden via config.platform, actual: 8.2.33) does not satisfy that requirement.",
+                "output_excerpt": "Loading composer repositories with package information\nUpdating dependencies\nYour requirements could not be resolved to an installable set of packages.\n\n  Problem 1\n    - Root composer.json requires laravel/framework ^13.0 -> satisfiable by laravel/framework[13.0.0].\n    - laravel/framework 13.0.0 requires php ^8.3 -> your php version (8.1.0; overridden via config.platform, actual: 8.3.33) does not satisfy that requirement.",
                 "diagnostics": [
                     {
                         "package": "laravel/framework",
@@ -2816,7 +2843,8 @@
                             "--no-interaction"
                         ],
                         "exit_code": 1,
-                        "stdout_excerpt": "laravel/framework 10.0.0 Metadata-only Laravel 10 package for the offline demo.\n|--nunomaduro/collision 7.11.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n|--phpunit/phpunit 10.0.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n|--laravel/framework 13.0.0 (requires php ^8.3 but 8.2.33 is installed) (circular dependency aborted here)\n`--laravel/framework 13.0.0 (requires ext-preflight-stage ^2.0 but it is missing) (circular dependency aborted here)\n",
+                        "outcome": "success",
+                        "stdout_excerpt": "laravel/framework 10.0.0 Metadata-only Laravel 10 package for the offline demo.\n|--nunomaduro/collision 7.11.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n|--phpunit/phpunit 10.0.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n`--laravel/framework 13.0.0 (requires ext-preflight-stage ^2.0 but it is missing) (circular dependency aborted here)\n",
                         "stderr_excerpt": "Not finding what you were looking for? Try calling `composer require \"laravel/framework:^13.0\" --dry-run` to get another view on the problem.\n"
                     }
                 ]
@@ -3037,6 +3065,7 @@
                             "--no-interaction"
                         ],
                         "exit_code": 1,
+                        "outcome": "success",
                         "stdout_excerpt": "laravel/framework 10.0.0 Metadata-only Laravel 10 package for the offline demo.\n|--nunomaduro/collision 7.11.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n`--phpunit/phpunit 10.0.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n",
                         "stderr_excerpt": "Not finding what you were looking for? Try calling `composer require \"laravel/framework:^11.0\" --dry-run` to get another view on the problem.\n"
                     },
@@ -3055,6 +3084,7 @@
                             "--no-interaction"
                         ],
                         "exit_code": 0,
+                        "outcome": "success",
                         "stdout_excerpt": "",
                         "stderr_excerpt": "There is no installed package depending on \"php\" in versions not matching 8.3.0\n"
                     }
@@ -3128,6 +3158,7 @@
                             "--no-interaction"
                         ],
                         "exit_code": 1,
+                        "outcome": "success",
                         "stdout_excerpt": "laravel/framework 10.0.0 Metadata-only Laravel 10 package for the offline demo.\n|--nunomaduro/collision 7.11.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n`--phpunit/phpunit 10.0.0 (conflicts laravel/framework >=11.0.0) (circular dependency aborted here)\n",
                         "stderr_excerpt": "Not finding what you were looking for? Try calling `composer require \"laravel/framework:^11.0\" --dry-run` to get another view on the problem.\n"
                     },
@@ -3146,6 +3177,7 @@
                             "--no-interaction"
                         ],
                         "exit_code": 0,
+                        "outcome": "success",
                         "stdout_excerpt": "",
                         "stderr_excerpt": "There is no installed package depending on \"nunomaduro/collision\" in versions not matching ^8.1\nNot finding what you were looking for? Try calling `composer require --dev \"nunomaduro/collision:^8.1\" --dry-run` to get another view on the problem.\n"
                     },
@@ -3164,6 +3196,7 @@
                             "--no-interaction"
                         ],
                         "exit_code": 0,
+                        "outcome": "success",
                         "stdout_excerpt": "",
                         "stderr_excerpt": "There is no installed package depending on \"php\" in versions not matching 8.3.0\n"
                     }
@@ -3334,6 +3367,7 @@
                             "--no-interaction"
                         ],
                         "exit_code": 1,
+                        "outcome": "success",
                         "stdout_excerpt": "laravel/framework 12.0.0 Metadata-only Laravel 12 package for the offline demo.\n`--laravel/framework 13.0.0 (requires ext-preflight-stage ^2.0 but it is missing) (circular dependency aborted here)\n",
                         "stderr_excerpt": "Not finding what you were looking for? Try calling `composer require \"laravel/framework:^13.0\" --dry-run` to get another view on the problem.\n"
                     },
@@ -3352,6 +3386,7 @@
                             "--no-interaction"
                         ],
                         "exit_code": 0,
+                        "outcome": "success",
                         "stdout_excerpt": "",
                         "stderr_excerpt": "Package \"php 8.3.0\" found in version \"8.3.0\" (version provided by config.platform).\nThere is no installed package depending on \"php\" in versions not matching 8.3.0\n"
                     }
@@ -3425,6 +3460,7 @@
                             "--no-interaction"
                         ],
                         "exit_code": 1,
+                        "outcome": "success",
                         "stdout_excerpt": "laravel/framework 12.0.0 Metadata-only Laravel 12 package for the offline demo.\n`--laravel/framework 13.0.0 (requires ext-preflight-stage ^2.0 but it is missing) (circular dependency aborted here)\n",
                         "stderr_excerpt": "Not finding what you were looking for? Try calling `composer require \"laravel/framework:^13.0\" --dry-run` to get another view on the problem.\n"
                     },
@@ -3443,6 +3479,7 @@
                             "--no-interaction"
                         ],
                         "exit_code": 0,
+                        "outcome": "success",
                         "stdout_excerpt": "",
                         "stderr_excerpt": "There is no installed package depending on \"laravel/tinker\" in versions not matching ^3.0\nNot finding what you were looking for? Try calling `composer require \"laravel/tinker:^3.0\" --dry-run` to get another view on the problem.\n"
                     },
@@ -3461,6 +3498,7 @@
                             "--no-interaction"
                         ],
                         "exit_code": 0,
+                        "outcome": "success",
                         "stdout_excerpt": "",
                         "stderr_excerpt": "Package \"php 8.3.0\" found in version \"8.3.0\" (version provided by config.platform).\nThere is no installed package depending on \"php\" in versions not matching 8.3.0\n"
                     }
@@ -3557,6 +3595,7 @@
                             "--no-interaction"
                         ],
                         "exit_code": 1,
+                        "outcome": "success",
                         "stdout_excerpt": "laravel/framework 12.0.0 Metadata-only Laravel 12 package for the offline demo.\n`--laravel/framework 13.0.0 (requires ext-preflight-stage ^2.0 but it is missing) (circular dependency aborted here)\n",
                         "stderr_excerpt": "Not finding what you were looking for? Try calling `composer require \"laravel/framework:^13.0\" --dry-run` to get another view on the problem.\n"
                     },
@@ -3575,6 +3614,7 @@
                             "--no-interaction"
                         ],
                         "exit_code": 0,
+                        "outcome": "success",
                         "stdout_excerpt": "",
                         "stderr_excerpt": "There is no installed package depending on \"laravel/tinker\" in versions not matching ^3.0\nNot finding what you were looking for? Try calling `composer require \"laravel/tinker:^3.0\" --dry-run` to get another view on the problem.\n"
                     },
@@ -3593,6 +3633,7 @@
                             "--no-interaction"
                         ],
                         "exit_code": 0,
+                        "outcome": "success",
                         "stdout_excerpt": "",
                         "stderr_excerpt": "Package \"php 8.3.0\" found in version \"8.3.0\" (version provided by config.platform).\nThere is no installed package depending on \"php\" in versions not matching 8.3.0\n"
                     },
@@ -3611,6 +3652,7 @@
                             "--no-interaction"
                         ],
                         "exit_code": 0,
+                        "outcome": "success",
                         "stdout_excerpt": "",
                         "stderr_excerpt": "There is no installed package depending on \"phpunit/phpunit\" in versions not matching ^12.0\nNot finding what you were looking for? Try calling `composer require --dev \"phpunit/phpunit:^12.0\" --dry-run` to get another view on the problem.\n"
                     }

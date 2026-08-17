@@ -10,9 +10,16 @@ on:
 permissions:
   contents: read
 
+# Supersede in-flight pull request runs only. Release calls this workflow through
+# workflow_call, where github.event_name resolves to the caller's push event, so a
+# tagged release run is never cancelled by a later commit.
+concurrency:
+  group: quality-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
-  workflow-lint:
-    name: GitHub Actions syntax
+  static-analysis:
+    name: Static analysis / PHP 8.0
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -25,13 +32,6 @@ jobs:
             --volume "${GITHUB_WORKSPACE}:/repo:ro" \
             --workdir /repo \
             rhysd/actionlint@sha256:b1934ee5f1c509618f2508e6eb47ee0d3520686341fec936f3b79331f9315667
-
-  static-analysis:
-    name: Static analysis / PHP 8.0
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Set up PHP 8.0
         uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
@@ -46,6 +46,20 @@ jobs:
         uses: ramsey/composer-install@65e4f84970763564f46a70b8a54b90d033b3bdda # v3
         with:
           composer-options: --prefer-dist --no-progress
+
+      # PHPStan keeps one resultCache.php per tmpDir, so the two configurations use
+      # separate directories and neither pass clobbers the other. The run-scoped key
+      # suffix makes every run publish a fresh entry instead of going stale on a hit.
+      - name: Restore static analysis result caches
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: |
+            build/phpstan
+            .php-cs-fixer.cache
+          key: static-analysis-php8.0-${{ hashFiles('composer.lock', 'phpstan.neon.dist', 'phpstan-production.neon.dist', 'phpstan-production-baseline.neon', '.php-cs-fixer.dist.php') }}-${{ github.run_id }}
+          restore-keys: |
+            static-analysis-php8.0-${{ hashFiles('composer.lock', 'phpstan.neon.dist', 'phpstan-production.neon.dist', 'phpstan-production-baseline.neon', '.php-cs-fixer.dist.php') }}-
+            static-analysis-php8.0-
 
       - name: Validate manifests and run static checks
         shell: bash

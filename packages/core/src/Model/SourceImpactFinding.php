@@ -40,9 +40,7 @@ final class SourceImpactFinding
         if (!in_array($relevance, ['package_change', 'framework_rule', 'package_change_and_framework_rule'], true)) {
             throw new \InvalidArgumentException(sprintf('Unsupported source relevance "%s".', $relevance));
         }
-        if (!in_array($severity, ['low', 'medium', 'high'], true)) {
-            throw new \InvalidArgumentException(sprintf('Unsupported source-impact severity "%s".', $severity));
-        }
+        Severity::assert($severity, 'source-impact severity');
         if ($occurrences === []) {
             throw new \InvalidArgumentException('A source-impact finding must contain at least one occurrence.');
         }

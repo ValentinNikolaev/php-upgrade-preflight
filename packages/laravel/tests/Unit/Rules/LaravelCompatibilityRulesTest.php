@@ -115,6 +115,33 @@ final class LaravelCompatibilityRulesTest extends TestCase
         self::assertSame('^7.0', $consumerEvidence[0]->context()['illuminate_support_constraint']);
     }
 
+    /**
+     * A lock entry with a valid name but no version cannot be indexed as a PackageRef, so this rule
+     * no longer sees its illuminate/support constraint. The lost coverage must stay visible as
+     * lock-level uncertainty instead of quietly removing a blocking finding.
+     */
+    public function testAConsumerWithNoLockedVersionIsPublishedAsUncertaintyInsteadOfVanishing(): void
+    {
+        $project = new ProjectState(
+            __DIR__,
+            new ComposerJson(['require' => ['laravel/framework' => '^7.0']]),
+            new ComposerLock(['packages' => [
+                $this->package('laravel/framework', 'v7.30.7'),
+                ['name' => 'legacy/versionless', 'require' => ['illuminate/support' => '^7.0']],
+            ]])
+        );
+
+        $summaries = $this->summaries(
+            $this->evaluate($project, $this->request('^9.0', '8.1'), new EvidenceLedger())
+        );
+
+        self::assertFalse($this->contains($summaries, 'legacy/versionless'));
+        $uncertainties = $project->composerLock()->unusablePackageUncertainties();
+        self::assertCount(1, $uncertainties);
+        self::assertStringContainsString('legacy/versionless', $uncertainties[0]);
+        self::assertStringContainsString('carry no readable version', $uncertainties[0]);
+    }
+
     public function testMultiMajorIlluminateConsumerIsAttributedToTheFirstIncompatibleHop(): void
     {
         $project = $this->project(

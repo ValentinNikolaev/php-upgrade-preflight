@@ -8,6 +8,7 @@ use Opis\JsonSchema\Errors\ErrorFormatter;
 use Opis\JsonSchema\Validator;
 use PhpUpgradePreflight\Core\Analysis\DefaultUpgradeAnalyzer;
 use PhpUpgradePreflight\Core\Analysis\ReportAssembler;
+use PhpUpgradePreflight\Core\Analysis\SourceImpactBuilder;
 use PhpUpgradePreflight\Core\Model\Blocker;
 use PhpUpgradePreflight\Core\Model\CompatibilityFinding;
 use PhpUpgradePreflight\Core\Model\ComposerDiagnostic;
@@ -255,7 +256,17 @@ final class UpgradeReportSchemaTest extends TestCase
         );
         self::assertSame(
             ScenarioResult::supportedOutcomes(),
-            $schema['$defs']['scenario']['properties']['outcome']['enum']
+            $schema['$defs']['scenarioOutcome']['enum']
+        );
+        // Scenario results and Composer diagnostics must share one outcome vocabulary, so a new
+        // outcome cannot be accepted in one place and rejected in the other.
+        self::assertSame(
+            '#/$defs/scenarioOutcome',
+            $schema['$defs']['scenario']['properties']['outcome']['$ref']
+        );
+        self::assertSame(
+            '#/$defs/scenarioOutcome',
+            $schema['$defs']['composerDiagnostic']['properties']['outcome']['$ref']
         );
         $projectPath = dirname(__DIR__, 5) . '/tests/fixtures/laravel-app';
         self::assertSame(array_keys($this->report($projectPath)->toArray()), $schema['required']);
@@ -535,6 +546,19 @@ final class UpgradeReportSchemaTest extends TestCase
             ]),
         ];
 
+        $sourceInventory = [
+            new SourceUsage('app/Example.php', 'Legacy\\Facade', 'static_call', ['source-1'], 17),
+        ];
+        $frameworkFindings = [
+            new CompatibilityFinding(
+                'laravel',
+                'medium',
+                'Legacy package requires review.',
+                ['package-1', 'source-1'],
+                [['from_major' => 7, 'to_major' => 9]]
+            ),
+        ];
+
         return (new ReportAssembler())->assemble(
             $request,
             $project,
@@ -569,18 +593,9 @@ final class UpgradeReportSchemaTest extends TestCase
                     ['Upgrade or replace `legacy/package`.', 'Choose a compatible Laravel target.']
                 ),
             ],
-            [
-                new SourceUsage('app/Example.php', 'Legacy\\Facade', 'static_call', ['source-1'], 17),
-            ],
-            [
-                new CompatibilityFinding(
-                    'laravel',
-                    'medium',
-                    'Legacy package requires review.',
-                    ['package-1', 'source-1'],
-                    [['from_major' => 7, 'to_major' => 9]]
-                ),
-            ],
+            $sourceInventory,
+            (new SourceImpactBuilder())->build($sourceInventory, $frameworkFindings),
+            $frameworkFindings,
             new RiskSummary('high', [
                 'A root dependency constraint conflicts with the requested target.',
                 'A framework compatibility finding requires review.',

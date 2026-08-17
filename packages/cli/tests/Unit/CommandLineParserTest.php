@@ -97,6 +97,9 @@ final class CommandLineParserTest extends TestCase
                 '--target-platform-profile=second.json',
             ], 'may only be specified once'],
             [['upgrade-intel', 'analyze', '--target-php=8.2', '--debug=false'], 'does not accept a value'],
+            [['upgrade-intel', 'analyze', '--target-php=8.2', '--debug', '--debug'], 'may only be specified once'],
+            [['upgrade-intel', 'analyze', '--target-php=8.2', '--unsupported=1'], 'Unknown option.'],
+            [['upgrade-intel', 'analyze', '--target-php=8.2', '--unsupported'], 'Unsupported argument at position 1.'],
             [[
                 'upgrade-intel',
                 'analyze',

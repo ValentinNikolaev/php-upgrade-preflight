@@ -3,6 +3,8 @@ includes:
 
 parameters:
     level: 7
+    # See phpstan.neon.dist: the two configurations must not share a result cache.
+    tmpDir: build/phpstan/production
     treatPhpDocTypesAsCertain: false
     bootstrapFiles:
         - tests/phpstan-bootstrap.php

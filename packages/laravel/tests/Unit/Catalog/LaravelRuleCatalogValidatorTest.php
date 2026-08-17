@@ -147,6 +147,23 @@ final class LaravelRuleCatalogValidatorTest extends TestCase
         self::assertStringContainsString('Invalid severity for advisory-facade-ignition-7-9: critical', $advisoryMessage);
     }
 
+    public function testItReportsAnUnmappedRuleDefinitionSubtypeInsteadOfSkippingIt(): void
+    {
+        $valid = LaravelRuleCatalog::v0_2();
+        $rules = $valid->rules();
+        $rules[] = new class () implements RuleDefinition {
+            public function key(): string
+            {
+                return 'unmapped-rule-definition';
+            }
+        };
+
+        $errors = (new LaravelRuleCatalogValidator())->validate($this->withRules($valid, $rules));
+
+        self::assertCount(1, $errors);
+        self::assertStringStartsWith('Unsupported catalog rule definition: ', $errors[0]);
+    }
+
     /** @param list<\PhpUpgradePreflight\Laravel\Catalog\RuleDefinition> $rules */
     private function withRules(LaravelRuleCatalog $catalog, array $rules): LaravelRuleCatalog
     {

@@ -1,9 +1,12 @@
 .git
 .idea
 .claude
-vendor
-.phpunit.cache
-.phpunit.result.cache
+# Patterns are matched from the context root, so a bare "vendor" would miss
+# tests/fixtures/laravel-app/vendor. Keep these recursive.
+**/vendor
+**/.phpunit.cache
+**/.phpunit.result.cache
 build
 coverage
 reports
+dist

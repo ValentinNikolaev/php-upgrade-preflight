@@ -41,7 +41,7 @@ final class ComposerJsonTest extends TestCase
             ['ext-json' => false, 'EXT-JSON' => '8.3.0'],
         ] as $platform) {
             try {
-                (new ComposerJson(['config' => ['platform' => $platform]]))->configuredPlatformPackages();
+                new ComposerJson(['config' => ['platform' => $platform]]);
                 self::fail('Expected contradictory normalized config.platform names to be rejected.');
             } catch (\InvalidArgumentException $exception) {
                 $messages[] = $exception->getMessage();
@@ -52,6 +52,14 @@ final class ComposerJsonTest extends TestCase
             'Project config.platform contains contradictory duplicate package names.',
             'Project config.platform contains contradictory duplicate package names.',
         ], $messages);
+    }
+
+    public function testContradictoryPlatformDuplicatesAreRejectedWhenTheManifestIsConstructed(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Project config.platform contains contradictory duplicate package names.');
+
+        new ComposerJson(['config' => ['platform' => ['EXT-JSON' => '8.3.0', 'ext-json' => false]]]);
     }
 
     public function testInvalidPlatformEntriesAreIgnored(): void

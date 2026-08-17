@@ -28,7 +28,7 @@ Resolution: **feasible_with_changes** | Staged: **feasible_with_changes** | Sche
 - Executable selection: `path_search`; environment: `inherited`; network: `inherited`; repositories: `project_and_global`
 - Timeouts: scenario `300 s`; diagnostic `60 s`; Composer home: `inherited`
 - Inheritance: global configuration yes; credentials may be inherited yes; offline requested no; process/OS isolation no
-- Side effects disabled: scripts, plugins, installation, audit, interaction, and progress.
+- Side effects: scripts disabled; plugins disabled; installation disabled; audit disabled; interaction disabled; progress disabled.
 
 ## Project State
 - Analyzed path: `<PROJECT_PATH>`
@@ -115,7 +115,8 @@ Resolution: **feasible_with_changes** | Staged: **feasible_with_changes** | Sche
   - original-source finding (`high`): Update the root laravel/framework constraint from `^7.0` to a constraint compatible with Laravel 8.
   - blocker references: `none`
   - source-impact references: `none`
-  - risk for `laravel-7-to-8`: `high`; effort: 4-13 hours (`low` confidence)
+  - risk for `laravel-7-to-8`: `high`
+  - effort: 4-13 hours (`low` confidence)
   - action: [laravel-7-to-8] Reproduce and review only the selected Composer candidate state before advancing.
   - action: [laravel-7-to-8] Review the original-source finding: Update the root laravel/framework constraint from `^7.0` to a constraint compatible with Laravel 8.
   - test for `laravel-7-to-8`: Validate the stage laravel-7-to-8 manifest. (`required`)

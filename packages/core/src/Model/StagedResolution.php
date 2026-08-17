@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace PhpUpgradePreflight\Core\Model;
 
-use PhpUpgradePreflight\Core\Analysis\StagedAnalysisPolicy;
-
 final class StagedResolution
 {
     public const FEASIBLE = 'feasible';
@@ -212,16 +210,16 @@ final class StagedResolution
             ),
             'stop_reason' => $this->stopReason,
             'budgets' => [
-                'max_hops' => StagedAnalysisPolicy::MAX_HOPS,
-                'max_attempts_per_stage' => StagedAnalysisPolicy::MAX_ATTEMPTS_PER_STAGE,
-                'max_scenarios' => StagedAnalysisPolicy::MAX_SCENARIOS,
-                'max_composer_processes' => StagedAnalysisPolicy::MAX_COMPOSER_PROCESSES,
-                'scenario_timeout_seconds' => StagedAnalysisPolicy::SCENARIO_TIMEOUT_SECONDS,
-                'stage_timeout_seconds' => StagedAnalysisPolicy::STAGE_TIMEOUT_SECONDS,
-                'aggregate_timeout_seconds' => StagedAnalysisPolicy::AGGREGATE_TIMEOUT_SECONDS,
-                'memory_bytes' => StagedAnalysisPolicy::MEMORY_BUDGET_BYTES,
-                'json_report_bytes' => StagedAnalysisPolicy::JSON_REPORT_BUDGET_BYTES,
-                'markdown_report_bytes' => StagedAnalysisPolicy::MARKDOWN_REPORT_BUDGET_BYTES,
+                'max_hops' => AnalysisBudget::MAX_HOPS,
+                'max_attempts_per_stage' => AnalysisBudget::MAX_ATTEMPTS_PER_STAGE,
+                'max_scenarios' => AnalysisBudget::MAX_SCENARIOS,
+                'max_composer_processes' => AnalysisBudget::MAX_COMPOSER_PROCESSES,
+                'scenario_timeout_seconds' => AnalysisBudget::SCENARIO_TIMEOUT_SECONDS,
+                'stage_timeout_seconds' => AnalysisBudget::STAGE_TIMEOUT_SECONDS,
+                'aggregate_timeout_seconds' => AnalysisBudget::AGGREGATE_TIMEOUT_SECONDS,
+                'memory_bytes' => AnalysisBudget::MEMORY_BUDGET_BYTES,
+                'json_report_bytes' => AnalysisBudget::JSON_REPORT_BUDGET_BYTES,
+                'markdown_report_bytes' => AnalysisBudget::MARKDOWN_REPORT_BUDGET_BYTES,
             ],
             'evidence' => $this->evidence,
         ];

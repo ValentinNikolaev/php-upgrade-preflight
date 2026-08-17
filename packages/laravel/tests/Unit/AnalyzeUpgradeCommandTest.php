@@ -15,6 +15,10 @@ use PhpUpgradePreflight\Core\Model\ReportFormat;
 use PhpUpgradePreflight\Core\Model\RiskSummary;
 use PhpUpgradePreflight\Core\Model\UpgradeReport;
 use PhpUpgradePreflight\Core\Model\UpgradeRequest;
+use PhpUpgradePreflight\Core\Reporting\JsonReportWriter;
+use PhpUpgradePreflight\Core\Reporting\MarkdownReportWriter;
+use PhpUpgradePreflight\Core\Reporting\ReportWriter;
+use PhpUpgradePreflight\Core\Reporting\ReportWriterResolver;
 use PhpUpgradePreflight\Laravel\Commands\AnalyzeUpgradeCommand;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Command\Command;
@@ -64,6 +68,57 @@ final class AnalyzeUpgradeCommandTest extends TestCase
         self::assertStringStartsWith('# PHP Upgrade Preflight', $tester->getDisplay());
         self::assertStringContainsString('Literal <info>canonical text</info> remains unchanged.', $tester->getDisplay());
         self::assertSame('', $tester->getErrorOutput());
+    }
+
+    /**
+     * The Artisan entry point renders through the shared core resolver, so a given `--format`
+     * value must produce exactly what the corresponding writer produces. Nothing between the
+     * analyzer and stdout is allowed to reshape the canonical projection.
+     */
+    public function testItRendersTheCanonicalJsonProjectionByteForByte(): void
+    {
+        $analyzer = new RecordingUpgradeAnalyzer();
+
+        $display = $this->renderedReport($analyzer, ReportFormat::JSON);
+
+        self::assertNotNull($analyzer->report);
+        self::assertSame(trim((new JsonReportWriter())->render($analyzer->report)), $display);
+    }
+
+    public function testItRendersTheMarkdownProjectionByteForByte(): void
+    {
+        $analyzer = new RecordingUpgradeAnalyzer();
+
+        $display = $this->renderedReport($analyzer, ReportFormat::MARKDOWN);
+
+        self::assertNotNull($analyzer->report);
+        self::assertSame(trim((new MarkdownReportWriter())->render($analyzer->report)), $display);
+    }
+
+    /** An unknown format never reaches rendering, so the resolver's JSON fallback stays reachable only from core. */
+    public function testTheSharedResolverBacksBothArtisanProjections(): void
+    {
+        $resolver = new ReportWriterResolver();
+
+        self::assertInstanceOf(ReportWriter::class, $resolver->resolve(ReportFormat::JSON));
+        self::assertInstanceOf(JsonReportWriter::class, $resolver->resolve(ReportFormat::JSON));
+        self::assertInstanceOf(MarkdownReportWriter::class, $resolver->resolve(ReportFormat::MARKDOWN));
+    }
+
+    private function renderedReport(RecordingUpgradeAnalyzer $analyzer, string $format): string
+    {
+        $tester = $this->commandTester($analyzer);
+
+        $exitCode = $tester->execute([
+            '--path' => dirname(__DIR__, 4),
+            '--target-php' => '8.2',
+            '--format' => $format,
+        ], ['capture_stderr_separately' => true]);
+
+        self::assertSame(Command::SUCCESS, $exitCode);
+        self::assertSame('', $tester->getErrorOutput());
+
+        return trim(str_replace("\r\n", "\n", $tester->getDisplay()));
     }
 
     public function testItLoadsAProfileAndPassesItToTheAnalyzer(): void
@@ -327,12 +382,13 @@ final class AnalyzeUpgradeCommandTest extends TestCase
 final class RecordingUpgradeAnalyzer implements UpgradeAnalyzer
 {
     public ?UpgradeRequest $request = null;
+    public ?UpgradeReport $report = null;
 
     public function analyzeUpgrade(UpgradeRequest $request): UpgradeReport
     {
         $this->request = $request;
 
-        return new UpgradeReport(
+        return $this->report = new UpgradeReport(
             $request,
             new ProjectState($request->projectPath(), new ComposerJson([]), new ComposerLock([])),
             [],

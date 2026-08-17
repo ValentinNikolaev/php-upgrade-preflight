@@ -1,6 +1,6 @@
 # PHP Upgrade Preflight Development Plan
 
-Last updated: 2026-08-16
+Last updated: 2026-08-17
 
 - Active tool/package target: `0.3.0`
 - Released baseline: `0.2.1`
@@ -262,7 +262,7 @@ Priority: P1.
 
 Acceptance gate: an external adapter can contribute a deterministic staged plan without CLI changes, unchanged old-style source can migrate by widening or updating its Core constraint and remains honest about absent staged evidence, and Laravel's two entry points remain canonical-report equivalent.
 
-Status: complete.
+Status: complete. The 2026-08-16 architecture audit found that framework neutrality still held structurally but was breached semantically: core's source inspection carried the Laravel application skeleton — provider bootstrap, kernel property names, the facade alias table, and configuration helpers. That knowledge now lives in the Laravel adapter behind the optional `SourceUsageVisitorProvider` and `SourceUsageCollector` contracts, so the claim in this milestone is now backed by the code as well as by the absence of framework imports.
 
 ## Milestone 6: Quality, Performance, and Supply-Chain Hardening
 
@@ -280,7 +280,7 @@ Priority: P1.
 
 Acceptance gate: the worst supported staged request is bounded, deterministic, private, mutation-protected, and reliable across supported hosts without weakening any existing quality or supply-chain gate.
 
-Status: complete.
+Status: complete. The phase-boundary item was reopened by the 2026-08-16 architecture audit, which showed that the staged work had in fact produced the monoliths this item exists to prevent — a 395-line `StagedUpgradeOrchestrator::analyze()`, a scenario runner mixing workspace preparation with outcome classification, and a 713-line `renderCanonical()`. It is closed again on the evidence of the extracted collaborators listed in the changelog, not on the earlier assertion. The coverage ratchet was also restored: it had been aborting before comparing anything because modules extracted during this release entered the critical-module list without matching baseline entries. One audit finding is deliberately deferred rather than closed: excerpt truncation and redaction failure remain invisible in canonical output (no `truncated`, `original_bytes`, or redaction-failure marker). It is recorded in [the audit](audits/2026-08-16-architecture-audit.md) as RPT-2 and carried into the v0.4 proposal; it does not change any claim v0.3.0 makes.
 
 ## Milestone 7: v0.3 Documentation, Migration, and Release
 
@@ -301,7 +301,7 @@ Priority: P0.
 
 Acceptance gate: published v0.3 packages validate schema `0.8`, reproduce every claimed stage under the declared platform and execution policy, preserve v0.2 migration evidence, and retain all read-only, privacy, compatibility, and supply-chain guarantees.
 
-Status: in progress. Local candidate documentation, migration guidance, exact `0.3.0` report identity, deterministic tests, static analysis, formatting, selective mutations, and dependency audit pass. Public pages still identify v0.2.1 as the latest published and security-supported release; the final dated changelog and release verifier intentionally remain pending until the release candidate passes cross-host checks. The public `0.2.x` branch exists but is not protected; archives, signed tags, Packagist synchronization, and the published-package quick start also remain pending.
+Status: in progress. Local candidate documentation, migration guidance, exact `0.3.0` report identity, deterministic tests, static analysis, formatting, selective mutations, and dependency audit pass. The candidate was re-verified after the 2026-08-16 architecture-audit remediation, which changed schema `0.8` before publication by making the Composer diagnostic `outcome` required, replaced fabricated Markdown defaults with explicit "not recorded" renderings, and updated the checked-in example reports and snapshots accordingly. Because schema `0.8` is unpublished, that is a candidate change rather than a schema migration; every released schema stays byte-for-byte immutable. Public pages still identify v0.2.1 as the latest published and security-supported release; the final dated changelog and release verifier intentionally remain pending until the release candidate passes cross-host checks. The public `0.2.x` branch exists but is not protected; archives, signed tags, Packagist synchronization, and the published-package quick start also remain pending.
 
 ## Principal Risks and Controls
 
@@ -332,4 +332,9 @@ Status: in progress. Local candidate documentation, migration guidance, exact `0
 
 ## Recommended Next Work Session
 
-Unlock the configured SSH signing key to commit the verified Milestone 6 change, protect the public `0.2.x` maintenance branch, then commit and push the prepared v0.3.0 release candidate so the full cross-host release workflow can produce and validate archives before signed tags and Packagist publication.
+Unlock the configured SSH signing key and commit the verified architecture-audit remediation, protect the public `0.2.x` maintenance branch, then finalize the dated changelog and rerun `composer release:verify -- 0.3.0` so the full cross-host release workflow can produce and validate archives before signed tags and Packagist publication.
+
+Two operational notes for that session:
+
+- The local gate needs `COMPOSER_PROCESS_TIMEOUT=0`. `docker compose run --rm php composer check` otherwise kills the integration suite at Composer's default 300-second `process-timeout` and reports the killed subprocesses as errors. Decide whether to record that in `composer.json` or in the verification documentation before the release checklist depends on the gate.
+- A v0.4 roadmap proposal exists at [DEVELOPMENT_PLAN_0.4.0-PROPOSAL.md](DEVELOPMENT_PLAN_0.4.0-PROPOSAL.md). It authorizes nothing and must not reorder v0.3.0 release execution.

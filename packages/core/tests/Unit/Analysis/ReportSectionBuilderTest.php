@@ -15,6 +15,7 @@ use PhpUpgradePreflight\Core\Model\LockDiff;
 use PhpUpgradePreflight\Core\Model\PackageChange;
 use PhpUpgradePreflight\Core\Model\PlanStage;
 use PhpUpgradePreflight\Core\Model\ProjectState;
+use PhpUpgradePreflight\Core\Model\ReportSections;
 use PhpUpgradePreflight\Core\Model\RootConstraintChange;
 use PhpUpgradePreflight\Core\Model\Scenario;
 use PhpUpgradePreflight\Core\Model\ScenarioResult;
@@ -23,6 +24,7 @@ use PhpUpgradePreflight\Core\Model\SourceUsage;
 use PhpUpgradePreflight\Core\Model\StagedResolution;
 use PhpUpgradePreflight\Core\Model\UpgradeRequest;
 use PhpUpgradePreflight\Core\Model\UpgradeTarget;
+use PhpUpgradePreflight\Core\Model\UpgradeTargetSet;
 use PHPUnit\Framework\TestCase;
 
 final class ReportSectionBuilderTest extends TestCase
@@ -317,5 +319,119 @@ final class ReportSectionBuilderTest extends TestCase
             static fn (PlanStage $stage): array => $stage->toArray(),
             $sections->planStages()
         ), 'stage_id'));
+    }
+
+    /**
+     * Every dependency posture must keep its own wording; a shared default would hide
+     * the difference between a verified state, a degraded analysis, and no evidence.
+     *
+     * @dataProvider dependencyPostureProvider
+     * @param list<ScenarioResult> $scenarioResults
+     * @param list<Blocker> $blockers
+     * @param list<string> $expectedActions
+     */
+    public function testDependencyStageWordingFollowsTheResolutionEvidence(
+        array $scenarioResults,
+        LockDiff $lockDiff,
+        array $blockers,
+        string $expectedSummary,
+        array $expectedActions
+    ): void {
+        $sections = $this->dependencySections($scenarioResults, $lockDiff, $blockers);
+
+        self::assertSame($expectedSummary, $sections->planStages()[1]->summary());
+        self::assertSame($expectedActions, $sections->planStages()[1]->actions());
+    }
+
+    /** @return iterable<string, array{list<ScenarioResult>, LockDiff, list<Blocker>, string, list<string>}> */
+    public function dependencyPostureProvider(): iterable
+    {
+        $advisoryAction = 'Address the `abandoned-package` advisory affecting `vendor/legacy`.';
+
+        yield 'advisory on a verified no-change state' => [
+            [$this->scenarioResult(true)],
+            new LockDiff([]),
+            [$this->advisory()],
+            'Address dependency maintenance advisories in the feasible dependency state.',
+            [
+                $advisoryAction,
+                'Use the verified dependency state as the baseline for addressing maintenance advisories.',
+            ],
+        ];
+
+        yield 'advisory with a degraded analysis environment' => [
+            [$this->scenarioResult(false)],
+            new LockDiff([]),
+            [$this->advisory()],
+            'Address dependency maintenance advisories and re-establish analysis confidence.',
+            [
+                $advisoryAction,
+                'Restore the Composer analysis environment and rerun the isolated scenarios before changing the lockfile.',
+            ],
+        ];
+
+        yield 'advisory without resolution evidence' => [
+            [],
+            new LockDiff([]),
+            [$this->advisory()],
+            'Address dependency maintenance advisories and establish dependency-resolution evidence.',
+            [
+                $advisoryAction,
+                'Run the isolated Composer scenarios before changing the lockfile.',
+            ],
+        ];
+
+        yield 'no findings and no resolution evidence' => [
+            [],
+            new LockDiff([]),
+            [],
+            'Establish dependency-resolution evidence before making changes.',
+            ['Run the isolated Composer scenarios before changing the lockfile.'],
+        ];
+    }
+
+    /**
+     * @param list<ScenarioResult> $scenarioResults
+     * @param list<Blocker> $blockers
+     */
+    private function dependencySections(array $scenarioResults, LockDiff $lockDiff, array $blockers): ReportSections
+    {
+        $projectPath = dirname(__DIR__, 5);
+        $request = new UpgradeRequest($projectPath, [new UpgradeTarget('vendor/package', '^2.0')]);
+        $project = new ProjectState($projectPath, new ComposerJson([
+            'require' => ['vendor/package' => '^2.0'],
+            'scripts' => ['test' => 'phpunit'],
+        ]), new ComposerLock([]));
+
+        return (new ReportSectionBuilder())->build(
+            $request,
+            $project,
+            $scenarioResults,
+            $lockDiff,
+            $blockers,
+            [],
+            [],
+            [],
+            new EvidenceLedger([
+                new Evidence('lock-metadata-1', Evidence::E2_PACKAGE_METADATA, 'Package is abandoned.'),
+            ])
+        );
+    }
+
+    private function scenarioResult(bool $succeeded): ScenarioResult
+    {
+        $scenario = new Scenario(
+            'exact-target',
+            new UpgradeTargetSet([new UpgradeTarget('vendor/package', '^2.0')])
+        );
+
+        return $succeeded
+            ? new ScenarioResult($scenario, 0, 'Resolved.', '', new ComposerLock([]))
+            : new ScenarioResult($scenario, 1, '', 'Unavailable.', null, null, ScenarioResult::FAILURE_OPERATIONAL);
+    }
+
+    private function advisory(): Blocker
+    {
+        return new Blocker('abandoned-package', 'vendor/legacy', 'Abandoned.', 'high', ['lock-metadata-1']);
     }
 }

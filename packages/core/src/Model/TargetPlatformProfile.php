@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace PhpUpgradePreflight\Core\Model;
 
+use PhpUpgradePreflight\Core\Composer\TargetPlatformProfileFileReader;
+
 final class TargetPlatformProfile
 {
     public const SCHEMA_VERSION = '1.0';
@@ -139,14 +141,13 @@ final class TargetPlatformProfile
         return self::fromArray($data, $provenance);
     }
 
+    /**
+     * @deprecated Filesystem access moved to TargetPlatformProfileFileReader; call that reader instead.
+     * @see \PhpUpgradePreflight\Core\Composer\TargetPlatformProfileFileReader::read()
+     */
     public static function fromFile(string $path): self
     {
-        $json = is_file($path) && is_readable($path) ? @file_get_contents($path) : false;
-        if (!is_string($json)) {
-            throw new \InvalidArgumentException('Target platform profile file could not be read.');
-        }
-
-        return self::fromJson($json, self::PROVENANCE_FILE);
+        return (new TargetPlatformProfileFileReader())->read($path);
     }
 
     public function schemaVersion(): string

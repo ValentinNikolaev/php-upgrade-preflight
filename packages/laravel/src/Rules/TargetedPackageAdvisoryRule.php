@@ -30,9 +30,6 @@ final class TargetedPackageAdvisoryRule implements CompatibilityRule, HopAwareCo
         array $sourceUsages = []
     ): ?CompatibilityFinding {
         $target = LaravelTarget::fromRequest($request);
-        $package = $this->definition->package();
-        $locked = $project->composerLock()->package($package);
-        $rootConstraint = $project->composerJson()->rootRequirements()[$package] ?? null;
         $sourceMajor = LaravelSource::fromProject($project)->major();
 
         if ($target === null || $sourceMajor === null) {
@@ -89,7 +86,7 @@ final class TargetedPackageAdvisoryRule implements CompatibilityRule, HopAwareCo
             return null;
         }
 
-        $summary = $this->summary($target->major());
+        $summary = $this->definition->summary($target->major());
         $namespace = preg_replace('/[^a-z0-9_-]+/', '_', str_replace(['/', '-'], '_', $package));
         if ($namespace === null) {
             throw new \LogicException('Unable to create package evidence namespace.');
@@ -125,49 +122,5 @@ final class TargetedPackageAdvisoryRule implements CompatibilityRule, HopAwareCo
             $summary,
             [$metadataId, $guidanceId]
         );
-    }
-
-    private function summary(int $targetMajor): string
-    {
-        switch ($this->definition->action()) {
-            case PackageAdvisoryDefinition::REPLACE_IGNITION:
-                return sprintf(
-                    'Replace facade/ignition with spatie/laravel-ignition for the Laravel %d target.',
-                    $targetMajor
-                );
-            case PackageAdvisoryDefinition::REMOVE_TRUSTED_PROXY:
-                return sprintf(
-                    'Remove fideloper/proxy and review the trusted proxy middleware for the Laravel %d target.',
-                    $targetMajor
-                );
-            case PackageAdvisoryDefinition::REVIEW_CORS_REMOVAL:
-                return sprintf(
-                    'Review removal of fruitcake/laravel-cors because Laravel %d integrates CORS middleware through the framework.',
-                    $targetMajor
-                );
-            case PackageAdvisoryDefinition::PUBLISH_MIGRATIONS:
-                return sprintf(
-                    'Publish the %s migrations before deploying the Laravel %d upgrade; this package no longer loads its migrations automatically.',
-                    $this->definition->package(),
-                    $targetMajor
-                );
-            case PackageAdvisoryDefinition::REVIEW_DBAL_REMOVAL:
-                return sprintf(
-                    'Review and remove doctrine/dbal if it was only installed for Laravel schema operations; Laravel %d no longer depends on it.',
-                    $targetMajor
-                );
-            case PackageAdvisoryDefinition::REPLACE_FLYSYSTEM_SFTP:
-                return sprintf(
-                    'Replace league/flysystem-sftp with league/flysystem-sftp-v3:^3.0 for the Laravel %d target.',
-                    $targetMajor
-                );
-            case PackageAdvisoryDefinition::REVIEW_LEGACY_HELPERS:
-                return sprintf(
-                    'Review laravel/helpers and custom global array helpers before targeting Laravel %d; prefer Illuminate\\Support\\Arr replacements to avoid documented polyfill conflicts.',
-                    $targetMajor
-                );
-        }
-
-        throw new \LogicException(sprintf('Unsupported Laravel package advisory action: %s.', $this->definition->action()));
     }
 }

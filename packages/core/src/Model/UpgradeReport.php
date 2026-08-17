@@ -6,6 +6,13 @@ namespace PhpUpgradePreflight\Core\Model;
 
 use PhpUpgradePreflight\Core\Support\PathExposurePolicy;
 
+/**
+ * The canonical report model.
+ *
+ * Eleven of the constructor parameters are bare arrays, so a positional swap would be
+ * type-silent. Construct this class with named arguments; {@see \PhpUpgradePreflight\Core\Analysis\ReportAssembler}
+ * is the only production construction site and does exactly that.
+ */
 final class UpgradeReport
 {
     private ReportMetadata $metadata;

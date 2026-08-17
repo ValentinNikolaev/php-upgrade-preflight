@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace PhpUpgradePreflight\Core\Source;
+namespace PhpUpgradePreflight\Laravel\Source;
 
 use PhpParser\Node;
 use PhpParser\Node\Arg;
@@ -12,8 +12,25 @@ use PhpParser\Node\Name;
 use PhpParser\Node\Scalar\String_;
 use PhpParser\Node\Stmt;
 use PhpParser\NodeVisitorAbstract;
+use PhpUpgradePreflight\Core\Source\SourceUsageCollector;
 
-final class ContextualSourceUsageVisitor extends NodeVisitorAbstract
+/**
+ * Recognizes the Laravel application skeleton: service providers, the facade alias
+ * table, HTTP and console kernel wiring, `config()` access, and Laravel test-double
+ * helpers. Every usage_type emitted here is Laravel vocabulary that only the Laravel
+ * rule catalog interprets, which is why this visitor lives in the adapter rather
+ * than in core.
+ *
+ * Known seam: the generic PHPUnit, Mockery, and Prophecy `test_double` detection
+ * (`createMock`, `getMockBuilder`, `getMockForAbstractClass`, `prophesize`,
+ * `Mockery::mock('overload:...')`) currently rides along with the Laravel-specific
+ * rules and therefore only runs for projects where a Laravel integration is active.
+ * That vocabulary is framework-neutral and is a candidate for a future core-side
+ * generic test-double visitor; it was deliberately left in place here rather than
+ * split during the relocation, because splitting it changes what non-Laravel
+ * projects report and is a separate decision.
+ */
+final class LaravelSourceUsageVisitor extends NodeVisitorAbstract implements SourceUsageCollector
 {
     private string $file;
     private string $namespace = '';

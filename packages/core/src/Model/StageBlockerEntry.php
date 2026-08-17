@@ -17,18 +17,8 @@ final class StageBlockerEntry
     private string $stageId;
     private int $attempt;
     private string $scenario;
-    private string $category;
-    private string $subject;
-    private ?string $blockingPackage;
-    private ?string $requestedConstraint;
-    private ?string $constraint;
-    /** @var list<string> */
-    private array $dependencyPath;
-    private string $confidence;
-    private string $summary;
-    /** @var list<string> */
-    private array $options;
-    private bool $blocking;
+    /** Owns the blocker schema; this entry only adds stage lifecycle state. */
+    private Blocker $blocker;
     /** @var list<string> */
     private array $evidence;
     /** @var array{stage_id: string, attempt: int, scenario: string} */
@@ -60,16 +50,7 @@ final class StageBlockerEntry
             $stageId,
             $attempt,
             $scenario,
-            $blocker->type(),
-            $blocker->subject(),
-            $blocker->blocker(),
-            $blocker->requestedConstraint(),
-            $blocker->conflict(),
-            $blocker->dependencyPath(),
-            $blocker->confidence(),
-            $blocker->summary(),
-            $blocker->options(),
-            $blocker->blocksResolution(),
+            $blocker,
             $evidence,
             $seen,
             $seen,
@@ -80,8 +61,6 @@ final class StageBlockerEntry
     }
 
     /**
-     * @param list<string> $dependencyPath
-     * @param list<string> $options
      * @param list<string> $evidence
      * @param array{stage_id: string, attempt: int, scenario: string} $firstSeen
      * @param array{stage_id: string, attempt: int, scenario: string} $lastSeen
@@ -95,16 +74,7 @@ final class StageBlockerEntry
         string $stageId,
         int $attempt,
         string $scenario,
-        string $category,
-        string $subject,
-        ?string $blockingPackage,
-        ?string $requestedConstraint,
-        ?string $constraint,
-        array $dependencyPath,
-        string $confidence,
-        string $summary,
-        array $options,
-        bool $blocking,
+        Blocker $blocker,
         array $evidence,
         array $firstSeen,
         array $lastSeen,
@@ -118,16 +88,7 @@ final class StageBlockerEntry
         $this->stageId = $stageId;
         $this->attempt = $attempt;
         $this->scenario = $scenario;
-        $this->category = $category;
-        $this->subject = $subject;
-        $this->blockingPackage = $blockingPackage;
-        $this->requestedConstraint = $requestedConstraint;
-        $this->constraint = $constraint;
-        $this->dependencyPath = array_values($dependencyPath);
-        $this->confidence = $confidence;
-        $this->summary = $summary;
-        $this->options = array_values($options);
-        $this->blocking = $blocking;
+        $this->blocker = $blocker;
         $this->evidence = array_values(array_unique($evidence));
         $this->firstSeen = $firstSeen;
         $this->lastSeen = $lastSeen;
@@ -148,13 +109,13 @@ final class StageBlockerEntry
 
     public function summary(): string
     {
-        return $this->summary;
+        return $this->blocker->summary();
     }
 
     /** @return list<string> */
     public function options(): array
     {
-        return $this->options;
+        return $this->blocker->options();
     }
 
     public function identityKey(): string
@@ -174,7 +135,7 @@ final class StageBlockerEntry
 
     public function isBlocking(): bool
     {
-        return $this->blocking;
+        return $this->blocker->blocksResolution();
     }
 
     public function isActive(): bool
@@ -264,16 +225,16 @@ final class StageBlockerEntry
             'stage_id' => $this->stageId,
             'attempt' => $this->attempt,
             'scenario' => $this->scenario,
-            'category' => $this->category,
-            'subject' => $this->subject,
-            'blocking_package' => $this->blockingPackage,
-            'requested_constraint' => $this->requestedConstraint,
-            'constraint' => $this->constraint,
-            'dependency_path' => $this->dependencyPath,
-            'confidence' => $this->confidence,
-            'summary' => $this->summary,
-            'options' => $this->options,
-            'blocking' => $this->blocking,
+            'category' => $this->blocker->type(),
+            'subject' => $this->blocker->subject(),
+            'blocking_package' => $this->blocker->blocker(),
+            'requested_constraint' => $this->blocker->requestedConstraint(),
+            'constraint' => $this->blocker->conflict(),
+            'dependency_path' => $this->blocker->dependencyPath(),
+            'confidence' => $this->blocker->confidence(),
+            'summary' => $this->blocker->summary(),
+            'options' => $this->blocker->options(),
+            'blocking' => $this->blocker->blocksResolution(),
             'evidence' => $this->evidence,
             'first_seen' => $this->firstSeen,
             'last_seen' => $this->lastSeen,
@@ -303,16 +264,7 @@ final class StageBlockerEntry
             $this->stageId,
             $this->attempt,
             $this->scenario,
-            $this->category,
-            $this->subject,
-            $this->blockingPackage,
-            $this->requestedConstraint,
-            $this->constraint,
-            $this->dependencyPath,
-            $this->confidence,
-            $this->summary,
-            $this->options,
-            $this->blocking,
+            $this->blocker,
             $evidence,
             $this->firstSeen,
             $lastSeen,

@@ -12,9 +12,8 @@ use PhpUpgradePreflight\Core\Model\ReportFormat;
 use PhpUpgradePreflight\Core\Model\TargetPlatformProfile;
 use PhpUpgradePreflight\Core\Model\UpgradeRequest;
 use PhpUpgradePreflight\Core\Model\UpgradeTarget;
-use PhpUpgradePreflight\Core\Reporting\JsonReportWriter;
-use PhpUpgradePreflight\Core\Reporting\MarkdownReportWriter;
 use PhpUpgradePreflight\Core\Reporting\ReportFileWriter;
+use PhpUpgradePreflight\Core\Reporting\ReportWriterResolver;
 use PhpUpgradePreflight\Core\Support\PathExposurePolicy;
 use PhpUpgradePreflight\Core\Support\SensitiveOutputRedactor;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -45,12 +44,17 @@ final class AnalyzeUpgradeCommand extends Command
 
     private UpgradeAnalyzer $analyzer;
     private ReportFileWriter $reportFileWriter;
+    private ReportWriterResolver $reportWriterResolver;
 
-    public function __construct(UpgradeAnalyzer $analyzer, ?ReportFileWriter $reportFileWriter = null)
-    {
+    public function __construct(
+        UpgradeAnalyzer $analyzer,
+        ?ReportFileWriter $reportFileWriter = null,
+        ?ReportWriterResolver $reportWriterResolver = null
+    ) {
         parent::__construct();
         $this->analyzer = $analyzer;
         $this->reportFileWriter = $reportFileWriter ?? new ReportFileWriter();
+        $this->reportWriterResolver = $reportWriterResolver ?? new ReportWriterResolver();
     }
 
     public function handle(): int
@@ -111,9 +115,7 @@ final class AnalyzeUpgradeCommand extends Command
 
         try {
             $report = $this->analyzer->analyzeUpgrade($request);
-            $rendered = $format === ReportFormat::MARKDOWN
-                ? (new MarkdownReportWriter())->render($report)
-                : (new JsonReportWriter())->render($report);
+            $rendered = $this->reportWriterResolver->resolve($format)->render($report);
 
             if ($request->outputPath() !== null) {
                 $writtenPath = $this->reportFileWriter->write($request->projectPath(), $request->outputPath(), $rendered);

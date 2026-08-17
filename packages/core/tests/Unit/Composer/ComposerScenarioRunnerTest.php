@@ -9,6 +9,7 @@ use PhpUpgradePreflight\Core\Composer\ProjectStateBuilder;
 use PhpUpgradePreflight\Core\Filesystem\TemporaryWorkspaceManager;
 use PhpUpgradePreflight\Core\Filesystem\WorkspaceManager;
 use PhpUpgradePreflight\Core\Filesystem\WorkspaceCleanupException;
+use PhpUpgradePreflight\Core\Model\ComposerExecutionConfiguration;
 use PhpUpgradePreflight\Core\Model\ExtensionAssumption;
 use PhpUpgradePreflight\Core\Model\Scenario;
 use PhpUpgradePreflight\Core\Model\ScenarioResult;
@@ -814,6 +815,7 @@ final class ComposerScenarioRunnerTest extends TestCase
         self::assertCount(1, $result->diagnostics());
         self::assertSame([], $result->diagnostics()[0]->command());
         self::assertStringContainsString('Composer 2.4.0 or newer is required', $result->diagnostics()[0]->stderr());
+        self::assertSame(ScenarioResult::OUTCOME_PROCESS_FAILURE, $result->diagnostics()[0]->outcome());
     }
 
     public function testComposerBefore22RejectsAbsentExtensionSimulationBeforeCreatingAWorkspace(): void
@@ -1216,6 +1218,266 @@ final class ComposerScenarioRunnerTest extends TestCase
         }
     }
 
+    public function testRestrictedStatePreparationFailureIsAWorkspaceFailureNotAComposerFailure(): void
+    {
+        $workspaces = new BlockedRestrictedStateWorkspaceManager();
+        $processCalls = 0;
+        $runner = new ComposerScenarioRunner(
+            $workspaces,
+            null,
+            static function () use (&$processCalls): array {
+                ++$processCalls;
+
+                throw new \LogicException('No Composer process exists once workspace preparation fails.');
+            },
+            static fn (): string => '2.8.12'
+        );
+        $projectPath = $this->fixtureProjectPath();
+        $project = (new ProjectStateBuilder())->build($projectPath);
+        $request = new UpgradeRequest(
+            $projectPath,
+            [new UpgradeTarget('fixture/dependency', '^2.0')],
+            null,
+            null,
+            [],
+            [],
+            'json',
+            null,
+            false,
+            [],
+            null,
+            ComposerExecutionConfiguration::restricted()
+        );
+
+        try {
+            $result = $runner->run($project, $request, new Scenario('restricted-state-failure', $request->targets()));
+
+            self::assertSame(0, $processCalls);
+            self::assertSame(ScenarioResult::OUTCOME_WORKSPACE_FAILURE, $result->outcome());
+            self::assertTrue($result->isOperationalFailure());
+            self::assertStringContainsString(
+                'Unable to create analyzer-owned restricted Composer state.',
+                $result->stderr()
+            );
+        } finally {
+            $workspaces->forceCleanup();
+        }
+    }
+
+    public function testDiagnosticOutcomesSeparateTimeoutsFromOrdinaryNonZeroExits(): void
+    {
+        $timedOut = new Process(['composer', 'prohibits']);
+        $timedOut->setTimeout(60);
+        $runner = new ComposerScenarioRunner(
+            null,
+            null,
+            static function (array $command) use ($timedOut): array {
+                if ($command[1] === 'prohibits') {
+                    throw new ProcessTimedOutException($timedOut, ProcessTimedOutException::TYPE_GENERAL);
+                }
+
+                return [
+                    'exit_code' => 2,
+                    'stdout' => '',
+                    'stderr' => 'Your requirements could not be resolved to an installable set of packages.',
+                ];
+            }
+        );
+
+        $result = $this->runFixtureScenario($runner);
+
+        self::assertCount(1, $result->diagnostics());
+        $diagnostic = $result->diagnostics()[0];
+        self::assertSame(ScenarioResult::OUTCOME_TIMEOUT, $diagnostic->outcome());
+        self::assertSame(1, $diagnostic->exitCode());
+        self::assertSame(ScenarioResult::OUTCOME_TIMEOUT, $diagnostic->toArray()['outcome']);
+    }
+
+    public function testCompletedDiagnosticsRemainUsableEvidenceDespiteANonZeroExit(): void
+    {
+        $runner = new ComposerScenarioRunner(
+            null,
+            null,
+            static function (array $command): array {
+                if ($command[1] === 'prohibits') {
+                    return [
+                        'exit_code' => 1,
+                        'stdout' => 'fixture/blocker 1.0.0 requires fixture/dependency (^1.0)',
+                        'stderr' => '',
+                    ];
+                }
+
+                return [
+                    'exit_code' => 2,
+                    'stdout' => '',
+                    'stderr' => 'Your requirements could not be resolved to an installable set of packages.',
+                ];
+            }
+        );
+
+        $result = $this->runFixtureScenario($runner);
+
+        self::assertCount(1, $result->diagnostics());
+        $diagnostic = $result->diagnostics()[0];
+        self::assertSame(ScenarioResult::OUTCOME_SUCCESS, $diagnostic->outcome());
+        self::assertSame(1, $diagnostic->exitCode());
+    }
+
+    public function testMissingComposerDuringADiagnosticIsDistinguishableFromASolverExit(): void
+    {
+        $runner = new ComposerScenarioRunner(
+            null,
+            null,
+            static function (array $command): array {
+                if ($command[1] === 'prohibits') {
+                    return ['exit_code' => 127, 'stdout' => '', 'stderr' => 'composer: command not found'];
+                }
+
+                return [
+                    'exit_code' => 2,
+                    'stdout' => '',
+                    'stderr' => 'Your requirements could not be resolved to an installable set of packages.',
+                ];
+            }
+        );
+
+        $result = $this->runFixtureScenario($runner);
+
+        self::assertCount(1, $result->diagnostics());
+        self::assertSame(ScenarioResult::OUTCOME_COMPOSER_MISSING, $result->diagnostics()[0]->outcome());
+    }
+
+    public function testProbeCleanupFailureKeepsTheProbeAnswerAndRecordsAnUncertainty(): void
+    {
+        $workspaces = new FailingProbeCleanupWorkspaceManager();
+        $runner = new ComposerScenarioRunner(
+            $workspaces,
+            null,
+            static fn (): array => [
+                'exit_code' => 1,
+                'stdout' => '',
+                'stderr' => 'Synthetic operational stop.',
+            ],
+            null,
+            null,
+            static fn (): array => ['exit_code' => 0, 'stdout' => 'Composer version 2.8.12', 'stderr' => '']
+        );
+
+        try {
+            $result = $this->runFixtureScenario($runner);
+
+            self::assertSame('2.8.12', $result->composerVersion(), 'A cleanup failure must not discard the probe answer.');
+            self::assertIsString($workspaces->refusedPath);
+            self::assertCount(1, $runner->probeCleanupUncertainties());
+            $uncertainty = $runner->probeCleanupUncertainties()[0];
+            self::assertStringContainsString('Composer metadata probe workspace cleanup failed', $uncertainty);
+            self::assertStringContainsString(PathExposurePolicy::ANALYZER_WORKSPACE, $uncertainty);
+            self::assertStringNotContainsString($workspaces->refusedPath, $uncertainty);
+        } finally {
+            $workspaces->forceCleanup();
+        }
+    }
+
+    public function testProbeWorkspacesAreRemovedThroughTheInjectedWorkspaceManager(): void
+    {
+        $workspaces = new TrackingWorkspaceManager();
+        $runner = new ComposerScenarioRunner(
+            $workspaces,
+            null,
+            static fn (): array => [
+                'exit_code' => 1,
+                'stdout' => '',
+                'stderr' => 'Synthetic operational stop.',
+            ],
+            null,
+            null,
+            static fn (): array => ['exit_code' => 0, 'stdout' => 'Composer version 2.8.12', 'stderr' => '']
+        );
+
+        try {
+            $result = $this->runFixtureScenario($runner);
+
+            self::assertSame('2.8.12', $result->composerVersion());
+            self::assertSame([], $runner->probeCleanupUncertainties());
+            self::assertCount(1, $workspaces->createdPaths);
+            self::assertCount(2, $workspaces->removedPaths, 'The probe and the scenario workspace are both removed.');
+            foreach ($workspaces->removedPaths as $removedPath) {
+                self::assertDirectoryDoesNotExist($removedPath);
+            }
+        } finally {
+            $workspaces->forceCleanup();
+        }
+    }
+
+    /**
+     * A candidate lock is discarded with its workspace, so an entry the analyzer could not index has
+     * to be collected on the runner or it never reaches the report: the published candidate package
+     * count excludes the entry while the recorded hash still covers the whole file.
+     */
+    public function testCandidateLockEntriesThatCannotBeIndexedAreRecordedAsUncertainties(): void
+    {
+        $lockContents = json_encode([
+            'content-hash' => 'fixture-content-hash',
+            'packages' => [
+                ['name' => 'fixture/dependency', 'version' => '2.0.0'],
+                ['name' => 'not a package', 'version' => '1.0.0'],
+                ['name' => 'fixture/versionless'],
+            ],
+        ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
+        $runner = new ComposerScenarioRunner(
+            null,
+            null,
+            static function (array $command, string $directory) use ($lockContents): array {
+                file_put_contents($directory . DIRECTORY_SEPARATOR . 'composer.lock', $lockContents);
+
+                return ['exit_code' => 0, 'stdout' => '', 'stderr' => ''];
+            },
+            static fn (): string => '2.8.12'
+        );
+
+        $result = $this->runFixtureScenario($runner);
+
+        self::assertNotNull($result->candidateLockEvidence());
+        self::assertSame(1, $result->candidateLockEvidence()->packageCount());
+        $uncertainties = $runner->candidateLockUncertainties();
+        self::assertCount(2, $uncertainties);
+        self::assertStringContainsString('not a package', $uncertainties[0]);
+        self::assertStringContainsString('fixture/versionless', $uncertainties[1]);
+        foreach ($uncertainties as $uncertainty) {
+            self::assertStringContainsString('Composer candidate lock entries were skipped', $uncertainty);
+        }
+
+        $this->runFixtureScenario($runner);
+        self::assertSame(
+            $uncertainties,
+            $runner->candidateLockUncertainties(),
+            'Scenarios resolving to the same candidate lock must not repeat the same omission.'
+        );
+
+        $runner->resetAnalysisCaches();
+        self::assertSame([], $runner->candidateLockUncertainties());
+    }
+
+    public function testAFullyReadableCandidateLockRecordsNoUncertainty(): void
+    {
+        $lockContents = json_encode([
+            'packages' => [['name' => 'fixture/dependency', 'version' => '2.0.0']],
+        ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
+        $runner = new ComposerScenarioRunner(
+            null,
+            null,
+            static function (array $command, string $directory) use ($lockContents): array {
+                file_put_contents($directory . DIRECTORY_SEPARATOR . 'composer.lock', $lockContents);
+
+                return ['exit_code' => 0, 'stdout' => '', 'stderr' => ''];
+            },
+            static fn (): string => '2.8.12'
+        );
+
+        self::assertNotNull($this->runFixtureScenario($runner)->lock());
+        self::assertSame([], $runner->candidateLockUncertainties());
+    }
+
     private function createProjectWithPathRepository(string $url, string $type = 'path'): string
     {
         $projectPath = rtrim(sys_get_temp_dir(), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'php-upgrade-preflight-test-' . bin2hex(random_bytes(8));
@@ -1246,6 +1508,91 @@ final class ComposerScenarioRunnerTest extends TestCase
     {
         return dirname(__DIR__, 5) . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR
             . 'fixtures' . DIRECTORY_SEPARATOR . 'project-isolation';
+    }
+}
+
+/**
+ * Creates a real workspace whose analyzer-owned restricted Composer state cannot
+ * be built, because the state root already exists as a file.
+ */
+final class BlockedRestrictedStateWorkspaceManager implements WorkspaceManager
+{
+    private TemporaryWorkspaceManager $delegate;
+    /** @var list<string> */
+    private array $createdPaths = [];
+
+    public function __construct()
+    {
+        $this->delegate = new TemporaryWorkspaceManager();
+    }
+
+    public function createFromProject(string $projectPath): string
+    {
+        $path = $this->delegate->createFromProject($projectPath);
+        $this->createdPaths[] = $path;
+        file_put_contents($path . DIRECTORY_SEPARATOR . '.php-upgrade-preflight-composer', 'not a directory');
+
+        return $path;
+    }
+
+    public function remove(string $path): void
+    {
+        $this->delegate->remove($path);
+    }
+
+    public function forceCleanup(): void
+    {
+        foreach ($this->createdPaths as $path) {
+            if (is_dir($path)) {
+                $this->delegate->remove($path);
+            }
+        }
+    }
+}
+
+/** Refuses to remove the metadata probe workspace, but cleans scenario workspaces. */
+final class FailingProbeCleanupWorkspaceManager implements WorkspaceManager
+{
+    public ?string $refusedPath = null;
+
+    private TemporaryWorkspaceManager $delegate;
+    /** @var list<string> */
+    private array $leakedPaths = [];
+
+    public function __construct()
+    {
+        $this->delegate = new TemporaryWorkspaceManager();
+    }
+
+    public function createFromProject(string $projectPath): string
+    {
+        return $this->delegate->createFromProject($projectPath);
+    }
+
+    public function remove(string $path): void
+    {
+        if (!str_contains(basename($path), 'composer-probe-')) {
+            $this->delegate->remove($path);
+
+            return;
+        }
+
+        $this->refusedPath = $path;
+        $this->leakedPaths[] = $path;
+
+        throw new WorkspaceCleanupException(
+            $path,
+            sprintf('Synthetic probe cleanup failure in %s.', $path)
+        );
+    }
+
+    public function forceCleanup(): void
+    {
+        foreach ($this->leakedPaths as $path) {
+            if (is_dir($path)) {
+                $this->delegate->remove($path);
+            }
+        }
     }
 }
 

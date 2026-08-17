@@ -10,6 +10,7 @@ use PhpUpgradePreflight\Core\Model\CompatibilityFinding;
 use PhpUpgradePreflight\Core\Model\Evidence;
 use PhpUpgradePreflight\Core\Model\EvidenceLedger;
 use PhpUpgradePreflight\Core\Model\FrameworkHop;
+use PhpUpgradePreflight\Core\Model\PackageRef;
 use PhpUpgradePreflight\Core\Model\ProjectState;
 use PhpUpgradePreflight\Core\Model\UpgradeRequest;
 use PhpUpgradePreflight\Laravel\Catalog\PackageConstraintDefinition;
@@ -87,7 +88,7 @@ final class PackageVersionRule implements CompatibilityRule, HopAwareCompatibili
             return null;
         }
 
-        $frameworkRequirements = $this->lockedFrameworkRequirements($project, $package);
+        $frameworkRequirements = $this->frameworkRequirementsOf($locked);
         if ($guidance->preferLockedFrameworkRequirements() && $frameworkRequirements !== []) {
             $incompatibleRequirements = array_filter(
                 $frameworkRequirements,
@@ -164,41 +165,27 @@ final class PackageVersionRule implements CompatibilityRule, HopAwareCompatibili
         );
     }
 
-    /** @return array<string, string> */
-    private function lockedFrameworkRequirements(ProjectState $project, string $packageName): array
+    /**
+     * The locked package's own Laravel-family requirements.
+     *
+     * @return array<string, string>
+     */
+    private function frameworkRequirementsOf(?PackageRef $locked): array
     {
-        foreach (['packages', 'packages-dev'] as $section) {
-            $packages = $project->composerLock()->data()[$section] ?? [];
-            if (!is_array($packages)) {
-                continue;
-            }
+        if ($locked === null) {
+            return [];
+        }
 
-            foreach ($packages as $package) {
-                if (!is_array($package) || strtolower((string) ($package['name'] ?? '')) !== $packageName) {
-                    continue;
-                }
-
-                $requirements = $package['require'] ?? [];
-                if (!is_array($requirements)) {
-                    return [];
-                }
-
-                $frameworkRequirements = [];
-                foreach ($requirements as $name => $constraint) {
-                    $name = strtolower((string) $name);
-                    if (($name === 'laravel/framework' || str_starts_with($name, 'illuminate/'))
-                        && is_string($constraint)) {
-                        $frameworkRequirements[$name] = $constraint;
-                    }
-                }
-
-                ksort($frameworkRequirements);
-
-                return $frameworkRequirements;
+        $frameworkRequirements = [];
+        foreach ($locked->requirements() as $name => $constraint) {
+            if ($name === 'laravel/framework' || str_starts_with($name, 'illuminate/')) {
+                $frameworkRequirements[$name] = $constraint;
             }
         }
 
-        return [];
+        ksort($frameworkRequirements);
+
+        return $frameworkRequirements;
     }
 
     /** @param array<string, string> $frameworkRequirements */

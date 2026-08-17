@@ -214,7 +214,7 @@ final class ScenarioResult
         return !$this->succeeded() && $this->failureType === self::FAILURE_VALIDATION;
     }
 
-    /** @return array{name: string, composer_version: ?string, command: list<string>, duration_ms: int, exit_code: int, succeeded: bool, outcome: string, failure_type: ?string, stdout_excerpt: string, stderr_excerpt: string, candidate_lock: ?array{sha256: string, content_hash: ?string, package_count: int}, diagnostics: list<array{package: string, constraint: string, command: list<string>, exit_code: int, stdout_excerpt: string, stderr_excerpt: string}>, temp_path: ?string} */
+    /** @return array{name: string, composer_version: ?string, command: list<string>, duration_ms: int, exit_code: int, succeeded: bool, outcome: string, failure_type: ?string, stdout_excerpt: string, stderr_excerpt: string, candidate_lock: ?array{sha256: string, content_hash: ?string, package_count: int}, diagnostics: list<array{package: string, constraint: string, command: list<string>, exit_code: int, outcome: string, stdout_excerpt: string, stderr_excerpt: string}>, temp_path: ?string} */
     public function toArray(): array
     {
         $command = array_map(

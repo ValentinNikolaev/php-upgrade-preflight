@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace PhpUpgradePreflight\Core\Tests\Unit\Analysis;
 
+use PhpUpgradePreflight\Core\Analysis\StageBlockerRegistry;
 use PhpUpgradePreflight\Core\Analysis\StagedAnalysisPolicy;
 use PhpUpgradePreflight\Core\Analysis\StagedUpgradeOrchestrator;
 use PhpUpgradePreflight\Core\Composer\ComposerScenarioRunner;
@@ -20,7 +21,6 @@ use PhpUpgradePreflight\Core\Model\FrameworkStagePlan;
 use PhpUpgradePreflight\Core\Model\FrameworkStageTarget;
 use PhpUpgradePreflight\Core\Model\ProjectState;
 use PhpUpgradePreflight\Core\Model\StagedResolution;
-use PhpUpgradePreflight\Core\Model\StageBlockerEntry;
 use PhpUpgradePreflight\Core\Model\TargetPlatform;
 use PhpUpgradePreflight\Core\Model\UpgradeRequest;
 use PhpUpgradePreflight\Core\Model\UpgradeTarget;
@@ -762,11 +762,12 @@ final class StagedUpgradeOrchestratorTest extends TestCase
 
     public function testSuccessfulCandidateIsNotSelectedWhileItsBlockingEntryRemainsActive(): void
     {
-        $entry = StageBlockerEntry::detected(
+        $registry = new StageBlockerRegistry();
+        $registry->observe(
             'fixture-0-to-1',
             1,
             'fixture-attempt',
-            new Blocker(
+            [new Blocker(
                 'transitive-package-conflict',
                 'vendor/framework',
                 'A transitive package blocks the target.',
@@ -778,21 +779,32 @@ final class StagedUpgradeOrchestratorTest extends TestCase
                 '^0.0',
                 ['vendor/blocker', 'vendor/framework'],
                 ['Upgrade vendor/blocker.']
-            )
+            )],
+            'attempt-evidence',
+            false
         );
-        $method = new \ReflectionMethod(StagedUpgradeOrchestrator::class, 'hasActiveBlockingEntries');
-        $method->setAccessible(true);
 
-        self::assertTrue($method->invoke(
-            $this->orchestrator(),
-            [$entry->identityKey() => $entry],
-            'fixture-0-to-1'
-        ));
-        self::assertFalse($method->invoke(
-            $this->orchestrator(),
-            [$entry->identityKey() => $entry],
-            'fixture-1-to-2'
-        ));
+        self::assertTrue($registry->hasActiveBlocking('fixture-0-to-1'));
+        self::assertFalse($registry->hasActiveBlocking('fixture-1-to-2'));
+    }
+
+    public function testAnAttemptThatExceedsTheAggregateBudgetStopsAsUnknown(): void
+    {
+        [$project, $request, $platform] = $this->context();
+        $ledger = new EvidenceLedger();
+        $reference = $ledger->add('stage-target', Evidence::E2_PACKAGE_METADATA, 'Aggregate-budget stage.')->id();
+        $plan = new FrameworkStagePlan('fixture', [$this->stage(0, 1, $reference)], null, [$reference]);
+
+        $resolution = $this->solverFailureOrchestrator(
+            ['ext-first', 'ext-must-not-run'],
+            [(float) StagedAnalysisPolicy::AGGREGATE_TIMEOUT_SECONDS + 100.0, 0.1]
+        )->analyze([$this->provider('fixture', $plan)], $project, $request, $platform, $ledger);
+        $canonical = $resolution->toArray();
+
+        self::assertSame(StagedResolution::UNKNOWN, $resolution->status());
+        self::assertSame('aggregate_timeout', $canonical['stop_reason']);
+        self::assertSame('aggregate_timeout', $canonical['stages'][0]['stop_reason']);
+        self::assertCount(1, $canonical['stages'][0]['attempts']);
     }
 
     private function orchestrator(): StagedUpgradeOrchestrator
@@ -885,6 +897,8 @@ final class StagedUpgradeOrchestratorTest extends TestCase
                 &$now
             ): array {
                 if (in_array('prohibits', $command, true)) {
+                    // The aggregate case must leave the first stage enough room for a
+                    // second attempt, whose reservation covers its own diagnostics too.
                     $now += $mode === 'aggregate' && $primaryProcesses === 1 ? 250.0 : 300.0;
 
                     return ['exit_code' => 1, 'stdout' => '', 'stderr' => 'Synthetic slow diagnostic.'];

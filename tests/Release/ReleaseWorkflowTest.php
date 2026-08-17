@@ -452,6 +452,140 @@ final class ReleaseWorkflowTest extends TestCase
         self::assertSame('pcov', $setup[0]['with']['coverage'] ?? null);
     }
 
+    public function testSupersededPullRequestRunsAreCancelledButReleaseRunsAreNot(): void
+    {
+        $quality = $this->parseYamlFile('.github/workflows/quality.yml');
+
+        self::assertSame(
+            'quality-${{ github.workflow }}-${{ github.ref }}',
+            $quality['concurrency']['group'] ?? null
+        );
+
+        // Release reaches this workflow through workflow_call, where github.event_name
+        // resolves to the caller's push event. Cancelling must stay scoped to pull
+        // requests so a tagged release is never interrupted mid-publication.
+        self::assertSame(
+            "\${{ github.event_name == 'pull_request' }}",
+            $quality['concurrency']['cancel-in-progress'] ?? null
+        );
+    }
+
+    public function testWorkflowLintingSharesTheStaticAnalysisRunnerAndCachesRepeatedWork(): void
+    {
+        $quality = $this->parseYamlFile('.github/workflows/quality.yml');
+
+        self::assertArrayNotHasKey(
+            'workflow-lint',
+            $quality['jobs'] ?? [],
+            'Workflow linting must not allocate its own runner.'
+        );
+
+        $staticAnalysis = $quality['jobs']['static-analysis'] ?? null;
+        self::assertIsArray($staticAnalysis);
+
+        $runs = implode("\n", array_values(array_filter(
+            array_column($staticAnalysis['steps'] ?? [], 'run'),
+            'is_string'
+        )));
+        self::assertStringContainsString('rhysd/actionlint@sha256:', $runs);
+
+        $cacheSteps = array_values(array_filter(
+            $staticAnalysis['steps'] ?? [],
+            static fn (array $step): bool => str_starts_with($step['uses'] ?? '', 'actions/cache@')
+        ));
+        self::assertCount(1, $cacheSteps);
+
+        $path = $cacheSteps[0]['with']['path'] ?? null;
+        self::assertIsString($path);
+        self::assertStringContainsString('build/phpstan', $path);
+        self::assertStringContainsString('.php-cs-fixer.cache', $path);
+
+        // A run-scoped key suffix keeps every run publishing a fresh entry; without it
+        // an exact key hit would never save, so the cache would freeze on first write.
+        self::assertStringContainsString('${{ github.run_id }}', $cacheSteps[0]['with']['key'] ?? '');
+        self::assertNotEmpty($cacheSteps[0]['with']['restore-keys'] ?? null);
+    }
+
+    public function testEachPhpstanConfigurationKeepsAnIsolatedResultCache(): void
+    {
+        // PHPStan stores one resultCache.php per tmpDir. Sharing a directory between the
+        // two analyse passes would make each run evict the other's cache.
+        self::assertStringContainsString(
+            'tmpDir: build/phpstan/dev',
+            $this->readRootFile('phpstan.neon.dist')
+        );
+        self::assertStringContainsString(
+            'tmpDir: build/phpstan/production',
+            $this->readRootFile('phpstan-production.neon.dist')
+        );
+    }
+
+    public function testCompatibilitySmokeCachesArchivesWithoutCachingResolutionMetadata(): void
+    {
+        $workflow = $this->parseYamlFile('.github/workflows/compatibility.yml');
+        $job = $workflow['jobs']['installability'] ?? null;
+        self::assertIsArray($job);
+
+        $cacheSteps = array_values(array_filter(
+            $job['steps'],
+            static fn (array $step): bool => str_starts_with($step['uses'] ?? '', 'actions/cache@')
+        ));
+        self::assertCount(1, $cacheSteps);
+
+        // Only Composer's downloaded archives are reused. Caching the Packagist metadata
+        // directory would let this smoke test stop observing ecosystem drift.
+        self::assertSame('${{ env.COMPOSER_FILES_CACHE }}', $cacheSteps[0]['with']['path'] ?? null);
+        $runs = implode("\n", array_values(array_filter(
+            array_column($job['steps'], 'run'),
+            'is_string'
+        )));
+        self::assertStringContainsString('cache-files-dir', $runs);
+
+        $cases = $job['strategy']['matrix']['case'] ?? null;
+        self::assertIsArray($cases);
+        $slugs = [];
+        foreach ($cases as $case) {
+            self::assertIsArray($case);
+            $slug = $case['slug'] ?? null;
+            self::assertIsString($slug, 'Every compatibility case needs a cache-key-safe slug.');
+            $slugs[] = $slug;
+        }
+        self::assertSame(
+            count($cases),
+            count(array_unique($slugs)),
+            'Compatibility cache keys must stay unique per matrix case.'
+        );
+    }
+
+    public function testDeveloperImageKeepsBuildArgumentsBelowTheExpensiveLayer(): void
+    {
+        $dockerfile = $this->readRootFile('Dockerfile');
+
+        $extensionLayer = $this->requireSubstringPosition($dockerfile, 'docker-php-ext-install');
+        $userArgument = $this->requireSubstringPosition($dockerfile, 'ARG USER_ID');
+        $groupArgument = $this->requireSubstringPosition($dockerfile, 'ARG GROUP_ID');
+
+        // A changed ARG value invalidates every instruction below its declaration, even
+        // instructions that never reference it. Declaring these above the apt-get and
+        // extension build would force a full recompile whenever the host UID is not 1000.
+        self::assertGreaterThan($extensionLayer, $userArgument);
+        self::assertGreaterThan($extensionLayer, $groupArgument);
+
+        // Removing libzip-dev measured at 78 KB against a 575 MB image, so the build must
+        // not carry a purge step whose only real effect is risking the runtime library.
+        self::assertStringNotContainsString('apt-get purge', $dockerfile);
+    }
+
+    public function testDockerBuildContextExcludesNestedVendorDirectories(): void
+    {
+        $dockerignore = $this->readRootFile('.dockerignore');
+
+        // Patterns are matched from the context root, so a bare "vendor" entry would not
+        // exclude tests/fixtures/laravel-app/vendor.
+        self::assertStringContainsString('**/vendor', $dockerignore);
+        self::assertDoesNotMatchRegularExpression('/^vendor$/m', $dockerignore);
+    }
+
     private function readRootFile(string $relativePath): string
     {
         $contents = file_get_contents(dirname(__DIR__, 2) . '/' . $relativePath);

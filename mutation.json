@@ -25,13 +25,13 @@
     {
       "name": "risk-resolution-blocker-level",
       "file": "packages/core/src/Analysis/RiskAndEffortEstimator.php",
-      "search": "$hasResolutionBlocker\n            ? 'high'",
-      "replace": "$hasResolutionBlocker\n            ? 'low'",
+      "search": "if ($hasResolutionBlocker || $sourceWeight >= self::HIGH_RISK_SOURCE_WEIGHT) {",
+      "replace": "if (!$hasResolutionBlocker && $sourceWeight >= self::HIGH_RISK_SOURCE_WEIGHT) {",
       "test_filter": "RiskAndEffortEstimatorTest"
     },
     {
       "name": "laravel-transition-equal-major-guard",
-      "file": "packages/laravel/src/LaravelFrameworkIntegration.php",
+      "file": "packages/laravel/src/LaravelTransitionAssessor.php",
       "search": "if ($sourceMajor >= $targetMajor) {\n            return $this->unsupportedTransition(",
       "replace": "if ($sourceMajor > $targetMajor) {\n            return $this->unsupportedTransition(",
       "test_filter": "LaravelFrameworkIntegrationTest"
@@ -80,7 +80,7 @@
     },
     {
       "name": "stage-plan-stop-on-gap",
-      "file": "packages/laravel/src/LaravelFrameworkIntegration.php",
+      "file": "packages/laravel/src/LaravelStagePlanner.php",
       "search": "if ($definition === null || $transition === null || !$transition->isSupported())",
       "replace": "if ($definition === null && $transition === null && !$transition->isSupported())",
       "test_filter": "LaravelFrameworkIntegrationTest"

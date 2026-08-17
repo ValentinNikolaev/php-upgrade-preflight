@@ -107,18 +107,16 @@ final class OldIlluminateSupportRule implements CompatibilityRule, HopAwareCompa
             )->id();
         }
 
-        foreach ($this->lockedPackages($project) as $package) {
-            $name = strtolower((string) ($package['name'] ?? ''));
-            if ($name === ''
-                || $name === 'laravel/framework'
+        foreach ($project->composerLock()->packages() as $package) {
+            $name = $package->name();
+            if ($name === 'laravel/framework'
                 || str_starts_with($name, 'illuminate/')
                 || in_array($name, self::SPECIALIZED_PACKAGES, true)) {
                 continue;
             }
 
-            $requirements = $package['require'] ?? [];
-            $constraint = is_array($requirements) ? ($requirements['illuminate/support'] ?? null) : null;
-            if (!is_string($constraint)
+            $constraint = $package->requirements()['illuminate/support'] ?? null;
+            if ($constraint === null
                 || $target->intersectsRequestedFrameworkRange($constraint)
                 || $this->excludedByAnyTarget($constraint, $earlierTargets)) {
                 continue;
@@ -132,7 +130,7 @@ final class OldIlluminateSupportRule implements CompatibilityRule, HopAwareCompa
                 'high',
                 [
                     'package' => $name,
-                    'locked_version' => isset($package['version']) ? (string) $package['version'] : null,
+                    'locked_version' => $package->version(),
                     'illuminate_support_constraint' => $constraint,
                     'target_laravel_major' => $target->major(),
                 ]
@@ -167,25 +165,5 @@ final class OldIlluminateSupportRule implements CompatibilityRule, HopAwareCompa
         }
 
         return false;
-    }
-
-    /** @return list<array<string, mixed>> */
-    private function lockedPackages(ProjectState $project): array
-    {
-        $packages = [];
-        foreach (['packages', 'packages-dev'] as $section) {
-            $sectionPackages = $project->composerLock()->data()[$section] ?? [];
-            if (!is_array($sectionPackages)) {
-                continue;
-            }
-
-            foreach ($sectionPackages as $package) {
-                if (is_array($package)) {
-                    $packages[] = $package;
-                }
-            }
-        }
-
-        return $packages;
     }
 }

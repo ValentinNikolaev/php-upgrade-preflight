@@ -158,6 +158,7 @@
                             "--no-interaction"
                         ],
                         "exit_code": 1,
+                        "outcome": "success",
                         "stdout_excerpt": "",
                         "stderr_excerpt": "No additional fixture diagnostic."
                     },
@@ -176,6 +177,7 @@
                             "--no-interaction"
                         ],
                         "exit_code": 1,
+                        "outcome": "success",
                         "stdout_excerpt": "",
                         "stderr_excerpt": "No additional fixture diagnostic."
                     }
@@ -221,6 +223,7 @@
                             "--no-interaction"
                         ],
                         "exit_code": 1,
+                        "outcome": "success",
                         "stdout_excerpt": "",
                         "stderr_excerpt": "No additional fixture diagnostic."
                     },
@@ -239,6 +242,7 @@
                             "--no-interaction"
                         ],
                         "exit_code": 1,
+                        "outcome": "success",
                         "stdout_excerpt": "",
                         "stderr_excerpt": "No additional fixture diagnostic."
                     }
@@ -285,6 +289,7 @@
                             "--no-interaction"
                         ],
                         "exit_code": 1,
+                        "outcome": "success",
                         "stdout_excerpt": "",
                         "stderr_excerpt": "No additional fixture diagnostic."
                     },
@@ -303,6 +308,7 @@
                             "--no-interaction"
                         ],
                         "exit_code": 1,
+                        "outcome": "success",
                         "stdout_excerpt": "",
                         "stderr_excerpt": "No additional fixture diagnostic."
                     }
@@ -346,6 +352,7 @@
                             "--no-interaction"
                         ],
                         "exit_code": 1,
+                        "outcome": "success",
                         "stdout_excerpt": "",
                         "stderr_excerpt": "No additional fixture diagnostic."
                     }
@@ -391,6 +398,7 @@
                             "--no-interaction"
                         ],
                         "exit_code": 1,
+                        "outcome": "success",
                         "stdout_excerpt": "",
                         "stderr_excerpt": "No additional fixture diagnostic."
                     }
@@ -523,6 +531,7 @@
                                         "--no-interaction"
                                     ],
                                     "exit_code": 1,
+                                    "outcome": "success",
                                     "stdout_excerpt": "",
                                     "stderr_excerpt": "No additional fixture diagnostic."
                                 },
@@ -541,6 +550,7 @@
                                         "--no-interaction"
                                     ],
                                     "exit_code": 1,
+                                    "outcome": "success",
                                     "stdout_excerpt": "",
                                     "stderr_excerpt": "No additional fixture diagnostic."
                                 }
@@ -619,6 +629,7 @@
                                         "--no-interaction"
                                     ],
                                     "exit_code": 1,
+                                    "outcome": "success",
                                     "stdout_excerpt": "",
                                     "stderr_excerpt": "No additional fixture diagnostic."
                                 },
@@ -637,6 +648,7 @@
                                         "--no-interaction"
                                     ],
                                     "exit_code": 1,
+                                    "outcome": "success",
                                     "stdout_excerpt": "",
                                     "stderr_excerpt": "No additional fixture diagnostic."
                                 }
@@ -1295,6 +1307,7 @@
                             "--no-interaction"
                         ],
                         "exit_code": 1,
+                        "outcome": "success",
                         "stdout_excerpt": "",
                         "stderr_excerpt": "No additional fixture diagnostic."
                     },
@@ -1313,6 +1326,7 @@
                             "--no-interaction"
                         ],
                         "exit_code": 1,
+                        "outcome": "success",
                         "stdout_excerpt": "",
                         "stderr_excerpt": "No additional fixture diagnostic."
                     }
@@ -1354,6 +1368,7 @@
                             "--no-interaction"
                         ],
                         "exit_code": 1,
+                        "outcome": "success",
                         "stdout_excerpt": "",
                         "stderr_excerpt": "No additional fixture diagnostic."
                     },
@@ -1372,6 +1387,7 @@
                             "--no-interaction"
                         ],
                         "exit_code": 1,
+                        "outcome": "success",
                         "stdout_excerpt": "",
                         "stderr_excerpt": "No additional fixture diagnostic."
                     }
@@ -1413,6 +1429,7 @@
                             "--no-interaction"
                         ],
                         "exit_code": 1,
+                        "outcome": "success",
                         "stdout_excerpt": "",
                         "stderr_excerpt": "No additional fixture diagnostic."
                     },
@@ -1431,6 +1448,7 @@
                             "--no-interaction"
                         ],
                         "exit_code": 1,
+                        "outcome": "success",
                         "stdout_excerpt": "",
                         "stderr_excerpt": "No additional fixture diagnostic."
                     }
@@ -1468,6 +1486,7 @@
                             "--no-interaction"
                         ],
                         "exit_code": 1,
+                        "outcome": "success",
                         "stdout_excerpt": "",
                         "stderr_excerpt": "No additional fixture diagnostic."
                     }
@@ -1509,6 +1528,7 @@
                             "--no-interaction"
                         ],
                         "exit_code": 1,
+                        "outcome": "success",
                         "stdout_excerpt": "",
                         "stderr_excerpt": "No additional fixture diagnostic."
                     }
@@ -1597,6 +1617,7 @@
                             "--no-interaction"
                         ],
                         "exit_code": 1,
+                        "outcome": "success",
                         "stdout_excerpt": "",
                         "stderr_excerpt": "No additional fixture diagnostic."
                     },
@@ -1615,6 +1636,7 @@
                             "--no-interaction"
                         ],
                         "exit_code": 1,
+                        "outcome": "success",
                         "stdout_excerpt": "",
                         "stderr_excerpt": "No additional fixture diagnostic."
                     }
@@ -1684,6 +1706,7 @@
                             "--no-interaction"
                         ],
                         "exit_code": 1,
+                        "outcome": "success",
                         "stdout_excerpt": "",
                         "stderr_excerpt": "No additional fixture diagnostic."
                     },
@@ -1702,6 +1725,7 @@
                             "--no-interaction"
                         ],
                         "exit_code": 1,
+                        "outcome": "success",
                         "stdout_excerpt": "",
                         "stderr_excerpt": "No additional fixture diagnostic."
                     }

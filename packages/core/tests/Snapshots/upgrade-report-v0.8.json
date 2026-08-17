@@ -137,6 +137,7 @@
                             "--no-interaction"
                         ],
                         "exit_code": 0,
+                        "outcome": "success",
                         "stdout_excerpt": "legacy/package 1.0.0 requires illuminate/support (^7.0)",
                         "stderr_excerpt": ""
                     }

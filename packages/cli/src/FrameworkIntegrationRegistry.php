@@ -7,19 +7,37 @@ namespace PhpUpgradePreflight\Cli;
 use Composer\InstalledVersions;
 use PhpUpgradePreflight\Core\Framework\FrameworkIntegration;
 
+/**
+ * Discovers installed framework adapters and answers availability lookups.
+ *
+ * Manifest reading and validation belong to {@see AdapterManifestReader}; this
+ * registry owns install-path enumeration, discovery ordering, adapter
+ * instantiation, duplicate rejection, and the `--framework` lookup.
+ *
+ * Discovery is per package: a rejected manifest skips only its own package and is
+ * reported through {@see discoveryDiagnostics()}, so one broken dependency cannot
+ * stop an otherwise valid analysis. Registration of an advertised class stays
+ * fail-fast, and an explicitly requested framework that discovery lost is still an
+ * error naming the packages it skipped.
+ */
 final class FrameworkIntegrationRegistry
 {
-    private const COMPOSER_EXTRA_KEY = 'php-upgrade-preflight';
-    private const ADAPTERS_KEY = 'framework-adapters';
-
     /** @var list<string>|null */
     private ?array $integrationClasses;
     /** @var array<string, string>|null */
     private ?array $packageInstallPaths;
     /** @var string */
     private string $installedVersionsClass;
+    private AdapterManifestReader $manifests;
     /** @var list<FrameworkIntegration>|null */
     private ?array $installed = null;
+    /**
+     * Installed packages whose adapter manifest could not be read, keyed by package
+     * name in discovery order, with the reader's rejection as the value.
+     *
+     * @var array<string, string>
+     */
+    private array $skippedPackages = [];
 
     /**
      * Passing integration classes directly is retained for embedding and tests. Missing
@@ -32,11 +50,13 @@ final class FrameworkIntegrationRegistry
     public function __construct(
         ?array $integrationClasses = null,
         ?array $packageInstallPaths = null,
-        ?string $installedVersionsClass = null
+        ?string $installedVersionsClass = null,
+        ?AdapterManifestReader $manifests = null
     ) {
         $this->integrationClasses = $integrationClasses;
         $this->packageInstallPaths = $packageInstallPaths;
         $this->installedVersionsClass = $installedVersionsClass ?? InstalledVersions::class;
+        $this->manifests = $manifests ?? new AdapterManifestReader();
     }
 
     /** @return list<FrameworkIntegration> */
@@ -71,42 +91,8 @@ final class FrameworkIntegrationRegistry
                 throw new \LogicException(sprintf('Registered framework integration class "%s" could not be loaded.', $class));
             }
 
-            try {
-                $reflection = new \ReflectionClass($class);
-                if (!$reflection->isInstantiable()) {
-                    throw new \LogicException(sprintf('Registered framework integration class "%s" is not instantiable.', $class));
-                }
-
-                $constructor = $reflection->getConstructor();
-                if ($constructor !== null && $constructor->getNumberOfRequiredParameters() > 0) {
-                    throw new \LogicException(sprintf(
-                        'Registered framework integration class "%s" must have a constructor with no required parameters.',
-                        $class
-                    ));
-                }
-
-                $integration = $reflection->newInstance();
-            } catch (\LogicException $exception) {
-                throw $exception;
-            } catch (\Throwable $exception) {
-                throw new \LogicException(sprintf(
-                    'Registered framework integration class "%s" could not be instantiated: %s',
-                    $class,
-                    $exception->getMessage()
-                ), 0, $exception);
-            }
-
-            if (!$integration instanceof FrameworkIntegration) {
-                throw new \LogicException(sprintf('Framework integration "%s" must implement %s.', $class, FrameworkIntegration::class));
-            }
-
-            $name = $integration->name();
-            if (trim($name) === '' || trim($name) !== $name) {
-                throw new \LogicException(sprintf(
-                    'Framework integration "%s" must provide a non-empty name without surrounding whitespace.',
-                    $class
-                ));
-            }
+            $integration = $this->instantiateIntegration($class);
+            $name = $this->integrationName($class, $integration);
 
             $normalizedName = strtolower($name);
             if (isset($registeredNames[$normalizedName])) {
@@ -130,6 +116,31 @@ final class FrameworkIntegrationRegistry
         return $this->installed = $integrations;
     }
 
+    /**
+     * Installed packages that advertise adapters but were skipped as unreadable.
+     *
+     * Discovery degrades instead of failing, so the CLI has to report what it left
+     * out. The list is empty for a healthy installation and for directly supplied
+     * integration classes, which bypass Composer metadata entirely.
+     *
+     * @return list<string>
+     */
+    public function discoveryDiagnostics(): array
+    {
+        $this->installed();
+
+        $diagnostics = [];
+        foreach ($this->skippedPackages as $packageName => $reason) {
+            $diagnostics[] = sprintf(
+                'Skipped framework adapter discovery for installed package "%s": %s',
+                $packageName,
+                $reason
+            );
+        }
+
+        return $diagnostics;
+    }
+
     /** @param list<string> $requested */
     public function assertAvailable(array $requested): void
     {
@@ -145,11 +156,85 @@ final class FrameworkIntegrationRegistry
 
         if ($unavailable !== []) {
             throw new \InvalidArgumentException(sprintf(
-                'Requested framework integration%s unavailable: %s. Install the matching adapter package or remove the --framework option.',
+                'Requested framework integration%s unavailable: %s. Install the matching adapter package or remove the --framework option.%s',
                 count($unavailable) === 1 ? ' is' : 's are',
-                implode(', ', $unavailable)
+                implode(', ', $unavailable),
+                $this->skippedPackageHint()
             ));
         }
+    }
+
+    /**
+     * Explains an unavailable explicit selection that a skipped package may have caused.
+     *
+     * A skipped manifest never names its adapters, so the registry cannot prove which
+     * package owned a requested framework. Naming every skipped package keeps the
+     * explicit path a hard, actionable error instead of a bare "not installed".
+     */
+    private function skippedPackageHint(): string
+    {
+        if ($this->skippedPackages === []) {
+            return '';
+        }
+
+        $details = [];
+        foreach ($this->skippedPackages as $packageName => $reason) {
+            $details[] = sprintf('"%s" (%s)', $packageName, $reason);
+        }
+
+        return sprintf(
+            ' Adapter discovery also skipped %s with an unreadable adapter manifest: %s',
+            count($details) === 1 ? 'one installed package' : 'installed packages',
+            implode('; ', $details)
+        );
+    }
+
+    /** @param class-string $class */
+    private function instantiateIntegration(string $class): FrameworkIntegration
+    {
+        try {
+            $reflection = new \ReflectionClass($class);
+            if (!$reflection->isInstantiable()) {
+                throw new \LogicException(sprintf('Registered framework integration class "%s" is not instantiable.', $class));
+            }
+
+            $constructor = $reflection->getConstructor();
+            if ($constructor !== null && $constructor->getNumberOfRequiredParameters() > 0) {
+                throw new \LogicException(sprintf(
+                    'Registered framework integration class "%s" must have a constructor with no required parameters.',
+                    $class
+                ));
+            }
+
+            $integration = $reflection->newInstance();
+        } catch (\LogicException $exception) {
+            throw $exception;
+        } catch (\Throwable $exception) {
+            throw new \LogicException(sprintf(
+                'Registered framework integration class "%s" could not be instantiated: %s',
+                $class,
+                $exception->getMessage()
+            ), 0, $exception);
+        }
+
+        if (!$integration instanceof FrameworkIntegration) {
+            throw new \LogicException(sprintf('Framework integration "%s" must implement %s.', $class, FrameworkIntegration::class));
+        }
+
+        return $integration;
+    }
+
+    private function integrationName(string $class, FrameworkIntegration $integration): string
+    {
+        $name = $integration->name();
+        if (trim($name) === '' || trim($name) !== $name) {
+            throw new \LogicException(sprintf(
+                'Framework integration "%s" must provide a non-empty name without surrounding whitespace.',
+                $class
+            ));
+        }
+
+        return $name;
     }
 
     /** @return list<string> */
@@ -159,69 +244,18 @@ final class FrameworkIntegrationRegistry
         ksort($packageInstallPaths, SORT_STRING);
 
         $classes = [];
+        $this->skippedPackages = [];
         foreach ($packageInstallPaths as $packageName => $installPath) {
-            $composerPath = rtrim($installPath, '/\\') . DIRECTORY_SEPARATOR . 'composer.json';
-            if (!is_file($composerPath)) {
-                continue;
-            }
-
-            $contents = @file_get_contents($composerPath);
-            if ($contents === false) {
-                throw new \LogicException(sprintf('Could not read Composer metadata for installed package "%s".', $packageName));
-            }
+            $packageName = (string) $packageName;
 
             try {
-                $metadata = json_decode($contents, true, 512, JSON_THROW_ON_ERROR);
-            } catch (\JsonException $exception) {
-                throw new \LogicException(sprintf(
-                    'Invalid Composer metadata for installed package "%s": %s',
-                    $packageName,
-                    $exception->getMessage()
-                ), 0, $exception);
-            }
-
-            if (!is_array($metadata)) {
-                throw new \LogicException(sprintf('Composer metadata for installed package "%s" must be an object.', $packageName));
-            }
-
-            $composerExtra = $metadata['extra'] ?? [];
-            if (!is_array($composerExtra) || !array_key_exists(self::COMPOSER_EXTRA_KEY, $composerExtra)) {
-                continue;
-            }
-
-            $extra = $composerExtra[self::COMPOSER_EXTRA_KEY];
-            if (!is_array($extra)) {
-                throw new \LogicException(sprintf(
-                    'Composer metadata extra.%s for package "%s" must be an object.',
-                    self::COMPOSER_EXTRA_KEY,
-                    $packageName
-                ));
-            }
-            if (!array_key_exists(self::ADAPTERS_KEY, $extra)) {
-                continue;
-            }
-
-            $registered = $extra[self::ADAPTERS_KEY];
-            if (!is_array($registered) || $registered === [] || array_keys($registered) !== range(0, count($registered) - 1)) {
-                throw new \LogicException(sprintf(
-                    'Composer metadata extra.%s.%s for package "%s" must be a non-empty list of class names.',
-                    self::COMPOSER_EXTRA_KEY,
-                    self::ADAPTERS_KEY,
-                    $packageName
-                ));
-            }
-
-            foreach ($registered as $class) {
-                if (!is_string($class) || trim($class) === '' || trim($class) !== $class) {
-                    throw new \LogicException(sprintf(
-                        'Composer metadata extra.%s.%s for package "%s" must contain only non-empty class names without surrounding whitespace.',
-                        self::COMPOSER_EXTRA_KEY,
-                        self::ADAPTERS_KEY,
-                        $packageName
-                    ));
-                }
-
-                $classes[] = $class;
+                $classes = array_merge($classes, $this->manifests->advertisedClasses($packageName, $installPath));
+            } catch (\Throwable $exception) {
+                // Discovery reads every installed package, so an unrelated dependency with a
+                // broken adapter manifest must not end analysis of a project the user does
+                // control. That package is skipped and named in a diagnostic; an explicitly
+                // requested adapter that went missing this way still fails in assertAvailable().
+                $this->skippedPackages[$packageName] = $exception->getMessage();
             }
         }
 

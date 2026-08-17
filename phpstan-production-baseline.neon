@@ -48,11 +48,6 @@ parameters:
 			count: 1
 			path: packages/core/src/Analysis/SourceImpactBuilder.php
 
-		-
-			message: '#^Method PhpUpgradePreflight\\Core\\Composer\\ComposerScenarioRunner\:\:absolutePathRepositories\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: packages/core/src/Composer/ComposerScenarioRunner.php
 
 		-
 			message: '#^Method PhpUpgradePreflight\\Core\\Model\\CompatibilityFinding\:\:__construct\(\) has parameter \$appliesToHops with no value type specified in iterable type array\.$#'

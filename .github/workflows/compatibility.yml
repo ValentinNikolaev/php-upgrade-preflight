@@ -19,43 +19,53 @@ jobs:
         resolution:
           - normal
           - lowest
+        # slug is a cache-key-safe identity for the case. It must stay unique across
+        # the matrix, because two cases can share the same PHP version and smoke kind.
         case:
           - name: core / PHP 8.0
+            slug: core-php80
             php: '8.0'
             package: php-upgrade-preflight/core:@dev
             framework: ''
             smoke: core
           - name: CLI / PHP 8.0
+            slug: cli-php80
             php: '8.0'
             package: php-upgrade-preflight/cli:@dev
             framework: ''
             smoke: cli
           - name: Laravel 8 / PHP 8.0
+            slug: laravel8-php80
             php: '8.0'
             package: php-upgrade-preflight/laravel:@dev
             framework: laravel/framework:^8.0
             smoke: laravel
           - name: Laravel 9 / PHP 8.0
+            slug: laravel9-php80
             php: '8.0'
             package: php-upgrade-preflight/laravel:@dev
             framework: laravel/framework:^9.0
             smoke: laravel
           - name: Laravel 10 / PHP 8.1
+            slug: laravel10-php81
             php: '8.1'
             package: php-upgrade-preflight/laravel:@dev
             framework: laravel/framework:^10.0
             smoke: laravel
           - name: Laravel 11 / PHP 8.2
+            slug: laravel11-php82
             php: '8.2'
             package: php-upgrade-preflight/laravel:@dev
             framework: laravel/framework:^11.0
             smoke: laravel
           - name: Laravel 12 / PHP 8.2
+            slug: laravel12-php82
             php: '8.2'
             package: php-upgrade-preflight/laravel:@dev
             framework: laravel/framework:^12.0
             smoke: laravel
           - name: Laravel 13 / PHP 8.3
+            slug: laravel13-php83
             php: '8.3'
             package: php-upgrade-preflight/laravel:@dev
             framework: laravel/framework:^13.0
@@ -69,6 +79,20 @@ jobs:
         with:
           php-version: ${{ matrix.case.php }}
           coverage: none
+
+      # Cache only Composer's downloaded archives, never its Packagist metadata cache.
+      # Resolution still runs against live metadata on every job, so this smoke test
+      # keeps detecting ecosystem drift; only the repeated zip downloads are reused.
+      - name: Resolve the Composer download cache directory
+        shell: bash
+        run: echo "COMPOSER_FILES_CACHE=$(composer config --global --absolute cache-files-dir)" >> "${GITHUB_ENV}"
+
+      - name: Cache Composer downloads
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: ${{ env.COMPOSER_FILES_CACHE }}
+          key: compat-${{ matrix.case.slug }}-${{ matrix.resolution }}-${{ github.run_id }}
+          restore-keys: compat-${{ matrix.case.slug }}-${{ matrix.resolution }}-
 
       - name: Resolve a clean consumer install
         shell: bash

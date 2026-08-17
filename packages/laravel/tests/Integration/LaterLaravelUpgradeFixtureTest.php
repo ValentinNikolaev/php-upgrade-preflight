@@ -42,7 +42,8 @@ final class LaterLaravelUpgradeFixtureTest extends TestCase
             $integration->defaultSourcePaths($project),
             $evidence,
             $uncertainties,
-            true
+            true,
+            [$integration]
         );
 
         $guidance = $engine->assessTransitions([$integration], $project, $request, $evidence);

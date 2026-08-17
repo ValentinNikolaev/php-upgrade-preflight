@@ -3,6 +3,10 @@ includes:
 
 parameters:
     level: 6
+    # Each configuration needs its own tmpDir: PHPStan keeps a single resultCache.php
+    # per directory, so a shared tmpDir would make the two analyse passes evict each
+    # other's cache on every run.
+    tmpDir: build/phpstan/dev
     treatPhpDocTypesAsCertain: false
     bootstrapFiles:
         - tests/phpstan-bootstrap.php

@@ -340,6 +340,46 @@ final class AnalyzeCommandTest extends TestCase
         self::assertStringContainsString('Install the matching adapter package', $this->streamContents($this->stderr));
     }
 
+    public function testItReportsAnInstalledPackageWhoseAdapterManifestWasSkipped(): void
+    {
+        $brokenPackage = rtrim(sys_get_temp_dir(), DIRECTORY_SEPARATOR)
+            . DIRECTORY_SEPARATOR . 'php-upgrade-preflight-cli-' . bin2hex(random_bytes(8));
+        mkdir($brokenPackage, 0700, true);
+        file_put_contents(
+            $brokenPackage . DIRECTORY_SEPARATOR . 'composer.json',
+            '{"name":"vendor/broken","extra":{"php-upgrade-preflight":"yes"}}'
+        );
+
+        try {
+            $command = new AnalyzeCommand(
+                $this->analyzer,
+                $this->stdout,
+                $this->stderr,
+                null,
+                null,
+                new FrameworkIntegrationRegistry(null, ['vendor/broken' => $brokenPackage])
+            );
+
+            $exitCode = $command->run([
+                'upgrade-intel',
+                'analyze',
+                '--path=' . dirname(__DIR__, 4),
+                '--target-php=8.2',
+            ]);
+
+            // The unreadable manifest costs its own package, not the run: the report is
+            // still produced, and the skip is named on stderr so an adapter the user
+            // believes is active is not silently missing.
+            self::assertSame(AnalyzeCommand::SUCCESS, $exitCode);
+            self::assertStringContainsString(
+                'Skipped framework adapter discovery for installed package "vendor/broken"',
+                $this->streamContents($this->stderr)
+            );
+        } finally {
+            (new Filesystem())->remove($brokenPackage);
+        }
+    }
+
     public function testItReturnsFailureForAnInternalAnalyzerError(): void
     {
         $command = new AnalyzeCommand(new ThrowingUpgradeAnalyzer(), $this->stdout, $this->stderr);

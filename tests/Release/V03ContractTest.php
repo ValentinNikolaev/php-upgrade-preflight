@@ -263,6 +263,8 @@ final class V03ContractTest extends TestCase
             'source_impact[].id',
             'source_impact[].stage_ids',
             'plan.stages[].stage_id',
+            'resolution.scenarios[].diagnostics[].outcome',
+            'staged_resolution.stages[].attempts[].scenario.diagnostics[].outcome',
         ], $schemaContract['new_required_nested_fields']);
         self::assertTrue($schemaContract['migration_from_0_7']['historical_reports_immutable']);
         self::assertTrue($schemaContract['migration_from_0_7']['missing_staged_resolution_means_v0_7_not_empty_v0_8']);

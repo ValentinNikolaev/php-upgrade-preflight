@@ -13,6 +13,12 @@ last_updated: 2026-08-14
 
 - [windows-git-signing.md](windows-git-signing.md) — project — Windows OpenSSH override required for agent-backed signed commits
 
+## Audits
+
+Point-in-time assessments under `.claude/audits/`. These are evidence, not durable architecture; line numbers are valid only at the recorded commit.
+
+- [2026-08-16-architecture-audit.md](../audits/2026-08-16-architecture-audit.md) — architecture and design patterns at `91eac8f` — 59 findings; three breach stated project rules: Laravel skeleton knowledge in core `Source/ContextualSourceUsageVisitor`, fabricated defaults rendered as fact in `MarkdownReportWriter`, and `DEVELOPMENT_PLAN.md:277` marked `[x]` while orchestration mass sits in `StagedUpgradeOrchestrator::analyze()`
+
 ## Product
 
 PHP Upgrade Preflight is a local, read-only analyzer for Composer-based PHP projects. Its semantic operation is:

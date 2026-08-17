@@ -329,7 +329,9 @@
             "staged_resolution.stages[].tests",
             "source_impact[].id",
             "source_impact[].stage_ids",
-            "plan.stages[].stage_id"
+            "plan.stages[].stage_id",
+            "resolution.scenarios[].diagnostics[].outcome",
+            "staged_resolution.stages[].attempts[].scenario.diagnostics[].outcome"
         ],
         "migration_from_0_7": {
             "dispatch_on": "metadata.schema_version",

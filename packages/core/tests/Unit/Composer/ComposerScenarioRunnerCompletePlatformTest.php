@@ -6,6 +6,7 @@ namespace PhpUpgradePreflight\Core\Tests\Unit\Composer;
 
 use PhpUpgradePreflight\Core\Composer\ComposerScenarioRunner;
 use PhpUpgradePreflight\Core\Composer\ProjectStateBuilder;
+use PhpUpgradePreflight\Core\Filesystem\TemporaryWorkspaceManager;
 use PhpUpgradePreflight\Core\Filesystem\WorkspaceManager;
 use PhpUpgradePreflight\Core\Model\Scenario;
 use PhpUpgradePreflight\Core\Model\ScenarioResult;
@@ -206,9 +207,7 @@ final class ComposerScenarioRunnerCompletePlatformTest extends TestCase
      */
     public function testMalformedPlatformInventoryStopsBeforeWorkspaceOrScenarioExecution(array $malformedRow): void
     {
-        $workspaces = $this->createMock(WorkspaceManager::class);
-        $workspaces->expects(self::never())->method('createFromProject');
-        $workspaces->expects(self::never())->method('remove');
+        $workspaces = new ProbeOnlyWorkspaceManager();
         $processCalls = 0;
         $runner = new ComposerScenarioRunner(
             $workspaces,
@@ -250,6 +249,12 @@ final class ComposerScenarioRunnerCompletePlatformTest extends TestCase
         self::assertTrue($result->isOperationalFailure());
         self::assertStringContainsString('platform inventory could not be determined', $result->stderr());
         self::assertSame(0, $processCalls);
+        self::assertSame(0, $workspaces->createCalls);
+        self::assertNotSame([], $workspaces->removedPaths, 'Metadata probes must be cleaned up through the workspace manager.');
+        foreach ($workspaces->removedPaths as $removedPath) {
+            self::assertStringContainsString('php-upgrade-preflight-composer-probe-', $removedPath);
+            self::assertDirectoryDoesNotExist($removedPath);
+        }
     }
 
     /** @return array<string, array{array<mixed>}> */
@@ -391,5 +396,36 @@ final class ComposerScenarioRunnerCompletePlatformTest extends TestCase
                 'composer-runtime-api' => '2.2.2',
             ],
         ]);
+    }
+}
+
+/**
+ * Accepts the metadata-probe cleanup the runner routes through the injected
+ * workspace manager, while still proving that no scenario workspace was created.
+ */
+final class ProbeOnlyWorkspaceManager implements WorkspaceManager
+{
+    public int $createCalls = 0;
+    /** @var list<string> */
+    public array $removedPaths = [];
+
+    private TemporaryWorkspaceManager $delegate;
+
+    public function __construct()
+    {
+        $this->delegate = new TemporaryWorkspaceManager();
+    }
+
+    public function createFromProject(string $projectPath): string
+    {
+        ++$this->createCalls;
+
+        throw new \LogicException('A scenario workspace must not be created.');
+    }
+
+    public function remove(string $path): void
+    {
+        $this->delegate->remove($path);
+        $this->removedPaths[] = $path;
     }
 }

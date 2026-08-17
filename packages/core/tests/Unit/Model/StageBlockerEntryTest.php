@@ -5,11 +5,87 @@ declare(strict_types=1);
 namespace PhpUpgradePreflight\Core\Tests\Unit\Model;
 
 use PhpUpgradePreflight\Core\Model\Blocker;
+use PhpUpgradePreflight\Core\Model\BlockerType;
 use PhpUpgradePreflight\Core\Model\StageBlockerEntry;
 use PHPUnit\Framework\TestCase;
 
 final class StageBlockerEntryTest extends TestCase
 {
+    public function testItProjectsTheBlockerItWrapsInAStableCanonicalOrder(): void
+    {
+        $entry = StageBlockerEntry::detected(
+            'fixture-1-to-2',
+            1,
+            'attempt-1',
+            $this->blocker('^1.0', ['root/project', 'vendor/blocker', 'vendor/target'], 'solver-1'),
+            ['attempt-1']
+        );
+        $canonical = $entry->toArray();
+
+        self::assertSame([
+            'id',
+            'stage_id',
+            'attempt',
+            'scenario',
+            'category',
+            'subject',
+            'blocking_package',
+            'requested_constraint',
+            'constraint',
+            'dependency_path',
+            'confidence',
+            'summary',
+            'options',
+            'blocking',
+            'evidence',
+            'first_seen',
+            'last_seen',
+            'lifecycle',
+            'lifecycle_history',
+            'observations',
+        ], array_keys($canonical));
+
+        self::assertSame(BlockerType::TRANSITIVE_PACKAGE_CONFLICT, $canonical['category']);
+        self::assertSame('vendor/target', $canonical['subject']);
+        self::assertSame('vendor/blocker', $canonical['blocking_package']);
+        self::assertSame('^2.0', $canonical['requested_constraint']);
+        self::assertSame('^1.0', $canonical['constraint']);
+        self::assertSame(['root/project', 'vendor/blocker', 'vendor/target'], $canonical['dependency_path']);
+        self::assertSame('high', $canonical['confidence']);
+        self::assertSame('A transitive constraint blocks the target.', $canonical['summary']);
+        self::assertSame(['Upgrade vendor/blocker.'], $canonical['options']);
+        self::assertTrue($canonical['blocking']);
+        self::assertSame('A transitive constraint blocks the target.', $entry->summary());
+        self::assertSame(['Upgrade vendor/blocker.'], $entry->options());
+        self::assertTrue($entry->isBlocking());
+    }
+
+    public function testAnAdvisoryBlockerIsRegisteredWithoutBlockingTheStage(): void
+    {
+        $entry = StageBlockerEntry::detected(
+            'fixture-1-to-2',
+            1,
+            'attempt-1',
+            new Blocker(
+                BlockerType::ABANDONED_PACKAGE,
+                'vendor/legacy',
+                'Composer lock metadata marks this package as abandoned.',
+                'high',
+                ['lock-metadata-1'],
+                null,
+                null,
+                '1.0.0',
+                null,
+                ['vendor/legacy'],
+                ['Replace or remove `vendor/legacy`.']
+            )
+        );
+
+        self::assertFalse($entry->isBlocking());
+        self::assertFalse($entry->toArray()['blocking']);
+        self::assertSame(BlockerType::ABANDONED_PACKAGE, $entry->toArray()['category']);
+    }
+
     public function testItRetainsDetectedPersistentAndResolvedLifecycleHistory(): void
     {
         $blocker = $this->blocker('^1.0', ['root/project', 'vendor/blocker', 'vendor/target'], 'solver-1');

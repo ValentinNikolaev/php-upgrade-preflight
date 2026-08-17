@@ -45,7 +45,7 @@ Historical reports are not rewritten. A multi-version consumer must retain separ
 
 ## Migrating from 0.7 to 0.8
 
-Schema 0.8 adds required top-level `composer_execution` and `staged_resolution` objects, required `request_summary.composer_execution`, plus required nullable `request_summary.target_platform_profile` and `platform.profile` fields. It does not change the meaning of `resolution.status`, `transition.framework_guidance`, direct-final `transition.package_changes`, or the schema 0.7 source fields. A `null` profile preserves legacy named partial-platform behavior; it does not mean an empty complete profile.
+Schema 0.8 adds required top-level `composer_execution` and `staged_resolution` objects, required `request_summary.composer_execution`, plus required nullable `request_summary.target_platform_profile` and `platform.profile` fields. It also adds a required `outcome` to every Composer diagnostic. It does not change the meaning of `resolution.status`, `transition.framework_guidance`, direct-final `transition.package_changes`, or the schema 0.7 source fields. A `null` profile preserves legacy named partial-platform behavior; it does not mean an empty complete profile.
 
 | 0.7 | 0.8 |
 | --- | --- |
@@ -55,6 +55,11 @@ Schema 0.8 adds required top-level `composer_execution` and `staged_resolution` 
 | No selected intermediate project state | Each stage links predecessor, input, and selected output manifest/lock/platform/execution-policy fingerprints |
 | Framework findings are hop-scoped | Executed stages project applicable findings and stable source-impact IDs while explicitly naming `original_project` as the inspected snapshot; full staged findings are de-duplicated in `staged_resolution.source_impact` |
 | No versioned target-platform profile | `request_summary.target_platform_profile` records safe input metadata and `platform.profile` records the normalized effective profile or `null` |
+| A diagnostic carried only an exit code | Every `diagnostics[]` entry carries a required `outcome` from the same vocabulary as `resolution.scenarios[].outcome`, so a probe timeout, a missing Composer binary, and an ordinary non-zero `composer prohibits` exit are distinguishable |
+
+Scenario and diagnostic outcomes share one vocabulary: `success`, `solver_failure`, `validation_failure`, `composer_missing`, `repository_metadata_unavailable`, `timeout`, `invalid_json`, `lockfile_missing`, `process_failure`, `cleanup_failure`, and `workspace_failure`. A diagnostic reports `success` when the probe itself ran, including when it exits non-zero because the prohibited relation was found — that non-zero exit is the evidence the probe exists to capture. Only unusable execution downgrades the outcome. The Markdown projection renders the same value beside each scenario and each diagnostic.
+
+`invalid_json` covers unusable project Composer input rather than a broken analysis environment. Besides `composer.json` or `composer.lock` that is not valid JSON, it reports a manifest whose `config.platform` declares contradictory duplicate package names, and a manifest whose `config` or `config.platform` is not an object and therefore cannot carry the simulated platform values.
 
 The required `staged_resolution.budgets` object reports the normative hop, attempt, scenario, Composer-process, per-scenario timeout, per-stage timeout, aggregate timeout, memory, JSON-size, and Markdown-size caps. In schema 0.8, `max_composer_processes` is `128` and `stage_timeout_seconds` is `900`; consumers must not infer either value from the scenario or aggregate limits.
 

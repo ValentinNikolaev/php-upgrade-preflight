@@ -12,13 +12,10 @@ use PhpUpgradePreflight\Core\Composer\ProjectStateLoadResult;
 use PhpUpgradePreflight\Core\Contracts\UpgradeAnalyzer;
 use PhpUpgradePreflight\Core\Framework\FrameworkIntegration;
 use PhpUpgradePreflight\Core\Model\ComposerLock;
-use PhpUpgradePreflight\Core\Model\EffortEstimate;
 use PhpUpgradePreflight\Core\Model\EvidenceLedger;
 use PhpUpgradePreflight\Core\Model\LockDiff;
-use PhpUpgradePreflight\Core\Model\RiskSummary;
 use PhpUpgradePreflight\Core\Model\Scenario;
 use PhpUpgradePreflight\Core\Model\ScenarioResult;
-use PhpUpgradePreflight\Core\Model\StagedResolution;
 use PhpUpgradePreflight\Core\Model\TargetPlatform;
 use PhpUpgradePreflight\Core\Model\UpgradeReport;
 use PhpUpgradePreflight\Core\Model\UpgradeRequest;
@@ -131,13 +128,25 @@ final class DefaultUpgradeAnalyzer implements UpgradeAnalyzer
             $platform,
             $evidence
         );
-        $sourceUncertainties = $analysisUncertainties;
+        // A metadata-probe workspace the analyzer could not remove leaves state on disk and makes
+        // every Composer version or platform answer derived from that probe suspect, so it has to
+        // reach the report rather than staying an in-process accessor nobody reads. Candidate locks
+        // are collected after the staged chain for the same reason: a scenario or stage lock entry
+        // the analyzer could not index is gone once the workspace is removed, and the candidate
+        // package count and package changes silently exclude it.
+        $sourceUncertainties = array_merge(
+            $analysisUncertainties,
+            $this->scenarioRunner->probeCleanupUncertainties(),
+            $project->composerLock()->unusablePackageUncertainties(),
+            $this->scenarioRunner->candidateLockUncertainties()
+        );
         $sourceInventory = $this->sourceUsageScanner->scan(
             $project,
             array_values($sourcePaths),
             $evidence,
             $sourceUncertainties,
-            $request->sourcePaths() !== []
+            $request->sourcePaths() !== [],
+            $activeFrameworks
         );
         $frameworkGuidance = $this->frameworkRuleEngine->assessTransitions(
             $activeFrameworks,
@@ -152,7 +161,12 @@ final class DefaultUpgradeAnalyzer implements UpgradeAnalyzer
             $evidence,
             $sourceInventory,
             $frameworkGuidance,
-            $this->composerVersion($scenarioResults)
+            $this->composerVersion($scenarioResults),
+            // A rule that throws is skipped rather than ending the run, but the evidence
+            // recorded for that skip is only reachable through the uncertainty that cites
+            // it. Dropping the appended entries here would orphan that evidence and turn
+            // a contained adapter defect back into a failed report.
+            $sourceUncertainties
         );
         $ownershipIndex = $this->ownershipIndexBuilder->build(
             $project,
@@ -197,6 +211,7 @@ final class DefaultUpgradeAnalyzer implements UpgradeAnalyzer
             $lockDiff,
             $blockers,
             $sourceInventory,
+            $actionableSourceImpact,
             $frameworkFindings,
             $risk,
             $effort,
@@ -204,7 +219,6 @@ final class DefaultUpgradeAnalyzer implements UpgradeAnalyzer
             $evidence,
             $frameworkGuidance,
             $platform,
-            $actionableSourceImpact,
             $stagedResolution
         );
     }
@@ -246,30 +260,11 @@ final class DefaultUpgradeAnalyzer implements UpgradeAnalyzer
             $outcome
         );
 
-        return new UpgradeReport(
+        return ReportAssembler::inputFailure(
             $request,
             $projectLoad->project(),
-            [$scenarioResult],
-            new LockDiff([]),
-            [],
-            [],
-            [],
-            new RiskSummary('high', ['Upgrade risk could not be assessed because Composer project input is incomplete.']),
-            new EffortEstimate(
-                [0, 0],
-                'low',
-                [],
-                ['Upgrade effort was not estimated because Composer project input could not be loaded.']
-            ),
-            [sprintf('Composer project input could not be loaded: %s', $safeFailureMessage)],
-            [],
-            [],
-            [],
-            [],
-            [],
-            [],
-            null,
-            StagedResolution::skipped('project_input_failure')
+            $scenarioResult,
+            $safeFailureMessage
         );
     }
 

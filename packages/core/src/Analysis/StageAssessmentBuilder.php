@@ -166,35 +166,41 @@ final class StageAssessmentBuilder
         }
 
         $id = $stage->target()->id();
-        $scripts = $project->composerJson()->data()['scripts'] ?? null;
-        $hasTestScript = is_array($scripts) && array_key_exists('test', $scripts);
-        $tests = [
-            new StageTestGuidance($id, 'composer-validation', sprintf('Validate the stage %s manifest.', $id), 'composer validate --strict', 'required'),
-            new StageTestGuidance(
-                $id,
-                'project-test-suite',
-                sprintf('Run the project test suite for stage %s after applying its evidenced changes.', $id),
-                $hasTestScript ? 'composer test' : null,
-                'required'
-            ),
-            new StageTestGuidance(
-                $id,
-                'platform-requirements',
-                sprintf('Validate stage %s against analysis PHP %s and its recorded platform.', $id, $stage->target()->analysisPhp()),
-                'composer check-platform-reqs',
-                'required'
-            ),
-        ];
-        if ($findings !== [] || $impact !== []) {
+        $applicable = TestGuidanceCatalog::applicable(
+            TestGuidanceCatalog::hasComposerScript($project, 'test'),
+            $findings !== [] || $impact !== []
+        );
+
+        $tests = [];
+        foreach ($applicable as $spec) {
             $tests[] = new StageTestGuidance(
                 $id,
-                'focused-regressions',
-                sprintf('Exercise the original-snapshot findings correlated with stage %s.', $id),
-                null,
-                'recommended'
+                $spec['id'],
+                $this->testPurpose($spec['id'], $stage),
+                $spec['command'],
+                $spec['grade']
             );
         }
 
         return $tests;
+    }
+
+    private function testPurpose(string $id, StageAnalysis $stage): string
+    {
+        $stageId = $stage->target()->id();
+
+        return match ($id) {
+            TestGuidanceCatalog::COMPOSER_VALIDATION => sprintf('Validate the stage %s manifest.', $stageId),
+            TestGuidanceCatalog::PROJECT_TEST_SUITE => sprintf(
+                'Run the project test suite for stage %s after applying its evidenced changes.',
+                $stageId
+            ),
+            TestGuidanceCatalog::PLATFORM_REQUIREMENTS => sprintf(
+                'Validate stage %s against analysis PHP %s and its recorded platform.',
+                $stageId,
+                $stage->target()->analysisPhp()
+            ),
+            default => sprintf('Exercise the original-snapshot findings correlated with stage %s.', $stageId),
+        };
     }
 }

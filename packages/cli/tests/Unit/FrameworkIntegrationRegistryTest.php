@@ -155,21 +155,61 @@ final class FrameworkIntegrationRegistryTest extends TestCase
         ]))->installed());
     }
 
-    public function testItRejectsComposerMetadataThatCannotBeRead(): void
+    public function testItSkipsAPackageWhoseComposerMetadataCannotBeRead(): void
     {
         $scheme = 'registry-unreadable';
         self::assertTrue(stream_wrapper_register($scheme, RegistryUnreadableStreamWrapper::class));
 
-        $this->expectException(\LogicException::class);
-        $this->expectExceptionMessage('Could not read Composer metadata for installed package "vendor/unreadable".');
-
         try {
-            (new FrameworkIntegrationRegistry(null, [
+            $registry = new FrameworkIntegrationRegistry(null, [
                 'vendor/unreadable' => $scheme . '://package',
-            ]))->installed();
+            ]);
+
+            self::assertSame([], $registry->installed());
+            self::assertSame([
+                'Skipped framework adapter discovery for installed package "vendor/unreadable": '
+                . 'Could not read Composer metadata for installed package "vendor/unreadable".',
+            ], $registry->discoveryDiagnostics());
         } finally {
             stream_wrapper_unregister($scheme);
         }
+    }
+
+    public function testAMalformedManifestSkipsOnlyItsOwnPackageAndStillLoadsValidAdapters(): void
+    {
+        $valid = $this->package('vendor/valid', [RegistryAlphaIntegration::class]);
+        $registry = new FrameworkIntegrationRegistry(null, [
+            'vendor/valid' => $valid,
+            'vendor/broken' => $this->brokenPackage(),
+        ]);
+
+        self::assertSame(
+            ['alpha'],
+            array_map(static fn ($integration): string => $integration->name(), $registry->installed())
+        );
+        self::assertSame([
+            'Skipped framework adapter discovery for installed package "vendor/broken": '
+            . 'Composer metadata extra.php-upgrade-preflight for package "vendor/broken" must be an object.',
+        ], $registry->discoveryDiagnostics());
+
+        $registry->assertAvailable(['alpha']);
+    }
+
+    public function testAnExplicitlyRequestedFrameworkStillFailsWhenItsPackageWasSkipped(): void
+    {
+        $registry = new FrameworkIntegrationRegistry(null, ['vendor/broken' => $this->brokenPackage()]);
+
+        self::assertSame([], $registry->installed());
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage(
+            'Requested framework integration is unavailable: alpha.'
+            . ' Install the matching adapter package or remove the --framework option.'
+            . ' Adapter discovery also skipped one installed package with an unreadable adapter manifest:'
+            . ' "vendor/broken" (Composer metadata extra.php-upgrade-preflight for package "vendor/broken" must be an object.)'
+        );
+
+        $registry->assertAvailable(['alpha']);
     }
 
     public function testItRejectsADuplicateAdvertisedClassCaseInsensitively(): void
@@ -266,30 +306,34 @@ final class FrameworkIntegrationRegistryTest extends TestCase
      * @dataProvider malformedMetadataProvider
      * @param mixed $registered
      */
-    public function testItRejectsMalformedAdapterMetadata($registered, string $expectedMessage): void
+    public function testItSkipsAPackageWithMalformedAdapterMetadata($registered, string $expectedMessage): void
     {
         $package = $this->package('vendor/malformed', $registered);
+        $registry = new FrameworkIntegrationRegistry(null, ['vendor/malformed' => $package]);
 
-        $this->expectException(\LogicException::class);
-        $this->expectExceptionMessage($expectedMessage);
-
-        (new FrameworkIntegrationRegistry(null, ['vendor/malformed' => $package]))->installed();
+        self::assertSame([], $registry->installed());
+        self::assertCount(1, $registry->discoveryDiagnostics());
+        self::assertStringStartsWith(
+            'Skipped framework adapter discovery for installed package "vendor/malformed": ',
+            $registry->discoveryDiagnostics()[0]
+        );
+        self::assertStringContainsString($expectedMessage, $registry->discoveryDiagnostics()[0]);
     }
 
     /**
      * @dataProvider malformedPackageMetadataProvider
      * @param mixed $metadata
      */
-    public function testItRejectsMalformedPackageMetadata($metadata, string $expectedMessage, bool $encode = true): void
+    public function testItSkipsAPackageWithMalformedPackageMetadata($metadata, string $expectedMessage, bool $encode = true): void
     {
         $package = $this->temporaryDirectory();
         $contents = $encode ? json_encode($metadata, JSON_THROW_ON_ERROR) : $metadata;
         file_put_contents($package . DIRECTORY_SEPARATOR . 'composer.json', $contents);
+        $registry = new FrameworkIntegrationRegistry(null, ['vendor/malformed-package' => $package]);
 
-        $this->expectException(\LogicException::class);
-        $this->expectExceptionMessage($expectedMessage);
-
-        (new FrameworkIntegrationRegistry(null, ['vendor/malformed-package' => $package]))->installed();
+        self::assertSame([], $registry->installed());
+        self::assertCount(1, $registry->discoveryDiagnostics());
+        self::assertStringContainsString($expectedMessage, $registry->discoveryDiagnostics()[0]);
     }
 
     /** @return iterable<string, array{mixed, string, bool?: bool}> */
@@ -355,6 +399,18 @@ final class FrameworkIntegrationRegistryTest extends TestCase
         $this->expectExceptionMessage('Requested framework integration is unavailable: missing.');
 
         $registry->assertAvailable(['missing']);
+    }
+
+    /** An unrelated installed dependency that ships an object-shaped plugin key as a scalar. */
+    private function brokenPackage(): string
+    {
+        $directory = $this->temporaryDirectory();
+        file_put_contents(
+            $directory . DIRECTORY_SEPARATOR . 'composer.json',
+            '{"name":"vendor/broken","extra":{"php-upgrade-preflight":"yes"}}'
+        );
+
+        return $directory;
     }
 
     /** @param mixed $registered */

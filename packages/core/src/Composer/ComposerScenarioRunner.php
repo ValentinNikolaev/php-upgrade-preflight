@@ -19,21 +19,26 @@ use PhpUpgradePreflight\Core\Model\ScenarioResult;
 use PhpUpgradePreflight\Core\Model\TargetPlatform;
 use PhpUpgradePreflight\Core\Model\UpgradeRequest;
 use PhpUpgradePreflight\Core\Support\PathExposurePolicy;
-use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Process\Exception\ProcessTimedOutException;
 use Symfony\Component\Process\Process;
 
 final class ComposerScenarioRunner
 {
-    public const SCENARIO_TIMEOUT_SECONDS = 300;
     private const COMPLETE_PLATFORM_MIN_COMPOSER_VERSION = '2.2.0';
     private const LOCKED_DIAGNOSTIC_MIN_COMPOSER_VERSION = '2.4.0';
+    /**
+     * Composer metadata probes (`--version`, `show --platform`) are short local
+     * commands and are not covered by the configured scenario or diagnostic
+     * timeouts, which bound solver work instead.
+     */
+    private const METADATA_PROBE_TIMEOUT_SECONDS = 30;
     /** @var list<string> */
     private const COMPOSER_SAFETY_OPTIONS = ['--no-scripts', '--no-plugins'];
 
     private WorkspaceManager $workspaces;
     private JsonFileReader $reader;
+    private ScenarioOutcomeClassifier $classifier;
+    private ScenarioWorkspacePreparer $preparer;
     /** @var \Closure(list<string>, string, array<string, string|false>, int): array{exit_code: int, stdout: string, stderr: string} */
     private \Closure $processRunner;
     /** @var \Closure(ComposerExecutionConfiguration): ?string */
@@ -53,6 +58,10 @@ final class ComposerScenarioRunner
     private ?string $platformPackagesConfigurationKey = null;
     /** @var array<string, ComposerDiagnostic> */
     private array $diagnosticCache = [];
+    /** @var list<string> */
+    private array $probeCleanupUncertainties = [];
+    /** @var list<string> */
+    private array $candidateLockUncertainties = [];
 
     /**
      * @param null|callable(list<string>, string, array<string, string|false>, int): array{exit_code: int, stdout: string, stderr: string} $processRunner
@@ -72,6 +81,8 @@ final class ComposerScenarioRunner
     ) {
         $this->workspaces = $workspaces ?? new TemporaryWorkspaceManager();
         $this->reader = $reader ?? new JsonFileReader();
+        $this->classifier = new ScenarioOutcomeClassifier();
+        $this->preparer = new ScenarioWorkspacePreparer();
         $this->processRunner = $processRunner === null
             ? \Closure::fromCallable([$this, 'runProcess'])
             : \Closure::fromCallable($processRunner);
@@ -79,9 +90,8 @@ final class ComposerScenarioRunner
             ? \Closure::fromCallable([$this, 'runVersionProcess'])
             : \Closure::fromCallable($composerVersionProcessRunner);
         $this->composerVersionResolver = $composerVersionResolver === null
-            ? ($processRunner === null || $composerVersionProcessRunner !== null
-                ? \Closure::fromCallable([$this, 'detectComposerVersion'])
-                : static fn (): ?string => null)
+            ? (self::defaultVersionResolver($processRunner, $composerVersionProcessRunner)
+                ?? \Closure::fromCallable([$this, 'detectComposerVersion']))
             : \Closure::fromCallable($composerVersionResolver);
         $this->clock = $clock === null
             ? static fn (): float => microtime(true)
@@ -89,6 +99,28 @@ final class ComposerScenarioRunner
         $this->platformPackageResolver = $platformPackageResolver === null
             ? \Closure::fromCallable([$this, 'detectComposerPlatformPackages'])
             : \Closure::fromCallable($platformPackageResolver);
+    }
+
+    /**
+     * Resolves the version resolver used when the caller supplied none.
+     *
+     * Version detection spawns a real Composer process. That is only acceptable
+     * when the caller kept the production process adapters, or explicitly opted
+     * in by supplying a metadata process runner. A caller that replaced the
+     * scenario process runner without supplying a metadata process runner gets a
+     * disabled resolver instead of an unexpected child process.
+     *
+     * Returns null when the runner's own detector should be used.
+     */
+    private static function defaultVersionResolver(
+        ?callable $processRunner,
+        ?callable $versionProcessRunner
+    ): ?\Closure {
+        if ($processRunner === null || $versionProcessRunner !== null) {
+            return null;
+        }
+
+        return static fn (): ?string => null;
     }
 
     public function run(
@@ -118,47 +150,31 @@ final class ComposerScenarioRunner
                 )
             );
         }
-        $analyzerPlatformPackages = null;
-        if (!$scenario->isBaselineValidation() || $platform->isCompleteProfile()) {
-            $capabilityFailure = $this->platformCapabilityFailure($platform, $composerVersion);
-            if ($capabilityFailure !== null) {
-                return $this->operationalResult($scenario, $composerVersion, $this->safeCommand($command, $execution), $capabilityFailure);
-            }
-
-            if ($platform->needsToolchainValidation()) {
-                $analyzerPlatformPackages = $this->resolvePlatformPackages($execution);
-                if ($analyzerPlatformPackages === null) {
-                    return $this->operationalResult(
-                        $scenario,
-                        $composerVersion,
-                        $this->safeCommand($command, $execution),
-                        $platform->isCompleteProfile()
-                            ? 'Composer platform inventory could not be determined; the complete target-platform profile was not weakened to partial coverage.'
-                            : 'Composer platform inventory could not be determined, so toolchain-bound target-platform values could not be validated.'
-                    );
-                }
-                $toolchainFailure = $platform->toolchainValidationFailure($analyzerPlatformPackages);
-                if ($toolchainFailure !== null) {
-                    return $this->operationalResult(
-                        $scenario,
-                        $composerVersion,
-                        $this->safeCommand($command, $execution),
-                        $toolchainFailure
-                    );
-                }
-            }
+        [$platformFailure, $analyzerPlatformPackages] = $this->platformSimulationReadiness(
+            $scenario,
+            $platform,
+            $execution,
+            $composerVersion
+        );
+        if ($platformFailure !== null) {
+            return $this->operationalResult(
+                $scenario,
+                $composerVersion,
+                $this->safeCommand($command, $execution),
+                $platformFailure
+            );
         }
         $startedAt = ($this->clock)();
-        $phase = 'workspace';
+        $phase = ScenarioOutcomeClassifier::PHASE_WORKSPACE;
         $cleanupFailedDuringCreation = false;
 
         try {
             $tempPath = $this->workspaces->createFromProject($project->path());
-            $this->seedProjectState($tempPath, $project);
-            $phase = 'preparation';
+            $this->preparer->seedProjectState($tempPath, $project);
+            $phase = ScenarioOutcomeClassifier::PHASE_PREPARATION;
             $candidateManifest = $project->composerJson();
             if (!$scenario->isBaselineValidation()) {
-                $candidateManifest = $this->applyTemporaryComposerChanges(
+                $candidateManifest = $this->preparer->applyTemporaryComposerChanges(
                     $tempPath,
                     $project,
                     $scenario,
@@ -166,8 +182,10 @@ final class ComposerScenarioRunner
                     $analyzerPlatformPackages
                 );
             }
-            $phase = 'process';
-            $environment = $this->processEnvironment($execution, $tempPath);
+            // The restricted Composer state is analyzer-owned workspace preparation:
+            // a failure here happens before any Composer process exists.
+            $environment = $this->preparer->processEnvironment($execution, $tempPath);
+            $phase = ScenarioOutcomeClassifier::PHASE_PROCESS;
             $process = ($this->processRunner)(
                 $command,
                 $tempPath,
@@ -181,51 +199,22 @@ final class ComposerScenarioRunner
                 $repositoryPaths,
                 $execution
             );
-            $lock = null;
-            $candidateLockEvidence = null;
-            $candidateProjectState = null;
-            $lockPath = $tempPath . DIRECTORY_SEPARATOR . 'composer.lock';
-            $phase = 'lockfile';
-            if ($process['exit_code'] === 0 && is_file($lockPath)) {
-                $lock = new ComposerLock($this->reader->read($lockPath), array_keys($candidateManifest->rootRequirements()));
-                $candidateLockEvidence = CandidateLockEvidence::fromFile($lockPath, $lock);
-                $candidateProjectState = new ProjectState(
-                    $project->path(),
-                    $candidateManifest,
-                    $lock
-                );
-            }
+            $phase = ScenarioOutcomeClassifier::PHASE_LOCKFILE;
+            [$lock, $candidateLockEvidence, $candidateProjectState] = $this->readCandidateLock(
+                $tempPath,
+                $project,
+                $candidateManifest,
+                $process['exit_code'] === 0
+            );
 
-            $failureType = null;
-            $outcome = ScenarioResult::OUTCOME_SUCCESS;
-            $diagnostics = [];
-            if ($process['exit_code'] !== 0) {
-                if ($this->indicatesMissingComposer($process['exit_code'], $process['stdout'], $process['stderr'])) {
-                    $failureType = ScenarioResult::FAILURE_OPERATIONAL;
-                    $outcome = ScenarioResult::OUTCOME_COMPOSER_MISSING;
-                } elseif ($execution->isRestricted()
-                    && $this->indicatesUnavailableRepositoryMetadata($process['stdout'], $process['stderr'])
-                ) {
-                    $failureType = ScenarioResult::FAILURE_OPERATIONAL;
-                    $outcome = ScenarioResult::OUTCOME_REPOSITORY_METADATA_UNAVAILABLE;
-                } elseif ($scenario->isBaselineValidation()) {
-                    $failureType = ScenarioResult::FAILURE_VALIDATION;
-                    $outcome = ScenarioResult::OUTCOME_VALIDATION_FAILURE;
-                } else {
-                    $failureType = $this->isSolverFailure($process['stdout'], $process['stderr'])
-                        ? ScenarioResult::FAILURE_SOLVER
-                        : ScenarioResult::FAILURE_OPERATIONAL;
-                    $outcome = $failureType === ScenarioResult::FAILURE_SOLVER
-                        ? ScenarioResult::OUTCOME_SOLVER_FAILURE
-                        : ScenarioResult::OUTCOME_PROCESS_FAILURE;
-                }
-            } elseif ($lock === null) {
-                $failureType = ScenarioResult::FAILURE_OPERATIONAL;
-                $outcome = ScenarioResult::OUTCOME_LOCKFILE_MISSING;
-            }
-
-            if ($failureType === ScenarioResult::FAILURE_SOLVER) {
-                $diagnostics = $this->runTargetDiagnostics(
+            $classification = $this->classifier->classifyProcessResult(
+                $process,
+                $lock !== null,
+                $scenario,
+                $execution
+            );
+            $diagnostics = $classification->isSolverFailure()
+                ? $this->runTargetDiagnostics(
                     $project,
                     $request,
                     $scenario,
@@ -234,8 +223,8 @@ final class ComposerScenarioRunner
                     $repositoryPaths,
                     $execution,
                     $environment
-                );
-            }
+                )
+                : [];
 
             $result = new ScenarioResult(
                 $scenario,
@@ -244,13 +233,13 @@ final class ComposerScenarioRunner
                 $process['stderr'],
                 $lock,
                 $request->debug() ? $tempPath : null,
-                $failureType,
+                $classification->failureType(),
                 $composerVersion,
                 $this->safeCommand($command, $execution),
                 0,
                 $candidateLockEvidence,
                 $diagnostics,
-                $outcome,
+                $classification->outcome(),
                 $request->debug(),
                 $candidateProjectState
             );
@@ -260,42 +249,12 @@ final class ComposerScenarioRunner
                 $cleanupFailedDuringCreation = true;
             }
 
-            $stdout = '';
-            $stderr = $exception->getMessage();
-            $exitCode = 1;
-            if ($exception instanceof ProcessTimedOutException) {
-                $timedOutProcess = $exception->getProcess();
-                try {
-                    $stdout = $timedOutProcess->getOutput();
-                    $stderr = $timedOutProcess->getErrorOutput();
-                } catch (\Throwable) {
-                    $stdout = '';
-                    $stderr = '';
-                }
-                $stderr = trim($stderr . PHP_EOL . $exception->getMessage());
-                $exitCode = $timedOutProcess->getExitCode() ?? 1;
-            }
-
-            $stdout = $this->redactExecutionText(
-                $stdout,
-                $project->path(),
-                $tempPath,
-                $repositoryPaths,
-                $execution
-            );
-            $stderr = $this->redactExecutionText(
-                $stderr,
-                $project->path(),
-                $tempPath,
-                $repositoryPaths,
-                $execution
-            );
-
+            [$stdout, $stderr, $exitCode] = $this->exceptionExecutionEvidence($exception);
             $result = new ScenarioResult(
                 $scenario,
                 $exitCode,
-                $stdout,
-                $stderr,
+                $this->redactExecutionText($stdout, $project->path(), $tempPath, $repositoryPaths, $execution),
+                $this->redactExecutionText($stderr, $project->path(), $tempPath, $repositoryPaths, $execution),
                 null,
                 $request->debug() || $cleanupFailedDuringCreation ? $tempPath : null,
                 ScenarioResult::FAILURE_OPERATIONAL,
@@ -304,40 +263,20 @@ final class ComposerScenarioRunner
                 0,
                 null,
                 [],
-                $this->exceptionOutcome($exception, $phase),
+                $this->classifier->classifyException($exception, $phase)->outcome(),
                 $request->debug()
             );
         }
 
         if (!$request->debug() && $tempPath !== null && !$cleanupFailedDuringCreation) {
-            try {
-                $this->workspaces->remove($tempPath);
-            } catch (\Throwable $exception) {
-                $result = new ScenarioResult(
-                    $scenario,
-                    $result->exitCode(),
-                    $result->stdout(),
-                    trim($result->stderr() . PHP_EOL . sprintf(
-                        'Temporary workspace cleanup failed: %s',
-                        PathExposurePolicy::redactComposerText(
-                            $exception->getMessage(),
-                            $project->path(),
-                            $tempPath,
-                            $repositoryPaths
-                        )
-                    )),
-                    null,
-                    $tempPath,
-                    ScenarioResult::FAILURE_OPERATIONAL,
-                    $result->composerVersion(),
-                    $result->command(),
-                    0,
-                    $result->candidateLockEvidence(),
-                    $result->diagnostics(),
-                    ScenarioResult::OUTCOME_CLEANUP_FAILURE,
-                    $request->debug()
-                );
-            }
+            $result = $this->removeScenarioWorkspace(
+                $result,
+                $scenario,
+                $tempPath,
+                $project->path(),
+                $repositoryPaths,
+                $request->debug()
+            );
         }
 
         return $this->withDuration($result, $this->elapsedMilliseconds($startedAt), $request->debug());
@@ -357,6 +296,106 @@ final class ComposerScenarioRunner
         $this->platformPackagesResolved = false;
         $this->platformPackages = null;
         $this->platformPackagesConfigurationKey = null;
+        $this->probeCleanupUncertainties = [];
+        $this->candidateLockUncertainties = [];
+    }
+
+    /**
+     * Metadata probe workspaces that could not be removed. Each entry is a
+     * shareable uncertainty: the analyzer left state behind, so any Composer
+     * version or platform inventory derived from that probe is suspect. The
+     * list is scoped to the currently cached probe answers and is cleared by
+     * {@see self::resetAnalysisCaches()}.
+     *
+     * @return list<string>
+     */
+    public function probeCleanupUncertainties(): array
+    {
+        return array_values(array_unique($this->probeCleanupUncertainties));
+    }
+
+    /**
+     * Candidate-lock entries no scenario could index. Every direct scenario and every staged attempt
+     * reads its candidate lock through this runner and then discards it with its workspace, so the
+     * omissions are collected here to reach the report at all: the published candidate package count
+     * and the package changes derived from that lock exclude the skipped entries while the recorded
+     * hash still covers the whole file. The list spans the current analysis and is cleared by
+     * {@see self::resetAnalysisCaches()}.
+     *
+     * @return list<string>
+     */
+    public function candidateLockUncertainties(): array
+    {
+        return array_values(array_unique($this->candidateLockUncertainties));
+    }
+
+    /**
+     * Decides whether Composer may be asked to simulate the requested target
+     * platform, and resolves the analyzer inventory that decision needed.
+     *
+     * @return array{?string, ?array<string, string>} the blocking failure message
+     *         when the simulation must not be attempted, and the analyzer platform
+     *         inventory the scenario workspace should be built against
+     */
+    private function platformSimulationReadiness(
+        Scenario $scenario,
+        TargetPlatform $platform,
+        ComposerExecutionConfiguration $execution,
+        ?string $composerVersion
+    ): array {
+        if ($scenario->isBaselineValidation() && !$platform->isCompleteProfile()) {
+            return [null, null];
+        }
+
+        $capabilityFailure = $this->platformCapabilityFailure($platform, $composerVersion);
+        if ($capabilityFailure !== null) {
+            return [$capabilityFailure, null];
+        }
+
+        if (!$platform->needsToolchainValidation()) {
+            return [null, null];
+        }
+
+        $analyzerPlatformPackages = $this->resolvePlatformPackages($execution);
+        if ($analyzerPlatformPackages === null) {
+            return [
+                $platform->isCompleteProfile()
+                    ? 'Composer platform inventory could not be determined; the complete target-platform profile was not weakened to partial coverage.'
+                    : 'Composer platform inventory could not be determined, so toolchain-bound target-platform values could not be validated.',
+                null,
+            ];
+        }
+
+        return [$platform->toolchainValidationFailure($analyzerPlatformPackages), $analyzerPlatformPackages];
+    }
+
+    /**
+     * Reads the candidate lockfile a resolved scenario produced in its workspace.
+     *
+     * @return array{?ComposerLock, ?CandidateLockEvidence, ?ProjectState}
+     */
+    private function readCandidateLock(
+        string $tempPath,
+        ProjectState $project,
+        ComposerJson $candidateManifest,
+        bool $resolved
+    ): array {
+        $lockPath = $tempPath . DIRECTORY_SEPARATOR . 'composer.lock';
+        if (!$resolved || !is_file($lockPath)) {
+            return [null, null, null];
+        }
+
+        $lock = new ComposerLock($this->reader->read($lockPath), array_keys($candidateManifest->rootRequirements()));
+        $this->candidateLockUncertainties = array_merge(
+            $this->candidateLockUncertainties,
+            $lock->unusableCandidatePackageUncertainties()
+        );
+
+        return [
+            $lock,
+            CandidateLockEvidence::fromFile($lockPath, $lock),
+            new ProjectState($project->path(), $candidateManifest, $lock),
+        ];
     }
 
     /** @return list<string> */
@@ -496,7 +535,13 @@ final class ComposerScenarioRunner
      */
     private function runVersionProcess(array $command, string $workingDirectory, array $environment): array
     {
-        $process = new Process($command, $workingDirectory, $environment, null, 30);
+        $process = new Process(
+            $command,
+            $workingDirectory,
+            $environment,
+            null,
+            self::METADATA_PROBE_TIMEOUT_SECONDS
+        );
         $process->run();
 
         return [
@@ -517,7 +562,7 @@ final class ComposerScenarioRunner
         $workingDirectory = $this->createComposerProbeDirectory();
 
         try {
-            $environment = $this->processEnvironment($execution, $workingDirectory);
+            $environment = $this->preparer->processEnvironment($execution, $workingDirectory);
             if (!$execution->isRestricted()) {
                 $environment['COMPOSER'] = false;
                 $environment['COMPOSER_HOME'] = $workingDirectory;
@@ -529,7 +574,27 @@ final class ComposerScenarioRunner
                 $environment
             );
         } finally {
-            (new Filesystem())->remove($workingDirectory);
+            $this->removeComposerProbeDirectory($workingDirectory);
+        }
+    }
+
+    /**
+     * Removes a probe workspace through the injected workspace manager so it
+     * obeys the same cleanup contract as scenario workspaces.
+     *
+     * A cleanup failure must never replace the probe result or vanish: the
+     * probe answer is still usable, but the leaked state becomes a recorded
+     * uncertainty.
+     */
+    private function removeComposerProbeDirectory(string $path): void
+    {
+        try {
+            $this->workspaces->remove($path);
+        } catch (\Throwable $exception) {
+            $this->probeCleanupUncertainties[] = sprintf(
+                'Composer metadata probe workspace cleanup failed, so analyzer-owned temporary state was left behind: %s',
+                PathExposurePolicy::redactComposerText($exception->getMessage(), null, $path)
+            );
         }
     }
 
@@ -629,95 +694,78 @@ final class ComposerScenarioRunner
         );
     }
 
-    /** @param array<string, string>|null $analyzerPlatformPackages */
-    private function applyTemporaryComposerChanges(
-        string $tempPath,
-        ProjectState $project,
-        Scenario $scenario,
-        TargetPlatform $platform,
-        ?array $analyzerPlatformPackages = null
-    ): ComposerJson {
-        $composerPath = $tempPath . DIRECTORY_SEPARATOR . 'composer.json';
-        $data = $project->composerJson()->data();
-
-        foreach ($scenario->targets()->packageTargets() as $target) {
-            if (isset($data['require-dev']) && is_array($data['require-dev']) && array_key_exists($target->package(), $data['require-dev'])
-                && (!isset($data['require']) || !is_array($data['require']) || !array_key_exists($target->package(), $data['require']))) {
-                $data['require-dev'][$target->package()] = $target->constraint();
-                continue;
-            }
-
-            if (!isset($data['require']) || !is_array($data['require'])) {
-                $data['require'] = [];
-            }
-
-            $data['require'][$target->package()] = $target->constraint();
-        }
-
-        if ($scenario->targets()->targetPhp() !== null) {
-            $data['config']['platform']['php'] = $scenario->targets()->targetPhp();
-        }
-
-        foreach ($platform->composerPlatformOverrides($analyzerPlatformPackages ?? []) as $package => $value) {
-            $data['config']['platform'][$package] = $value;
-        }
-
-        $candidateManifest = new ComposerJson($data);
-        $data = $this->absolutePathRepositories($data, $project->path());
-
-        $encoded = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR) . PHP_EOL;
-        if (@file_put_contents($composerPath, $encoded) === false) {
-            throw new \RuntimeException('Unable to write the temporary Composer manifest.');
-        }
-
-        return $candidateManifest;
-    }
-
-    private function seedProjectState(string $tempPath, ProjectState $project): void
+    /**
+     * Extracts the execution evidence a failed scenario can still publish.
+     *
+     * @return array{string, string, int}
+     */
+    private function exceptionExecutionEvidence(\Throwable $exception): array
     {
-        $files = [
-            'composer.json' => $project->composerJson()->data(),
-            'composer.lock' => $project->composerLock()->data(),
+        if (!$exception instanceof ProcessTimedOutException) {
+            return ['', $exception->getMessage(), 1];
+        }
+
+        $timedOutProcess = $exception->getProcess();
+
+        try {
+            $stdout = $timedOutProcess->getOutput();
+            $stderr = $timedOutProcess->getErrorOutput();
+        } catch (\Throwable) {
+            $stdout = '';
+            $stderr = '';
+        }
+
+        return [
+            $stdout,
+            trim($stderr . PHP_EOL . $exception->getMessage()),
+            $timedOutProcess->getExitCode() ?? 1,
         ];
-        foreach ($files as $name => $data) {
-            $encoded = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR) . PHP_EOL;
-            if (@file_put_contents($tempPath . DIRECTORY_SEPARATOR . $name, $encoded) === false) {
-                throw new \RuntimeException(sprintf('Unable to seed the temporary %s.', $name));
-            }
-        }
     }
 
-    /** @param array<string, mixed> $data @return array<string, mixed> */
-    private function absolutePathRepositories(array $data, string $projectPath): array
-    {
-        if (!isset($data['repositories']) || !is_array($data['repositories'])) {
-            return $data;
+    /**
+     * Removes a non-debug scenario workspace, turning a cleanup failure into a
+     * structured outcome that keeps the collected evidence.
+     *
+     * @param list<string> $repositoryPaths
+     */
+    private function removeScenarioWorkspace(
+        ScenarioResult $result,
+        Scenario $scenario,
+        string $tempPath,
+        string $projectPath,
+        array $repositoryPaths,
+        bool $debug
+    ): ScenarioResult {
+        try {
+            $this->workspaces->remove($tempPath);
+
+            return $result;
+        } catch (\Throwable $exception) {
+            return new ScenarioResult(
+                $scenario,
+                $result->exitCode(),
+                $result->stdout(),
+                trim($result->stderr() . PHP_EOL . sprintf(
+                    'Temporary workspace cleanup failed: %s',
+                    PathExposurePolicy::redactComposerText(
+                        $exception->getMessage(),
+                        $projectPath,
+                        $tempPath,
+                        $repositoryPaths
+                    )
+                )),
+                null,
+                $tempPath,
+                ScenarioResult::FAILURE_OPERATIONAL,
+                $result->composerVersion(),
+                $result->command(),
+                0,
+                $result->candidateLockEvidence(),
+                $result->diagnostics(),
+                ScenarioResult::OUTCOME_CLEANUP_FAILURE,
+                $debug
+            );
         }
-
-        foreach ($data['repositories'] as $key => $repository) {
-            if (!is_array($repository)
-                || !in_array($repository['type'] ?? null, ['path', 'artifact'], true)
-                || !isset($repository['url'])
-                || !is_string($repository['url'])
-            ) {
-                continue;
-            }
-
-            $url = $repository['url'];
-            if ($url === '' || Path::isAbsolute($url) || str_starts_with($url, '~') || $this->containsEnvironmentVariable($url)) {
-                continue;
-            }
-
-            $repository['url'] = Path::makeAbsolute($url, $projectPath);
-            $data['repositories'][$key] = $repository;
-        }
-
-        return $data;
-    }
-
-    private function containsEnvironmentVariable(string $path): bool
-    {
-        return preg_match('/\$(?:\{[A-Za-z_][A-Za-z0-9_]*\}|[A-Za-z_][A-Za-z0-9_]*)|%[A-Za-z_][A-Za-z0-9_]*%/', $path) === 1;
     }
 
     /**
@@ -749,50 +797,6 @@ final class ComposerScenarioRunner
                 $execution
             ),
         ];
-    }
-
-    private function isSolverFailure(string $stdout, string $stderr): bool
-    {
-        $output = $stdout . "\n" . $stderr;
-
-        return stripos($output, 'Your requirements could not be resolved to an installable set of packages') !== false
-            || preg_match('/(?:^|\n)\s*- Root composer\.json requires /i', $output) === 1;
-    }
-
-    private function exceptionOutcome(\Throwable $exception, string $phase): string
-    {
-        if ($exception instanceof WorkspaceCleanupException) {
-            return ScenarioResult::OUTCOME_CLEANUP_FAILURE;
-        }
-
-        if ($exception instanceof ProcessTimedOutException) {
-            return ScenarioResult::OUTCOME_TIMEOUT;
-        }
-
-        if ($exception instanceof InvalidJsonException) {
-            return ScenarioResult::OUTCOME_INVALID_JSON;
-        }
-
-        if ($phase === 'process' && $this->indicatesMissingComposer(1, '', $exception->getMessage())) {
-            return ScenarioResult::OUTCOME_COMPOSER_MISSING;
-        }
-
-        if ($phase === 'process') {
-            return ScenarioResult::OUTCOME_PROCESS_FAILURE;
-        }
-
-        return ScenarioResult::OUTCOME_WORKSPACE_FAILURE;
-    }
-
-    private function indicatesMissingComposer(int $exitCode, string $stdout, string $stderr): bool
-    {
-        if (in_array($exitCode, [127, 9009], true)) {
-            return true;
-        }
-
-        $output = $stdout . "\n" . $stderr;
-
-        return preg_match('/(?:composer(?:\.bat|\.phar)?(?: executable)? (?:was |is )?(?:unavailable|missing|not found)|composer:\s*(?:command\s+)?not found|[\'\"]composer[\'\"] is not recognized|could not open input file:\s*composer|createprocess failed[^\n]*error=2|the system cannot find the file specified)/i', $output) === 1;
     }
 
     /**
@@ -871,7 +875,8 @@ final class ComposerScenarioRunner
                     'Composer %s does not support locked prohibits diagnostics; Composer %s or newer is required.',
                     $this->composerVersion,
                     self::LOCKED_DIAGNOSTIC_MIN_COMPOSER_VERSION
-                )
+                ),
+                ScenarioResult::OUTCOME_PROCESS_FAILURE
             );
         }
 
@@ -906,7 +911,8 @@ final class ComposerScenarioRunner
                 $this->safeCommand($command, $execution),
                 $process['exit_code'],
                 $process['stdout'],
-                $process['stderr']
+                $process['stderr'],
+                $this->classifier->classifyDiagnosticResult($process, $execution)
             );
         } catch (\Throwable $exception) {
             return new ComposerDiagnostic(
@@ -921,7 +927,8 @@ final class ComposerScenarioRunner
                     $workingDirectory,
                     $repositoryPaths,
                     $execution
-                )
+                ),
+                $this->classifier->classifyDiagnosticException($exception)
             );
         }
     }
@@ -1023,59 +1030,6 @@ final class ComposerScenarioRunner
         return $locked === null || !Semver::satisfies($locked->version(), $constraint);
     }
 
-    /** @return array<string, string|false> */
-    private function processEnvironment(
-        ComposerExecutionConfiguration $execution,
-        string $workingDirectory
-    ): array {
-        $environment = [
-            'COMPOSER_NO_INTERACTION' => '1',
-            'COMPOSER_NO_AUDIT' => '1',
-        ];
-        if (!$execution->isRestricted()) {
-            return $environment;
-        }
-
-        $state = $workingDirectory . DIRECTORY_SEPARATOR . '.php-upgrade-preflight-composer';
-        $composerHome = $state . DIRECTORY_SEPARATOR . 'home';
-        $cache = $state . DIRECTORY_SEPARATOR . 'cache';
-        $xdgConfig = $state . DIRECTORY_SEPARATOR . 'xdg-config';
-        $xdgData = $state . DIRECTORY_SEPARATOR . 'xdg-data';
-        $xdgCache = $state . DIRECTORY_SEPARATOR . 'xdg-cache';
-        foreach ([$composerHome, $cache, $xdgConfig, $xdgData, $xdgCache] as $directory) {
-            if (!is_dir($directory) && !@mkdir($directory, 0700, true) && !is_dir($directory)) {
-                throw new \RuntimeException('Unable to create analyzer-owned restricted Composer state.');
-            }
-        }
-        foreach (['config.json', 'auth.json'] as $file) {
-            if (@file_put_contents($composerHome . DIRECTORY_SEPARATOR . $file, "{}\n") === false) {
-                throw new \RuntimeException('Unable to initialize analyzer-owned restricted Composer configuration.');
-            }
-        }
-
-        return array_merge($environment, [
-            'COMPOSER' => false,
-            'COMPOSER_HOME' => $composerHome,
-            'COMPOSER_CACHE_DIR' => $cache,
-            'COMPOSER_AUTH' => '{}',
-            'COMPOSER_DISABLE_NETWORK' => '1',
-            'XDG_CONFIG_HOME' => $xdgConfig,
-            'XDG_DATA_HOME' => $xdgData,
-            'XDG_CACHE_HOME' => $xdgCache,
-            'HTTP_PROXY' => false,
-            'HTTPS_PROXY' => false,
-            'ALL_PROXY' => false,
-            'NO_PROXY' => false,
-            'http_proxy' => false,
-            'https_proxy' => false,
-            'all_proxy' => false,
-            'no_proxy' => false,
-            'GIT_ASKPASS' => false,
-            'SSH_ASKPASS' => false,
-            'GIT_TERMINAL_PROMPT' => '0',
-        ]);
-    }
-
     /**
      * @param list<string> $command
      * @return list<string>
@@ -1087,16 +1041,6 @@ final class ComposerScenarioRunner
         }
 
         return $command;
-    }
-
-    private function indicatesUnavailableRepositoryMetadata(string $stdout, string $stderr): bool
-    {
-        $output = $stdout . "\n" . $stderr;
-
-        return preg_match(
-            '/(?:network (?:is )?disabled|request canceled|offline mode|could not (?:download|load).*cache|metadata.*(?:not available|unavailable)|package information.*not available)/i',
-            $output
-        ) === 1;
     }
 
     /** @param list<string> $repositoryPaths */

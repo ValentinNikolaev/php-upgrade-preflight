@@ -8,28 +8,37 @@ use PhpUpgradePreflight\Core\Model\ExtensionAssumption;
 use PhpUpgradePreflight\Core\Model\ExtensionAssumptionSet;
 use PhpUpgradePreflight\Core\Model\ReportFormat;
 
+/**
+ * Parses `upgrade-intel analyze` arguments against the one option vocabulary.
+ *
+ * Defaults, repetition rules, the accepted-name allow-list, and value
+ * assignment are all driven by {@see CommandLineOptions}, so an option cannot
+ * be accepted without being documented.
+ *
+ * @phpstan-type ParsedOptions array{
+ *     path: string,
+ *     target: list<string>,
+ *     target-php: ?string,
+ *     target-platform-profile?: string,
+ *     from-php: ?string,
+ *     source: list<string>,
+ *     framework: list<string>,
+ *     extension-assumptions?: list<ExtensionAssumption>,
+ *     format: string,
+ *     output: ?string,
+ *     debug: bool,
+ *     composer-mode?: string,
+ *     composer-executable?: string,
+ *     composer-version?: string,
+ *     composer-timeout?: string,
+ *     composer-diagnostic-timeout?: string
+ * }
+ */
 final class CommandLineParser
 {
     /**
      * @param list<string> $argv
-     * @return array{
-     *     path: string,
-     *     target: list<string>,
-     *     target-php: ?string,
-     *     target-platform-profile?: string,
-     *     from-php: ?string,
-     *     source: list<string>,
-     *     framework: list<string>,
-     *     extension-assumptions?: list<ExtensionAssumption>,
-     *     format: string,
-     *     output: ?string,
-     *     debug: bool,
-     *     composer-mode?: string,
-     *     composer-executable?: string,
-     *     composer-version?: string,
-     *     composer-timeout?: string,
-     *     composer-diagnostic-timeout?: string
-     * }
+     * @return ParsedOptions
      */
     public function parse(array $argv): array
     {
@@ -47,29 +56,23 @@ final class CommandLineParser
             throw new \RuntimeException('Unable to determine the current working directory.');
         }
 
-        $options = [
-            'path' => $workingDirectory,
-            'target' => [],
-            'target-php' => null,
-            'from-php' => null,
-            'source' => [],
-            'framework' => [],
-            'format' => ReportFormat::JSON,
-            'output' => null,
-            'debug' => false,
-        ];
+        $modes = CommandLineOptions::parseModes();
+        $defaults = CommandLineOptions::defaults();
+        $defaults['path'] = $workingDirectory;
+
         $seen = [];
+        $repeated = [];
+        $values = [];
+        $flags = [];
         $presentExtensions = [];
         $absentExtensions = [];
 
         foreach ($arguments as $index => $argument) {
-            if ($argument === '--debug') {
-                if (isset($seen['debug'])) {
-                    throw new \InvalidArgumentException('Option "--debug" may only be specified once.');
-                }
-
-                $seen['debug'] = true;
-                $options['debug'] = true;
+            $flag = $this->flagName($argument, $modes);
+            if ($flag !== null) {
+                $this->assertNotSeen($flag, $seen);
+                $seen[$flag] = true;
+                $flags[$flag] = true;
                 continue;
             }
 
@@ -78,70 +81,40 @@ final class CommandLineParser
             }
 
             [$name, $value] = explode('=', substr($argument, 2), 2);
+            $mode = $modes[$name] ?? null;
 
-            if ($name === 'debug') {
-                throw new \InvalidArgumentException('Option "--debug" does not accept a value.');
+            if ($mode === CommandLineOption::MODE_FLAG) {
+                throw new \InvalidArgumentException(sprintf('Option "--%s" does not accept a value.', $name));
             }
 
-            if ($name === 'with-extension') {
+            if ($mode === CommandLineOption::MODE_EXTENSION_PRESENT) {
                 $presentExtensions[] = $value;
                 continue;
             }
 
-            if ($name === 'without-extension') {
+            if ($mode === CommandLineOption::MODE_EXTENSION_ABSENT) {
                 $absentExtensions[] = $value;
                 continue;
             }
 
-            if ($name === 'target') {
-                $options['target'][] = $value;
-                continue;
-            }
-            if ($name === 'source') {
-                $options['source'][] = $value;
-                continue;
-            }
-            if ($name === 'framework') {
-                $options['framework'][] = $value;
+            if ($mode === CommandLineOption::MODE_LIST) {
+                $list = $repeated[$name] ?? [];
+                $list[] = $value;
+                $repeated[$name] = $list;
                 continue;
             }
 
-            if ($name !== 'target-platform-profile'
-                && !array_key_exists($name, $options)
-                && !in_array($name, [
-                    'composer-mode',
-                    'composer-executable',
-                    'composer-version',
-                    'composer-timeout',
-                    'composer-diagnostic-timeout',
-                ], true)
-            ) {
+            if ($mode === null) {
                 throw new \InvalidArgumentException('Unknown option.');
             }
 
-            if (isset($seen[$name])) {
-                throw new \InvalidArgumentException(sprintf('Option "--%s" may only be specified once.', $name));
-            }
-
+            $this->assertNotSeen($name, $seen);
             $seen[$name] = true;
-            switch ($name) {
-                case 'path':
-                case 'target-php':
-                case 'from-php':
-                case 'format':
-                case 'output':
-                case 'target-platform-profile':
-                case 'composer-mode':
-                case 'composer-executable':
-                case 'composer-version':
-                case 'composer-timeout':
-                case 'composer-diagnostic-timeout':
-                    $options[$name] = $value;
-                    break;
-                default:
-                    throw new \LogicException('Validated CLI option was not assigned.');
-            }
+            $values[$name] = $value;
         }
+
+        /** @var ParsedOptions $options */
+        $options = array_merge($defaults, $repeated, $values, $flags);
 
         if ($options['target'] === [] && $options['target-php'] === null && !isset($options['target-platform-profile'])) {
             throw new \InvalidArgumentException(
@@ -156,5 +129,29 @@ final class CommandLineParser
         }
 
         return $options;
+    }
+
+    /**
+     * The option name of a valueless switch, or null when the argument is not one.
+     *
+     * @param array<string, string> $modes
+     */
+    private function flagName(string $argument, array $modes): ?string
+    {
+        if (!str_starts_with($argument, '--') || str_contains($argument, '=')) {
+            return null;
+        }
+
+        $name = substr($argument, 2);
+
+        return ($modes[$name] ?? null) === CommandLineOption::MODE_FLAG ? $name : null;
+    }
+
+    /** @param array<string, bool> $seen */
+    private function assertNotSeen(string $name, array $seen): void
+    {
+        if (isset($seen[$name])) {
+            throw new \InvalidArgumentException(sprintf('Option "--%s" may only be specified once.', $name));
+        }
     }
 }
