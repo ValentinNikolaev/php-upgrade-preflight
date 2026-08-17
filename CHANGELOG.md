@@ -4,6 +4,8 @@ This project follows [Semantic Versioning](https://semver.org/). Report schema v
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-08-17
+
 ### Added
 
 - Froze the signed v0.2.1 compatibility surface and canonical reports, created the `0.2.x` maintenance line, and locked the machine-readable v0.3 contract with schema `0.8` migration evidence.
@@ -19,6 +21,7 @@ This project follows [Semantic Versioning](https://semver.org/). Report schema v
 ### Changed
 
 - Declared the project a source-available public beta, clarified the noncommercial PolyForm licensing model, documented the v0.2.x compatibility commitment and v0.3 change boundary, and made explicit that analyzer output is not a production-readiness or runtime-compatibility guarantee.
+- Declared the v0.2.x line archival rather than actively supported: its published artifacts stay installable and its schema `0.7` evidence stays immutable, but once v0.3.0 is published the line receives no features and no routine bug or security fixes, and the upgrade path is v0.3. Documented alongside it the limits a reader needs to trust a v0.3 report: framework-shaped source usages now come from the active adapter rather than core, a failing adapter or rule is contained as uncertainty instead of ending the run, Markdown renders unrecorded fields as absent rather than defaulted, and bounded Composer output excerpts do not mark truncation or a failed redaction pass.
 - Published a commercial-license request form and limited external contributions to documentation-only changes until a legally reviewed contributor license agreement or other suitable inbound license grant is adopted; bug reports, private security reports, and product feedback remain welcome.
 - Advanced the active release line to `0.3.x`, report metadata to tool `0.3.0`, and the canonical report schema to `0.8`; `main` keeps `0.3.x-dev` aliases and `^0.3` internal constraints while released v0.2.1 artifacts remain immutable.
 - Kept the PHP `^8.0` runtime floor, the three-package release set, normal/lowest Laravel 8–13 host-installability coverage, and the separate Composer tools-directory delivery model.
@@ -132,7 +135,8 @@ This project follows [Semantic Versioning](https://semver.org/). Report schema v
 - Checksum-verified release-archive consumers that install all three ZIPs, run the CLI, analyze an immutable fixture, and boot Laravel package discovery before publication.
 - Composer-installed CLI entry-point discovery for both generated proxy and standard `vendor/` package layouts.
 
-[Unreleased]: https://github.com/ValentinNikolaev/php-upgrade-preflight/compare/v0.2.1...HEAD
+[Unreleased]: https://github.com/ValentinNikolaev/php-upgrade-preflight/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/ValentinNikolaev/php-upgrade-preflight/releases/tag/v0.3.0
 [0.2.1]: https://github.com/ValentinNikolaev/php-upgrade-preflight/releases/tag/v0.2.1
 [0.2.0]: https://github.com/ValentinNikolaev/php-upgrade-preflight/releases/tag/v0.2.0
 [0.1.0]: https://github.com/ValentinNikolaev/php-upgrade-preflight/releases/tag/v0.1.0

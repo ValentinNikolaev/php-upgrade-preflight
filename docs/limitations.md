@@ -25,6 +25,7 @@ PHP Upgrade Preflight is a public-beta planning tool that predicts dependency an
 - Default scans exclude dependencies and common generated, cache, and build directories. Explicit paths inside the project can opt into an excluded directory.
 - `source_inventory` is an observation list, not a change list. An item reaches `source_impact` only when it correlates with a selected final-target package change, an applicable framework rule, or both. Dynamic or unowned usages can therefore remain inventory-only, while a framework-correlated item may be actionable even when package ownership is unknown.
 - Direct `source_impact` remains tied to the selected successful final-target scenario. Schema 0.8 stages separately project applicable framework findings and source impact for executed hops, but always from the original project snapshot. The analyzer does not simulate or claim that source edits were applied between stages.
+- Framework-shaped source usages come from the active framework adapter, not from core. A project analyzed without an active Laravel integration receives no `service_provider`, `facade_alias`, `middleware_reference`, `console_command`, `config_reference`, `test_double`, or `deprecated_queue_dispatch` usages, because core does not interpret another framework's application skeleton. An adapter for another framework contributes its own collectors through the optional `SourceUsageVisitorProvider` extension point.
 
 ## Framework guidance
 
@@ -37,6 +38,13 @@ PHP Upgrade Preflight is a public-beta planning tool that predicts dependency an
 - Laravel 11's streamlined application skeleton is optional for upgraded Laravel 10 applications; the adapter does not report the retained Laravel 10 structure as required migration work.
 - The Laravel 11 curl rule can prove an explicitly absent `ext-curl` assumption. A present PHP extension version does not prove the linked libcurl runtime version, so deployment verification remains necessary.
 - Ambiguous framework target ranges produce less guidance instead of guessing a target major.
+- A framework adapter that fails is contained rather than fatal. A provider that throws while contributing source collectors, a collector or compatibility rule that throws mid-analysis, a rule returning a severity outside the `low`/`medium`/`high` vocabulary, and an installed package whose `extra.php-upgrade-preflight` manifest is malformed are all skipped and named as evidence-backed uncertainty. The report is still produced, so guidance can be incomplete for a reason recorded only in `uncertainties`; read them before treating an absence of findings as a clean result.
+
+## Report projection
+
+- JSON is the canonical report and Markdown is a projection of it. A field the report does not carry is rendered as not recorded rather than as a default, so an absent Composer execution policy, timeout, inherited-credential state, stage duration, or staged verdict is missing evidence and not an analyzer conclusion.
+- Composer output excerpts are bounded and redacted before serialization. The report does not mark which excerpts were shortened or whether redaction failed on a specific excerpt, so excerpt text is partial evidence rather than a complete transcript. Consult the original Composer output when an excerpt is the basis of a decision.
+- A Composer diagnostic carries an explicit `outcome` alongside its exit status, so a probe timeout, a missing Composer executable, and a genuine non-zero result are distinguishable. A diagnostic that did not run proves nothing about the packages it would have examined.
 
 ## Read-only boundary
 

@@ -163,12 +163,12 @@ This slice is part of Milestone 0 and must be completed before refreshing or pub
 - [x] Limit v0.3 staged solving to one active stage-target provider. If several active adapters provide stages, continue their ordinary rules but skip staged solving with deterministic conflict evidence.
 - [x] Set maximum hop and scenario counts plus per-stage and aggregate runtime, memory, report-size, redaction, and deterministic-ordering budgets.
 - [x] Record the decision to keep Symfony, CodeIgniter, PHAR, container, and runtime-floor changes out of v0.3.
-- [ ] Create and protect the v0.2.x maintenance branch while the tree still carries its `0.2.x` verifier, aliases, and constraints.
+- [x] Create and protect the v0.2.x maintenance branch while the tree still carries its `0.2.x` verifier, aliases, and constraints.
 - [x] Atomically switch `main` to the approved v0.3 development report identity, schema `0.8`, `0.3.x-dev` aliases, `^0.3` internal constraints, and a verifier/workflow that permits only `0.3.x` from `main`.
 
 Acceptance gate: immutable v0.2.1 evidence remains green; the maintenance branch can still verify `0.2.x`; the offline Laravel 10→13 vertical slice carries candidate state across adjacent hops, retains and transitions multiple blockers without mutating the fixture, and prevents the demo from running on final-target-only evidence; and `main` identifies every subsequent feature build as v0.3 under schema `0.8` after a machine-checked contract defines the new input, execution, stage, compatibility, budget, and release policy.
 
-Status: in progress. Implementation and verification are complete; GitHub branch protection awaits maintainer reauthentication.
+Status: complete. `0.2.x` is protected on `origin` with required pull-request review, required signatures, and no force-push or deletion; it has no required status checks and does not enforce protection for administrators. `main`, the approved line for the active `0.3.x` series, is still unprotected and must be protected before the release checklist's approved-release-branch item can pass.
 
 ## Milestone 1: Complete Target-Platform Profiles
 
@@ -288,9 +288,9 @@ Priority: P0.
 
 - [x] Update README, installation, external-analysis, CLI, Artisan, schema, limitations, troubleshooting, adapters, versioning, contribution, security, and release documentation for the approved v0.3 behavior.
 - [x] Document target-platform profile generation and validation, partial versus complete guarantees, execution modes, staged versus direct resolution, skipped stages, original-snapshot source limits, and schema `0.7` to `0.8` migration.
-- [ ] Verify the protected v0.2.x maintenance branch still carries compatible `0.2.x` aliases, constraints, schema, and release verification after all v0.3 work on `main`.
+- [x] Verify the protected v0.2.x maintenance branch still carries compatible `0.2.x` aliases, constraints, schema, and release verification after all v0.3 work on `main`.
 - [x] Replace the v0.3 development report identity with exact `0.3.0`, prepare candidate changelog and release notes, and re-verify the schema `0.8`, `0.3.x-dev` alias, `^0.3` constraint, and workflow contract together.
-- [ ] After cross-host candidate verification, finalize the dated changelog and public release-state documentation, then rerun the release verifier before creating signed tags.
+- [~] After cross-host candidate verification, finalize the dated changelog and public release-state documentation, then rerun the release verifier before creating signed tags.
 - [ ] Run the deterministic gate on every supported PHP runtime plus required Windows coverage.
 - [ ] Run complete-profile cross-host proofs, the restricted Composer-layer offline and credential harness, worst-case staged-corpus budgets, and all privacy canaries.
 - [ ] Run normal and lowest-dependency consumers for every advertised Laravel host line.
@@ -301,7 +301,7 @@ Priority: P0.
 
 Acceptance gate: published v0.3 packages validate schema `0.8`, reproduce every claimed stage under the declared platform and execution policy, preserve v0.2 migration evidence, and retain all read-only, privacy, compatibility, and supply-chain guarantees.
 
-Status: in progress. Local candidate documentation, migration guidance, exact `0.3.0` report identity, deterministic tests, static analysis, formatting, selective mutations, and dependency audit pass. The candidate was re-verified after the 2026-08-16 architecture-audit remediation, which changed schema `0.8` before publication by making the Composer diagnostic `outcome` required, replaced fabricated Markdown defaults with explicit "not recorded" renderings, and updated the checked-in example reports and snapshots accordingly. Because schema `0.8` is unpublished, that is a candidate change rather than a schema migration; every released schema stays byte-for-byte immutable. Public pages still identify v0.2.1 as the latest published and security-supported release; the final dated changelog and release verifier intentionally remain pending until the release candidate passes cross-host checks. The public `0.2.x` branch exists but is not protected; archives, signed tags, Packagist synchronization, and the published-package quick start also remain pending.
+Status: in progress. Local candidate documentation, migration guidance, exact `0.3.0` report identity, deterministic tests, static analysis, formatting, selective mutations, and dependency audit pass. The candidate was re-verified after the 2026-08-16 architecture-audit remediation, which changed schema `0.8` before publication by making the Composer diagnostic `outcome` required, replaced fabricated Markdown defaults with explicit "not recorded" renderings, and updated the checked-in example reports and snapshots accordingly. Because schema `0.8` is unpublished, that is a candidate change rather than a schema migration; every released schema stays byte-for-byte immutable. The changelog now carries a dated `[0.3.0] - 2026-08-17` heading, and the release notes read as the release rather than a candidate, including the source-breaking internal API changes the audit produced; `php tools/verify-release.php 0.3.0` and the full deterministic gate pass on that state. Public pages still identify v0.2.1 as the latest published and security-supported release, which is deliberate and machine-enforced: `ProductPositioningTest` requires README to say v0.3.0 is not yet published and to install `^0.2`, so that flip belongs with Packagist publication, not with the dated changelog. The `0.2.x` maintenance branch is protected and re-verified, including a fix that lets a `0.2.*` tag release from it. Branch protection for `main`, cross-host verification, archives, signed tags, Packagist synchronization, and the published-package quick start remain pending.
 
 ## Principal Risks and Controls
 
@@ -332,9 +332,11 @@ Status: in progress. Local candidate documentation, migration guidance, exact `0
 
 ## Recommended Next Work Session
 
-Unlock the configured SSH signing key and commit the verified architecture-audit remediation, protect the public `0.2.x` maintenance branch, then finalize the dated changelog and rerun `composer release:verify -- 0.3.0` so the full cross-host release workflow can produce and validate archives before signed tags and Packagist publication.
+Protect `main` on `origin` — the active `0.3.x` line is the only approved release branch that has no protection — then run the cross-host release gates: the deterministic gate on every supported PHP runtime with Windows coverage, complete-profile and restricted-Composer proofs, host-line consumers, fresh-clone and artifact audits, and a manual `Release` workflow run that packages without publishing. Signed tags, Packagist synchronization, the published-package quick start, and only then the public release-state flip in README, `SECURITY.md`, the installation and troubleshooting pages, and the matching `ProductPositioningTest` assertions follow.
 
-Two operational notes for that session:
+Three operational notes for that session:
+
+- The dated `[0.3.0] - 2026-08-17` changelog heading and the release notes assume publication happens on that date. If it slips, re-date both before tagging; `composer release:verify -- 0.3.0` checks that the heading exists and is dated, not that the date is current.
 
 - The local gate needs `COMPOSER_PROCESS_TIMEOUT=0`. `docker compose run --rm php composer check` otherwise kills the integration suite at Composer's default 300-second `process-timeout` and reports the killed subprocesses as errors. Decide whether to record that in `composer.json` or in the verification documentation before the release checklist depends on the gate.
 - A v0.4 roadmap proposal exists at [DEVELOPMENT_PLAN_0.4.0-PROPOSAL.md](DEVELOPMENT_PLAN_0.4.0-PROPOSAL.md). It authorizes nothing and must not reorder v0.3.0 release execution.
