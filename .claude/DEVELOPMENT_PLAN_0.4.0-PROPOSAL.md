@@ -24,18 +24,18 @@ The active roadmap remains [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md). On approv
 
 v0.4 planning does not open v0.4 work. Ten items remain unchecked in the active plan, all of them release execution:
 
-| Active-plan item | Location |
-| --- | --- |
-| Create and protect the `0.2.x` maintenance branch | [DEVELOPMENT_PLAN.md:166](DEVELOPMENT_PLAN.md) |
-| Verify the protected `0.2.x` branch after all v0.3 work on `main` | [DEVELOPMENT_PLAN.md:291](DEVELOPMENT_PLAN.md) |
-| Finalize the dated changelog and rerun the release verifier | [DEVELOPMENT_PLAN.md:293](DEVELOPMENT_PLAN.md) |
-| Deterministic gate on every supported PHP runtime plus Windows | [DEVELOPMENT_PLAN.md:294](DEVELOPMENT_PLAN.md) |
+| Active-plan item                                                                          | Location                                       |
+|-------------------------------------------------------------------------------------------|------------------------------------------------|
+| Create and protect the `0.2.x` maintenance branch                                         | [DEVELOPMENT_PLAN.md:166](DEVELOPMENT_PLAN.md) |
+| Verify the protected `0.2.x` branch after all v0.3 work on `main`                         | [DEVELOPMENT_PLAN.md:291](DEVELOPMENT_PLAN.md) |
+| Finalize the dated changelog and rerun the release verifier                               | [DEVELOPMENT_PLAN.md:293](DEVELOPMENT_PLAN.md) |
+| Deterministic gate on every supported PHP runtime plus Windows                            | [DEVELOPMENT_PLAN.md:294](DEVELOPMENT_PLAN.md) |
 | Cross-host profile proofs, restricted-execution harness, staged budgets, privacy canaries | [DEVELOPMENT_PLAN.md:295](DEVELOPMENT_PLAN.md) |
-| Normal and lowest-dependency consumers for every Laravel host line | [DEVELOPMENT_PLAN.md:296](DEVELOPMENT_PLAN.md) |
-| Fresh-clone and release-artifact consumer audits on Windows and Linux | [DEVELOPMENT_PLAN.md:297](DEVELOPMENT_PLAN.md) |
-| Checksum-bound archives with dependency inventory and provenance | [DEVELOPMENT_PLAN.md:298](DEVELOPMENT_PLAN.md) |
-| Verified signed tags in four repositories plus Packagist synchronization | [DEVELOPMENT_PLAN.md:299](DEVELOPMENT_PLAN.md) |
-| Reproduce the published complete-profile staged quick start | [DEVELOPMENT_PLAN.md:300](DEVELOPMENT_PLAN.md) |
+| Normal and lowest-dependency consumers for every Laravel host line                        | [DEVELOPMENT_PLAN.md:296](DEVELOPMENT_PLAN.md) |
+| Fresh-clone and release-artifact consumer audits on Windows and Linux                     | [DEVELOPMENT_PLAN.md:297](DEVELOPMENT_PLAN.md) |
+| Checksum-bound archives with dependency inventory and provenance                          | [DEVELOPMENT_PLAN.md:298](DEVELOPMENT_PLAN.md) |
+| Verified signed tags in four repositories plus Packagist synchronization                  | [DEVELOPMENT_PLAN.md:299](DEVELOPMENT_PLAN.md) |
+| Reproduce the published complete-profile staged quick start                               | [DEVELOPMENT_PLAN.md:300](DEVELOPMENT_PLAN.md) |
 
 Three additional entry conditions come from work completed on 2026-08-16 and are **not** v0.4 scope:
 
@@ -47,17 +47,17 @@ Three additional entry conditions come from work completed on 2026-08-16 and are
 
 [`.claude/audits/2026-08-16-architecture-audit.md`](audits/2026-08-16-architecture-audit.md) recorded 59 findings — 1 Critical, 6 High, 32 Medium, 20 Low — against commit `91eac8f`. The current working tree closes most of the prioritized list. Verified in the tree while preparing this proposal:
 
-| Audit action | State | Evidence |
-| --- | --- | --- |
-| F1 Critical — decompose `StagedUpgradeOrchestrator::analyze()` | Closed | Orchestrator is 157 lines; `StagePlanResolver` (216), `StageExecutor` (364), `StageBlockerRegistry` (116), `StageAttemptPlanner` (86) exist |
-| V1 High — Markdown writer fabricates provenance | Closed | 18 explicit "not recorded" renderings in `MarkdownReportWriter` |
-| ARCH-1 High — Laravel skeleton knowledge in core | Closed | Moved to the Laravel adapter behind the new `SourceUsageVisitorProvider` / `SourceUsageCollector` contracts |
-| M-F2 High — blocker `type` magic string | Closed | `Model/BlockerType` with 24 call sites in core and the Laravel adapter |
-| M-F3 High — `UpgradeTarget` normalizes nothing | Closed | `Model/UpgradeTarget` modified; `Confidence`, `Severity`, `SolverRelation`, `BlockerAttribution` added |
-| CB-3 Medium — diagnostics carry no failure class | Closed | `ComposerDiagnostic::$outcome` with unit coverage |
-| **RPT-2 Medium — truncation and redaction failure are invisible** | **Open** | No `truncated`, `original_bytes`, or `[REDACTION_FAILED]` symbol anywhere in `packages/core/src` |
+| Audit action                                                             | State         | Evidence                                                                                                                                                 |
+|--------------------------------------------------------------------------|---------------|----------------------------------------------------------------------------------------------------------------------------------------------------------|
+| F1 Critical — decompose `StagedUpgradeOrchestrator::analyze()`           | Closed        | Orchestrator is 157 lines; `StagePlanResolver` (216), `StageExecutor` (364), `StageBlockerRegistry` (116), `StageAttemptPlanner` (86) exist              |
+| V1 High — Markdown writer fabricates provenance                          | Closed        | 18 explicit "not recorded" renderings in `MarkdownReportWriter`                                                                                          |
+| ARCH-1 High — Laravel skeleton knowledge in core                         | Closed        | Moved to the Laravel adapter behind the new `SourceUsageVisitorProvider` / `SourceUsageCollector` contracts                                              |
+| M-F2 High — blocker `type` magic string                                  | Closed        | `Model/BlockerType` with 24 call sites in core and the Laravel adapter                                                                                   |
+| M-F3 High — `UpgradeTarget` normalizes nothing                           | Closed        | `Model/UpgradeTarget` modified; `Confidence`, `Severity`, `SolverRelation`, `BlockerAttribution` added                                                   |
+| CB-3 Medium — diagnostics carry no failure class                         | Closed        | `ComposerDiagnostic::$outcome` with unit coverage                                                                                                        |
+| **RPT-2 Medium — truncation and redaction failure are invisible**        | **Open**      | No `truncated`, `original_bytes`, or `[REDACTION_FAILED]` symbol anywhere in `packages/core/src`                                                         |
 | F2 High — `ComposerScenarioRunner::run()` mixes eight abstraction levels | Partly closed | Split into `ScenarioWorkspacePreparer`, `ScenarioOutcomeClassifier`, `ScenarioOutcome`, `CandidateLockFileReader`; the runner still measures 1,046 lines |
-| G3 High — 125-line regex-branch solver parser | Partly closed | `ComposerBlockerParser` modified and still measures 687 lines; the method-level split was not re-measured here |
+| G3 High — 125-line regex-branch solver parser                            | Partly closed | `ComposerBlockerParser` modified and still measures 687 lines; the method-level split was not re-measured here                                           |
 
 Two consequences for v0.4:
 
@@ -66,12 +66,12 @@ Two consequences for v0.4:
 
 ## Version and Contract Vocabulary
 
-| Contract | State entering v0.4 | v0.4 direction |
-| --- | --- | --- |
-| Tool and package line | `0.3.0` published; `0.3.x-dev` aliases; `^0.3` internal constraints | `0.4.0`; identity switched atomically in Milestone 0 |
-| Canonical report | Schema `0.8` | New schema `0.9` for framework-declared version identity and multi-adapter attribution |
-| Published packages | `core`, `cli`, `laravel` | Adds `symfony` as a fourth published package and distribution repository |
-| Active release policy | `0.4.x` from `main`; `0.3.x` from its protected maintenance branch; `0.2.x` and `0.1.x` frozen | Milestone 0 establishes the `0.3.x` branch before `main` moves |
+| Contract              | State entering v0.4                                                                            | v0.4 direction                                                                         |
+|-----------------------|------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------|
+| Tool and package line | `0.3.0` published; `0.3.x-dev` aliases; `^0.3` internal constraints                            | `0.4.0`; identity switched atomically in Milestone 0                                   |
+| Canonical report      | Schema `0.8`                                                                                   | New schema `0.9` for framework-declared version identity and multi-adapter attribution |
+| Published packages    | `core`, `cli`, `laravel`                                                                       | Adds `symfony` as a fourth published package and distribution repository               |
+| Active release policy | `0.4.x` from `main`; `0.3.x` from its protected maintenance branch; `0.2.x` and `0.1.x` frozen | Milestone 0 establishes the `0.3.x` branch before `main` moves                         |
 
 Schemas `0.2` through `0.8` and every signed compatibility artifact remain immutable. Packages continue to derive exact versions from matching signed Git tags rather than manifest `version` fields, and all published packages continue to release in lockstep.
 
