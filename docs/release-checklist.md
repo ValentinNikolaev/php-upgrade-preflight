@@ -2,12 +2,12 @@
 
 Run this checklist from a clean release-candidate commit. Set `VERSION` to an exact `MAJOR.MINOR.PATCH` value and derive `TAG=v$VERSION`, `SERIES=MAJOR.MINOR`, and `DEV_VERSION=$SERIES.x-dev`. Record command output and CI links in `docs/releases/v$VERSION.md` instead of writing release-specific values into this checklist.
 
-The active `0.2.x` release line is prepared from `main`. Historical `0.1.x` maintenance requires a separate, explicit release-policy change.
+The `0.2.x` maintenance line is prepared and released from the protected `0.2.x` branch. `main` now carries a later development line and cannot verify a `0.2.x` release; `0.1.x` remains its own protected historical line.
 
 ## Version and contract
 
 - [ ] Confirm the requested release series is enabled by `ReleaseVerifier::ACTIVE_RELEASE_SERIES`.
-- [ ] Confirm the approved release branch exists on `origin`, is protected, and contains the release-candidate commit (`0.1.x` for `0.1.x`; `main` for later approved series).
+- [ ] Confirm the approved release branch exists on `origin`, is protected, and contains the release-candidate commit (`0.1.x` for v0.1, `0.2.x` for v0.2).
 - [ ] Confirm `ReportMetadata::TOOL_VERSION` is the exact `VERSION` and the release notes describe `ReportMetadata::SCHEMA_VERSION`.
 - [ ] Confirm the active release schema matches `ReleaseVerifier::ACTIVE_SCHEMA_VERSION`.
 - [ ] Confirm every package dependency on another project package uses `^$SERIES`.
@@ -75,4 +75,4 @@ The workflow stamps the exact release version only into temporary archive manife
 - [ ] Announce supported transitions, schema migration requirements, and known limitations.
 - [ ] Record the workflow run, approved commit, signed tag verification, distribution split commits, archive checksums, dependency-inventory checksum, immutable-fixture checksum, release URL, and Packagist evidence in `docs/releases/v$VERSION.md`.
 
-A manual `Release` run verifies and packages without publishing. A matching annotated tag publishes only after GitHub verifies its signature, confirms its commit is on `main` or (for `0.1.x`) the protected `0.1.x` maintenance line, and all release gates pass. Historical v0.1.0 evidence is retained in [`docs/releases/v0.1.0.md`](releases/v0.1.0.md).
+A manual `Release` run verifies and packages without publishing. A matching annotated tag publishes only after GitHub verifies its signature, confirms its commit is on the protected line its version selects — `0.2.x` for a `0.2.*` tag and `0.1.x` for a `0.1.*` tag — and all release gates pass. Historical v0.1.0 evidence is retained in [`docs/releases/v0.1.0.md`](releases/v0.1.0.md).

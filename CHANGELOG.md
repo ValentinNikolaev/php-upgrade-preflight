@@ -8,6 +8,10 @@ This project follows [Semantic Versioning](https://semver.org/). Report schema v
 
 - Declared the project a source-available public beta, clarified the noncommercial PolyForm licensing model, documented the v0.2.x compatibility commitment and v0.3 change boundary, and made explicit that analyzer output is not a production-readiness or runtime-compatibility guarantee.
 
+### Fixed
+
+- Released a `0.2.*` tag from the protected `0.2.x` maintenance branch instead of requiring its commit to be on `main`. The release workflow selected the approved release line for `0.1.*` tags only and defaulted everything else to `main`, so a maintenance patch built on this branch — which `main` no longer contains once it carries a later development line — would have failed the approved-release-line check. The release checklist described the same superseded policy, and the workflow contract test now asserts the `0.2.x` mapping alongside the existing ones.
+
 ## [0.2.1] - 2026-08-11
 
 ### Fixed
