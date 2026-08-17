@@ -172,7 +172,7 @@ Resolution: **blocked** | Staged: **blocked** | Schema: `0.8` | Tool: `php-upgra
   - effective platform: `c2b227c251d4ec9ccf885e95404feaceedd627ff0c7104bc213f254935e62537`; completeness `partial`; profile `none`
   - Composer policy: `0c155d2582c9452186059dbe78d0da2d730f798c6c1d69f356c43ca832fcf1b9`; mode `compatible`; stage duration `1 ms`
   - stage evidence: `laravel-stage-target-1`, `stage-attempt-1`, `stage-root-change-1`, `stage-attempt-2`, `stage-root-change-2`, `solver-6`, `solver-7`
-  - state chain: predecessor `2d9560e8e9a06d7d43645ebb2126babbe5c867faaf123b79b40897250058f59d`; input `2d9560e8e9a06d7d43645ebb2126babbe5c867faaf123b79b40897250058f59d`; output `none`
+  - state chain: predecessor `2af055fd63fc2552524a441c6f2446eac5a39a10ae32f8706ef37fddf3168fcc`; input `2af055fd63fc2552524a441c6f2446eac5a39a10ae32f8706ef37fddf3168fcc`; output `none`
   - attempt `1` `target_only`: outcome `solver_failure`; duration `1 ms`; selected no; blockers `stage-blocker-bb481a2b123c889ad668`, `stage-blocker-1bb4bb614fcc89d42a14`
     - analyzer-only root change `laravel/framework`: `^7.0` -> `^8.0`
   - attempt `2` `locked_package_remediation`: outcome `solver_failure`; duration `1 ms`; selected no; blockers `stage-blocker-bb481a2b123c889ad668`, `stage-blocker-1bb4bb614fcc89d42a14`

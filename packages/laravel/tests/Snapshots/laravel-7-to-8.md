@@ -108,7 +108,7 @@ Resolution: **feasible_with_changes** | Staged: **feasible_with_changes** | Sche
   - effective platform: `1227859358166ebdf070c802a94bc3d37e5f430d3f57f52f7c9db345bcc2356e`; completeness `partial`; profile `none`
   - Composer policy: `0c155d2582c9452186059dbe78d0da2d730f798c6c1d69f356c43ca832fcf1b9`; mode `compatible`; stage duration `1 ms`
   - stage evidence: `laravel-stage-target-1`, `stage-attempt-1`, `stage-root-change-1`, `laravel-framework-constraint-1`
-  - state chain: predecessor `ab67efe913995aee16ffbbec83ecb42a3f9a87200228bc782eae4685662a27cb`; input `ab67efe913995aee16ffbbec83ecb42a3f9a87200228bc782eae4685662a27cb`; output `9fb8b461401035d16306eeb9c73c9c3eb8dec8104f91aba834039f5b9b036fbe`
+  - state chain: predecessor `346f31120fbaf2d82c1e7d61829cc75a5c31dd1472f214f3f550a3875d7f50ad`; input `346f31120fbaf2d82c1e7d61829cc75a5c31dd1472f214f3f550a3875d7f50ad`; output `aa4d3f2e881fd081c216f38d69d55bd824fac92eae7023c645b16fdcb05cc434`
   - attempt `1` `target_only`: outcome `success`; duration `1 ms`; selected yes; blockers `none`
     - analyzer-only root change `laravel/framework`: `^7.0` -> `^8.0`
   - selected package change `laravel/framework`: `v7.30.7` -> `v8.83.27`

@@ -61,6 +61,8 @@ Scenario and diagnostic outcomes share one vocabulary: `success`, `solver_failur
 
 `invalid_json` covers unusable project Composer input rather than a broken analysis environment. Besides `composer.json` or `composer.lock` that is not valid JSON, it reports a manifest whose `config.platform` declares contradictory duplicate package names, and a manifest whose `config` or `config.platform` is not an object and therefore cannot carry the simulated platform values.
 
+A candidate-state fingerprint identifies the manifest and lock content a stage carried in or out, not the directory the project was analyzed in. Its manifest and lock digests read the same sanitized values the report exposes, so an analyzer-owned exposure marker stands in for every private root and the segments after a marker are digested with `/` separators. The lock digest excludes Composer's derived `content-hash`: that value restates the manifest the analyzer wrote into its own workspace, including the absolute path repositories the workspace needs to resolve, and the manifest is already digested on its own. Two hosts analyzing one project therefore report the same fingerprints, while `scenarios[].candidate_lock.sha256` and `candidate_lock.content_hash` stay exactly what Composer wrote in that workspace and are local to it.
+
 The required `staged_resolution.budgets` object reports the normative hop, attempt, scenario, Composer-process, per-scenario timeout, per-stage timeout, aggregate timeout, memory, JSON-size, and Markdown-size caps. In schema 0.8, `max_composer_processes` is `128` and `stage_timeout_seconds` is `900`; consumers must not infer either value from the scenario or aggregate limits.
 
 For a 0.7/0.8 consumer:

@@ -127,6 +127,82 @@ final class ProjectStateFingerprintTest extends TestCase
         self::assertStringNotContainsString('/private/tools', json_encode([$first, $second], JSON_THROW_ON_ERROR));
     }
 
+    /**
+     * A candidate state has to be identifiable by what it contains, not by where the
+     * project happened to be analyzed. Composer derives the lock `content-hash` from
+     * the manifest the analyzer wrote into its workspace, which carries absolute path
+     * repositories, and it records those repositories in every resolved package, so
+     * both differ between two hosts analyzing the same project.
+     */
+    public function testCandidateStateFingerprintsAreIndependentOfTheHostAndItsSeparators(): void
+    {
+        $linux = $this->candidateState('/home/runner/work/app/target', '/home/runner/work/app', '/', 'a1b2c3');
+        $windows = $this->candidateState('D:\\a\\app\\target', 'D:\\a\\app', '\\', 'd4e5f6');
+
+        $linuxFingerprint = $this->fingerprint($linux, $this->platform($linux, $this->profile('partial', [
+            'php' => '8.3.4',
+        ])))->toArray();
+        $windowsFingerprint = $this->fingerprint($windows, $this->platform($windows, $this->profile('partial', [
+            'php' => '8.3.4',
+        ])))->toArray();
+
+        self::assertSame($linuxFingerprint['manifest_sha256'], $windowsFingerprint['manifest_sha256']);
+        self::assertSame($linuxFingerprint['lock_sha256'], $windowsFingerprint['lock_sha256']);
+        self::assertSame($linuxFingerprint['state_sha256'], $windowsFingerprint['state_sha256']);
+    }
+
+    public function testALockedVersionChangeStillChangesTheStateFingerprint(): void
+    {
+        $state = $this->candidateState('/home/runner/work/app/target', '/home/runner/work/app', '/', 'a1b2c3');
+        $upgraded = $this->candidateState(
+            '/home/runner/work/app/target',
+            '/home/runner/work/app',
+            '/',
+            'a1b2c3',
+            '13.0.0'
+        );
+
+        self::assertNotSame(
+            $this->fingerprint($state, $this->platform($state, $this->profile('partial', ['php' => '8.3.4'])))
+                ->stateSha256(),
+            $this->fingerprint($upgraded, $this->platform($upgraded, $this->profile('partial', ['php' => '8.3.4'])))
+                ->stateSha256()
+        );
+    }
+
+    private function candidateState(
+        string $projectPath,
+        string $repositoryRoot,
+        string $separator,
+        string $contentHash,
+        string $lockedVersion = '12.0.0'
+    ): ProjectState {
+        return new ProjectState(
+            $projectPath,
+            new ComposerJson([
+                'name' => 'fixture/fingerprint',
+                'repositories' => [['type' => 'path', 'url' => '../repository/*']],
+                'require' => ['laravel/framework' => '^12.0'],
+            ]),
+            new ComposerLock([
+                'content-hash' => $contentHash,
+                'packages' => [[
+                    'name' => 'laravel/framework',
+                    'version' => $lockedVersion,
+                    'dist' => [
+                        'type' => 'path',
+                        'url' => $repositoryRoot . $separator . 'repository' . $separator . 'framework-12',
+                    ],
+                    'transport-options' => ['symlink' => false, 'relative' => true],
+                ]],
+                'packages-dev' => [],
+                'prefer-stable' => false,
+                'plugin-api-version' => '2.6.0',
+                'time' => null,
+            ])
+        );
+    }
+
     private function platform(ProjectState $state, TargetPlatformProfile $profile): TargetPlatform
     {
         $request = new UpgradeRequest($this->projectPath(), [], null, null, [], [], 'json', null, false, [], $profile);
