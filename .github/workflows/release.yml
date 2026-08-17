@@ -62,6 +62,8 @@ jobs:
           release_branch='main'
           if [[ "${RELEASE_VERSION}" == 0.1.* ]]; then
             release_branch='0.1.x'
+          elif [[ "${RELEASE_VERSION}" == 0.2.* ]]; then
+            release_branch='0.2.x'
           fi
 
           git fetch --no-tags origin "+refs/heads/${release_branch}:refs/remotes/origin/${release_branch}"

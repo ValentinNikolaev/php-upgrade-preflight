@@ -18,6 +18,7 @@ final class ReleaseWorkflowTest extends TestCase
         self::assertStringContainsString('git merge-base --is-ancestor', $workflow);
         self::assertStringContainsString("release_branch='main'", $workflow);
         self::assertStringContainsString("release_branch='0.1.x'", $workflow);
+        self::assertStringContainsString("release_branch='0.2.x'", $workflow);
         self::assertStringContainsString('refs/remotes/origin/${release_branch}', $workflow);
     }
 
