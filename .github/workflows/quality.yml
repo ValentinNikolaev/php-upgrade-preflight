@@ -162,12 +162,35 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
+      # The Windows shards spawn a real Composer process per analysis scenario --
+      # roughly 140 of them per shard -- each writing a fresh temporary workspace.
+      # Defender scans every one of those writes and re-scans php.exe on every
+      # spawn. These settings tune the ephemeral runner only: they change nothing
+      # the product ships and nothing about how the analyzed project is treated.
+      #
+      # The OPcache directory is created here, before PHP exists. An absent
+      # opcache.file_cache path makes PHP emit a startup warning on every spawn,
+      # and that warning would land in the Composer stderr the analyzer captures
+      # as scenario evidence -- which parity tests assert is empty.
+      - name: Tune the Windows runner for repeated Composer processes
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path "$env:RUNNER_TEMP\opcache" | Out-Null
+          try {
+            Add-MpPreference -ExclusionPath $env:RUNNER_TEMP, $env:GITHUB_WORKSPACE, 'C:\tools\php' -ErrorAction Stop
+            Add-MpPreference -ExclusionProcess 'php.exe', 'composer.bat' -ErrorAction Stop
+          } catch {
+            Write-Output "::warning::Defender exclusions were not applied: $($_.Exception.Message)"
+          }
+
       - name: Set up PHP
         uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
         with:
           php-version: ${{ matrix.php }}
           coverage: none
           extensions: zip
+          ini-values: ${{ runner.os == 'Windows' && format('opcache.enable_cli=1,opcache.file_cache={0}\opcache,opcache.file_cache_only=1,opcache.validate_timestamps=0', runner.temp) || '' }}
 
       - name: Mask synthetic secret canaries
         run: php tools/mask-secret-canaries.php
@@ -188,6 +211,19 @@ jobs:
       - name: Verify report privacy
         if: matrix.privacy
         run: php tools/verify-report-privacy.php
+
+      # Per-test Windows timings. The Windows shards are hand-partitioned, and the
+      # Windows-to-Linux cost ratio is not uniform across them, so the split can
+      # only be balanced against measurements taken on Windows itself. Uploaded
+      # even when the suite fails, because a failed shard still timed its tests.
+      - name: Upload Windows test timings
+        if: always() && runner.os == 'Windows'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: junit-${{ matrix.os }}-${{ matrix.suite }}
+          path: build/junit-*.xml
+          if-no-files-found: ignore
+          retention-days: 7
 
   staged-budgets:
     name: Worst supported staged chain / ${{ matrix.os }}

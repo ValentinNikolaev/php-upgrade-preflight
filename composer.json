@@ -107,10 +107,10 @@
       "@test:unit",
       "@test:smoke"
     ],
-    "test:integration:windows-parity-a": "phpunit --testsuite integration --group windows-parity-a",
-    "test:integration:windows-parity-b": "phpunit --testsuite integration --group windows-parity-b",
-    "test:integration:windows-heavy": "phpunit --testsuite integration --group windows-integration-heavy",
-    "test:integration:windows-rest": "phpunit --testsuite integration --exclude-group windows-parity-a,windows-parity-b,windows-integration-heavy",
+    "test:integration:windows-parity-a": "phpunit --testsuite integration --group windows-parity-a --log-junit build/junit-windows-parity-a.xml",
+    "test:integration:windows-parity-b": "phpunit --testsuite integration --group windows-parity-b --log-junit build/junit-windows-parity-b.xml",
+    "test:integration:windows-heavy": "phpunit --testsuite integration --group windows-integration-heavy --log-junit build/junit-windows-integration-heavy.xml",
+    "test:integration:windows-rest": "phpunit --testsuite integration --exclude-group windows-parity-a,windows-parity-b,windows-integration-heavy --log-junit build/junit-windows-integration-rest.xml",
     "test:integration:staged-budget": "phpunit --filter WorstCaseStagedBudgetTest",
     "test:all": [
       "@test:unit",
