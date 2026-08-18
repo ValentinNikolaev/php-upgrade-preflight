@@ -160,8 +160,13 @@ jobs:
             privacy: false
           - os: windows-latest
             php: '8.3'
-            suite: fixtures
-            test_command: composer test:integration:windows-fixtures
+            suite: fixtures-1
+            test_command: composer test:integration:windows-fixtures-1
+            privacy: false
+          - os: windows-latest
+            php: '8.3'
+            suite: fixtures-2
+            test_command: composer test:integration:windows-fixtures-2
             privacy: false
           - os: windows-latest
             php: '8.3'

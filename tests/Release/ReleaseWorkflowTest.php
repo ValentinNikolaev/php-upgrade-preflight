@@ -249,14 +249,15 @@ final class ReleaseWorkflowTest extends TestCase
             }
         }
         self::assertSame(['8.0', '8.1', '8.2', '8.3', '8.4', '8.5'], $linuxPhp);
-        self::assertSame(['8.3', '8.3', '8.3', '8.3', '8.3', '8.3', '8.3'], $windowsPhp);
+        self::assertSame(['8.3', '8.3', '8.3', '8.3', '8.3', '8.3', '8.3', '8.3'], $windowsPhp);
         self::assertSame([
             'unit-smoke',
             'parity-1',
             'parity-2',
             'parity-3',
             'staged',
-            'fixtures',
+            'fixtures-1',
+            'fixtures-2',
             'rest',
         ], $windowsSuites);
         self::assertSame([
@@ -265,7 +266,8 @@ final class ReleaseWorkflowTest extends TestCase
             'parity-2' => 'composer test:integration:windows-parity-2',
             'parity-3' => 'composer test:integration:windows-parity-3',
             'staged' => 'composer test:integration:windows-staged',
-            'fixtures' => 'composer test:integration:windows-fixtures',
+            'fixtures-1' => 'composer test:integration:windows-fixtures-1',
+            'fixtures-2' => 'composer test:integration:windows-fixtures-2',
             'rest' => 'composer test:integration:windows-rest',
         ], $windowsCommands);
         self::assertSame(['unit-smoke'], $windowsPrivacySuites);
@@ -293,13 +295,18 @@ final class ReleaseWorkflowTest extends TestCase
             $composer['scripts']['test:integration:windows-staged'] ?? null
         );
         self::assertSame(
-            'phpunit --testsuite integration --group windows-fixtures'
-                . ' --log-junit build/junit-windows-fixtures.xml',
-            $composer['scripts']['test:integration:windows-fixtures'] ?? null
+            'phpunit --testsuite integration --group windows-fixtures-1'
+                . ' --log-junit build/junit-windows-fixtures-1.xml',
+            $composer['scripts']['test:integration:windows-fixtures-1'] ?? null
+        );
+        self::assertSame(
+            'phpunit --testsuite integration --group windows-fixtures-2'
+                . ' --log-junit build/junit-windows-fixtures-2.xml',
+            $composer['scripts']['test:integration:windows-fixtures-2'] ?? null
         );
         // The rest shard must exclude every named group, or a test runs in two shards.
         self::assertSame(
-            'phpunit --testsuite integration --exclude-group windows-parity-1,windows-parity-2,windows-parity-3,windows-staged,windows-fixtures'
+            'phpunit --testsuite integration --exclude-group windows-parity-1,windows-parity-2,windows-parity-3,windows-staged,windows-fixtures-1,windows-fixtures-2'
                 . ' --log-junit build/junit-windows-rest.xml',
             $composer['scripts']['test:integration:windows-rest'] ?? null
         );
