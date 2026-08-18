@@ -70,6 +70,17 @@ final class OutputExcerptTest extends TestCase
         self::assertLessThanOrEqual(4000, strlen($excerpt));
     }
 
+    public function testACutLandingInsideAMultibyteCharacterDropsThatCharacter(): void
+    {
+        $multibyte = "\u{00e9}";
+        self::assertSame(2, strlen($multibyte));
+
+        $excerpt = OutputExcerpt::bounded(str_repeat('a', 10) . $multibyte . str_repeat('b', 100), 11);
+
+        self::assertSame(str_repeat('a', 10), $excerpt);
+        self::assertSame(1, preg_match('//u', $excerpt));
+    }
+
     public function testNegativeBudgetsAreRejected(): void
     {
         $this->expectException(\InvalidArgumentException::class);
