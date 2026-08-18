@@ -2,10 +2,10 @@
 
 Last updated: 2026-08-18
 
-- Active tool/package target: `0.3.0`
-- Released baseline: `0.2.1`
-- Released report schema: `0.7`
-- Planned v0.3 report schema: `0.8`
+- Released baseline: `0.3.0` (published 2026-08-18)
+- Released report schema: `0.8`
+- Active development line: `0.3.x-dev` on `main`
+- Previous released baseline: `0.2.1` with schema `0.7`, now archival
 
 This roadmap supersedes the archived [v0.2.0 implementation plan](DEVELOPMENT_PLAN_0.2.0.md), which also records the v0.2.1 release-hardening closeout. The archive was copied from the completed plan before this file was replaced.
 
@@ -290,18 +290,18 @@ Priority: P0.
 - [x] Document target-platform profile generation and validation, partial versus complete guarantees, execution modes, staged versus direct resolution, skipped stages, original-snapshot source limits, and schema `0.7` to `0.8` migration.
 - [x] Verify the protected v0.2.x maintenance branch still carries compatible `0.2.x` aliases, constraints, schema, and release verification after all v0.3 work on `main`.
 - [x] Replace the v0.3 development report identity with exact `0.3.0`, prepare candidate changelog and release notes, and re-verify the schema `0.8`, `0.3.x-dev` alias, `^0.3` constraint, and workflow contract together.
-- [~] After cross-host candidate verification, finalize the dated changelog and public release-state documentation, then rerun the release verifier before creating signed tags.
+- [x] After cross-host candidate verification, finalize the dated changelog and public release-state documentation, then rerun the release verifier before creating signed tags.
 - [x] Run the deterministic gate on every supported PHP runtime plus required Windows coverage.
 - [x] Run complete-profile cross-host proofs, the restricted Composer-layer offline and credential harness, worst-case staged-corpus budgets, and all privacy canaries.
 - [x] Run normal and lowest-dependency consumers for every advertised Laravel host line.
 - [x] Run fresh-clone and release-artifact consumer audits on Windows and Linux using direct and staged analyses.
-- [~] Produce checksum-bound Core, CLI, and Laravel archives with dependency inventory and source/build provenance.
-- [ ] Create matching verified signed tags in the monorepo and all three distribution repositories, synchronize Packagist, and verify exact published source and distribution references.
-- [ ] Reproduce the documented complete-profile staged quick start from published packages and prove the target fixture remains byte-for-byte unchanged.
+- [x] Produce checksum-bound Core, CLI, and Laravel archives with dependency inventory and source/build provenance.
+- [x] Create matching verified signed tags in the monorepo and all three distribution repositories, synchronize Packagist, and verify exact published source and distribution references.
+- [x] Reproduce the documented complete-profile staged quick start from published packages and prove the target fixture remains byte-for-byte unchanged.
 
 Acceptance gate: published v0.3 packages validate schema `0.8`, reproduce every claimed stage under the declared platform and execution policy, preserve v0.2 migration evidence, and retain all read-only, privacy, compatibility, and supply-chain guarantees.
 
-Status: in progress. Local candidate documentation, migration guidance, exact `0.3.0` report identity, deterministic tests, static analysis, formatting, selective mutations, and dependency audit pass. The candidate was re-verified after the 2026-08-16 architecture-audit remediation, which changed schema `0.8` before publication by making the Composer diagnostic `outcome` required, replaced fabricated Markdown defaults with explicit "not recorded" renderings, and updated the checked-in example reports and snapshots accordingly. Because schema `0.8` is unpublished, that is a candidate change rather than a schema migration; every released schema stays byte-for-byte immutable. The changelog now carries a dated `[0.3.0] - 2026-08-18` heading, and the release notes read as the release rather than a candidate, including the source-breaking internal API changes the audit produced; `php tools/verify-release.php 0.3.0` and the local Linux deterministic gate pass on that state. The first cross-host `Quality` run on the dated commit did not (run 32060787747), and its four failures are fixed with tests on this release-preparation branch: candidate-state fingerprints absorbed Composer's workspace-manifest `content-hash` and the host separators left after an exposure marker, so the checked-in demo state chain matched only the machine that produced it and every Linux and Windows job disagreed with it; a project path spelled with mixed separators escaped redaction into a worst-chain report on Windows; the Artisan Markdown projection test compared a CRLF console display against LF writer output; and the coverage ratchet was carrying uncovered `JsonFileReader` lines that the architecture-audit remediation had added. The demo report, the Laravel snapshots, and the coverage baseline were regenerated with those fixes, and CI has since confirmed the cross-host gate items below. Public pages still identify v0.2.1 as the latest published and security-supported release, which is deliberate and machine-enforced: `ProductPositioningTest` requires README to say v0.3.0 is not yet published and to install `^0.2`, so that flip belongs with Packagist publication, not with the dated changelog. The `0.2.x` maintenance branch is protected and re-verified, including a fix that lets a `0.2.*` tag release from it. Manual `Release` run 32122759191 on commit `bcbaf06` (2026-08-18, 6m09s, publication skipped because the run is not a tag) is green across all 43 executed jobs: the release metadata gate, PHP 8.0 through 8.5 on Linux and eight Windows shards, worst-case staged budgets on both platforms, privacy canaries, coverage and selective-mutation ratchets, sixteen normal and lowest-dependency core, CLI, and Laravel 8 through 13 consumer installs, the dependency audit, Linux and Windows fresh-clone audits, archive packaging, and both archive consumers. One stale expectation had to be fixed first: the Laravel fixture smoke still asserted the v0.2 invocation message and had failed twelve of sixteen compatibility jobs, and it is now bound to the command source by a contract test. `main` is now protected: pull request required, five required `Quality` checks, signed commits, no force pushes or deletions, no branch lock, administrator bypass retained. Signed tags, Packagist synchronization, and the published-package quick start remain pending; the archive path is proven, but the archives that ship are produced by the tag run.
+Status: complete. v0.3.0 was published on 2026-08-18 from `main` at commit `3959b0fe` through release run 32136742538, with every job green: verified signed tags in the monorepo and all three distribution repositories, distribution payloads compared file by file against `packages/*`, the PHP 8.0 through 8.5 Linux matrix and eight Windows shards, worst-case staged budgets, privacy canaries, sixteen normal and lowest-dependency consumer installs, Linux and Windows fresh-clone and archive-consumer audits, checksum-bound archives with dependency inventory and provenance, and a published-package quick start that installed all three packages from Packagist at their exact signed-tag references and left the analyzed fixture byte-for-byte unchanged. The full evidence is recorded in [the release notes](../docs/releases/v0.3.0.md). Public pages now describe v0.3.0 as the published line and `0.2.x` and `0.1.x` as archival, and `ProductPositioningTest` and `DevelopmentReleasePolicyTest` enforce that state. Two corrections belong to this record because both would have failed the release: the Laravel fixture smoke still asserted the v0.2 invocation message and had failed twelve of sixteen compatibility jobs, and the distribution release script aborted on a local `git tag -v` principal mismatch while allowing a payload staged from an older commit. Both are fixed, and `tools/` now carries the preparation and release scripts with a written guide.
 
 ## Principal Risks and Controls
 
@@ -332,10 +332,13 @@ Status: in progress. Local candidate documentation, migration guidance, exact `0
 
 ## Recommended Next Work Session
 
-Split the three package subtrees, create matching verified signed `v0.3.0` tags in the monorepo and all three distribution repositories, and let the tag run publish. Packagist synchronization, the published-package quick start, and only then the public release-state flip in README, `SECURITY.md`, the installation and troubleshooting pages, and the matching `ProductPositioningTest` assertions follow. Cross-host verification is done: manual `Release` run 32122759191 is green on `bcbaf06`.
+v0.3.0 is released; nothing in this plan is blocking. Post-release work, in the order it makes sense:
 
-Three operational notes for that session:
+- Watch the published line: the first real consumer reports against schema `0.8`, the staged analysis, and the restricted Composer mode.
+- Close RPT-2, the one architecture-audit finding deliberately deferred out of v0.3: excerpt truncation and redaction failure are invisible in canonical output. It is now published as a limitation, which makes it a v0.4 candidate rather than a silent gap.
+- Decide what v0.4 actually is. [DEVELOPMENT_PLAN_0.4.0-PROPOSAL.md](DEVELOPMENT_PLAN_0.4.0-PROPOSAL.md) is a proposal and authorizes nothing.
 
-- The dated `[0.3.0] - 2026-08-18` changelog heading and the release notes assume publication happened on that date. Re-date both before tagging if the release moves to another day; `composer release:verify -- 0.3.0` checks that the heading exists and is dated, not that the date is correct.
-- The local gate needs `COMPOSER_PROCESS_TIMEOUT=0`. `docker compose run --rm php composer check` otherwise kills the integration suite at Composer's default 300-second `process-timeout` and reports the killed subprocesses as errors. CI is unaffected: no workflow sets that variable and none has hit the timeout. Decide whether to record it in `composer.json` or in the verification documentation.
-- A v0.4 roadmap proposal exists at [DEVELOPMENT_PLAN_0.4.0-PROPOSAL.md](DEVELOPMENT_PLAN_0.4.0-PROPOSAL.md). It authorizes nothing and must not reorder v0.3.0 release execution.
+Two operational notes carried forward:
+
+- The local gate needs `COMPOSER_PROCESS_TIMEOUT=0`. `docker compose run --rm php composer check` otherwise kills the integration suite at Composer's default 300-second `process-timeout` and reports the killed subprocesses as errors. CI never needed it: no workflow sets that variable and none has hit the timeout. Decide whether to record it in `composer.json` or in the verification documentation.
+- Branch protection covers `main` and `0.2.x`, but not tags. The signed `v0.1.0`, `v0.2.1`, and `v0.3.0` tags are the evidence base for every frozen compatibility contract and can still be deleted or moved; a tag ruleset on `v*` would close that.

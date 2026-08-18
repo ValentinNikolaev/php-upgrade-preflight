@@ -48,23 +48,26 @@ final class ProductPositioningTest extends TestCase
         self::assertStringContainsString('Commercial use requires a separate license', $readme);
         self::assertStringContainsString('It is not distributed as Open Source', $readme);
         self::assertStringContainsString('Public beta is not a production-readiness claim', $readme);
-        self::assertStringContainsString('v0.3.0 is not yet a published package release', $readme);
+        self::assertStringContainsString('The released v0.3.x line', $readme);
+        self::assertStringContainsString('v0.3.0 is the latest published release', $readme);
         self::assertStringContainsString(
-            'composer require php-upgrade-preflight/cli:^0.2 php-upgrade-preflight/laravel:^0.2',
+            'composer require php-upgrade-preflight/cli:^0.3 php-upgrade-preflight/laravel:^0.3',
             $readme
         );
-        self::assertStringNotContainsString('The released v0.3.x line', $readme);
+        self::assertStringNotContainsString('not yet a published package release', $readme);
 
         $status = $this->read('docs/project-status.md');
         self::assertStringContainsString('## v0.2.x compatibility commitment', $status);
-        self::assertStringContainsString('## Planned v0.3.x compatibility commitment', $status);
+        self::assertStringContainsString('## v0.3.x compatibility commitment', $status);
+        self::assertStringContainsString('archival compatibility line', $status);
         self::assertStringContainsString('## v0.3 change boundary', $status);
         self::assertStringContainsString('schema `0.8`', $status);
         self::assertStringContainsString('It is not distributed or described as Open Source', $status);
 
         $security = $this->read('SECURITY.md');
-        self::assertStringContainsString('latest published `0.2.x` release line', $security);
-        self::assertStringContainsString('v0.3.0 remains a release candidate', $security);
+        self::assertStringContainsString('latest published `0.3.x` release line', $security);
+        self::assertStringContainsString('archival', $security);
+        self::assertStringNotContainsString('release candidate', $security);
 
         $contributing = $this->read('CONTRIBUTING.md');
         self::assertStringContainsString('source-available public beta, not an Open Source project', $contributing);
