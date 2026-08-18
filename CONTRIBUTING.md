@@ -52,6 +52,8 @@ composer test:coverage
 composer test:mutation
 ```
 
+If `docker compose run --rm php composer check` reports killed subprocesses partway through the integration suite, the cause is Composer's default 300-second `process-timeout`: that suite runs real Composer scenarios for roughly eight minutes inside one script. Run the gate as `docker compose run --rm -e COMPOSER_PROCESS_TIMEOUT=0 php composer check`. CI is unaffected — no workflow sets that variable and none has hit the limit — and the analyzer's own Composer timeouts are separate, bounded product settings that this variable does not change.
+
 The repository's own command-line helpers live in `tools/` and are documented in [the tools guide](tools/README.md).
 
 `test:coverage` measures the full unit suite and compares it with the committed exact baseline. Overall and critical-module ratios may not decline, and newly uncovered source-line fingerprints fail the ratchet; there is no hand-picked percentage threshold. Update the baseline with `php tools/verify-coverage.php build/coverage/clover.xml --write-baseline` only after reviewing a successful full-unit Clover report.
