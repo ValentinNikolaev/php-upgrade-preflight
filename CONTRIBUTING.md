@@ -114,7 +114,7 @@ Run the release workflow manually to exercise the release gates and build archiv
 Before tagging, run:
 
 ```bash
-composer release:verify -- 0.3.0
+composer release:verify -- 0.3.1
 ```
 
 See [Versioning](docs/versioning.md) for the `0.x` policy and active `0.3.x` release line, and [the release checklist](docs/release-checklist.md) for dependency-inventory, provenance, distribution-repository, and Packagist steps.

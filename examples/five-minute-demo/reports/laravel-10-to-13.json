@@ -3,7 +3,7 @@
         "schema_version": "0.8",
         "tool": {
             "name": "php-upgrade-preflight",
-            "version": "0.3.0"
+            "version": "0.3.1"
         }
     },
     "request_summary": {
@@ -117,7 +117,7 @@
                     "--no-plugins",
                     "--no-interaction"
                 ],
-                "duration_ms": 248,
+                "duration_ms": 196,
                 "exit_code": 0,
                 "succeeded": true,
                 "outcome": "success",
@@ -146,7 +146,7 @@
                     "--no-progress",
                     "--no-interaction"
                 ],
-                "duration_ms": 1012,
+                "duration_ms": 808,
                 "exit_code": 2,
                 "succeeded": false,
                 "outcome": "solver_failure",
@@ -211,7 +211,7 @@
                     "--no-progress",
                     "--no-interaction"
                 ],
-                "duration_ms": 349,
+                "duration_ms": 287,
                 "exit_code": 2,
                 "succeeded": false,
                 "outcome": "solver_failure",
@@ -277,7 +277,7 @@
                     "--no-progress",
                     "--no-interaction"
                 ],
-                "duration_ms": 346,
+                "duration_ms": 297,
                 "exit_code": 2,
                 "succeeded": false,
                 "outcome": "solver_failure",
@@ -340,7 +340,7 @@
                     "--no-progress",
                     "--no-interaction"
                 ],
-                "duration_ms": 360,
+                "duration_ms": 285,
                 "exit_code": 0,
                 "succeeded": true,
                 "outcome": "success",
@@ -370,7 +370,7 @@
                     "--no-progress",
                     "--no-interaction"
                 ],
-                "duration_ms": 692,
+                "duration_ms": 545,
                 "exit_code": 2,
                 "succeeded": false,
                 "outcome": "solver_failure",
@@ -447,7 +447,7 @@
                     },
                     "effective_sha256": "f7867541fa8d250aab14dc390187c1a8930cdd8fb3b76e3dd72486cc5512107e"
                 },
-                "duration_ms": 2702,
+                "duration_ms": 2116,
                 "evidence": [
                     "laravel-stage-target-1",
                     "laravel-stage-remediation-1",
@@ -520,7 +520,7 @@
                                 "--no-progress",
                                 "--no-interaction"
                             ],
-                            "duration_ms": 1015,
+                            "duration_ms": 789,
                             "exit_code": 2,
                             "succeeded": false,
                             "outcome": "solver_failure",
@@ -629,7 +629,7 @@
                                 "--no-progress",
                                 "--no-interaction"
                             ],
-                            "duration_ms": 1326,
+                            "duration_ms": 1046,
                             "exit_code": 2,
                             "succeeded": false,
                             "outcome": "solver_failure",
@@ -769,7 +769,7 @@
                                 "--no-progress",
                                 "--no-interaction"
                             ],
-                            "duration_ms": 361,
+                            "duration_ms": 281,
                             "exit_code": 0,
                             "succeeded": true,
                             "outcome": "success",
@@ -992,7 +992,7 @@
                     },
                     "effective_sha256": "f7867541fa8d250aab14dc390187c1a8930cdd8fb3b76e3dd72486cc5512107e"
                 },
-                "duration_ms": 350,
+                "duration_ms": 285,
                 "evidence": [
                     "laravel-stage-target-2",
                     "laravel-stage-remediation-4",
@@ -1059,7 +1059,7 @@
                                 "--no-progress",
                                 "--no-interaction"
                             ],
-                            "duration_ms": 350,
+                            "duration_ms": 285,
                             "exit_code": 0,
                             "succeeded": true,
                             "outcome": "success",
@@ -1271,7 +1271,7 @@
                     },
                     "effective_sha256": "f7867541fa8d250aab14dc390187c1a8930cdd8fb3b76e3dd72486cc5512107e"
                 },
-                "duration_ms": 3315,
+                "duration_ms": 2631,
                 "evidence": [
                     "laravel-stage-target-3",
                     "laravel-stage-remediation-6",
@@ -1346,7 +1346,7 @@
                                 "--no-progress",
                                 "--no-interaction"
                             ],
-                            "duration_ms": 816,
+                            "duration_ms": 630,
                             "exit_code": 2,
                             "succeeded": false,
                             "outcome": "solver_failure",
@@ -1454,7 +1454,7 @@
                                 "--no-progress",
                                 "--no-interaction"
                             ],
-                            "duration_ms": 1092,
+                            "duration_ms": 880,
                             "exit_code": 2,
                             "succeeded": false,
                             "outcome": "solver_failure",
@@ -1606,7 +1606,7 @@
                                 "--no-progress",
                                 "--no-interaction"
                             ],
-                            "duration_ms": 1407,
+                            "duration_ms": 1121,
                             "exit_code": 2,
                             "succeeded": false,
                             "outcome": "solver_failure",
