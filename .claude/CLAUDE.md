@@ -6,6 +6,10 @@ Build a deterministic, evidence-backed, read-only preflight analyzer for Compose
 
 Laravel is the first framework adapter, not the product identity. Keep the core framework-neutral so other adapters can be added later.
 
+## Shared With Other Assistants
+
+These rules, the roadmap, the memory file, and the audits are shared. `.codex/AGENTS.md` points at them rather than copying them, so an edit here serves every assistant working on the project. Do not create a parallel copy under another assistant's directory; if a genuinely assistant-specific rule is needed, keep only that difference in that assistant's own file.
+
 ## Session Start
 
 Before editing:

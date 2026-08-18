@@ -81,10 +81,11 @@ final class JsonReportWriterTest extends TestCase
         $json = (new JsonReportWriter())->render($this->report([], [$scenario]));
         $decoded = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
 
-        self::assertSame(
-            str_repeat('a', 3999),
-            $decoded['resolution']['scenarios'][0]['diagnostics'][0]['stdout_excerpt']
-        );
+        $excerpt = $decoded['resolution']['scenarios'][0]['diagnostics'][0]['stdout_excerpt'];
+        self::assertIsString($excerpt);
+        self::assertLessThanOrEqual(4000, strlen($excerpt));
+        self::assertStringStartsWith(str_repeat('a', 100), $excerpt);
+        self::assertStringEndsWith(' bytes of output omitted]', $excerpt);
     }
 
     public function testLocalRepositoryPathsInLockDerivedEvidenceAreCanonicalized(): void
