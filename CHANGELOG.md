@@ -4,7 +4,7 @@ This project follows [Semantic Versioning](https://semver.org/). Report schema v
 
 ## [Unreleased]
 
-## [0.3.0] - 2026-08-17
+## [0.3.0] - 2026-08-18
 
 ### Added
 
