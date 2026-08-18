@@ -52,6 +52,8 @@ The release workflow performs the clean install, deterministic gate, JSON and Ma
 
 This repository is a monorepo. Packagist reads a package manifest from the root of each distribution repository, so publish `core`, `cli`, and `laravel` subtrees to their corresponding repositories before synchronization.
 
+`tools/prepare-distribution.sh` rebuilds the three distribution working trees from the current checkout, and `tools/release-distribution.sh` commits, signs, and pushes them. Both are described in [the tools guide](../tools/README.md).
+
 For v0.3 these Composer packages remain the only supported external distribution. The generated package ZIPs are Composer distribution artifacts, not a PHAR. Do not attach a PHAR or publish a project container image as a supported runtime; the development Docker files are outside the release surface.
 
 - [ ] Split every package subtree with history preserved.
