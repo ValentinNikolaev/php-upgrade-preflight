@@ -49,7 +49,7 @@ final class ProductPositioningTest extends TestCase
         self::assertStringContainsString('It is not distributed as Open Source', $readme);
         self::assertStringContainsString('Public beta is not a production-readiness claim', $readme);
         self::assertStringContainsString('The released v0.3.x line', $readme);
-        self::assertStringContainsString('v0.3.0 is the latest published release', $readme);
+        self::assertStringContainsString('v0.3.1 is the latest published release', $readme);
         self::assertStringContainsString(
             'composer require php-upgrade-preflight/cli:^0.3 php-upgrade-preflight/laravel:^0.3',
             $readme

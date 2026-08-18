@@ -2,7 +2,7 @@
 
 ## Public beta
 
-PHP Upgrade Preflight is a public beta. v0.3.0 is the latest published release, verified through signed tags in the monorepo and all three distribution repositories, checksum-bound archives, cross-host release checks, Packagist synchronization, and a published-package quick start. The public PHP API, CLI and Artisan surfaces, adapter extension points, package boundaries, and report semantics are still being proven before `1.0`.
+PHP Upgrade Preflight is a public beta. v0.3.1 is the latest published release, verified through signed tags in the monorepo and all three distribution repositories, checksum-bound archives, cross-host release checks, Packagist synchronization, and a published-package quick start. The public PHP API, CLI and Artisan surfaces, adapter extension points, package boundaries, and report semantics are still being proven before `1.0`.
 
 Public beta is not a production-readiness claim. The analyzer produces decision-support evidence. It does not modify the target project, perform the upgrade, boot or execute the analyzed application, prove runtime compatibility, or guarantee a successful deployment. Users must review every report and validate any resulting upgrade with the application's own tests, runtime checks, security review, and deployment process.
 
@@ -32,7 +32,7 @@ Within the released v0.2.x line, patch releases preserve:
 
 Bug fixes, security fixes, dependency maintenance, evidence corrections, and documentation changes may change individual findings or diagnostics while preserving those contracts. Published schemas, signed artifacts, and archived compatibility evidence remain immutable.
 
-v0.2.x is an archival compatibility line rather than an actively developed one. Its released artifacts stay installable from Packagist and its schema `0.7` evidence stays immutable, but now that v0.3.0 is published the line receives no features, routine bug fixes, or security patches: fixes follow the latest published line, and the upgrade path is v0.3. Plan an upgrade rather than pinning `^0.2` indefinitely. v0.1.x is archival on the same terms.
+v0.2.x is an archival compatibility line rather than an actively developed one. Its released artifacts stay installable from Packagist and its schema `0.7` evidence stays immutable, but now that the v0.3 line is published it receives no features, routine bug fixes, or security patches: fixes follow the latest published line, and the upgrade path is v0.3. Plan an upgrade rather than pinning `^0.2` indefinitely. v0.1.x is archival on the same terms.
 
 ## v0.3 change boundary
 

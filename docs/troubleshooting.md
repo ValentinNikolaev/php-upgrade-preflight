@@ -48,7 +48,7 @@ Check the Composer version used by the analyzer. Complete closed-world profiles 
 
 Version 0.2 writes schema `0.7`. Select the parser through `metadata.schema_version`, update raw-source reads from schema 0.6 `source_impact` to schema 0.7 `source_inventory`, and treat schema 0.7 `source_impact` as grouped actionable findings. Also accept the new required `platform` field and `transition.framework_guidance`. Historical schema 0.6 reports remain valid and are not rewritten.
 
-The v0.3.0 release candidate writes schema `0.8`. In addition to the 0.6→0.7 changes above, accept required `staged_resolution`, nullable `request_summary.target_platform_profile`, nullable `platform.profile`, and top-level `composer_execution`. Field absence means an older schema; it is not equivalent to a schema 0.8 `null` profile. Follow the ordered [0.7→0.8 migration](schema.md#migrating-from-07-to-08) and continue dispatching on `metadata.schema_version`.
+The published v0.3 line writes schema `0.8`. In addition to the 0.6→0.7 changes above, accept required `staged_resolution`, nullable `request_summary.target_platform_profile`, nullable `platform.profile`, and top-level `composer_execution`. Field absence means an older schema; it is not equivalent to a schema 0.8 `null` profile. Follow the ordered [0.7→0.8 migration](schema.md#migrating-from-07-to-08) and continue dispatching on `metadata.schema_version`.
 
 ## The output path is rejected
 

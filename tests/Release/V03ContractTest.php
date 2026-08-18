@@ -242,7 +242,9 @@ final class V03ContractTest extends TestCase
     {
         $schemaContract = $this->contract['schema_0_8'];
         self::assertSame('0.8', ReportMetadata::SCHEMA_VERSION);
-        self::assertSame('0.3.0', ReportMetadata::TOOL_VERSION);
+        // The v0.3 contract is about schema 0.8 and the v0.3 semantics, not about which patch
+        // is current. The exact version lives in the development-identity fixture.
+        self::assertStringStartsWith('0.3.', ReportMetadata::TOOL_VERSION);
         self::assertSame(['composer_execution', 'staged_resolution'], $schemaContract['new_required_top_level_fields']);
         self::assertSame([
             'request_summary.target_platform_profile',
