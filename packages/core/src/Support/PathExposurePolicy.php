@@ -214,7 +214,7 @@ final class PathExposurePolicy
                     . '(?=$|[\\\\/\s<>"\'`,;:)&?=#\]}]|\.(?:\s|$))~'
                     . (self::isWindowsPath($variant) ? 'i' : '');
                 $length = strlen($variant);
-                if (isset($replacements[$pattern]) && $replacements[$pattern]['length'] >= $length) {
+                if (isset($replacements[$pattern]) && $replacements[$pattern]['length'] > $length) {
                     continue;
                 }
                 $replacements[$pattern] = ['marker' => $marker, 'length' => $length];
