@@ -4,6 +4,10 @@ This project follows [Semantic Versioning](https://semver.org/). Report schema v
 
 ## [Unreleased]
 
+### Changed
+
+- Public documentation now describes v0.3.0 as the published and security-supported line and installs `^0.3`. The `0.2.x` and `0.1.x` lines are archival: their signed artifacts and schemas stay available and immutable, but they receive no further releases, security fixes included.
+
 ## [0.3.0] - 2026-08-18
 
 ### Added
