@@ -117,7 +117,7 @@
                     "--no-plugins",
                     "--no-interaction"
                 ],
-                "duration_ms": 234,
+                "duration_ms": 248,
                 "exit_code": 0,
                 "succeeded": true,
                 "outcome": "success",
@@ -146,7 +146,7 @@
                     "--no-progress",
                     "--no-interaction"
                 ],
-                "duration_ms": 1051,
+                "duration_ms": 1012,
                 "exit_code": 2,
                 "succeeded": false,
                 "outcome": "solver_failure",
@@ -211,7 +211,7 @@
                     "--no-progress",
                     "--no-interaction"
                 ],
-                "duration_ms": 372,
+                "duration_ms": 349,
                 "exit_code": 2,
                 "succeeded": false,
                 "outcome": "solver_failure",
@@ -277,7 +277,7 @@
                     "--no-progress",
                     "--no-interaction"
                 ],
-                "duration_ms": 364,
+                "duration_ms": 346,
                 "exit_code": 2,
                 "succeeded": false,
                 "outcome": "solver_failure",
@@ -340,7 +340,7 @@
                     "--no-progress",
                     "--no-interaction"
                 ],
-                "duration_ms": 367,
+                "duration_ms": 360,
                 "exit_code": 0,
                 "succeeded": true,
                 "outcome": "success",
@@ -370,7 +370,7 @@
                     "--no-progress",
                     "--no-interaction"
                 ],
-                "duration_ms": 689,
+                "duration_ms": 692,
                 "exit_code": 2,
                 "succeeded": false,
                 "outcome": "solver_failure",
@@ -447,7 +447,7 @@
                     },
                     "effective_sha256": "f7867541fa8d250aab14dc390187c1a8930cdd8fb3b76e3dd72486cc5512107e"
                 },
-                "duration_ms": 2690,
+                "duration_ms": 2702,
                 "evidence": [
                     "laravel-stage-target-1",
                     "laravel-stage-remediation-1",
@@ -470,24 +470,24 @@
                 ],
                 "predecessor_state": {
                     "manifest_sha256": "22160d52f264c172f20c7d35924efb796209e4a7515039470744756799f4dc7d",
-                    "lock_sha256": "b0b435fafce2a876d1b08eb49ca96e68a8d520e267ed254cb85f90d95978f0ab",
+                    "lock_sha256": "444759099b03b4a60568f27c3fe7c7359ebfee144b76012dd8fb0d7288d6ee41",
                     "platform_sha256": "6c689c2a945689da7693f0293117541fb3fbc27cb4f072489e15428fd844dbd7",
                     "execution_policy_sha256": "f7867541fa8d250aab14dc390187c1a8930cdd8fb3b76e3dd72486cc5512107e",
-                    "state_sha256": "8313655c69c96b842467b5f5693af8d676cf581cba93e27ab396ecdedfe33d1c"
+                    "state_sha256": "77d288194fa644a06d36bf39e65b1de5451e75b25b9517c16850b6b196003d6d"
                 },
                 "input_state": {
                     "manifest_sha256": "22160d52f264c172f20c7d35924efb796209e4a7515039470744756799f4dc7d",
-                    "lock_sha256": "b0b435fafce2a876d1b08eb49ca96e68a8d520e267ed254cb85f90d95978f0ab",
+                    "lock_sha256": "444759099b03b4a60568f27c3fe7c7359ebfee144b76012dd8fb0d7288d6ee41",
                     "platform_sha256": "6c689c2a945689da7693f0293117541fb3fbc27cb4f072489e15428fd844dbd7",
                     "execution_policy_sha256": "f7867541fa8d250aab14dc390187c1a8930cdd8fb3b76e3dd72486cc5512107e",
-                    "state_sha256": "8313655c69c96b842467b5f5693af8d676cf581cba93e27ab396ecdedfe33d1c"
+                    "state_sha256": "77d288194fa644a06d36bf39e65b1de5451e75b25b9517c16850b6b196003d6d"
                 },
                 "output_state": {
                     "manifest_sha256": "b4d332e29f50556da15f7e65d5007c9ad793c21662a0b14443c07636e54f32c0",
-                    "lock_sha256": "c808969d66df29ada282fe266237b7d7e7cfa49caa9679cdf20b5df3d2c94a2f",
+                    "lock_sha256": "704b7222afc823d60a240ecc27e24d7c24851c4fa2cdebf03966f50b5476fd12",
                     "platform_sha256": "6c689c2a945689da7693f0293117541fb3fbc27cb4f072489e15428fd844dbd7",
                     "execution_policy_sha256": "f7867541fa8d250aab14dc390187c1a8930cdd8fb3b76e3dd72486cc5512107e",
-                    "state_sha256": "c859f67517c31f3218b80121630e382892bd44d7e7fa6c66413f6e24086eea1d"
+                    "state_sha256": "420c7fb3246f1f8c9a58fad41834201274f7850ea3b99d3d579b8babdd09d7f4"
                 },
                 "attempts": [
                     {
@@ -520,7 +520,7 @@
                                 "--no-progress",
                                 "--no-interaction"
                             ],
-                            "duration_ms": 1003,
+                            "duration_ms": 1015,
                             "exit_code": 2,
                             "succeeded": false,
                             "outcome": "solver_failure",
@@ -572,10 +572,10 @@
                         },
                         "input_state": {
                             "manifest_sha256": "22160d52f264c172f20c7d35924efb796209e4a7515039470744756799f4dc7d",
-                            "lock_sha256": "b0b435fafce2a876d1b08eb49ca96e68a8d520e267ed254cb85f90d95978f0ab",
+                            "lock_sha256": "444759099b03b4a60568f27c3fe7c7359ebfee144b76012dd8fb0d7288d6ee41",
                             "platform_sha256": "6c689c2a945689da7693f0293117541fb3fbc27cb4f072489e15428fd844dbd7",
                             "execution_policy_sha256": "f7867541fa8d250aab14dc390187c1a8930cdd8fb3b76e3dd72486cc5512107e",
-                            "state_sha256": "8313655c69c96b842467b5f5693af8d676cf581cba93e27ab396ecdedfe33d1c"
+                            "state_sha256": "77d288194fa644a06d36bf39e65b1de5451e75b25b9517c16850b6b196003d6d"
                         },
                         "output_state": null,
                         "blocker_ids": [
@@ -629,7 +629,7 @@
                                 "--no-progress",
                                 "--no-interaction"
                             ],
-                            "duration_ms": 1318,
+                            "duration_ms": 1326,
                             "exit_code": 2,
                             "succeeded": false,
                             "outcome": "solver_failure",
@@ -700,10 +700,10 @@
                         },
                         "input_state": {
                             "manifest_sha256": "22160d52f264c172f20c7d35924efb796209e4a7515039470744756799f4dc7d",
-                            "lock_sha256": "b0b435fafce2a876d1b08eb49ca96e68a8d520e267ed254cb85f90d95978f0ab",
+                            "lock_sha256": "444759099b03b4a60568f27c3fe7c7359ebfee144b76012dd8fb0d7288d6ee41",
                             "platform_sha256": "6c689c2a945689da7693f0293117541fb3fbc27cb4f072489e15428fd844dbd7",
                             "execution_policy_sha256": "f7867541fa8d250aab14dc390187c1a8930cdd8fb3b76e3dd72486cc5512107e",
-                            "state_sha256": "8313655c69c96b842467b5f5693af8d676cf581cba93e27ab396ecdedfe33d1c"
+                            "state_sha256": "77d288194fa644a06d36bf39e65b1de5451e75b25b9517c16850b6b196003d6d"
                         },
                         "output_state": null,
                         "blocker_ids": [
@@ -769,7 +769,7 @@
                                 "--no-progress",
                                 "--no-interaction"
                             ],
-                            "duration_ms": 369,
+                            "duration_ms": 361,
                             "exit_code": 0,
                             "succeeded": true,
                             "outcome": "success",
@@ -786,17 +786,17 @@
                         },
                         "input_state": {
                             "manifest_sha256": "22160d52f264c172f20c7d35924efb796209e4a7515039470744756799f4dc7d",
-                            "lock_sha256": "b0b435fafce2a876d1b08eb49ca96e68a8d520e267ed254cb85f90d95978f0ab",
+                            "lock_sha256": "444759099b03b4a60568f27c3fe7c7359ebfee144b76012dd8fb0d7288d6ee41",
                             "platform_sha256": "6c689c2a945689da7693f0293117541fb3fbc27cb4f072489e15428fd844dbd7",
                             "execution_policy_sha256": "f7867541fa8d250aab14dc390187c1a8930cdd8fb3b76e3dd72486cc5512107e",
-                            "state_sha256": "8313655c69c96b842467b5f5693af8d676cf581cba93e27ab396ecdedfe33d1c"
+                            "state_sha256": "77d288194fa644a06d36bf39e65b1de5451e75b25b9517c16850b6b196003d6d"
                         },
                         "output_state": {
                             "manifest_sha256": "b4d332e29f50556da15f7e65d5007c9ad793c21662a0b14443c07636e54f32c0",
-                            "lock_sha256": "c808969d66df29ada282fe266237b7d7e7cfa49caa9679cdf20b5df3d2c94a2f",
+                            "lock_sha256": "704b7222afc823d60a240ecc27e24d7c24851c4fa2cdebf03966f50b5476fd12",
                             "platform_sha256": "6c689c2a945689da7693f0293117541fb3fbc27cb4f072489e15428fd844dbd7",
                             "execution_policy_sha256": "f7867541fa8d250aab14dc390187c1a8930cdd8fb3b76e3dd72486cc5512107e",
-                            "state_sha256": "c859f67517c31f3218b80121630e382892bd44d7e7fa6c66413f6e24086eea1d"
+                            "state_sha256": "420c7fb3246f1f8c9a58fad41834201274f7850ea3b99d3d579b8babdd09d7f4"
                         },
                         "blocker_ids": [],
                         "evidence": [
@@ -992,7 +992,7 @@
                     },
                     "effective_sha256": "f7867541fa8d250aab14dc390187c1a8930cdd8fb3b76e3dd72486cc5512107e"
                 },
-                "duration_ms": 377,
+                "duration_ms": 350,
                 "evidence": [
                     "laravel-stage-target-2",
                     "laravel-stage-remediation-4",
@@ -1009,24 +1009,24 @@
                 ],
                 "predecessor_state": {
                     "manifest_sha256": "b4d332e29f50556da15f7e65d5007c9ad793c21662a0b14443c07636e54f32c0",
-                    "lock_sha256": "c808969d66df29ada282fe266237b7d7e7cfa49caa9679cdf20b5df3d2c94a2f",
+                    "lock_sha256": "704b7222afc823d60a240ecc27e24d7c24851c4fa2cdebf03966f50b5476fd12",
                     "platform_sha256": "6c689c2a945689da7693f0293117541fb3fbc27cb4f072489e15428fd844dbd7",
                     "execution_policy_sha256": "f7867541fa8d250aab14dc390187c1a8930cdd8fb3b76e3dd72486cc5512107e",
-                    "state_sha256": "c859f67517c31f3218b80121630e382892bd44d7e7fa6c66413f6e24086eea1d"
+                    "state_sha256": "420c7fb3246f1f8c9a58fad41834201274f7850ea3b99d3d579b8babdd09d7f4"
                 },
                 "input_state": {
                     "manifest_sha256": "b4d332e29f50556da15f7e65d5007c9ad793c21662a0b14443c07636e54f32c0",
-                    "lock_sha256": "c808969d66df29ada282fe266237b7d7e7cfa49caa9679cdf20b5df3d2c94a2f",
+                    "lock_sha256": "704b7222afc823d60a240ecc27e24d7c24851c4fa2cdebf03966f50b5476fd12",
                     "platform_sha256": "6c689c2a945689da7693f0293117541fb3fbc27cb4f072489e15428fd844dbd7",
                     "execution_policy_sha256": "f7867541fa8d250aab14dc390187c1a8930cdd8fb3b76e3dd72486cc5512107e",
-                    "state_sha256": "c859f67517c31f3218b80121630e382892bd44d7e7fa6c66413f6e24086eea1d"
+                    "state_sha256": "420c7fb3246f1f8c9a58fad41834201274f7850ea3b99d3d579b8babdd09d7f4"
                 },
                 "output_state": {
                     "manifest_sha256": "e8a0d3db618d2b1e67045c2048e2e3c21a506a0a0ea0bed88d7fd555f3ef7186",
-                    "lock_sha256": "8ae5ca981ee0006bdb91bc2d8cd87f5658806b86b4ef603456cf175f71150330",
+                    "lock_sha256": "4663abfcff08e83c883430eca077342dcc2015a2d1d865082e76dfc911eea9c7",
                     "platform_sha256": "6c689c2a945689da7693f0293117541fb3fbc27cb4f072489e15428fd844dbd7",
                     "execution_policy_sha256": "f7867541fa8d250aab14dc390187c1a8930cdd8fb3b76e3dd72486cc5512107e",
-                    "state_sha256": "5f2e15a7ea08a48b656a14e38337734b2b8a25b834cecfa5b5449fb984ddc2fb"
+                    "state_sha256": "ba7a920319ef2ea5b5388c948eb9913dd91041e4eb15e06b7f98276cf4f23a3d"
                 },
                 "attempts": [
                     {
@@ -1059,7 +1059,7 @@
                                 "--no-progress",
                                 "--no-interaction"
                             ],
-                            "duration_ms": 377,
+                            "duration_ms": 350,
                             "exit_code": 0,
                             "succeeded": true,
                             "outcome": "success",
@@ -1076,17 +1076,17 @@
                         },
                         "input_state": {
                             "manifest_sha256": "b4d332e29f50556da15f7e65d5007c9ad793c21662a0b14443c07636e54f32c0",
-                            "lock_sha256": "c808969d66df29ada282fe266237b7d7e7cfa49caa9679cdf20b5df3d2c94a2f",
+                            "lock_sha256": "704b7222afc823d60a240ecc27e24d7c24851c4fa2cdebf03966f50b5476fd12",
                             "platform_sha256": "6c689c2a945689da7693f0293117541fb3fbc27cb4f072489e15428fd844dbd7",
                             "execution_policy_sha256": "f7867541fa8d250aab14dc390187c1a8930cdd8fb3b76e3dd72486cc5512107e",
-                            "state_sha256": "c859f67517c31f3218b80121630e382892bd44d7e7fa6c66413f6e24086eea1d"
+                            "state_sha256": "420c7fb3246f1f8c9a58fad41834201274f7850ea3b99d3d579b8babdd09d7f4"
                         },
                         "output_state": {
                             "manifest_sha256": "e8a0d3db618d2b1e67045c2048e2e3c21a506a0a0ea0bed88d7fd555f3ef7186",
-                            "lock_sha256": "8ae5ca981ee0006bdb91bc2d8cd87f5658806b86b4ef603456cf175f71150330",
+                            "lock_sha256": "4663abfcff08e83c883430eca077342dcc2015a2d1d865082e76dfc911eea9c7",
                             "platform_sha256": "6c689c2a945689da7693f0293117541fb3fbc27cb4f072489e15428fd844dbd7",
                             "execution_policy_sha256": "f7867541fa8d250aab14dc390187c1a8930cdd8fb3b76e3dd72486cc5512107e",
-                            "state_sha256": "5f2e15a7ea08a48b656a14e38337734b2b8a25b834cecfa5b5449fb984ddc2fb"
+                            "state_sha256": "ba7a920319ef2ea5b5388c948eb9913dd91041e4eb15e06b7f98276cf4f23a3d"
                         },
                         "blocker_ids": [],
                         "evidence": [
@@ -1271,7 +1271,7 @@
                     },
                     "effective_sha256": "f7867541fa8d250aab14dc390187c1a8930cdd8fb3b76e3dd72486cc5512107e"
                 },
-                "duration_ms": 3389,
+                "duration_ms": 3315,
                 "evidence": [
                     "laravel-stage-target-3",
                     "laravel-stage-remediation-6",
@@ -1302,17 +1302,17 @@
                 ],
                 "predecessor_state": {
                     "manifest_sha256": "e8a0d3db618d2b1e67045c2048e2e3c21a506a0a0ea0bed88d7fd555f3ef7186",
-                    "lock_sha256": "8ae5ca981ee0006bdb91bc2d8cd87f5658806b86b4ef603456cf175f71150330",
+                    "lock_sha256": "4663abfcff08e83c883430eca077342dcc2015a2d1d865082e76dfc911eea9c7",
                     "platform_sha256": "6c689c2a945689da7693f0293117541fb3fbc27cb4f072489e15428fd844dbd7",
                     "execution_policy_sha256": "f7867541fa8d250aab14dc390187c1a8930cdd8fb3b76e3dd72486cc5512107e",
-                    "state_sha256": "5f2e15a7ea08a48b656a14e38337734b2b8a25b834cecfa5b5449fb984ddc2fb"
+                    "state_sha256": "ba7a920319ef2ea5b5388c948eb9913dd91041e4eb15e06b7f98276cf4f23a3d"
                 },
                 "input_state": {
                     "manifest_sha256": "e8a0d3db618d2b1e67045c2048e2e3c21a506a0a0ea0bed88d7fd555f3ef7186",
-                    "lock_sha256": "8ae5ca981ee0006bdb91bc2d8cd87f5658806b86b4ef603456cf175f71150330",
+                    "lock_sha256": "4663abfcff08e83c883430eca077342dcc2015a2d1d865082e76dfc911eea9c7",
                     "platform_sha256": "6c689c2a945689da7693f0293117541fb3fbc27cb4f072489e15428fd844dbd7",
                     "execution_policy_sha256": "f7867541fa8d250aab14dc390187c1a8930cdd8fb3b76e3dd72486cc5512107e",
-                    "state_sha256": "5f2e15a7ea08a48b656a14e38337734b2b8a25b834cecfa5b5449fb984ddc2fb"
+                    "state_sha256": "ba7a920319ef2ea5b5388c948eb9913dd91041e4eb15e06b7f98276cf4f23a3d"
                 },
                 "output_state": null,
                 "attempts": [
@@ -1346,7 +1346,7 @@
                                 "--no-progress",
                                 "--no-interaction"
                             ],
-                            "duration_ms": 792,
+                            "duration_ms": 816,
                             "exit_code": 2,
                             "succeeded": false,
                             "outcome": "solver_failure",
@@ -1398,10 +1398,10 @@
                         },
                         "input_state": {
                             "manifest_sha256": "e8a0d3db618d2b1e67045c2048e2e3c21a506a0a0ea0bed88d7fd555f3ef7186",
-                            "lock_sha256": "8ae5ca981ee0006bdb91bc2d8cd87f5658806b86b4ef603456cf175f71150330",
+                            "lock_sha256": "4663abfcff08e83c883430eca077342dcc2015a2d1d865082e76dfc911eea9c7",
                             "platform_sha256": "6c689c2a945689da7693f0293117541fb3fbc27cb4f072489e15428fd844dbd7",
                             "execution_policy_sha256": "f7867541fa8d250aab14dc390187c1a8930cdd8fb3b76e3dd72486cc5512107e",
-                            "state_sha256": "5f2e15a7ea08a48b656a14e38337734b2b8a25b834cecfa5b5449fb984ddc2fb"
+                            "state_sha256": "ba7a920319ef2ea5b5388c948eb9913dd91041e4eb15e06b7f98276cf4f23a3d"
                         },
                         "output_state": null,
                         "blocker_ids": [
@@ -1454,7 +1454,7 @@
                                 "--no-progress",
                                 "--no-interaction"
                             ],
-                            "duration_ms": 1116,
+                            "duration_ms": 1092,
                             "exit_code": 2,
                             "succeeded": false,
                             "outcome": "solver_failure",
@@ -1525,10 +1525,10 @@
                         },
                         "input_state": {
                             "manifest_sha256": "e8a0d3db618d2b1e67045c2048e2e3c21a506a0a0ea0bed88d7fd555f3ef7186",
-                            "lock_sha256": "8ae5ca981ee0006bdb91bc2d8cd87f5658806b86b4ef603456cf175f71150330",
+                            "lock_sha256": "4663abfcff08e83c883430eca077342dcc2015a2d1d865082e76dfc911eea9c7",
                             "platform_sha256": "6c689c2a945689da7693f0293117541fb3fbc27cb4f072489e15428fd844dbd7",
                             "execution_policy_sha256": "f7867541fa8d250aab14dc390187c1a8930cdd8fb3b76e3dd72486cc5512107e",
-                            "state_sha256": "5f2e15a7ea08a48b656a14e38337734b2b8a25b834cecfa5b5449fb984ddc2fb"
+                            "state_sha256": "ba7a920319ef2ea5b5388c948eb9913dd91041e4eb15e06b7f98276cf4f23a3d"
                         },
                         "output_state": null,
                         "blocker_ids": [
@@ -1606,7 +1606,7 @@
                                 "--no-progress",
                                 "--no-interaction"
                             ],
-                            "duration_ms": 1481,
+                            "duration_ms": 1407,
                             "exit_code": 2,
                             "succeeded": false,
                             "outcome": "solver_failure",
@@ -1696,10 +1696,10 @@
                         },
                         "input_state": {
                             "manifest_sha256": "e8a0d3db618d2b1e67045c2048e2e3c21a506a0a0ea0bed88d7fd555f3ef7186",
-                            "lock_sha256": "8ae5ca981ee0006bdb91bc2d8cd87f5658806b86b4ef603456cf175f71150330",
+                            "lock_sha256": "4663abfcff08e83c883430eca077342dcc2015a2d1d865082e76dfc911eea9c7",
                             "platform_sha256": "6c689c2a945689da7693f0293117541fb3fbc27cb4f072489e15428fd844dbd7",
                             "execution_policy_sha256": "f7867541fa8d250aab14dc390187c1a8930cdd8fb3b76e3dd72486cc5512107e",
-                            "state_sha256": "5f2e15a7ea08a48b656a14e38337734b2b8a25b834cecfa5b5449fb984ddc2fb"
+                            "state_sha256": "ba7a920319ef2ea5b5388c948eb9913dd91041e4eb15e06b7f98276cf4f23a3d"
                         },
                         "output_state": null,
                         "blocker_ids": [

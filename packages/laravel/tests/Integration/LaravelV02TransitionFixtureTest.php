@@ -13,14 +13,40 @@ use PhpUpgradePreflight\Tests\Support\LaravelTransitionFixtureFactory;
 use PhpUpgradePreflight\Tests\Support\LaravelTransitionFixtureRunner;
 use PHPUnit\Framework\TestCase;
 
-/** @group windows-integration-heavy */
 final class LaravelV02TransitionFixtureTest extends TestCase
 {
     /**
-     * @dataProvider transitionCaseProvider
+     * Number of Windows shards the 16 fixture cases are dealt across.
+     *
+     * This provider is the single most expensive block in the integration suite,
+     * and a data provider cannot be split by group, so the deal is what makes it
+     * divisible at all. See the matching constant in
+     * {@see LaravelTransitionCommandParityTest} for why the deal is round-robin.
+     */
+    private const FIXTURE_SHARDS = 2;
+
+    /**
+     * @group windows-fixtures-1
+     * @dataProvider transitionCaseShardAProvider
      * @param array<string, mixed> $case
      */
-    public function testTransitionCaseCoversResolutionAndGuidanceIndependently(array $case): void
+    public function testTransitionCaseCoversResolutionAndGuidanceIndependentlyShardA(array $case): void
+    {
+        $this->assertTransitionCase($case);
+    }
+
+    /**
+     * @group windows-fixtures-2
+     * @dataProvider transitionCaseShardBProvider
+     * @param array<string, mixed> $case
+     */
+    public function testTransitionCaseCoversResolutionAndGuidanceIndependentlyShardB(array $case): void
+    {
+        $this->assertTransitionCase($case);
+    }
+
+    /** @param array<string, mixed> $case */
+    private function assertTransitionCase(array $case): void
     {
         $path = $this->fixturePath($case['fixture']);
         $snapshot = FixtureSnapshot::capture($path);
@@ -104,6 +130,7 @@ final class LaravelV02TransitionFixtureTest extends TestCase
         }
     }
 
+    /** @group windows-fixtures-1 */
     public function testLaravel12To13FixtureExercisesOnlyEvidenceBackedPackageAndSourceRules(): void
     {
         $case = $this->caseNamed('advisory-heavy Laravel 12 to 13');
@@ -137,6 +164,7 @@ final class LaravelV02TransitionFixtureTest extends TestCase
         }
     }
 
+    /** @group windows-fixtures-1 */
     public function testFixtureCandidateLockValidationRejectsRootConstraintViolations(): void
     {
         $lock = [
@@ -163,6 +191,7 @@ final class LaravelV02TransitionFixtureTest extends TestCase
         ], $lock));
     }
 
+    /** @group windows-fixtures-1 */
     public function testFixtureCandidateLockValidationRejectsTargetPhpOutsideTheRootConstraint(): void
     {
         self::assertSame([
@@ -183,6 +212,7 @@ final class LaravelV02TransitionFixtureTest extends TestCase
         ]));
     }
 
+    /** @group windows-fixtures-1 */
     public function testEveryAdjacentAcceptanceFixtureUsesTheRealOfflineComposerSolver(): void
     {
         foreach ($this->cases() as $case) {
@@ -203,9 +233,33 @@ final class LaravelV02TransitionFixtureTest extends TestCase
     }
 
     /** @return iterable<string, array{array<string, mixed>}> */
+    public function transitionCaseShardAProvider(): iterable
+    {
+        yield from $this->transitionCasesForShard(0);
+    }
+
+    /** @return iterable<string, array{array<string, mixed>}> */
+    public function transitionCaseShardBProvider(): iterable
+    {
+        yield from $this->transitionCasesForShard(1);
+    }
+
+    /** @return iterable<string, array{array<string, mixed>}> */
     public function transitionCaseProvider(): iterable
     {
         foreach ($this->cases() as $case) {
+            yield $case['name'] => [$case];
+        }
+    }
+
+    /** @return iterable<string, array{array<string, mixed>}> */
+    private function transitionCasesForShard(int $shard): iterable
+    {
+        foreach ($this->cases() as $index => $case) {
+            if ($index % self::FIXTURE_SHARDS !== $shard) {
+                continue;
+            }
+
             yield $case['name'] => [$case];
         }
     }

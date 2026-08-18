@@ -109,6 +109,43 @@ final class PathExposurePolicyTest extends TestCase
         self::assertStringNotContainsStringIgnoringCase('private-project', $sanitized);
     }
 
+    /**
+     * A caller that joins a Windows root with forward slashes hands Composer a path
+     * that matches neither the fully backslashed nor the fully forward-slashed
+     * spelling of the same directory, so the mixed form has to be redacted too.
+     */
+    public function testMixedSeparatorSpellingsOfTheSamePathAreRedacted(): void
+    {
+        $project = 'D:\\a\\private-project\\private-project';
+        $mixed = $project . '/tests/fixtures/projects/target';
+        $text = implode("\n", [
+            'Project path: ' . $mixed,
+            'Manifest: ' . $mixed . '/composer.json',
+            'Reverse mix: D:/a/private-project/private-project\\tests\\fixtures',
+        ]);
+
+        $sanitized = PathExposurePolicy::redactComposerText($text, $project);
+
+        self::assertSame(3, substr_count($sanitized, PathExposurePolicy::PROJECT_ROOT));
+        self::assertStringNotContainsStringIgnoringCase('private-project', $sanitized);
+    }
+
+    public function testMixedSeparatorProjectRootsAreRedactedFromCanonicalReports(): void
+    {
+        $project = 'D:\\a\\private-project/private-project';
+        $canonical = [
+            'request_summary' => ['project_path' => $project, 'output_path' => null],
+            'project_state' => ['path' => $project],
+            'uncertainties' => [sprintf('Failure in "%s\\composer.json".', $project)],
+        ];
+
+        $sanitized = PathExposurePolicy::sanitizeCanonicalReport($canonical, $project);
+        $encoded = json_encode($sanitized, JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
+
+        self::assertIsString($encoded);
+        self::assertStringNotContainsStringIgnoringCase('private-project', $encoded);
+    }
+
     public function testPathPrefixesDoNotCorruptPackageNamesOrSiblingPaths(): void
     {
         $text = implode("\n", [

@@ -205,24 +205,32 @@ final class PathExposurePolicy
     /** @param array<string, string> $paths */
     public static function redactPaths(string $value, array $paths): string
     {
+        /** @var array<string, array{marker: string, length: int}> $replacements */
         $replacements = [];
         foreach ($paths as $path => $marker) {
             foreach (self::pathVariants($path) as $variant) {
-                $replacements[$variant] = $marker;
+                $pattern = '~(?<![A-Za-z0-9_.-])'
+                    . self::pathPatternBody($variant)
+                    . '(?=$|[\\\\/\s<>"\'`,;:)&?=#\]}]|\.(?:\s|$))~'
+                    . (self::isWindowsPath($variant) ? 'i' : '');
+                $replacements[$pattern] = [
+                    'marker' => $marker,
+                    'length' => max(strlen($variant), $replacements[$pattern]['length'] ?? 0),
+                ];
             }
         }
 
-        uksort(
+        uasort(
             $replacements,
-            static fn (string $left, string $right): int => strlen($right) <=> strlen($left)
+            /**
+             * @param array{marker: string, length: int} $left
+             * @param array{marker: string, length: int} $right
+             */
+            static fn (array $left, array $right): int => $right['length'] <=> $left['length']
         );
 
-        foreach ($replacements as $path => $marker) {
-            $pattern = '~(?<![A-Za-z0-9_.-])'
-                . preg_quote($path, '~')
-                . '(?=$|[\\\\/\s<>"\'`,;:)&?=#\]}]|\.(?:\s|$))~'
-                . (self::isWindowsPath($path) ? 'i' : '');
-            $redacted = preg_replace($pattern, $marker, $value);
+        foreach ($replacements as $pattern => $replacement) {
+            $redacted = preg_replace($pattern, $replacement['marker'], $value);
             if ($redacted === null) {
                 return SensitiveOutputRedactor::REDACTED;
             }
@@ -230,6 +238,39 @@ final class PathExposurePolicy
         }
 
         return $value;
+    }
+
+    /**
+     * Builds the pattern body for one path variant.
+     *
+     * A single value can carry a path with mixed separators: Composer echoes the
+     * project path exactly as the caller spelled it, and callers routinely join a
+     * Windows root with forward slashes. Quoting the variant verbatim would only
+     * redact the separator spelling the variant happens to use, so interior
+     * separators match any run, which also covers the doubled and escaped forms
+     * found in JSON and Composer transcripts.
+     *
+     * The leading separators of a rooted path stay literal. A flexible run there
+     * would reach backwards into a `file://` scheme and swallow its slashes, and
+     * {@see pathVariants} already supplies every spelling of that prefix.
+     */
+    private static function pathPatternBody(string $path): string
+    {
+        $root = '';
+        if (preg_match('~^[\\\\/]+~', $path, $matches) === 1) {
+            $root = $matches[0];
+            $path = substr($path, strlen($root));
+        }
+
+        $segments = array_filter(
+            explode('/', str_replace('\\', '/', $path)),
+            static fn (string $segment): bool => $segment !== ''
+        );
+
+        return preg_quote($root, '~') . implode('[\\\\/]+', array_map(
+            static fn (string $segment): string => preg_quote($segment, '~'),
+            $segments
+        ));
     }
 
     /**

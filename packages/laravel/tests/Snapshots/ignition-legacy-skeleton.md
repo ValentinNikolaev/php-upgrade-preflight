@@ -157,7 +157,7 @@ Resolution: **blocked** | Staged: **blocked** | Schema: `0.8` | Tool: `php-upgra
   - effective platform: `1227859358166ebdf070c802a94bc3d37e5f430d3f57f52f7c9db345bcc2356e`; completeness `partial`; profile `none`
   - Composer policy: `0c155d2582c9452186059dbe78d0da2d730f798c6c1d69f356c43ca832fcf1b9`; mode `compatible`; stage duration `1 ms`
   - stage evidence: `laravel-stage-target-1`, `laravel-stage-remediation-1`, `stage-attempt-1`, `stage-root-change-1`, `stage-attempt-2`, `stage-root-change-2`, `stage-root-change-3`, `stage-attempt-3`, `stage-root-change-4`, `stage-root-change-5`, `laravel-framework-constraint-1`, `laravel-php-constraint-1`, `laravel-package-facade_ignition-1`, `laravel-package-guidance-1`, `source-2`, `source-5`, `source-6`, `laravel-skeleton-guidance-1`, `solver-6`, `solver-7`, `solver-8`
-  - state chain: predecessor `4e20a33c0fcf5cf480e7ddf01dc7a86fb03f43599bc53775206e50f90fdf09cd`; input `4e20a33c0fcf5cf480e7ddf01dc7a86fb03f43599bc53775206e50f90fdf09cd`; output `none`
+  - state chain: predecessor `7497454c7ea95a13b92f6282ebef1b8929df048074d25c263ba071ff86bf4ef6`; input `7497454c7ea95a13b92f6282ebef1b8929df048074d25c263ba071ff86bf4ef6`; output `none`
   - attempt `1` `target_only`: outcome `solver_failure`; duration `1 ms`; selected no; blockers `stage-blocker-2b714eef51f2e8e8d649`
     - analyzer-only root change `laravel/framework`: `^7.0` -> `^8.0`
   - attempt `2` `root_constraint_remediation`: outcome `solver_failure`; duration `1 ms`; selected no; blockers `stage-blocker-4314dc8954f6e4383b54`

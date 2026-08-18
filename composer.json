@@ -107,10 +107,13 @@
       "@test:unit",
       "@test:smoke"
     ],
-    "test:integration:windows-parity-a": "phpunit --testsuite integration --group windows-parity-a",
-    "test:integration:windows-parity-b": "phpunit --testsuite integration --group windows-parity-b",
-    "test:integration:windows-heavy": "phpunit --testsuite integration --group windows-integration-heavy",
-    "test:integration:windows-rest": "phpunit --testsuite integration --exclude-group windows-parity-a,windows-parity-b,windows-integration-heavy",
+    "test:integration:windows-parity-1": "phpunit --testsuite integration --group windows-parity-1 --log-junit build/junit-windows-parity-1.xml",
+    "test:integration:windows-parity-2": "phpunit --testsuite integration --group windows-parity-2 --log-junit build/junit-windows-parity-2.xml",
+    "test:integration:windows-parity-3": "phpunit --testsuite integration --group windows-parity-3 --log-junit build/junit-windows-parity-3.xml",
+    "test:integration:windows-staged": "phpunit --testsuite integration --group windows-staged --log-junit build/junit-windows-staged.xml",
+    "test:integration:windows-fixtures-1": "phpunit --testsuite integration --group windows-fixtures-1 --log-junit build/junit-windows-fixtures-1.xml",
+    "test:integration:windows-fixtures-2": "phpunit --testsuite integration --group windows-fixtures-2 --log-junit build/junit-windows-fixtures-2.xml",
+    "test:integration:windows-rest": "phpunit --testsuite integration --exclude-group windows-parity-1,windows-parity-2,windows-parity-3,windows-staged,windows-fixtures-1,windows-fixtures-2 --log-junit build/junit-windows-rest.xml",
     "test:integration:staged-budget": "phpunit --filter WorstCaseStagedBudgetTest",
     "test:all": [
       "@test:unit",

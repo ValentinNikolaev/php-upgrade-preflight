@@ -16,7 +16,6 @@ use PhpUpgradePreflight\Laravel\LaravelFrameworkIntegration;
 use PhpUpgradePreflight\Tests\Support\FixtureSnapshot;
 use PHPUnit\Framework\TestCase;
 
-/** @group windows-integration-heavy */
 final class FiveMinuteDemoTest extends TestCase
 {
     public function testOfflineDemoUsesTheRealSolverAndKeepsTheTargetImmutable(): void

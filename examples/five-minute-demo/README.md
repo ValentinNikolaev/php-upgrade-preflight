@@ -24,6 +24,8 @@ The process exits successfully after writing a valid report even though `resolut
 
 The checked-in [JSON report](reports/laravel-10-to-13.json) is canonical. The [Markdown report](reports/laravel-10-to-13.md) is its human-readable projection. Both were generated in restricted mode with analyzer-owned Composer configuration and best-effort offline behavior; neither contains debug output. Restricted mode is not an OS network sandbox.
 
+Rerunning the command reproduces the same findings and the same candidate-state fingerprints from any directory and on any supported host, because a state fingerprint identifies manifest and lock content rather than the path it was analyzed in. Composer writes its own version into the locks it produces, so a different Composer version is a different candidate state. Measured durations and the raw `candidate_lock.sha256` and `candidate_lock.content_hash` evidence are local to the workspace Composer wrote in and differ between runs.
+
 The useful result is:
 
 - request: model Laravel 10 on PHP 8.1 moving to Laravel 13 on PHP 8.3;

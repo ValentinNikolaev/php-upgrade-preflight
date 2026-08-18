@@ -82,7 +82,7 @@ final class AnalyzeUpgradeCommandTest extends TestCase
         $display = $this->renderedReport($analyzer, ReportFormat::JSON);
 
         self::assertNotNull($analyzer->report);
-        self::assertSame(trim((new JsonReportWriter())->render($analyzer->report)), $display);
+        self::assertSame($this->canonicalLines((new JsonReportWriter())->render($analyzer->report)), $display);
     }
 
     public function testItRendersTheMarkdownProjectionByteForByte(): void
@@ -92,7 +92,7 @@ final class AnalyzeUpgradeCommandTest extends TestCase
         $display = $this->renderedReport($analyzer, ReportFormat::MARKDOWN);
 
         self::assertNotNull($analyzer->report);
-        self::assertSame(trim((new MarkdownReportWriter())->render($analyzer->report)), $display);
+        self::assertSame($this->canonicalLines((new MarkdownReportWriter())->render($analyzer->report)), $display);
     }
 
     /** An unknown format never reaches rendering, so the resolver's JSON fallback stays reachable only from core. */
@@ -118,7 +118,17 @@ final class AnalyzeUpgradeCommandTest extends TestCase
         self::assertSame(Command::SUCCESS, $exitCode);
         self::assertSame('', $tester->getErrorOutput());
 
-        return trim(str_replace("\r\n", "\n", $tester->getDisplay()));
+        return $this->canonicalLines($tester->getDisplay());
+    }
+
+    /**
+     * The writers join their lines with `PHP_EOL`, so a Windows host renders both the
+     * console display and the writer output with CRLF. Comparing the projections is a
+     * comparison of their content, so both sides are read with the same line endings.
+     */
+    private function canonicalLines(string $value): string
+    {
+        return trim(str_replace("\r\n", "\n", $value));
     }
 
     public function testItLoadsAProfileAndPassesItToTheAnalyzer(): void

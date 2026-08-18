@@ -43,8 +43,11 @@ final class ProjectStateFingerprint
             'manifest' => $state->composerJson()->data(),
             'lock' => $state->composerLock()->data(),
         ], $state->path(), null, $repositoryPaths);
-        $manifest = self::digest($sanitized['manifest']);
-        $lock = self::digest($sanitized['lock']);
+        $lockData = $sanitized['lock'];
+        $manifest = self::digest(self::portable($sanitized['manifest']));
+        $lock = self::digest(self::portable(
+            is_array($lockData) ? self::withoutDerivedLockFields($lockData) : $lockData
+        ));
         $effectivePlatform = self::digest([
             'php' => $analysisPhp,
             'closed_world' => $platform->isCompleteProfile(),
@@ -91,6 +94,73 @@ final class ProjectStateFingerprint
             'execution_policy_sha256' => $this->executionPolicySha256,
             'state_sha256' => $this->stateSha256,
         ];
+    }
+
+    /**
+     * Drops the lock fields Composer derives from the manifest as written on disk.
+     *
+     * Analyzer workspaces rewrite relative path repositories to absolute ones so
+     * Composer can resolve them from a temporary directory, so its `content-hash`
+     * of that manifest changes with the directory the project was analyzed in. The
+     * manifest is fingerprinted separately, which is what the hash restates, so a
+     * candidate state stays identifiable without it. The recorded candidate lock
+     * evidence keeps the value Composer actually wrote.
+     *
+     * @param array<mixed> $lock
+     * @return array<mixed>
+     */
+    private static function withoutDerivedLockFields(array $lock): array
+    {
+        unset($lock['content-hash']);
+
+        return $lock;
+    }
+
+    /**
+     * Normalizes the separators that follow an exposure marker.
+     *
+     * Sanitization replaces a private root with a marker but leaves the remaining
+     * segments, and those keep the host separator. The same project analyzed on
+     * Windows and on Linux is one state, so the digest reads those remainders in a
+     * single spelling.
+     *
+     * @param mixed $value
+     * @return mixed
+     */
+    private static function portable($value)
+    {
+        if (is_string($value)) {
+            return self::portableText($value);
+        }
+        if (!is_array($value)) {
+            return $value;
+        }
+
+        $portable = [];
+        foreach ($value as $key => $item) {
+            $portable[is_string($key) ? self::portableText($key) : $key] = self::portable($item);
+        }
+
+        return $portable;
+    }
+
+    private static function portableText(string $value): string
+    {
+        $markers = implode('|', array_map(
+            static fn (string $marker): string => preg_quote(trim($marker, '[]'), '~'),
+            [
+                PathExposurePolicy::PROJECT_ROOT,
+                PathExposurePolicy::REPORT_OUTPUT,
+                PathExposurePolicy::LOCAL_REPOSITORY,
+                PathExposurePolicy::ANALYZER_WORKSPACE,
+            ]
+        ));
+
+        return preg_replace_callback(
+            '~\[(?:' . $markers . ')\](?:[\\\\/][^\s"\'(),:;]*)*~',
+            static fn (array $matches): string => str_replace('\\', '/', $matches[0]),
+            $value
+        ) ?? $value;
     }
 
     /** @param mixed $value */

@@ -7,8 +7,8 @@
         "new_executable_lines_must_be_covered"
     ],
     "overall": {
-        "covered": 10332,
-        "executable": 10892
+        "covered": 10414,
+        "executable": 10968
     },
     "critical_modules": {
         "packages/core/src/Analysis/ScenarioSelector.php": {
@@ -56,8 +56,8 @@
             "executable": 100
         },
         "packages/core/src/Model/ProjectStateFingerprint.php": {
-            "covered": 67,
-            "executable": 67
+            "covered": 94,
+            "executable": 94
         },
         "packages/core/src/Analysis/StagedUpgradeOrchestrator.php": {
             "covered": 80,
@@ -96,8 +96,8 @@
             "executable": 44
         },
         "packages/core/src/Composer/ScenarioWorkspacePreparer.php": {
-            "covered": 104,
-            "executable": 107
+            "covered": 105,
+            "executable": 108
         },
         "packages/core/src/Model/BlockerType.php": {
             "covered": 36,
@@ -220,13 +220,7 @@
             "21bf500b847e9476908b89ad287211d24c1e9521a543a9dd1c49ad93c36b6ef3": 1
         },
         "packages/core/src/Composer/JsonFileReader.php": {
-            "15d00073a2e454dd736e7db6c2fa0a93bec36d76d925007346b465b39e95a3ba": 1,
-            "37c84f99bf658452d713a4b661f30f0bc077bbe2d828017520e84bc64540ba14": 1,
-            "3aab5fe786cadde1f92d1a16e0a73a58c0d980d7af00d967c9133e1f0852fa78": 1,
-            "4048a3a6bfd9537c7adc9fff301d36cee1ef927997832d4dcd3fbe8ff250f914": 1,
-            "6a604c0cc37fca99462d429e23304f23268a475d34bdf7395cc2a74f7dea004f": 1,
-            "9d8b2b5670d18da8a99f6152f7ee75558019cd106d8032bf7c1117bd37273e37": 1,
-            "ba5ec51d07a4ac0e951608704431d59a02b21a4e951acc10505a8dc407c501ee": 1
+            "ac01efbd8f73aadb4a4b6da6f7fa572b6672dabf82eaf37788c75b96373f4e78": 1
         },
         "packages/core/src/Composer/ProjectStateBuilder.php": {
             "0d432b4d6471042d0421a2fd1ec6a79d3bcbb05721dc02f4ed77e707421e7224": 1
