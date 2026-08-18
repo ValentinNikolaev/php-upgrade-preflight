@@ -43,3 +43,7 @@ for package in core cli laravel; do
   changed="$(git -C "${target}" diff --cached --name-only | wc -l)"
   echo "${package}: payload staged from ${release_commit:0:8}, ${changed} changed path(s) in ${target}"
 done
+
+# Recorded so the release step can refuse a payload built from an older commit.
+printf '%s
+' "${release_commit}" > "${work}/.source-commit"
