@@ -470,6 +470,18 @@ final class ReleaseWorkflowTest extends TestCase
                 $runs
             );
         }
+
+        // The fixture smoke script is only executed by the compatibility workflow, so a
+        // drifted expectation stays invisible until a release run. Bind it to the command.
+        $smoke = $this->readRootFile('tests/fixtures/laravel-app/tests/smoke.php');
+        $command = $this->readRootFile('packages/laravel/src/Commands/AnalyzeUpgradeCommand.php');
+        self::assertSame(1, preg_match("/assertContains\(\s*'([^']+)'/", $smoke, $expectedMessage));
+        self::assertStringContainsString(
+            $expectedMessage[1],
+            $command,
+            'The compatibility smoke fixture must expect the validation message the Artisan command emits.'
+        );
+        self::assertStringContainsString('INVALID_EXIT_CODE = 2', $command);
     }
 
     public function testCoverageIsMeasuredAndRatchetedBeforeSelectiveMutation(): void

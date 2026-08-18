@@ -44,7 +44,7 @@ assertSame(
 );
 
 assertContains(
-    'At least one --target=package:constraint or --target-php=VERSION option is required.',
+    'At least one --target=package:constraint, --target-php=VERSION, or --target-platform-profile=PATH option is required.',
     $kernel->output(),
     'Artisan command emits its startup validation message'
 );
