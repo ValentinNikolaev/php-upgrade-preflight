@@ -140,49 +140,37 @@ jobs:
             privacy: true
           - os: windows-latest
             php: '8.3'
-            suite: parity-a
-            test_command: composer test:integration:windows-parity-a
+            suite: parity-1
+            test_command: composer test:integration:windows-parity-1
             privacy: false
           - os: windows-latest
             php: '8.3'
-            suite: parity-b
-            test_command: composer test:integration:windows-parity-b
+            suite: parity-2
+            test_command: composer test:integration:windows-parity-2
             privacy: false
           - os: windows-latest
             php: '8.3'
-            suite: integration-heavy
-            test_command: composer test:integration:windows-heavy
+            suite: parity-3
+            test_command: composer test:integration:windows-parity-3
             privacy: false
           - os: windows-latest
             php: '8.3'
-            suite: integration-rest
+            suite: staged
+            test_command: composer test:integration:windows-staged
+            privacy: false
+          - os: windows-latest
+            php: '8.3'
+            suite: fixtures
+            test_command: composer test:integration:windows-fixtures
+            privacy: false
+          - os: windows-latest
+            php: '8.3'
+            suite: rest
             test_command: composer test:integration:windows-rest
             privacy: false
     steps:
       - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      # The Windows shards spawn a real Composer process per analysis scenario --
-      # roughly 140 of them per shard -- each writing a fresh temporary workspace.
-      # Defender scans every one of those writes and re-scans php.exe on every
-      # spawn. These settings tune the ephemeral runner only: they change nothing
-      # the product ships and nothing about how the analyzed project is treated.
-      #
-      # The OPcache directory is created here, before PHP exists. An absent
-      # opcache.file_cache path makes PHP emit a startup warning on every spawn,
-      # and that warning would land in the Composer stderr the analyzer captures
-      # as scenario evidence -- which parity tests assert is empty.
-      - name: Tune the Windows runner for repeated Composer processes
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: |
-          New-Item -ItemType Directory -Force -Path "$env:RUNNER_TEMP\opcache" | Out-Null
-          try {
-            Add-MpPreference -ExclusionPath $env:RUNNER_TEMP, $env:GITHUB_WORKSPACE, 'C:\tools\php' -ErrorAction Stop
-            Add-MpPreference -ExclusionProcess 'php.exe', 'composer.bat' -ErrorAction Stop
-          } catch {
-            Write-Output "::warning::Defender exclusions were not applied: $($_.Exception.Message)"
-          }
 
       - name: Set up PHP
         uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
@@ -190,7 +178,6 @@ jobs:
           php-version: ${{ matrix.php }}
           coverage: none
           extensions: zip
-          ini-values: ${{ runner.os == 'Windows' && format('opcache.enable_cli=1,opcache.file_cache={0}\opcache,opcache.file_cache_only=1,opcache.validate_timestamps=0', runner.temp) || '' }}
 
       - name: Mask synthetic secret canaries
         run: php tools/mask-secret-canaries.php

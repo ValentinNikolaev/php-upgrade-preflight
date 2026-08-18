@@ -16,7 +16,17 @@ use Symfony\Component\Console\Tester\CommandTester;
 final class LaravelTransitionCommandParityTest extends TestCase
 {
     /**
-     * @group windows-parity-a
+     * Number of Windows shards the 16 transition cases are dealt across.
+     *
+     * Round-robin rather than contiguous: adjacent cases in the contract pair a
+     * cheap "feasible" fixture with an expensive "advisory-heavy" one, so dealing
+     * by index keeps the per-shard cost even. Raising this needs a matching
+     * provider, a `windows-parity-N` group, and a CI shard to run it.
+     */
+    private const TRANSITION_SHARDS = 3;
+
+    /**
+     * @group windows-parity-1
      * @dataProvider transitionCaseShardAProvider
      * @param array<string, mixed> $case
      */
@@ -26,7 +36,7 @@ final class LaravelTransitionCommandParityTest extends TestCase
     }
 
     /**
-     * @group windows-parity-b
+     * @group windows-parity-2
      * @dataProvider transitionCaseShardBProvider
      * @param array<string, mixed> $case
      */
@@ -36,7 +46,17 @@ final class LaravelTransitionCommandParityTest extends TestCase
     }
 
     /**
-     * @group windows-parity-a
+     * @group windows-parity-3
+     * @dataProvider transitionCaseShardCProvider
+     * @param array<string, mixed> $case
+     */
+    public function testCliAndArtisanHaveCanonicalJsonParityForTransitionFixtureShardC(array $case): void
+    {
+        $this->assertCanonicalParity($case);
+    }
+
+    /**
+     * @group windows-staged
      * @dataProvider stagedParityCaseProvider
      * @param array<string, mixed> $case
      */
@@ -55,6 +75,12 @@ final class LaravelTransitionCommandParityTest extends TestCase
     public function transitionCaseShardBProvider(): iterable
     {
         yield from $this->transitionCasesForShard(1);
+    }
+
+    /** @return iterable<string, array{array<string, mixed>}> */
+    public function transitionCaseShardCProvider(): iterable
+    {
+        yield from $this->transitionCasesForShard(2);
     }
 
     /** @return iterable<string, array{array<string, mixed>}> */
@@ -217,7 +243,7 @@ final class LaravelTransitionCommandParityTest extends TestCase
         }
 
         foreach (array_values($contract['cases']) as $index => $case) {
-            if ($index % 2 !== $shard) {
+            if ($index % self::TRANSITION_SHARDS !== $shard) {
                 continue;
             }
             yield $case['name'] => [$case];

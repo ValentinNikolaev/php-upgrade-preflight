@@ -13,10 +13,10 @@ use PhpUpgradePreflight\Tests\Support\LaravelTransitionFixtureFactory;
 use PhpUpgradePreflight\Tests\Support\LaravelTransitionFixtureRunner;
 use PHPUnit\Framework\TestCase;
 
-/** @group windows-integration-heavy */
 final class LaravelV02TransitionFixtureTest extends TestCase
 {
     /**
+     * @group windows-fixtures
      * @dataProvider transitionCaseProvider
      * @param array<string, mixed> $case
      */
@@ -104,6 +104,7 @@ final class LaravelV02TransitionFixtureTest extends TestCase
         }
     }
 
+    /** @group windows-staged */
     public function testLaravel12To13FixtureExercisesOnlyEvidenceBackedPackageAndSourceRules(): void
     {
         $case = $this->caseNamed('advisory-heavy Laravel 12 to 13');
@@ -137,6 +138,7 @@ final class LaravelV02TransitionFixtureTest extends TestCase
         }
     }
 
+    /** @group windows-staged */
     public function testFixtureCandidateLockValidationRejectsRootConstraintViolations(): void
     {
         $lock = [
@@ -163,6 +165,7 @@ final class LaravelV02TransitionFixtureTest extends TestCase
         ], $lock));
     }
 
+    /** @group windows-staged */
     public function testFixtureCandidateLockValidationRejectsTargetPhpOutsideTheRootConstraint(): void
     {
         self::assertSame([
@@ -183,6 +186,7 @@ final class LaravelV02TransitionFixtureTest extends TestCase
         ]));
     }
 
+    /** @group windows-staged */
     public function testEveryAdjacentAcceptanceFixtureUsesTheRealOfflineComposerSolver(): void
     {
         foreach ($this->cases() as $case) {

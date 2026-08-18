@@ -150,43 +150,14 @@ final class ReleaseWorkflowTest extends TestCase
         self::assertStringNotContainsString('composer check', $workflow);
     }
 
-    public function testWindowsShardsAreTunedForRepeatedComposerProcessesAndPublishTheirTimings(): void
+    public function testEveryWindowsShardPublishesItsPerTestTimings(): void
     {
         $steps = $this->parseYamlFile('.github/workflows/quality.yml')['jobs']['quality']['steps'] ?? null;
         self::assertIsArray($steps);
 
-        // Each Windows shard spawns a real Composer process per analysis scenario.
-        // Defender rescans the runner workspace on every one of those writes, and
-        // without a persisted OPcache the whole Composer autoload tree is recompiled
-        // per spawn. Both are runner-only settings; neither reaches shipped code.
-        $defender = array_values(array_filter(
-            $steps,
-            static fn (array $step): bool => str_contains($step['run'] ?? '', 'Add-MpPreference')
-        ));
-        self::assertCount(1, $defender);
-        self::assertSame("runner.os == 'Windows'", $defender[0]['if'] ?? null);
-        self::assertSame('pwsh', $defender[0]['shell'] ?? null);
-        self::assertStringContainsString('::warning::', $defender[0]['run'] ?? '');
-
-        // An absent opcache.file_cache directory makes PHP warn on every spawn, and
-        // that warning would reach the Composer stderr captured as scenario evidence.
-        self::assertStringContainsString('New-Item -ItemType Directory', $defender[0]['run'] ?? '');
-        self::assertStringContainsString('opcache', $defender[0]['run'] ?? '');
-
-        $setup = array_values(array_filter(
-            $steps,
-            static fn (array $step): bool => str_starts_with($step['uses'] ?? '', 'shivammathur/setup-php@')
-        ));
-        self::assertCount(1, $setup);
-        $ini = $setup[0]['with']['ini-values'] ?? null;
-        self::assertIsString($ini);
-        foreach (['opcache.enable_cli=1', 'opcache.file_cache_only=1', 'runner.temp'] as $directive) {
-            self::assertStringContainsString($directive, $ini);
-        }
-        self::assertStringContainsString("runner.os == 'Windows'", $ini);
-
-        // The Windows-to-Linux cost ratio differs per shard, so the hand-partitioned
-        // split can only be rebalanced against timings measured on Windows itself.
+        // The Windows shards are partitioned by hand against measured cost, and the
+        // Windows-to-Linux ratio differs per shard, so the split can only be
+        // rebalanced from timings taken on Windows itself.
         $upload = array_values(array_filter(
             $steps,
             static fn (array $step): bool => str_starts_with($step['uses'] ?? '', 'actions/upload-artifact@')
@@ -278,43 +249,58 @@ final class ReleaseWorkflowTest extends TestCase
             }
         }
         self::assertSame(['8.0', '8.1', '8.2', '8.3', '8.4', '8.5'], $linuxPhp);
-        self::assertSame(['8.3', '8.3', '8.3', '8.3', '8.3'], $windowsPhp);
+        self::assertSame(['8.3', '8.3', '8.3', '8.3', '8.3', '8.3', '8.3'], $windowsPhp);
         self::assertSame([
             'unit-smoke',
-            'parity-a',
-            'parity-b',
-            'integration-heavy',
-            'integration-rest',
+            'parity-1',
+            'parity-2',
+            'parity-3',
+            'staged',
+            'fixtures',
+            'rest',
         ], $windowsSuites);
         self::assertSame([
             'unit-smoke' => 'composer test:unit-smoke',
-            'parity-a' => 'composer test:integration:windows-parity-a',
-            'parity-b' => 'composer test:integration:windows-parity-b',
-            'integration-heavy' => 'composer test:integration:windows-heavy',
-            'integration-rest' => 'composer test:integration:windows-rest',
+            'parity-1' => 'composer test:integration:windows-parity-1',
+            'parity-2' => 'composer test:integration:windows-parity-2',
+            'parity-3' => 'composer test:integration:windows-parity-3',
+            'staged' => 'composer test:integration:windows-staged',
+            'fixtures' => 'composer test:integration:windows-fixtures',
+            'rest' => 'composer test:integration:windows-rest',
         ], $windowsCommands);
         self::assertSame(['unit-smoke'], $windowsPrivacySuites);
 
         $composer = json_decode($this->readRootFile('composer.json'), true, 512, JSON_THROW_ON_ERROR);
         self::assertIsArray($composer);
         self::assertSame(
-            'phpunit --testsuite integration --group windows-parity-a'
-                . ' --log-junit build/junit-windows-parity-a.xml',
-            $composer['scripts']['test:integration:windows-parity-a'] ?? null
+            'phpunit --testsuite integration --group windows-parity-1'
+                . ' --log-junit build/junit-windows-parity-1.xml',
+            $composer['scripts']['test:integration:windows-parity-1'] ?? null
         );
         self::assertSame(
-            'phpunit --testsuite integration --group windows-parity-b'
-                . ' --log-junit build/junit-windows-parity-b.xml',
-            $composer['scripts']['test:integration:windows-parity-b'] ?? null
+            'phpunit --testsuite integration --group windows-parity-2'
+                . ' --log-junit build/junit-windows-parity-2.xml',
+            $composer['scripts']['test:integration:windows-parity-2'] ?? null
         );
         self::assertSame(
-            'phpunit --testsuite integration --group windows-integration-heavy'
-                . ' --log-junit build/junit-windows-integration-heavy.xml',
-            $composer['scripts']['test:integration:windows-heavy'] ?? null
+            'phpunit --testsuite integration --group windows-parity-3'
+                . ' --log-junit build/junit-windows-parity-3.xml',
+            $composer['scripts']['test:integration:windows-parity-3'] ?? null
         );
         self::assertSame(
-            'phpunit --testsuite integration --exclude-group windows-parity-a,windows-parity-b,windows-integration-heavy'
-                . ' --log-junit build/junit-windows-integration-rest.xml',
+            'phpunit --testsuite integration --group windows-staged'
+                . ' --log-junit build/junit-windows-staged.xml',
+            $composer['scripts']['test:integration:windows-staged'] ?? null
+        );
+        self::assertSame(
+            'phpunit --testsuite integration --group windows-fixtures'
+                . ' --log-junit build/junit-windows-fixtures.xml',
+            $composer['scripts']['test:integration:windows-fixtures'] ?? null
+        );
+        // The rest shard must exclude every named group, or a test runs in two shards.
+        self::assertSame(
+            'phpunit --testsuite integration --exclude-group windows-parity-1,windows-parity-2,windows-parity-3,windows-staged,windows-fixtures'
+                . ' --log-junit build/junit-windows-rest.xml',
             $composer['scripts']['test:integration:windows-rest'] ?? null
         );
 
