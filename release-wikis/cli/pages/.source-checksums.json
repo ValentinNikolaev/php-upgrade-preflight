@@ -6,14 +6,14 @@
         {
             "source": "wiki/CLI-Reference.md",
             "destination": "Home.md",
-            "source_sha256": "51aef11a4c01814eb8d3a1c49fc77cdac726afcfc7a3ecc00e186869af6a6553",
-            "materialized_sha256": "5b0ea8110318815b63b1a3479c232b965ae0773eeba0c5ee2b74e9cfa4bb6a1a"
+            "source_sha256": "860543389a772e53e989036374ae573fec407022a45c6744afdfb48b760860fd",
+            "materialized_sha256": "d65470f81aee55d7d7822d30015fe7dda89b477cb141e6e4b735535f9802b4aa"
         },
         {
             "source": "wiki/Getting-Started.md",
             "destination": "Getting-Started.md",
-            "source_sha256": "318bb8c6859508f01f2a2c03a6807ef581339225db11d26afcba1a0080629358",
-            "materialized_sha256": "8865d2ad40ce159a3bcf2d6a7f68dbec2bd3da15d2e0420581e845b4019f84a8"
+            "source_sha256": "7ec254e25bcfc79cca0b79b5f7d6c39169ea3642925d7dcd0849de2ebc3393eb",
+            "materialized_sha256": "e8544f350b864f16cc57c9343ef2007b631aaa6a2c615f779dbc2d0539d4de0c"
         },
         {
             "source": "wiki/CLI-Package-Internals.md",
@@ -48,8 +48,8 @@
         {
             "source": "wiki/Roadmap-and-Status.md",
             "destination": "Roadmap-and-Status.md",
-            "source_sha256": "198590a9158f2f50811b1d893f17c9c24f351e97abfe3625c24e233516071544",
-            "materialized_sha256": "af2e1de8285ca6b2f3c3eda4e7c65fb5ef98d0202388a77a2bf1813956275b2e"
+            "source_sha256": "e58cc4a303fd760d8dadc6295696998de7ba4e40c03901970a3b2a57b0879d25",
+            "materialized_sha256": "61b3d13c014809e8235c762c43be8d4e245383eea7696b742e4d6af0d4aafed1"
         }
     ],
     "generated": {

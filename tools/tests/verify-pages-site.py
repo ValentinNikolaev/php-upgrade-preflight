@@ -236,8 +236,8 @@ def validate(site_root: Path) -> list[str]:
             errors.append(f"Missing accessible recording-control CSS: {marker}")
 
     required_claims = (
-        "Repository HEAD · MIT",
-        "v0.3.1 packages · PolyForm Noncommercial",
+        "v0.3.2 packages · MIT",
+        "Releases up to v0.3.1 remain under PolyForm Noncommercial 1.0.0",
         "mkdir php-upgrade-tools",
         "composer require --dev php-upgrade-preflight/cli:^0.3",
         "not part of the analyzer's read-only execution guarantee",

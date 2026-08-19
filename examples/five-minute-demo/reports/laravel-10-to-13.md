@@ -1,6 +1,6 @@
 # PHP Upgrade Preflight Report
 
-Resolution: **blocked** | Staged: **blocked** | Schema: `0.8` | Tool: `php-upgrade-preflight 0.3.1`
+Resolution: **blocked** | Staged: **blocked** | Schema: `0.8` | Tool: `php-upgrade-preflight 0.3.2`
 
 ## Analysis Request
 - Project: `[PROJECT_ROOT]`
@@ -44,7 +44,7 @@ Resolution: **blocked** | Staged: **blocked** | Schema: `0.8` | Tool: `php-upgra
   - `phpunit/phpunit`: `^10.0`
 
 ## Composer Scenarios
-- `baseline-validation`: succeeded (outcome `success`, Composer `2.10.2`, duration `427 ms`, exit `0`, failure type `none`)
+- `baseline-validation`: succeeded (outcome `success`, Composer `2.10.2`, duration `186 ms`, exit `0`, failure type `none`)
   - command argv: `["composer","validate","--check-lock","--no-check-publish","--no-scripts","--no-plugins","--no-interaction"]`
   - temporary workspace: `not preserved`
   - stdout excerpt:
@@ -55,7 +55,7 @@ Resolution: **blocked** | Staged: **blocked** | Schema: `0.8` | Tool: `php-upgra
   - stderr excerpt: *(empty)*
   - candidate lock: SHA-256 `023b57aa5987a337112a330aae1d4fd38ddd986f962573d29704b0048dc467b7`, content hash `0e3e25bea4860bcbbe5529ec8924aab5`, packages `5`
   - diagnostics: none
-- `exact-target`: failed (outcome `solver_failure`, Composer `2.10.2`, duration `1245 ms`, exit `2`, failure type `solver`)
+- `exact-target`: failed (outcome `solver_failure`, Composer `2.10.2`, duration `631 ms`, exit `2`, failure type `solver`)
   - command argv: `["composer","update","laravel/framework","--no-scripts","--no-plugins","--no-install","--no-audit","--no-progress","--no-interaction"]`
   - temporary workspace: `not preserved`
   - stdout excerpt: *(empty)*
@@ -101,7 +101,7 @@ Resolution: **blocked** | Staged: **blocked** | Schema: `0.8` | Tool: `php-upgra
       There is no installed package depending on "php" in versions not matching 8.3.0
 
       ```
-- `target-with-all-dependencies`: failed (outcome `solver_failure`, Composer `2.10.2`, duration `359 ms`, exit `2`, failure type `solver`)
+- `target-with-all-dependencies`: failed (outcome `solver_failure`, Composer `2.10.2`, duration `225 ms`, exit `2`, failure type `solver`)
   - command argv: `["composer","update","laravel/framework","--with-all-dependencies","--no-scripts","--no-plugins","--no-install","--no-audit","--no-progress","--no-interaction"]`
   - temporary workspace: `not preserved`
   - stdout excerpt: *(empty)*
@@ -145,7 +145,7 @@ Resolution: **blocked** | Staged: **blocked** | Schema: `0.8` | Tool: `php-upgra
       There is no installed package depending on "php" in versions not matching 8.3.0
 
       ```
-- `minimal-changes`: failed (outcome `solver_failure`, Composer `2.10.2`, duration `306 ms`, exit `2`, failure type `solver`)
+- `minimal-changes`: failed (outcome `solver_failure`, Composer `2.10.2`, duration `223 ms`, exit `2`, failure type `solver`)
   - command argv: `["composer","update","laravel/framework","--with-all-dependencies","--minimal-changes","--no-scripts","--no-plugins","--no-install","--no-audit","--no-progress","--no-interaction"]`
   - temporary workspace: `not preserved`
   - stdout excerpt: *(empty)*
@@ -189,7 +189,7 @@ Resolution: **blocked** | Staged: **blocked** | Schema: `0.8` | Tool: `php-upgra
       There is no installed package depending on "php" in versions not matching 8.3.0
 
       ```
-- `target-platform-only`: succeeded (outcome `success`, Composer `2.10.2`, duration `297 ms`, exit `0`, failure type `none`)
+- `target-platform-only`: succeeded (outcome `success`, Composer `2.10.2`, duration `269 ms`, exit `0`, failure type `none`)
   - command argv: `["composer","update","--no-scripts","--no-plugins","--no-install","--no-audit","--no-progress","--no-interaction"]`
   - temporary workspace: `not preserved`
   - stdout excerpt: *(empty)*
@@ -203,7 +203,7 @@ Resolution: **blocked** | Staged: **blocked** | Schema: `0.8` | Tool: `php-upgra
     ```
   - candidate lock: SHA-256 `111071eb5bb99a0a9d080c92c6dd26d1a08603940f5905cb4378b3386ada1533`, content hash `2550fd71deb90c9bcff4ce41546ee066`, packages `5`
   - diagnostics: none
-- `staged-targets`: failed (outcome `solver_failure`, Composer `2.10.2`, duration `527 ms`, exit `2`, failure type `solver`)
+- `staged-targets`: failed (outcome `solver_failure`, Composer `2.10.2`, duration `435 ms`, exit `2`, failure type `solver`)
   - command argv: `["composer","update","laravel/framework","--with-all-dependencies","--no-scripts","--no-plugins","--no-install","--no-audit","--no-progress","--no-interaction"]`
   - temporary workspace: `not preserved`
   - stdout excerpt: *(empty)*
@@ -241,15 +241,15 @@ Resolution: **blocked** | Staged: **blocked** | Schema: `0.8` | Tool: `php-upgra
   - analysis PHP: `8.3.0`; source snapshot: `original_project`
   - This stage assessment inspects the original project source snapshot; it does not assume edits from an earlier stage were applied.
   - effective platform: `6c689c2a945689da7693f0293117541fb3fbc27cb4f072489e15428fd844dbd7`; completeness `partial`; profile `none`
-  - Composer policy: `f7867541fa8d250aab14dc390187c1a8930cdd8fb3b76e3dd72486cc5512107e`; mode `restricted`; stage duration `3135 ms`
+  - Composer policy: `f7867541fa8d250aab14dc390187c1a8930cdd8fb3b76e3dd72486cc5512107e`; mode `restricted`; stage duration `1688 ms`
   - stage evidence: `laravel-stage-target-1`, `laravel-stage-remediation-1`, `laravel-stage-remediation-2`, `stage-attempt-1`, `stage-root-change-1`, `stage-attempt-2`, `stage-root-change-2`, `stage-root-change-3`, `stage-attempt-3`, `stage-root-change-4`, `stage-root-change-5`, `stage-root-change-6`, `laravel-package-nunomaduro_collision-1`, `laravel-package-guidance-1`, `laravel-package-phpunit_phpunit-1`, `laravel-package-guidance-2`, `solver-5`, `solver-6`
   - state chain: predecessor `715c87cf5fc1a9e7cebc63ebe885bfc7b30d5c571373238a06086341b1b2276f`; input `715c87cf5fc1a9e7cebc63ebe885bfc7b30d5c571373238a06086341b1b2276f`; output `d213b46ed76d66dbb1a28dda6e95f1b96ed6c7bdd28c3aba978690201ef7994a`
-  - attempt `1` `target_only`: outcome `solver_failure`; duration `1026 ms`; selected no; blockers `stage-blocker-da9ed30e1b45cf7243c4`, `stage-blocker-78808d7e6ec6a483ae60`
+  - attempt `1` `target_only`: outcome `solver_failure`; duration `650 ms`; selected no; blockers `stage-blocker-da9ed30e1b45cf7243c4`, `stage-blocker-78808d7e6ec6a483ae60`
     - analyzer-only root change `laravel/framework`: `^10.0` -> `^11.0`
-  - attempt `2` `root_constraint_remediation`: outcome `solver_failure`; duration `1642 ms`; selected no; blockers `stage-blocker-78808d7e6ec6a483ae60`
+  - attempt `2` `root_constraint_remediation`: outcome `solver_failure`; duration `810 ms`; selected no; blockers `stage-blocker-78808d7e6ec6a483ae60`
     - analyzer-only root change `laravel/framework`: `^10.0` -> `^11.0`
     - analyzer-only root change `nunomaduro/collision`: `^7.11` -> `^8.1`
-  - attempt `3` `root_and_locked_package_remediation`: outcome `success`; duration `467 ms`; selected yes; blockers `none`
+  - attempt `3` `root_and_locked_package_remediation`: outcome `success`; duration `228 ms`; selected yes; blockers `none`
     - analyzer-only root change `laravel/framework`: `^10.0` -> `^11.0`
     - analyzer-only root change `nunomaduro/collision`: `^7.11` -> `^8.1`
     - analyzer-only root change `phpunit/phpunit`: `^10.0` -> `^11.0.1`
@@ -273,10 +273,10 @@ Resolution: **blocked** | Staged: **blocked** | Schema: `0.8` | Tool: `php-upgra
   - analysis PHP: `8.3.0`; source snapshot: `original_project`
   - This stage assessment inspects the original project source snapshot; it does not assume edits from an earlier stage were applied.
   - effective platform: `6c689c2a945689da7693f0293117541fb3fbc27cb4f072489e15428fd844dbd7`; completeness `partial`; profile `none`
-  - Composer policy: `f7867541fa8d250aab14dc390187c1a8930cdd8fb3b76e3dd72486cc5512107e`; mode `restricted`; stage duration `425 ms`
+  - Composer policy: `f7867541fa8d250aab14dc390187c1a8930cdd8fb3b76e3dd72486cc5512107e`; mode `restricted`; stage duration `219 ms`
   - stage evidence: `laravel-stage-target-2`, `laravel-stage-remediation-4`, `laravel-stage-remediation-5`, `laravel-stage-remediation-3`, `stage-attempt-4`, `stage-root-change-7`, `laravel-package-phpunit_phpunit-2`, `laravel-package-guidance-3`, `laravel-package-nesbot_carbon-1`, `laravel-package-guidance-4`, `laravel-package-nunomaduro_collision-2`, `laravel-package-guidance-5`
   - state chain: predecessor `d213b46ed76d66dbb1a28dda6e95f1b96ed6c7bdd28c3aba978690201ef7994a`; input `d213b46ed76d66dbb1a28dda6e95f1b96ed6c7bdd28c3aba978690201ef7994a`; output `997107c825bef8b0d2891c2855bca150b3ae9f541cba6c93dcacc6f886adccb5`
-  - attempt `1` `target_only`: outcome `success`; duration `425 ms`; selected yes; blockers `none`
+  - attempt `1` `target_only`: outcome `success`; duration `219 ms`; selected yes; blockers `none`
     - analyzer-only root change `laravel/framework`: `^11.0` -> `^12.0`
   - selected package change `laravel/framework`: `11.0.0` -> `12.0.0`
   - original-source finding (`high`): phpunit/phpunit 10.0.0 is outside the encoded Laravel 12 review range `^11.0`; review its upgrade or replacement.
@@ -298,15 +298,15 @@ Resolution: **blocked** | Staged: **blocked** | Schema: `0.8` | Tool: `php-upgra
   - analysis PHP: `8.3.0`; source snapshot: `original_project`
   - This stage assessment inspects the original project source snapshot; it does not assume edits from an earlier stage were applied.
   - effective platform: `6c689c2a945689da7693f0293117541fb3fbc27cb4f072489e15428fd844dbd7`; completeness `partial`; profile `none`
-  - Composer policy: `f7867541fa8d250aab14dc390187c1a8930cdd8fb3b76e3dd72486cc5512107e`; mode `restricted`; stage duration `4921 ms`
+  - Composer policy: `f7867541fa8d250aab14dc390187c1a8930cdd8fb3b76e3dd72486cc5512107e`; mode `restricted`; stage duration `2089 ms`
   - stage evidence: `laravel-stage-target-3`, `laravel-stage-remediation-6`, `laravel-stage-remediation-8`, `laravel-stage-remediation-7`, `stage-attempt-5`, `stage-root-change-8`, `stage-attempt-6`, `stage-root-change-9`, `stage-root-change-10`, `stage-attempt-7`, `stage-root-change-11`, `stage-root-change-12`, `stage-root-change-13`, `stage-root-change-14`, `laravel-framework-constraint-1`, `laravel-package-laravel_tinker-1`, `laravel-package-guidance-6`, `laravel-package-phpunit_phpunit-3`, `laravel-package-guidance-7`, `laravel-package-nunomaduro_collision-3`, `laravel-package-guidance-8`, `laravel-request-forgery-guidance-1`, `source-3`, `solver-7`, `solver-8`, `solver-9`
   - state chain: predecessor `997107c825bef8b0d2891c2855bca150b3ae9f541cba6c93dcacc6f886adccb5`; input `997107c825bef8b0d2891c2855bca150b3ae9f541cba6c93dcacc6f886adccb5`; output `none`
-  - attempt `1` `target_only`: outcome `solver_failure`; duration `922 ms`; selected no; blockers `stage-blocker-b40442291e7ce748c0df`
+  - attempt `1` `target_only`: outcome `solver_failure`; duration `496 ms`; selected no; blockers `stage-blocker-b40442291e7ce748c0df`
     - analyzer-only root change `laravel/framework`: `^12.0` -> `^13.0`
-  - attempt `2` `root_constraint_remediation`: outcome `solver_failure`; duration `2445 ms`; selected no; blockers `stage-blocker-b40442291e7ce748c0df`
+  - attempt `2` `root_constraint_remediation`: outcome `solver_failure`; duration `705 ms`; selected no; blockers `stage-blocker-b40442291e7ce748c0df`
     - analyzer-only root change `laravel/framework`: `^12.0` -> `^13.0`
     - analyzer-only root change `laravel/tinker`: `^2.9` -> `^3.0`
-  - attempt `3` `root_and_locked_package_remediation`: outcome `solver_failure`; duration `1554 ms`; selected no; blockers `stage-blocker-b40442291e7ce748c0df`
+  - attempt `3` `root_and_locked_package_remediation`: outcome `solver_failure`; duration `888 ms`; selected no; blockers `stage-blocker-b40442291e7ce748c0df`
     - analyzer-only root change `laravel/framework`: `^12.0` -> `^13.0`
     - analyzer-only root change `laravel/tinker`: `^2.9` -> `^3.0`
     - analyzer-only root change `nunomaduro/collision`: `^8.1` -> `^8.6`

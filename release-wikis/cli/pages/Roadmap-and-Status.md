@@ -4,7 +4,7 @@
 
 ## Current status
 
-PHP Upgrade Preflight is an Open Source **public beta**. The latest published release recorded by the repository is **v0.3.1**, producing tool version `0.3.1` reports with schema `0.8`. Development on `main` uses `0.3.x-dev` aliases and `^0.3` internal constraints.
+PHP Upgrade Preflight is an Open Source **public beta**. The latest published release recorded by the repository is **v0.3.2**, producing tool version `0.3.2` reports with schema `0.8`. Development on `main` uses `0.3.x-dev` aliases and `^0.3` internal constraints.
 
 Public beta means the public PHP API, CLI and Artisan surfaces, adapter extension points, package boundaries, and report semantics are still being proven before `1.0`. It does **not** mean the analyzer guarantees a successful production upgrade.
 
@@ -99,7 +99,7 @@ These are release gates and maturity signals, not a promised delivery schedule.
 
 ## Licensing status
 
-The repository is licensed under MIT, permitting commercial and noncommercial use, modification, and redistribution under its terms. Releases up to and including v0.3.1 were published under PolyForm Noncommercial 1.0.0 and remain governed by the license they shipped with. MIT applies to the repository and releases after v0.3.1. The license text controls over summaries.
+The repository is licensed under MIT, permitting commercial and noncommercial use, modification, and redistribution under its terms. Releases up to and including v0.3.1 were published under PolyForm Noncommercial 1.0.0 and remain governed by the license they shipped with. MIT applies to the repository and to v0.3.2 and later. The license text controls over summaries.
 
 ## How to read roadmap claims
 

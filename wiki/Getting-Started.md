@@ -2,7 +2,7 @@
 
 This guide takes you from an empty tools directory to a report you can explain to a developer or a technical manager. PHP Upgrade Preflight analyzes an upgrade; it does not perform one.
 
-> **Current release line:** v0.3.x. The latest published release recorded by the repository is v0.3.1. It produces canonical JSON schema 0.8 and requires PHP `^8.0` on the machine that runs the analyzer.
+> **Current release line:** v0.3.x. The latest published release recorded by the repository is v0.3.2. It produces canonical JSON schema 0.8 and requires PHP `^8.0` on the machine that runs the analyzer.
 
 ## The result in one sentence
 

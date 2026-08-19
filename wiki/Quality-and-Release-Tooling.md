@@ -19,7 +19,7 @@ composer test:coverage
 composer test:mutation
 php tools/verify-report-privacy.php
 composer audit --locked --no-interaction --no-ansi
-composer release:verify -- 0.3.1
+composer release:verify -- 0.3.2
 ```
 
 This local sequence is useful, but GitHub Actions remains authoritative because it also tests multiple PHP versions, Windows, fresh consumer installations, dependency-resolution variants, distribution tags, and release archives.
@@ -175,8 +175,8 @@ From the exact committed monorepo state:
 
 ```bash
 bash tools/prepare-distribution.sh
-bash tools/release-distribution.sh --tag v0.3.1 --dry-run
-bash tools/release-distribution.sh --tag v0.3.1
+bash tools/release-distribution.sh --tag v0.3.2 --dry-run
+bash tools/release-distribution.sh --tag v0.3.2
 ```
 
 Inspect staged changes and the dry run before accepting pushes. Only `core`, `cli`, and `laravel` have distribution repositories; the two adapter packages are development fixtures.
@@ -186,8 +186,8 @@ Inspect staged changes and the dry run before accepting pushes. Only `core`, `cl
 After all three distribution tags exist, create the signed annotated monorepo tag using the commands printed by `release-distribution.sh`:
 
 ```bash
-git tag -s v0.3.1 -m "php-upgrade-preflight v0.3.1"
-git push origin v0.3.1
+git tag -s v0.3.2 -m "php-upgrade-preflight v0.3.2"
+git push origin v0.3.2
 ```
 
 Pushing this tag starts the publishing workflow. A tag is an external, consequential action: confirm the version, commit, signatures, and Wiki state first.
@@ -227,7 +227,7 @@ Only after those gates pass does the workflow create or update the GitHub Releas
 Run the exact version locally:
 
 ```bash
-php tools/verify-release.php 0.3.1
+php tools/verify-release.php 0.3.2
 ```
 
 Read every `ERROR:` line. Do not fix only the first one: a release version is repeated deliberately across metadata, constraints, changelog, and release notes.
