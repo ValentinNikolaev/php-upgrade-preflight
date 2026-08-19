@@ -20,20 +20,22 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'%3E%3Crect%20width='64'%20height='64'%20rx='14'%20fill='%231e1e2e'/%3E%3Cpath%20d='M18%2044%2030%2016m4%2028%2012-28'%20stroke='%23a5a1f5'%20stroke-width='6'%20stroke-linecap='round'%20fill='none'/%3E%3Ccircle%20cx='32'%20cy='54'%20r='4'%20fill='%23a6e3a1'/%3E%3C/svg%3E">
 <style>
 :root {
-  --bg: #fbfaf9;
+  --bg: #fffaf7;
   --bg-raised: #ffffff;
-  --bg-inset: #f1efec;
-  --text: #1d1c1a;
-  --text-muted: #5b5852;
-  --accent: #4f46b8;
+  --bg-inset: #fff0ea;
+  --text: #2b211f;
+  --text-muted: #6c5953;
+  --accent: #b24531;
+  --accent-hover: #9f3827;
   --primary-foreground: #ffffff;
-  --accent-soft: #ecebfa;
-  --border: #e3e0da;
-  --terminal: #11111b;
-  --terminal-text: #cdd6f4;
-  --install-control-background: #1c1c2c;
-  --terminal-control-border: #7f849c;
-  --terminal-focus: #a5a1f5;
+  --accent-soft: #feeae4;
+  --border: #ead9d3;
+  --terminal: #181316;
+  --terminal-text: #f5e9e5;
+  --install-control-background: #251d20;
+  --terminal-control-border: #8f7770;
+  --terminal-focus: #d95d45;
+  --focus: #d95d45;
   --good: #1a7f37;
   --warn-bg: #fff7e8;
   --warn-border: #e8c777;
@@ -41,17 +43,19 @@
 }
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #14141c;
-    --bg-raised: #1c1c26;
-    --bg-inset: #23232f;
-    --text: #e6e4f0;
-    --text-muted: #a09eae;
-    --accent: #a5a1f5;
-    --primary-foreground: #14141c;
-    --accent-soft: #26263a;
-    --border: #2e2e3c;
-    --terminal: #11111b;
-    --terminal-text: #cdd6f4;
+    --bg: #181312;
+    --bg-raised: #211a18;
+    --bg-inset: #2b211f;
+    --text: #f4ebe8;
+    --text-muted: #c4afa8;
+    --accent: #ff8a70;
+    --accent-hover: #ffad9a;
+    --primary-foreground: #181312;
+    --accent-soft: #3a211b;
+    --border: #49342e;
+    --terminal: #100d0c;
+    --terminal-text: #f3e6e2;
+    --focus: #ff9a82;
     --good: #7ddc8f;
     --warn-bg: #2a2415;
     --warn-border: #7a6428;
@@ -66,6 +70,22 @@ body {
   font: 17px/1.6 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
+.skip-link {
+  position: fixed; top: 10px; left: 10px; z-index: 100;
+  padding: 10px 14px; border-radius: 8px; background: var(--accent);
+  color: var(--primary-foreground); font-weight: 700; text-decoration: none;
+  transform: translateY(-160%);
+}
+.skip-link:focus { transform: translateY(0); }
+.site-header { border-bottom: 1px solid var(--border); background: var(--bg); }
+.site-header .wrap { min-height: 64px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+.brand { color: var(--text); font-weight: 750; text-decoration: none; white-space: nowrap; }
+.site-nav { display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: 4px; }
+.site-nav a, footer nav a {
+  min-height: 44px; display: inline-flex; align-items: center; padding: 8px 10px;
+  border-radius: 8px; color: var(--text-muted); text-decoration: none;
+}
+.site-nav a:hover, .site-nav a:focus-visible { color: var(--accent); background: var(--accent-soft); }
 code, pre, .mono {
   font-family: ui-monospace, SFMono-Regular, "Cascadia Code", Menlo, Consolas, monospace;
 }
@@ -76,7 +96,7 @@ h2 { font-size: 1.7rem; line-height: 1.25; letter-spacing: -.01em; margin-bottom
 .section-lead { color: var(--text-muted); max-width: 46em; margin-bottom: 40px; }
 
 /* Hero */
-.hero { padding: 88px 0 64px; text-align: center; }
+.hero { padding: 72px 0 48px; text-align: center; }
 .badges { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 28px; }
 .badge {
   font-size: .78rem; font-weight: 600; letter-spacing: .02em;
@@ -102,11 +122,11 @@ h2 { font-size: 1.7rem; line-height: 1.25; letter-spacing: -.01em; margin-bottom
 }
 .install .prompt { color: #a6e3a1; user-select: none; }
 .install button {
-  border: 0; border-left: 1px solid #2c2c3f; cursor: pointer;
-  background: var(--install-control-background); color: #cdd6f4; padding: 0 18px;
-  font-family: inherit; font-size: .82rem; font-weight: 600; line-height: 1;
+  border: 0; border-left: 1px solid #3d2d2a; cursor: pointer;
+  background: var(--install-control-background); color: var(--terminal-text); padding: 0 18px;
+  min-height: 44px; font-family: inherit; font-size: .82rem; font-weight: 600; line-height: 1;
 }
-.install button:hover { background: #26263c; }
+.install button:hover { background: #342426; }
 .install button.copied { color: #a6e3a1; }
 .install button:focus-visible { outline-color: var(--terminal-focus); outline-offset: -4px; }
 .install-intro {
@@ -130,12 +150,12 @@ h2 { font-size: 1.7rem; line-height: 1.25; letter-spacing: -.01em; margin-bottom
 }
 .btn svg { flex: none; }
 .btn-primary { background: var(--accent); color: var(--primary-foreground); border-color: transparent; }
-.btn-primary:hover { filter: brightness(1.08); }
+.btn-primary:hover { background: var(--accent-hover); }
 .btn-secondary { background: var(--bg-raised); color: var(--text); }
 .btn-secondary:hover { border-color: var(--accent); }
 
 /* Gallery */
-.gallery { display: grid; gap: 36px; }
+.gallery { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
 .shot {
   background: var(--bg-raised); border: 1px solid var(--border);
   border-radius: 14px; box-shadow: var(--shadow); overflow: hidden;
@@ -147,15 +167,15 @@ h2 { font-size: 1.7rem; line-height: 1.25; letter-spacing: -.01em; margin-bottom
 }
 .recording-placeholder { text-align: center; padding: 24px; }
 .recording-placeholder strong { display: block; font-size: 1.05rem; }
-.recording-placeholder span { display: block; margin-top: 6px; color: #a6adc8; font-size: .86rem; }
+.recording-placeholder span { display: block; margin-top: 6px; color: #c4afa8; font-size: .86rem; }
 .recording img { position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: contain; }
 .recording-toggle {
   position: relative; z-index: 1; min-height: 44px; margin-top: 18px; padding: 10px 18px;
-  border: 1px solid var(--terminal-control-border); border-radius: 9px; background: #252536;
+  border: 1px solid var(--terminal-control-border); border-radius: 9px; background: #2b211f;
   color: var(--terminal-text); cursor: pointer; font: inherit; font-weight: 600;
 }
 .recording.playing .recording-toggle { position: absolute; right: 14px; bottom: 14px; margin: 0; }
-.recording-toggle:hover { background: #313147; }
+.recording-toggle:hover { background: #3a2925; }
 .recording-toggle:focus-visible { outline-color: var(--terminal-focus); }
 .shot figcaption { padding: 16px 20px; font-size: .93rem; color: var(--text-muted); }
 .shot figcaption strong { color: var(--text); }
@@ -164,6 +184,27 @@ h2 { font-size: 1.7rem; line-height: 1.25; letter-spacing: -.01em; margin-bottom
   position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px;
   overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
 }
+
+/* Quick start */
+.quick-start {
+  display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: 24px;
+  align-items: start;
+}
+.quick-card {
+  background: var(--bg-raised); border: 1px solid var(--border); border-radius: 14px;
+  padding: 24px; min-width: 0;
+}
+.quick-card h3 { font-size: 1.05rem; margin-bottom: 10px; }
+.quick-card p, .quick-card li { color: var(--text-muted); font-size: .93rem; }
+.quick-card ul { padding-left: 1.25rem; }
+.quick-card li + li { margin-top: 5px; }
+.command {
+  margin: 14px 0; padding: 16px 18px; overflow-x: auto; border-radius: 10px;
+  background: var(--terminal); color: var(--terminal-text); font-size: .82rem; line-height: 1.55;
+}
+.result-note { border-left: 4px solid var(--good); padding-left: 14px; }
+.docs-links { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 8px 16px; }
+.docs-links a { min-height: 44px; display: inline-flex; align-items: center; }
 
 /* Features */
 .features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
@@ -209,29 +250,50 @@ footer {
   padding: 32px 0 48px; font-size: .9rem; color: var(--text-muted);
 }
 footer .wrap { display: flex; flex-wrap: wrap; gap: 12px 28px; justify-content: space-between; align-items: center; }
-footer nav { display: flex; flex-wrap: wrap; gap: 20px; }
+footer nav { display: flex; flex-wrap: wrap; gap: 4px 10px; }
 footer a { color: var(--text-muted); text-decoration: none; }
 footer a:hover { color: var(--accent); }
 
-:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
 }
 
-@media (max-width: 880px) { .features { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 880px) {
+  .features { grid-template-columns: repeat(2, 1fr); }
+  .gallery, .quick-start { grid-template-columns: 1fr; }
+}
 @media (max-width: 580px) {
+  .wrap { padding-left: 18px; padding-right: 18px; }
+  .site-header .wrap { padding-top: 10px; padding-bottom: 10px; align-items: flex-start; flex-direction: column; gap: 4px; }
+  .site-nav { justify-content: flex-start; }
+  .site-nav a { padding-left: 7px; padding-right: 7px; }
   .features { grid-template-columns: 1fr; }
   .section { padding-top: 56px; }
   .hero { padding: 64px 0 48px; }
   .install { flex-direction: column; }
-  .install button { border-left: 0; border-top: 1px solid #2c2c3f; padding: 12px; }
+  .install button { border-left: 0; border-top: 1px solid #3d2d2a; padding: 12px; }
 }
 </style>
 </head>
 <body>
 
-<header class="hero">
+<a class="skip-link" href="#main-content">Skip to main content</a>
+<div class="site-header">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="PHP Upgrade Preflight home">PHP Upgrade Preflight</a>
+    <nav class="site-nav" aria-label="Primary navigation">
+      <a href="#quick-start">Get started</a>
+      <a href="#features">Features</a>
+      <a href="#how-it-works">How it works</a>
+      <a href="#demos">Demos</a>
+      <a href="https://github.com/ValentinNikolaev/php-upgrade-preflight/wiki/Getting-Started">Docs</a>
+    </nav>
+  </div>
+</div>
+
+<header class="hero" id="top">
   <div class="wrap">
     <div class="badges">
       <span class="badge">Public beta</span>
@@ -248,6 +310,14 @@ footer a:hover { color: var(--accent); }
       evidence. During analysis, the target project is immutable input; installing the tool is a
       separate Composer operation in whichever tools directory or application you choose below.
     </p>
+    <div class="cta">
+      <a class="btn btn-primary" href="#quick-start">
+        Run your first preflight
+      </a>
+      <a class="btn btn-secondary" href="https://github.com/ValentinNikolaev/php-upgrade-preflight">
+        View on GitHub
+      </a>
+    </div>
     <p class="install-intro">
       <strong>Safest first install: use a separate tools directory.</strong>
       These commands change only that new directory, not the application you later analyze.
@@ -265,81 +335,47 @@ footer a:hover { color: var(--accent); }
       <p>This intentionally changes that application's <code>composer.json</code>, lock file, and development dependencies. It is not part of the analyzer's read-only execution guarantee.</p>
       <code>composer require --dev php-upgrade-preflight/cli:^0.3 php-upgrade-preflight/laravel:^0.3</code>
     </details>
-    <div class="cta">
-      <a class="btn btn-primary" href="https://github.com/ValentinNikolaev/php-upgrade-preflight">
-        <svg width="18" height="18" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.6 7.6 0 0 1 2-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
-        GitHub
-      </a>
-      <a class="btn btn-secondary" href="https://packagist.org/packages/php-upgrade-preflight/cli">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 3 8 4.5v9L12 21l-8-4.5v-9L12 3Z"/><path d="M12 12 4 7.5M12 12l8-4.5M12 12v9"/></svg>
-        Packagist
-      </a>
-    </div>
   </div>
 </header>
 
-<main>
-  <section class="section" id="demos">
+<main id="main-content">
+  <section class="section" id="quick-start">
     <div class="wrap">
-      <h2>See it under the hood</h2>
-      <p class="section-lead">
-        Real recordings of the analyzer working against the repository's deterministic offline demo —
-        local Composer path repositories, real solver runs, no network. Recordings never autoplay.
-      </p>
-      <div class="gallery">
-        <figure class="shot">
-          <div class="recording" data-recording="assets/laravel-10-to-13.gif" data-alt="Terminal recording of a full staged Laravel 10 to 13 preflight analysis">
-            <div class="recording-placeholder" aria-hidden="true"><strong>Staged Laravel 10 → 13</strong><span>18.8-second terminal recording</span></div>
-            <button class="recording-toggle" type="button" aria-pressed="false">Play recording</button>
+      <h2>Run your first preflight</h2>
+      <p class="section-lead">From a separate tools directory to a canonical JSON report, without writing into the project you analyze.</p>
+      <div class="quick-start">
+        <div class="quick-card">
+          <h3>Before you run it</h3>
+          <ul>
+            <li>The analyzer host needs PHP 8.0 or newer and Composer 2.</li>
+            <li>The target path must contain a valid <code>composer.json</code>; a lock file provides stronger evidence.</li>
+            <li>Create the report directory outside the target project. Its parent directory must already exist.</li>
+            <li>Install the CLI and Laravel adapter in the separate tools directory shown above.</li>
+          </ul>
+          <div class="docs-links">
+            <a href="https://github.com/ValentinNikolaev/php-upgrade-preflight/wiki/Getting-Started#before-you-install">Check prerequisites</a>
+            <a href="https://github.com/ValentinNikolaev/php-upgrade-preflight/wiki/Getting-Started#choose-an-installation-layout">Installation details</a>
           </div>
-          <figcaption>
-            <strong>Staged Laravel 10 → 13 preflight, end to end.</strong>
-            Direct and staged resolution both come back <code>blocked</code>: the 10→11 hop retains two
-            simultaneous blockers with different lifecycles, 11→12 is Composer-feasible, and 12→13 stops
-            on a missing platform extension plus an original-source finding. Before/after target digests match.
-          </figcaption>
-        </figure>
-        <figure class="shot">
-          <div class="recording" data-recording="assets/blocker-deep-dive.gif" data-alt="Terminal recording walking a JSON report with jq from a blocker to its evidence">
-            <div class="recording-placeholder" aria-hidden="true"><strong>Blocker deep dive</strong><span>51.4-second terminal recording</span></div>
-            <button class="recording-toggle" type="button" aria-pressed="false">Play recording</button>
+        </div>
+        <div class="quick-card">
+          <h3>Analyze a PHP target</h3>
+          <p>Run this from the external tools directory, replacing the example paths and versions with your own:</p>
+          <pre class="command"><code>vendor/bin/upgrade-intel analyze \
+  --path=/work/legacy-app \
+  --from-php=7.4 \
+  --target-php=8.2 \
+  --format=json \
+  --output=/work/upgrade-reports/php-82.json</code></pre>
+          <p class="result-note"><strong>A valid report may still describe a blocked upgrade.</strong> First check whether the command produced a report, then read <code>resolution.status</code> for <code>feasible</code>, <code>feasible_with_changes</code>, <code>blocked</code>, or <code>unknown</code>. Review its blockers, evidence, and uncertainties before deciding what to change.</p>
+          <div class="docs-links">
+            <a href="https://github.com/ValentinNikolaev/php-upgrade-preflight/wiki/Getting-Started#run-a-first-php-only-analysis">Linux, macOS, and Windows commands</a>
+            <a href="https://github.com/ValentinNikolaev/php-upgrade-preflight/wiki/Troubleshooting-and-FAQ">Troubleshooting</a>
+            <a href="https://github.com/ValentinNikolaev/php-upgrade-preflight/wiki/Reading-the-Report">Read the report</a>
           </div>
-          <figcaption>
-            <strong>A blocker, up close.</strong>
-            After the analysis, <code>jq</code> walks the canonical JSON: <code>resolution.status</code>,
-            the blocker's dependency path and resolution options, then its <code>evidence</code> IDs —
-            straight to the exact Composer command and the solver's own output excerpt.
-          </figcaption>
-        </figure>
-        <figure class="shot">
-          <div class="recording" data-recording="assets/immutability-proof.gif" data-alt="Terminal recording proving the analyzed project is unchanged via recursive SHA-256 digests">
-            <div class="recording-placeholder" aria-hidden="true"><strong>Immutability proof</strong><span>16.6-second terminal recording</span></div>
-            <button class="recording-toggle" type="button" aria-pressed="false">Play recording</button>
-          </div>
-          <figcaption>
-            <strong>Immutability, proven.</strong>
-            A recursive SHA-256 digest over every file of the analyzed project before the run,
-            a full analysis with real Composer scenarios in temporary workspaces, and the same
-            digest afterwards. Byte-for-byte identical.
-          </figcaption>
-        </figure>
-        <figure class="shot">
-          <div class="recording" data-recording="assets/markdown-report.gif" data-alt="Terminal recording browsing the generated Markdown report sections">
-            <div class="recording-placeholder" aria-hidden="true"><strong>Markdown report tour</strong><span>42.4-second terminal recording</span></div>
-            <button class="recording-toggle" type="button" aria-pressed="false">Play recording</button>
-          </div>
-          <figcaption>
-            <strong>The Markdown projection.</strong>
-            The same analysis rendered as Markdown — a faithful projection of the canonical JSON:
-            the report's sections, the staged actions for the blocked 12→13 stage, and risk plus
-            effort ranges with assumptions and confidence.
-          </figcaption>
-        </figure>
+        </div>
       </div>
-      <p class="motion-note">Choose Play to load a recording. Choose Stop to remove it immediately. No motion starts without your action, including when your system requests reduced motion.</p>
     </div>
   </section>
-
   <section class="section" id="features">
     <div class="wrap">
       <h2>What you get</h2>
@@ -412,6 +448,67 @@ footer a:hover { color: var(--accent); }
     </div>
   </section>
 
+  <section class="section" id="demos">
+    <div class="wrap">
+      <h2>See it under the hood</h2>
+      <p class="section-lead">
+        Real recordings of the analyzer working against the repository's deterministic offline demo —
+        local Composer path repositories, real solver runs, no network. Recordings never autoplay.
+      </p>
+      <div class="gallery">
+        <figure class="shot">
+          <div class="recording" data-recording="assets/laravel-10-to-13.gif" data-alt="Terminal recording of a full staged Laravel 10 to 13 preflight analysis">
+            <div class="recording-placeholder" aria-hidden="true"><strong>Staged Laravel 10 → 13</strong><span>18.8-second terminal recording</span></div>
+            <button class="recording-toggle" type="button" aria-pressed="false">Play recording</button>
+          </div>
+          <figcaption>
+            <strong>Staged Laravel 10 → 13 preflight, end to end.</strong>
+            Direct and staged resolution both come back <code>blocked</code>: the 10→11 hop retains two
+            simultaneous blockers with different lifecycles, 11→12 is Composer-feasible, and 12→13 stops
+            on a missing platform extension plus an original-source finding. Before/after target digests match.
+          </figcaption>
+        </figure>
+        <figure class="shot">
+          <div class="recording" data-recording="assets/blocker-deep-dive.gif" data-alt="Terminal recording walking a JSON report with jq from a blocker to its evidence">
+            <div class="recording-placeholder" aria-hidden="true"><strong>Blocker deep dive</strong><span>51.4-second terminal recording</span></div>
+            <button class="recording-toggle" type="button" aria-pressed="false">Play recording</button>
+          </div>
+          <figcaption>
+            <strong>A blocker, up close.</strong>
+            After the analysis, <code>jq</code> walks the canonical JSON: <code>resolution.status</code>,
+            the blocker's dependency path and resolution options, then its <code>evidence</code> IDs —
+            straight to the exact Composer command and the solver's own output excerpt.
+          </figcaption>
+        </figure>
+        <figure class="shot">
+          <div class="recording" data-recording="assets/immutability-proof.gif" data-alt="Terminal recording proving the analyzed project is unchanged via recursive SHA-256 digests">
+            <div class="recording-placeholder" aria-hidden="true"><strong>Immutability proof</strong><span>16.6-second terminal recording</span></div>
+            <button class="recording-toggle" type="button" aria-pressed="false">Play recording</button>
+          </div>
+          <figcaption>
+            <strong>Immutability, proven.</strong>
+            A recursive SHA-256 digest over every file of the analyzed project before the run,
+            a full analysis with real Composer scenarios in temporary workspaces, and the same
+            digest afterwards. Byte-for-byte identical.
+          </figcaption>
+        </figure>
+        <figure class="shot">
+          <div class="recording" data-recording="assets/markdown-report.gif" data-alt="Terminal recording browsing the generated Markdown report sections">
+            <div class="recording-placeholder" aria-hidden="true"><strong>Markdown report tour</strong><span>42.4-second terminal recording</span></div>
+            <button class="recording-toggle" type="button" aria-pressed="false">Play recording</button>
+          </div>
+          <figcaption>
+            <strong>The Markdown projection.</strong>
+            The same analysis rendered as Markdown — a faithful projection of the canonical JSON:
+            the report's sections, the staged actions for the blocked 12→13 stage, and risk plus
+            effort ranges with assumptions and confidence.
+          </figcaption>
+        </figure>
+      </div>
+      <p class="motion-note">Choose Play to load a recording. Choose Stop to remove it immediately. No motion starts without your action, including when your system requests reduced motion.</p>
+    </div>
+  </section>
+
   <section class="section" id="scope">
     <div class="wrap">
       <div class="disclaimer">
@@ -434,9 +531,9 @@ footer a:hover { color: var(--accent); }
 <footer>
   <div class="wrap">
     <span>MIT licensed · Releases up to v0.3.1 remain under PolyForm Noncommercial 1.0.0 · © 2026 Valentin Nikolaev</span>
-    <nav>
+    <nav aria-label="Project links">
       <a href="https://github.com/ValentinNikolaev/php-upgrade-preflight">GitHub</a>
-      <a href="https://github.com/ValentinNikolaev/php-upgrade-preflight/tree/main/docs">Documentation</a>
+      <a href="https://github.com/ValentinNikolaev/php-upgrade-preflight/wiki/Getting-Started">Documentation</a>
       <a href="https://github.com/ValentinNikolaev/php-upgrade-preflight/blob/main/CHANGELOG.md">Changelog</a>
       <a href="https://github.com/ValentinNikolaev/php-upgrade-preflight/blob/main/docs/project-status.md#licensing">Licensing</a>
       <a href="https://packagist.org/packages/php-upgrade-preflight/cli">Packagist</a>
