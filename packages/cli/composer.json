@@ -2,7 +2,7 @@
   "name": "php-upgrade-preflight/cli",
   "description": "Generic CLI for PHP Upgrade Preflight.",
   "type": "library",
-  "license": "PolyForm-Noncommercial-1.0.0",
+  "license": "MIT",
   "keywords": [
     "cli",
     "composer",

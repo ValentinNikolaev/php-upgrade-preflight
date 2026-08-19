@@ -1,0 +1,59 @@
+{
+    "schema_version": 1,
+    "set": "cli",
+    "manifest_sha256": "15c9bf50572a971b3fb7ee5dad48c370af63cf4c0d025cc59a94aba28e24a59b",
+    "pages": [
+        {
+            "source": "wiki/CLI-Reference.md",
+            "destination": "Home.md",
+            "source_sha256": "51aef11a4c01814eb8d3a1c49fc77cdac726afcfc7a3ecc00e186869af6a6553",
+            "materialized_sha256": "5b0ea8110318815b63b1a3479c232b965ae0773eeba0c5ee2b74e9cfa4bb6a1a"
+        },
+        {
+            "source": "wiki/Getting-Started.md",
+            "destination": "Getting-Started.md",
+            "source_sha256": "318bb8c6859508f01f2a2c03a6807ef581339225db11d26afcba1a0080629358",
+            "materialized_sha256": "8865d2ad40ce159a3bcf2d6a7f68dbec2bd3da15d2e0420581e845b4019f84a8"
+        },
+        {
+            "source": "wiki/CLI-Package-Internals.md",
+            "destination": "CLI-Package-Internals.md",
+            "source_sha256": "af2dc886c8466708aea67c98e68799b76070bf35e7dd7489e2b9374d53bbbc9e",
+            "materialized_sha256": "34ad2dfe4f92528a6acb18753a02d31c62d33b1bb74895602c783c497e207610"
+        },
+        {
+            "source": "wiki/Key-Concepts.md",
+            "destination": "Key-Concepts.md",
+            "source_sha256": "f527127a5826e7e983867aeb680f816d78dcef2a95d23dee2c2182eb8b4c5453",
+            "materialized_sha256": "7036027a49f2da659af223e7ba9344f95b3d8ddfd79b3ab7ec23dddfe5eb0ce2"
+        },
+        {
+            "source": "wiki/Writing-a-Framework-Adapter.md",
+            "destination": "Writing-a-Framework-Adapter.md",
+            "source_sha256": "30fce1eee1ac0ec19a96db9b9fd2e4a64248cabfcd4d6e445eb0dd7297f5e31b",
+            "materialized_sha256": "b9739deb2441bcb25535dce5d2e718d768311e66332d92ab4de3bbcc248d8c1e"
+        },
+        {
+            "source": "wiki/Safety-and-Trust-Boundaries.md",
+            "destination": "Safety-and-Trust-Boundaries.md",
+            "source_sha256": "d341e6690c47e16b9ac32a705b5799b213ac972a9ba390df481049a026287f63",
+            "materialized_sha256": "daa120741076e7e544c5dc1ea84b7f2acd660a3d9ee2c49b5b6ca016033a14a9"
+        },
+        {
+            "source": "wiki/Troubleshooting-and-FAQ.md",
+            "destination": "Troubleshooting-and-FAQ.md",
+            "source_sha256": "1f785702dfee0d78c239233584b868e32d26f9178a1989620955eef25980481f",
+            "materialized_sha256": "a18060c6dd5e552e97c3118e68b21a620d8477e1aed9c84d77795686ec454a53"
+        },
+        {
+            "source": "wiki/Roadmap-and-Status.md",
+            "destination": "Roadmap-and-Status.md",
+            "source_sha256": "198590a9158f2f50811b1d893f17c9c24f351e97abfe3625c24e233516071544",
+            "materialized_sha256": "af2e1de8285ca6b2f3c3eda4e7c65fb5ef98d0202388a77a2bf1813956275b2e"
+        }
+    ],
+    "generated": {
+        "_Sidebar.md": "47a048e038468885701386632b46830d531d67a84f9cd3e1e189e9dab81ddd26",
+        "_Footer.md": "0dd31498e56e6eb324c134af448ab8e78a755e234d3a48bf29b68e76117b93fc"
+    }
+}

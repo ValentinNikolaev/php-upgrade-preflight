@@ -3,6 +3,3 @@ contact_links:
   - name: Security vulnerability
     url: https://github.com/ValentinNikolaev/php-upgrade-preflight/security/advisories/new
     about: Report vulnerabilities privately through GitHub Security Advisories.
-  - name: Commercial license request
-    url: https://docs.google.com/forms/d/e/1FAIpQLSfUlJJnSoqgUuJnKUCGzQQpIeXZtz471iD_XiPTjdnODbooYw/viewform
-    about: Request terms for commercial use of PHP Upgrade Preflight.

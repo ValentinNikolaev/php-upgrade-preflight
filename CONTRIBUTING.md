@@ -2,15 +2,15 @@
 
 Contributions should keep target projects immutable, report uncertainty explicitly, and preserve the separation between generic core logic and framework adapters.
 
-PHP Upgrade Preflight is a source-available public beta, not an Open Source project. Noncommercial use is permitted under the repository's [PolyForm Noncommercial License 1.0.0](LICENSE); commercial use requires a separate license. Contributions do not change that licensing model. See [Project status and licensing](docs/project-status.md) before contributing.
+PHP Upgrade Preflight is an Open Source public beta under the [MIT License](LICENSE). See [Project status and licensing](docs/project-status.md) before contributing.
 
 ## Accepted contributions
 
-Documentation-only contributions are welcome. They must be limited to explanatory prose and documentation examples and must not change source code, tests, fixtures, workflows, package or build metadata, generated files, or runtime behavior.
+Code, test, fixture, and documentation contributions are welcome. By contributing, you agree that your contribution is licensed under the repository's [MIT License](LICENSE), the same license that covers the project (inbound=outbound). No contributor license agreement is required, and you must have the right to submit the work under that license.
 
-External code contributions are not currently accepted. This temporary policy remains in place until the copyright holder adopts a legally reviewed contributor license agreement or another inbound license grant that supports the project's licensing model. Please do not submit implementation patches or other code-bearing pull requests; maintainers may close them without review.
+Before starting a large change, open an issue first to confirm the direction. Contributions must keep the non-negotiable product rules intact: analyzed projects stay immutable, findings stay evidence-backed, JSON stays canonical, and the core stays framework-neutral.
 
-Bug reports and product feedback remain welcome through [GitHub issues](https://github.com/ValentinNikolaev/php-upgrade-preflight/issues). A bug report does not authorize a code contribution. Report security vulnerabilities privately through [the security policy](SECURITY.md), not through an issue or pull request.
+Bug reports and product feedback are welcome through [GitHub issues](https://github.com/ValentinNikolaev/php-upgrade-preflight/issues). Report security vulnerabilities privately through [the security policy](SECURITY.md), not through an issue or pull request.
 
 ## Set up the repository
 
@@ -100,9 +100,10 @@ Keep existing schema files immutable. A breaking or additive report-shape change
 
 ## Pull requests
 
-- Open pull requests only for documentation-only changes allowed by the [accepted-contributions policy](#accepted-contributions).
-- Check links, commands, version claims, and examples in the changed documentation.
-- Run the relevant documentation and policy checks before opening the pull request.
+- Keep each pull request focused on one coherent change, with tests for every behavior change.
+- Update every affected public document — `README.md`, `docs/`, `CHANGELOG.md` — in the same pull request when behavior, commands, report semantics, or supported versions change.
+- Run the narrowest relevant checks during development and `composer check` before opening the pull request.
+- Check links, commands, version claims, and examples in any changed documentation.
 - Do not commit preserved debug workspaces, generated reports, credentials, or unrelated formatting changes.
 
 Report security issues through [SECURITY.md](SECURITY.md), not a public issue.

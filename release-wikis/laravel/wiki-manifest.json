@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "destination_repository": "ValentinNikolaev/php-upgrade-preflight-laravel",
+  "purpose": "Laravel adapter and Artisan documentation",
+  "pages": [
+    {"source": "wiki/Laravel-Package-Internals.md", "destination": "Home.md"},
+    {"source": "wiki/Getting-Started.md", "destination": "Getting-Started.md"},
+    {"source": "wiki/Artisan-Command.md", "destination": "Artisan-Command.md"},
+    {"source": "wiki/Laravel-Adapter-Internals.md", "destination": "Laravel-Adapter-Internals.md"},
+    {"source": "wiki/Key-Concepts.md", "destination": "Key-Concepts.md"},
+    {"source": "wiki/Safety-and-Trust-Boundaries.md", "destination": "Safety-and-Trust-Boundaries.md"},
+    {"source": "wiki/Troubleshooting-and-FAQ.md", "destination": "Troubleshooting-and-FAQ.md"},
+    {"source": "wiki/Roadmap-and-Status.md", "destination": "Roadmap-and-Status.md"}
+  ],
+  "sidebar": [
+    "Home", "Getting-Started", "Artisan-Command", "Laravel-Adapter-Internals",
+    "Key-Concepts", "Safety-and-Trust-Boundaries", "Troubleshooting-and-FAQ",
+    "Roadmap-and-Status"
+  ],
+  "footer": "PHP Upgrade Preflight Laravel package Wiki"
+}

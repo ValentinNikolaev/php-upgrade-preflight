@@ -1,7 +1,7 @@
 # PHP Upgrade Preflight
 
 > [!IMPORTANT]
-> **Project status: Public beta.** PHP Upgrade Preflight is source-available software, free for noncommercial use under the [PolyForm Noncommercial License 1.0.0](LICENSE). Commercial use requires a separate license. It is not distributed as Open Source.
+> **Project status: Public beta.** PHP Upgrade Preflight is Open Source software under the [MIT License](LICENSE), free for commercial and noncommercial use.
 
 PHP Upgrade Preflight analyzes Composer-based PHP upgrades before you change the target project. It copies `composer.json` and `composer.lock` into temporary workspaces, runs isolated Composer scenarios, scans source files, and produces a canonical JSON report or a Markdown projection.
 
@@ -138,6 +138,6 @@ docker compose run --rm php composer check
 
 `composer check` is the offline, deterministic gate: it validates every package manifest, runs the unit, integration, and smoke PHPUnit suites, performs static analysis, and checks formatting. Live compatibility installs and dependency audits run in separate workflows. See [CONTRIBUTING.md](CONTRIBUTING.md) for the documented `test:unit`, `test:integration`, `test:smoke`, and `test:all` commands, focused package tests, and snapshot updates.
 
-## License and commercial use
+## License
 
-Copyright 2026 Valentin Nikolaev. PHP Upgrade Preflight is source-available software, free for noncommercial use under the [PolyForm Noncommercial License 1.0.0](LICENSE). Commercial use requires a separate license from the copyright holder. [Request a commercial license](https://docs.google.com/forms/d/e/1FAIpQLSfUlJJnSoqgUuJnKUCGzQQpIeXZtz471iD_XiPTjdnODbooYw/viewform). The project is not distributed as Open Source. The license text controls if this summary and the license differ.
+Copyright 2026 Valentin Nikolaev. PHP Upgrade Preflight is Open Source software licensed under the [MIT License](LICENSE). Releases up to and including v0.3.1 were published under the PolyForm Noncommercial License 1.0.0 and remain governed by the license they shipped with; the MIT License applies to this repository and to every release published after v0.3.1. The license text controls if this summary and the license differ.

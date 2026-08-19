@@ -1,11 +1,11 @@
 name: Product feedback
-description: Share product or documentation feedback without submitting code.
+description: Share product or documentation feedback.
 title: "[Feedback]: "
 body:
   - type: markdown
     attributes:
       value: |
-        Product and documentation feedback is welcome. External code contributions are not currently accepted. Do not include credentials, private source code, security vulnerability details, or other sensitive information. Report security vulnerabilities privately through the [repository security policy](https://github.com/ValentinNikolaev/php-upgrade-preflight/blob/main/SECURITY.md).
+        Product and documentation feedback is welcome. Do not include credentials, private source code, security vulnerability details, or other sensitive information. Report security vulnerabilities privately through the [repository security policy](https://github.com/ValentinNikolaev/php-upgrade-preflight/blob/main/SECURITY.md).
   - type: dropdown
     id: area
     attributes:

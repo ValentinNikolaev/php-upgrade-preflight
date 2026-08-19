@@ -15,11 +15,18 @@ final class ReleaseWorkflowTest extends TestCase
 
         self::assertStringContainsString('tag_object_type', $workflow);
         self::assertStringContainsString('.verification.verified', $workflow);
-        self::assertStringContainsString('git merge-base --is-ancestor', $workflow);
         self::assertStringContainsString("release_branch='main'", $workflow);
         self::assertStringContainsString("release_branch='0.1.x'", $workflow);
         self::assertStringContainsString("release_branch='0.2.x'", $workflow);
-        self::assertStringContainsString('refs/remotes/origin/${release_branch}', $workflow);
+        self::assertStringContainsString(
+            'repos/${GITHUB_REPOSITORY}/compare/${tag_commit}...${branch_commit}',
+            $workflow
+        );
+        self::assertStringContainsString(
+            "if [[ \"\${comparison}\" != 'ahead' && \"\${comparison}\" != 'identical' ]]; then",
+            $workflow
+        );
+        self::assertStringContainsString('is not on the approved ${release_branch} release line.', $workflow);
     }
 
     public function testOnlyATagPushCanEnterTagVerificationAndPublication(): void
@@ -28,8 +35,10 @@ final class ReleaseWorkflowTest extends TestCase
         $tagPushCondition = "github.event_name == 'push' && github.ref_type == 'tag'";
 
         self::assertStringContainsString('if: ' . $tagPushCondition, $workflow);
+        self::assertStringContainsString('release_version="${GITHUB_REF_NAME#v}"', $workflow);
+        self::assertStringContainsString('Release push authorization requires a tag ref.', $workflow);
         self::assertStringContainsString(
-            "RELEASE_VERSION: \${{ {$tagPushCondition} && github.ref_name || inputs.version }}",
+            'RELEASE_VERSION: ${{ needs.authorize.outputs.release_version }}',
             $workflow
         );
         self::assertStringNotContainsString("if: github.ref_type == 'tag'", $workflow);

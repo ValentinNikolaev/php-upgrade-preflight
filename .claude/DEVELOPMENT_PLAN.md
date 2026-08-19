@@ -2,7 +2,7 @@
 
 Last updated: 2026-08-18
 
-- Released baseline: `0.3.0` (published 2026-08-18)
+- Released baseline: `0.3.1` (published 2026-08-18)
 - Released report schema: `0.8`
 - Active development target: `0.4.0`
 - Planned v0.4 report schema: `0.9`
@@ -38,9 +38,9 @@ Schemas `0.2` through `0.8` and every signed compatibility artifact remain immut
 
 `0.3.x` is supported until v0.4.0 is published: security fixes, regressions, dependency maintenance, documentation corrections, and release-process repairs, prepared from its own protected branch. At the moment v0.4.0 publishes, `0.3.x` becomes archival on the same terms as `0.2.x` and `0.1.x` — signed artifacts and schemas stay available and immutable, and the line receives nothing further, security fixes included. That is exactly what happened to `0.2.x` when v0.3.0 shipped, and the public pages state it.
 
-## Released v0.3.0 Baseline
+## Released v0.3.x Baseline
 
-The published baseline is documented in the [v0.3.0 release notes](../docs/releases/v0.3.0.md) and the [v0.3 contract](../docs/v0.3-contract.md).
+The published baseline is documented in the [v0.3.0 release notes](../docs/releases/v0.3.0.md), the [v0.3.1 release notes](../docs/releases/v0.3.1.md), and the [v0.3 contract](../docs/v0.3-contract.md).
 
 - Schema `0.8` carries required `staged_resolution`, Composer execution provenance, target-platform-profile projections, adjacent stage attempts, candidate-state fingerprints, and blocker lifecycle history.
 - Laravel guidance covers 7 to 8, the retained direct 7 to 9 path, and every adjacent hop from 8 to 9 through 12 to 13, with real Composer evidence per contiguous stage.
@@ -48,6 +48,7 @@ The published baseline is documented in the [v0.3.0 release notes](../docs/relea
 - Vocabularies that reach the report — severity, confidence, blocker type, solver relation — have single owners and validate at construction.
 - Excerpt truncation and redaction failure are visible in canonical output, closing the last open finding of the 2026-08-16 architecture audit.
 - v0.3.0 was published from `main` at `3959b0fe` through release run 32136742538, with verified signed tags in four repositories, byte-compared distribution payloads, checksum-bound archives, and a published-package quick start that left the analyzed fixture unchanged.
+- v0.3.1 followed on the same day from `83a9ba2f` through release run 32178181503. It reports tool `0.3.1` on unchanged schema `0.8`, makes excerpt truncation and redaction failure visible, and replaces the pre-publication documentation the v0.3.0 packages had shipped with.
 
 ## v0.4 Evidence and Gap Map
 

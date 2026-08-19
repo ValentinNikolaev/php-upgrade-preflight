@@ -9,6 +9,16 @@ final class ReleaseVerifier
     private const ACTIVE_RELEASE_SERIES = '0.3';
     private const ACTIVE_SCHEMA_VERSION = '0.8';
 
+    private const WIKI_EVIDENCE_SCHEMA_VERSION = 1;
+
+    /** @var array<string, string> */
+    private const WIKI_DESTINATIONS = [
+        'common' => 'ValentinNikolaev/php-upgrade-preflight',
+        'core' => 'ValentinNikolaev/php-upgrade-preflight-core',
+        'cli' => 'ValentinNikolaev/php-upgrade-preflight-cli',
+        'laravel' => 'ValentinNikolaev/php-upgrade-preflight-laravel',
+    ];
+
     /** @var array<string, string> */
     private const PACKAGE_NAMES = [
         'core' => 'php-upgrade-preflight/core',
@@ -123,6 +133,7 @@ final class ReleaseVerifier
         $this->verifyReportMetadata($version, $errors);
         $this->verifyChangelog($version, $errors);
         $this->verifyReleaseNotes($version, $errors);
+        $this->verifyWikiEvidence($version, $errors);
 
         return $errors;
     }
@@ -228,6 +239,202 @@ final class ReleaseVerifier
         $body = is_array($lines) ? trim(implode("\n", array_slice($lines, 1))) : '';
         if ($body === '') {
             $errors[] = sprintf('release notes must contain content after the heading: %s', $path);
+        }
+
+        $evidenceFile = 'v' . $version . '-wiki-evidence.json';
+        if (!str_contains($notes, '](' . $evidenceFile . ')')) {
+            $errors[] = sprintf(
+                'release notes must link machine-readable Wiki evidence %s',
+                $evidenceFile
+            );
+        }
+    }
+
+    /** @param list<string> $errors */
+    private function verifyWikiEvidence(string $version, array &$errors): void
+    {
+        $path = $this->root . '/docs/releases/v' . $version . '-wiki-evidence.json';
+        $evidence = $this->readJson($path, $errors);
+        if ($evidence === []) {
+            return;
+        }
+
+        $this->verifyExactKeys(
+            'Wiki evidence root',
+            ['$schema', 'schema_version', 'evidence_mode', 'release', 'materialization_gate', 'destinations'],
+            $evidence,
+            $errors
+        );
+
+        $this->expectSame(
+            'Wiki evidence schema_version',
+            (string) self::WIKI_EVIDENCE_SCHEMA_VERSION,
+            isset($evidence['schema_version']) ? (string) $evidence['schema_version'] : null,
+            $errors
+        );
+        $this->expectSame(
+            'Wiki evidence $schema',
+            'wiki-evidence.schema.json',
+            $evidence['$schema'] ?? null,
+            $errors
+        );
+        $this->expectSame(
+            'Wiki evidence evidence_mode',
+            'release-candidate',
+            $evidence['evidence_mode'] ?? null,
+            $errors
+        );
+        $this->expectSame('Wiki evidence release', $version, $evidence['release'] ?? null, $errors);
+        $this->expectSame(
+            'Wiki evidence materialization_gate',
+            'php tools/materialize-release-wikis.php --check',
+            $evidence['materialization_gate'] ?? null,
+            $errors
+        );
+
+        $destinations = $evidence['destinations'] ?? null;
+        if (!is_array($destinations) || $destinations !== array_values($destinations)) {
+            $errors[] = 'Wiki evidence destinations must be a JSON array containing all four Wiki sets';
+
+            return;
+        }
+
+        $seen = [];
+        foreach ($destinations as $index => $destination) {
+            if (!is_array($destination)) {
+                $errors[] = sprintf('Wiki evidence destinations[%d] must be an object', $index);
+
+                continue;
+            }
+
+            $set = $destination['set'] ?? null;
+            if (!is_string($set) || !array_key_exists($set, self::WIKI_DESTINATIONS)) {
+                $errors[] = sprintf('Wiki evidence destinations[%d] has unknown set %s', $index, var_export($set, true));
+
+                continue;
+            }
+            if (isset($seen[$set])) {
+                $errors[] = sprintf('Wiki evidence contains duplicate %s destination', $set);
+
+                continue;
+            }
+            $seen[$set] = true;
+
+            $this->verifyExactKeys(
+                sprintf('Wiki evidence %s destination', $set),
+                ['set', 'destination_repository', 'wiki_repository', 'manifest', 'result'],
+                $destination,
+                $errors
+            );
+
+            $repository = self::WIKI_DESTINATIONS[$set];
+            $this->expectSame(
+                sprintf('Wiki evidence %s destination_repository', $set),
+                $repository,
+                $destination['destination_repository'] ?? null,
+                $errors
+            );
+            $this->expectSame(
+                sprintf('Wiki evidence %s wiki_repository', $set),
+                'https://github.com/' . $repository . '.wiki.git',
+                $destination['wiki_repository'] ?? null,
+                $errors
+            );
+            $this->expectSame(
+                sprintf('Wiki evidence %s manifest', $set),
+                'release-wikis/' . $set . '/wiki-manifest.json',
+                $destination['manifest'] ?? null,
+                $errors
+            );
+            $this->verifyWikiPublicationResult($set, $destination['result'] ?? null, $errors);
+        }
+
+        foreach (array_keys(self::WIKI_DESTINATIONS) as $set) {
+            if (!isset($seen[$set])) {
+                $errors[] = sprintf('Wiki evidence is missing required %s destination', $set);
+            }
+        }
+    }
+
+    /** @param list<string> $errors */
+    private function verifyWikiPublicationResult(string $set, mixed $result, array &$errors): void
+    {
+        if (!is_array($result)) {
+            $errors[] = sprintf('Wiki evidence %s result must be an object', $set);
+
+            return;
+        }
+
+        $status = $result['status'] ?? null;
+        if ($status === 'published') {
+            $this->verifyExactKeys(
+                sprintf('Wiki evidence %s published result', $set),
+                ['status', 'wiki_commit'],
+                $result,
+                $errors
+            );
+            $this->verifyCommitSha(
+                sprintf('Wiki evidence %s wiki_commit', $set),
+                $result['wiki_commit'] ?? null,
+                $errors
+            );
+
+            return;
+        }
+
+        if ($status === 'unchanged-after-review') {
+            $this->verifyExactKeys(
+                sprintf('Wiki evidence %s unchanged result', $set),
+                ['status', 'reviewed_remote_commit', 'inventory_check'],
+                $result,
+                $errors
+            );
+            $this->verifyCommitSha(
+                sprintf('Wiki evidence %s reviewed_remote_commit', $set),
+                $result['reviewed_remote_commit'] ?? null,
+                $errors
+            );
+            $this->expectSame(
+                sprintf('Wiki evidence %s inventory_check', $set),
+                'passed',
+                $result['inventory_check'] ?? null,
+                $errors
+            );
+
+            return;
+        }
+
+        $errors[] = sprintf(
+            'Wiki evidence %s result status must be published or unchanged-after-review; found %s',
+            $set,
+            var_export($status, true)
+        );
+    }
+
+    /** @param list<string> $expected
+     * @param array<string, mixed> $actual
+     * @param list<string> $errors
+     */
+    private function verifyExactKeys(string $label, array $expected, array $actual, array &$errors): void
+    {
+        $keys = array_keys($actual);
+        sort($expected);
+        sort($keys);
+        if ($keys !== $expected) {
+            $errors[] = sprintf(
+                '%s must contain exactly [%s]; found [%s]',
+                $label,
+                implode(', ', $expected),
+                implode(', ', $keys)
+            );
+        }
+    }
+
+    /** @param list<string> $errors */
+    private function verifyCommitSha(string $label, mixed $value, array &$errors): void
+    {
+        if (!is_string($value) || preg_match('/^[0-9a-f]{40}$/', $value) !== 1) {
+            $errors[] = sprintf('%s must be a full lowercase 40-character Git SHA', $label);
         }
     }
 

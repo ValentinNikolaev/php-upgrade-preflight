@@ -4,6 +4,19 @@ This project follows [Semantic Versioning](https://semver.org/). Report schema v
 
 ## [Unreleased]
 
+### Added
+
+- Published a public GitHub Pages landing page under `site/`, deployed by its own workflow, with opt-in terminal recordings of the offline demo, an explicit separate-tools-directory install path, and an artifact validator that checks page structure, local references, control contrast, and the licensing and install disclosures before deployment.
+- Added the four-destination release Wiki: canonical pages under `wiki/`, materialized destination copies with per-set manifests and source checksums under `release-wikis/`, and `composer release:wiki:check` wired into `composer check`, so destination copies that drift from their canonical sources fail the gate.
+- Added three reproducible VHS recordings of the offline demo beside the existing staged-upgrade recording: the evidence walk from a staged blocker to its Composer command and solver output, the recursive-digest immutability proof, and the Markdown projection.
+
+### Changed
+
+- Relicensed the project from PolyForm Noncommercial 1.0.0 to the MIT License across the license file, all published package manifests, and public documentation. Releases up to and including v0.3.1 remain governed by the license they shipped with; the MIT License applies to the repository and to every release published after v0.3.1. The commercial-license request form is retired.
+- Opened external code, test, and fixture contributions under the inbound=outbound model: contributions are licensed under the same MIT License, with no contributor license agreement. The former documentation-only contribution policy is retired from the contributing guide, pull-request template, and issue forms.
+- Restructured the release workflow around an authorization job that validates the release event, normalizes the version once for every later job, and verifies the signed annotated tag and its approved release line through the GitHub API instead of a local ancestry check. The workflow can now also be called by another workflow to verify and package a version without publishing it.
+- Made a Wiki update mandatory for any change that creates, prepares, or changes a release tag, and required the same change to refresh every release-pinned string on the public site.
+
 ## [0.3.1] - 2026-08-18
 
 ### Fixed

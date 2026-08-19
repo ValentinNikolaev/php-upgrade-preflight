@@ -11,6 +11,12 @@ on:
         required: true
         default: 0.3.0
         type: string
+  workflow_call:
+    inputs:
+      version:
+        description: Exact v0.3 release version to verify and package without publishing
+        required: true
+        type: string
 
 concurrency:
   group: release-${{ github.ref }}
@@ -20,27 +26,49 @@ permissions:
   contents: read
 
 jobs:
-  quality:
-    name: Release metadata gate
+  authorize:
+    name: Authorize release source
     runs-on: ubuntu-latest
-    env:
-      RELEASE_VERSION: ${{ github.event_name == 'push' && github.ref_type == 'tag' && github.ref_name || inputs.version }}
+    outputs:
+      release_version: ${{ steps.version.outputs.release_version }}
     steps:
-      - name: Check out repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          fetch-depth: 0
-
-      - name: Normalize tag version
-        if: github.event_name == 'push' && github.ref_type == 'tag'
+      - name: Normalize and validate release event
+        id: version
         shell: bash
-        run: echo "RELEASE_VERSION=${RELEASE_VERSION#v}" >> "${GITHUB_ENV}"
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+
+          case "${GITHUB_EVENT_NAME}" in
+            push)
+              if [[ "${GITHUB_REF_TYPE}" != 'tag' ]]; then
+                echo 'Release push authorization requires a tag ref.' >&2
+                exit 1
+              fi
+              release_version="${GITHUB_REF_NAME#v}"
+              ;;
+            workflow_dispatch|workflow_call)
+              release_version="${INPUT_VERSION}"
+              ;;
+            *)
+              echo "Unsupported release event: ${GITHUB_EVENT_NAME}" >&2
+              exit 1
+              ;;
+          esac
+
+          if [[ ! "${release_version}" =~ ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]; then
+            echo "Invalid release version: ${release_version}" >&2
+            exit 1
+          fi
+          echo "release_version=${release_version}" >> "${GITHUB_OUTPUT}"
 
       - name: Verify signed release tag from approved release line
         if: github.event_name == 'push' && github.ref_type == 'tag'
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
+          RELEASE_VERSION: ${{ steps.version.outputs.release_version }}
         run: |
           set -euo pipefail
 
@@ -66,12 +94,25 @@ jobs:
             release_branch='0.2.x'
           fi
 
-          git fetch --no-tags origin "+refs/heads/${release_branch}:refs/remotes/origin/${release_branch}"
-          tag_commit="$(git rev-parse "${GITHUB_REF_NAME}^{commit}")"
-          if ! git merge-base --is-ancestor "${tag_commit}" "refs/remotes/origin/${release_branch}"; then
+          tag_commit="$(gh api "repos/${GITHUB_REPOSITORY}/git/tags/${tag_object_sha}" --jq '.object.sha')"
+          branch_commit="$(gh api "repos/${GITHUB_REPOSITORY}/git/ref/heads/${release_branch}" --jq '.object.sha')"
+          comparison="$(gh api "repos/${GITHUB_REPOSITORY}/compare/${tag_commit}...${branch_commit}" --jq '.status')"
+          if [[ "${comparison}" != 'ahead' && "${comparison}" != 'identical' ]]; then
             echo "Release tag ${GITHUB_REF_NAME} is not on the approved ${release_branch} release line." >&2
             exit 1
           fi
+
+  quality:
+    name: Release metadata gate
+    needs: authorize
+    runs-on: ubuntu-latest
+    env:
+      RELEASE_VERSION: ${{ needs.authorize.outputs.release_version }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
 
       - name: Set up PHP 8.0
         uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
@@ -84,23 +125,27 @@ jobs:
         with:
           composer-options: --prefer-dist --no-progress
 
-      - name: Verify release metadata
-        run: php tools/verify-release.php "$RELEASE_VERSION"
+      - name: Verify release metadata, Wiki trees, and Wiki evidence
+        run: composer release:verify -- "$RELEASE_VERSION"
 
   runtime-quality:
     name: Supported runtime quality
+    needs: authorize
     uses: ./.github/workflows/quality.yml
 
   compatibility:
     name: Dependency compatibility
+    needs: authorize
     uses: ./.github/workflows/compatibility.yml
 
   dependency-audit:
     name: Dependency vulnerability gate
+    needs: authorize
     uses: ./.github/workflows/security.yml
 
   distribution-preflight:
     name: Matching distribution tags
+    needs: authorize
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -150,9 +195,10 @@ jobs:
 
   fresh-clone-audit:
     name: Fresh clone / ${{ matrix.os }}
+    needs: authorize
     runs-on: ${{ matrix.os }}
     env:
-      RELEASE_VERSION: ${{ github.event_name == 'push' && github.ref_type == 'tag' && github.ref_name || inputs.version }}
+      RELEASE_VERSION: ${{ needs.authorize.outputs.release_version }}
     strategy:
       fail-fast: false
       matrix:
@@ -260,6 +306,7 @@ jobs:
   package:
     name: Build release archives
     needs:
+      - authorize
       - quality
       - runtime-quality
       - compatibility
@@ -268,15 +315,10 @@ jobs:
       - fresh-clone-audit
     runs-on: ubuntu-latest
     env:
-      RELEASE_VERSION: ${{ github.event_name == 'push' && github.ref_type == 'tag' && github.ref_name || inputs.version }}
+      RELEASE_VERSION: ${{ needs.authorize.outputs.release_version }}
     steps:
       - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      - name: Normalize tag version
-        if: github.event_name == 'push' && github.ref_type == 'tag'
-        shell: bash
-        run: echo "RELEASE_VERSION=${RELEASE_VERSION#v}" >> "${GITHUB_ENV}"
 
       - name: Set up PHP
         uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
@@ -336,6 +378,7 @@ jobs:
   artifact-consumer:
     name: Install and exercise release archives / ${{ matrix.os }}
     needs:
+      - authorize
       - package
     runs-on: ${{ matrix.os }}
     strategy:
@@ -345,15 +388,10 @@ jobs:
           - ubuntu-latest
           - windows-latest
     env:
-      RELEASE_VERSION: ${{ github.event_name == 'push' && github.ref_type == 'tag' && github.ref_name || inputs.version }}
+      RELEASE_VERSION: ${{ needs.authorize.outputs.release_version }}
     steps:
       - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      - name: Normalize tag version
-        if: github.event_name == 'push' && github.ref_type == 'tag'
-        shell: bash
-        run: echo "RELEASE_VERSION=${RELEASE_VERSION#v}" >> "${GITHUB_ENV}"
 
       - name: Set up PHP
         uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2

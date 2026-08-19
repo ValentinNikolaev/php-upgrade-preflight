@@ -7,6 +7,7 @@ on:
     paths:
       - 'site/**'
       - 'examples/five-minute-demo/*.gif'
+      - 'tools/tests/verify-pages-site.py'
       - '.github/workflows/pages.yml'
   workflow_dispatch:
 
@@ -33,6 +34,9 @@ jobs:
 
       - name: Stage demo recordings
         run: cp examples/five-minute-demo/*.gif site/assets/
+
+      - name: Validate Pages artifact
+        run: python3 tools/tests/verify-pages-site.py --site-root site
 
       - name: Configure Pages
         uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0

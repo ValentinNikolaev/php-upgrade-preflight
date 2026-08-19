@@ -1,15 +1,15 @@
-# Documentation-only contribution
+# Contribution
 
-PHP Upgrade Preflight currently accepts documentation-only contributions. External code contributions are not currently accepted. This temporary policy remains in place until the copyright holder adopts a legally reviewed contributor license agreement or another suitable inbound license grant. See the [contribution policy](https://github.com/ValentinNikolaev/php-upgrade-preflight/blob/main/CONTRIBUTING.md#accepted-contributions) before submitting.
-
-Pull requests that change source code, tests, fixtures, workflows, package or build metadata, generated files, or runtime behavior may be closed without review. Report bugs and product feedback through GitHub issues. Report security vulnerabilities privately through the [security policy](https://github.com/ValentinNikolaev/php-upgrade-preflight/blob/main/SECURITY.md).
+PHP Upgrade Preflight accepts code, test, fixture, and documentation contributions under the [MIT License](https://github.com/ValentinNikolaev/php-upgrade-preflight/blob/main/LICENSE) (inbound=outbound). See the [contribution policy](https://github.com/ValentinNikolaev/php-upgrade-preflight/blob/main/CONTRIBUTING.md#accepted-contributions) before submitting. Report security vulnerabilities privately through the [security policy](https://github.com/ValentinNikolaev/php-upgrade-preflight/blob/main/SECURITY.md), not through a pull request.
 
 ## Summary
 
-<!-- Explain the documentation problem and the proposed clarification. -->
+<!-- Explain the problem and the proposed change. -->
 
 ## Checklist
 
-- [ ] This pull request changes documentation only and does not change runtime behavior.
+- [ ] Behavior changes include tests, and `composer check` passes locally.
+- [ ] Affected public documentation (`README.md`, `docs/`, `CHANGELOG.md`) is updated in this pull request.
+- [ ] Analyzed-project immutability, evidence-backed findings, canonical JSON, and framework-neutral core are preserved.
 - [ ] I have not included credentials, private source code, vulnerability details, or other sensitive information.
-- [ ] Links, commands, version claims, and examples in the changed documentation have been checked.
+- [ ] I agree that this contribution is licensed under the repository's MIT License.

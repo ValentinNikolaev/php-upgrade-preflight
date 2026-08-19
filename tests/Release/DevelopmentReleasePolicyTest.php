@@ -7,6 +7,7 @@ namespace PhpUpgradePreflight\Tests\Release;
 use PhpUpgradePreflight\Core\Model\ReportMetadata;
 use PhpUpgradePreflight\Tools\ReleaseVerifier;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Yaml\Yaml;
 
 require_once dirname(__DIR__, 2) . '/tools/ReleaseVerifier.php';
 
@@ -69,6 +70,67 @@ final class DevelopmentReleasePolicyTest extends TestCase
         self::assertStringContainsString('!== "0.8"', $workflow);
     }
 
+    public function testReleaseAuthorizationRunsTheOfflineWikiGate(): void
+    {
+        $composer = $this->readJson($this->root . '/composer.json');
+        self::assertSame(
+            'php tools/materialize-release-wikis.php --check',
+            $composer['scripts']['release:wiki:check']
+        );
+        self::assertSame('php tools/verify-release.php', $composer['scripts']['release:verify']);
+        self::assertContains('@release:wiki:check', $composer['scripts']['check']);
+
+        $entryPoint = $this->read($this->root . '/tools/verify-release.php');
+        $wikiCheck = strpos($entryPoint, "'/materialize-release-wikis.php'");
+        $metadataCheck = strpos($entryPoint, 'new PhpUpgradePreflight\\Tools\\ReleaseVerifier');
+        self::assertNotFalse($wikiCheck);
+        self::assertNotFalse($metadataCheck);
+        self::assertLessThan($metadataCheck, $wikiCheck);
+
+        $workflowSource = $this->read($this->root . '/.github/workflows/release.yml');
+        $workflow = Yaml::parse($workflowSource);
+        self::assertIsArray($workflow);
+        $jobs = $workflow['jobs'] ?? null;
+        self::assertIsArray($jobs);
+        $authorize = $jobs['authorize'] ?? null;
+        self::assertIsArray($authorize);
+        self::assertArrayNotHasKey('needs', $authorize);
+        self::assertSame(
+            '${{ steps.version.outputs.release_version }}',
+            $authorize['outputs']['release_version'] ?? null
+        );
+
+        $authorizationDefinition = json_encode($authorize, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES);
+        self::assertStringContainsString('gh api', $authorizationDefinition);
+        self::assertStringContainsString('/compare/${tag_commit}...${branch_commit}', $authorizationDefinition);
+        self::assertStringNotContainsString('actions/checkout', $authorizationDefinition);
+        self::assertStringNotContainsString('composer ', $authorizationDefinition);
+        self::assertStringNotContainsString('php ', $authorizationDefinition);
+        self::assertStringContainsString('workflow_dispatch|workflow_call', $authorizationDefinition);
+
+        foreach (array_keys($jobs) as $jobName) {
+            self::assertIsString($jobName);
+            if ($jobName === 'authorize') {
+                continue;
+            }
+            self::assertTrue(
+                $this->hasDependencyPath($jobs, $jobName, 'authorize'),
+                sprintf('Release job %s must depend directly or transitively on authorize.', $jobName)
+            );
+        }
+
+        foreach (['quality', 'fresh-clone-audit', 'package', 'artifact-consumer'] as $consumer) {
+            self::assertSame(
+                '${{ needs.authorize.outputs.release_version }}',
+                $jobs[$consumer]['env']['RELEASE_VERSION'] ?? null,
+                sprintf('Release job %s must consume the authorized normalized version.', $consumer)
+            );
+        }
+
+        self::assertStringContainsString('workflow_call:', $workflowSource);
+        self::assertStringContainsString('composer release:verify -- "$RELEASE_VERSION"', $workflowSource);
+    }
+
     public function testLiveReleaseDocumentationAndCoveragePolicyAreSeparateFromV02History(): void
     {
         $checklist = $this->read($this->root . '/docs/release-checklist.md');
@@ -97,6 +159,37 @@ final class DevelopmentReleasePolicyTest extends TestCase
         self::assertIsString($contents);
 
         return $contents;
+    }
+
+    /**
+     * @param array<string, mixed> $jobs
+     * @param list<string>         $path
+     */
+    private function hasDependencyPath(array $jobs, string $jobName, string $target, array $path = []): bool
+    {
+        if (in_array($jobName, $path, true)) {
+            self::fail('Release workflow dependency cycle: ' . implode(' -> ', [...$path, $jobName]));
+        }
+        $job = $jobs[$jobName] ?? null;
+        self::assertIsArray($job, sprintf('Release workflow job %s must be an object.', $jobName));
+        $needs = $job['needs'] ?? [];
+        if (is_string($needs)) {
+            $needs = [$needs];
+        }
+        self::assertIsArray($needs, sprintf('Release workflow job %s needs must be a string or list.', $jobName));
+
+        foreach ($needs as $dependency) {
+            self::assertIsString($dependency);
+            self::assertArrayHasKey($dependency, $jobs);
+            if ($dependency === $target) {
+                return true;
+            }
+            if ($this->hasDependencyPath($jobs, $dependency, $target, [...$path, $jobName])) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /** @return array<string, mixed> */
