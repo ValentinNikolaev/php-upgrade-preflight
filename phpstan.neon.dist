@@ -15,3 +15,8 @@ parameters:
         - tests/Release
         - tests/Support
         - tools
+        # Individual demo scripts, never the examples/ tree: the demo target is
+        # immutable fixture input whose bytes the committed reports fingerprint,
+        # so its PHP files must not be analyzed or rewritten by tooling.
+        - examples/five-minute-demo/regenerate-reports.php
+        - examples/five-minute-demo/summarize-report.php

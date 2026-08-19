@@ -18,7 +18,7 @@
             },
             "type": "metapackage",
             "license": [
-                "PolyForm-Noncommercial-1.0.0"
+                "MIT"
             ],
             "description": "Metadata-only Laravel 10 package for the offline demo.",
             "transport-options": {
@@ -38,7 +38,7 @@
             },
             "type": "metapackage",
             "license": [
-                "PolyForm-Noncommercial-1.0.0"
+                "MIT"
             ],
             "description": "Metadata-only Tinker 2 package for the offline demo.",
             "transport-options": {
@@ -58,7 +58,7 @@
             },
             "type": "metapackage",
             "license": [
-                "PolyForm-Noncommercial-1.0.0"
+                "MIT"
             ],
             "description": "Metadata-only Carbon 2 package for the offline demo.",
             "transport-options": {
@@ -109,7 +109,7 @@
             },
             "type": "metapackage",
             "license": [
-                "PolyForm-Noncommercial-1.0.0"
+                "MIT"
             ],
             "description": "Metadata-only PHPUnit 10 package for the offline demo.",
             "transport-options": {

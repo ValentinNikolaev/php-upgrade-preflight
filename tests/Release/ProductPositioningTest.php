@@ -168,6 +168,28 @@ final class ProductPositioningTest extends TestCase
         }
     }
 
+    public function testFiveMinuteDemoFixturesDeclarePermissiveMetadataLicenses(): void
+    {
+        $manifests = glob($this->root . '/examples/five-minute-demo/repository/*/composer.json') ?: [];
+        $manifests[] = $this->root . '/examples/five-minute-demo/target/composer.json';
+        self::assertCount(14, $manifests, 'The five-minute-demo fixture manifest inventory changed; update this pin deliberately.');
+
+        foreach ($manifests as $path) {
+            $contents = file_get_contents($path);
+            self::assertIsString($contents, sprintf('Unable to read %s.', $path));
+            $manifest = json_decode($contents, true, 512, JSON_THROW_ON_ERROR);
+            self::assertIsArray($manifest);
+            self::assertContains(
+                $manifest['license'] ?? null,
+                ['MIT', 'BSD-3-Clause'],
+                sprintf(
+                    '%s must keep a permissive fixture license; the demo reports embed fingerprints of these bytes.',
+                    $path
+                )
+            );
+        }
+    }
+
     private function expectedMitText(): string
     {
         return <<<'TEXT'

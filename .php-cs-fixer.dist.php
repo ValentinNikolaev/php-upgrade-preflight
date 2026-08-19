@@ -8,7 +8,14 @@ use PhpCsFixer\Finder;
 $finder = Finder::create()
     ->in([__DIR__.'/packages', __DIR__.'/tests/Release', __DIR__.'/tests/Support', __DIR__.'/tools'])
     ->name('*.php')
-    ->append([__DIR__.'/packages/cli/bin/upgrade-intel'])
+    // Individual demo scripts, never the examples/ tree: the demo target is
+    // immutable fixture input whose bytes the committed reports fingerprint, so
+    // its PHP files must not be rewritten by the fixer.
+    ->append([
+        __DIR__.'/packages/cli/bin/upgrade-intel',
+        __DIR__.'/examples/five-minute-demo/regenerate-reports.php',
+        __DIR__.'/examples/five-minute-demo/summarize-report.php',
+    ])
     ->ignoreDotFiles(true)
     ->ignoreVCS(true);
 

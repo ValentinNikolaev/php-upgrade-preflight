@@ -3,7 +3,7 @@
   "description": "Metadata-only Laravel 13 package for the offline demo.",
   "version": "13.0.0",
   "type": "metapackage",
-  "license": "PolyForm-Noncommercial-1.0.0",
+  "license": "MIT",
   "require": {
     "php": "^8.3",
     "ext-preflight-stage": "^2.0"
