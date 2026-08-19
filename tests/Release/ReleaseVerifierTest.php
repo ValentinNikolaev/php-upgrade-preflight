@@ -187,6 +187,12 @@ final class ReleaseVerifierTest extends TestCase
                 "Wiki evidence materialization_gate must be 'php tools/materialize-release-wikis.php --check'",
             ],
             ['missing-wiki-destination', 'Wiki evidence is missing required laravel destination'],
+            [
+                'non-list-wiki-destinations',
+                'Wiki evidence destinations must be a JSON array containing all four Wiki sets',
+            ],
+            ['non-object-wiki-destination', 'Wiki evidence destinations[1] must be an object'],
+            ['non-object-wiki-result', 'Wiki evidence cli result must be an object'],
             ['duplicate-wiki-destination', 'Wiki evidence contains duplicate common destination'],
             ['unknown-wiki-destination', "Wiki evidence destinations[3] has unknown set 'unknown'"],
             [
@@ -397,6 +403,31 @@ final class ReleaseVerifierTest extends TestCase
         if ($case === 'wrong-wiki-materialization-gate') {
             $evidence = $this->readJson($this->root . '/docs/releases/v0.3.0-wiki-evidence.json');
             $evidence['materialization_gate'] = 'skipped';
+            $this->writeJson($this->root . '/docs/releases/v0.3.0-wiki-evidence.json', $evidence);
+
+            return;
+        }
+        if ($case === 'non-list-wiki-destinations') {
+            $evidence = $this->readJson($this->root . '/docs/releases/v0.3.0-wiki-evidence.json');
+            $evidence['destinations'] = ['common' => $evidence['destinations'][0]];
+            $this->writeJson($this->root . '/docs/releases/v0.3.0-wiki-evidence.json', $evidence);
+
+            return;
+        }
+        if ($case === 'non-object-wiki-destination') {
+            $evidence = $this->readJson($this->root . '/docs/releases/v0.3.0-wiki-evidence.json');
+            $evidence['destinations'][1] = 'common';
+            $this->writeJson($this->root . '/docs/releases/v0.3.0-wiki-evidence.json', $evidence);
+
+            return;
+        }
+        if ($case === 'non-object-wiki-result') {
+            $evidence = $this->readJson($this->root . '/docs/releases/v0.3.0-wiki-evidence.json');
+            foreach ($evidence['destinations'] as $index => $destination) {
+                if (($destination['set'] ?? null) === 'cli') {
+                    $evidence['destinations'][$index]['result'] = 'published';
+                }
+            }
             $this->writeJson($this->root . '/docs/releases/v0.3.0-wiki-evidence.json', $evidence);
 
             return;
