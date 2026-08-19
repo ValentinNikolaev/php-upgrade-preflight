@@ -7,14 +7,11 @@ namespace PhpUpgradePreflight\Laravel\Tests\Integration;
 use Opis\JsonSchema\Errors\ErrorFormatter;
 use Opis\JsonSchema\Validator;
 use PhpUpgradePreflight\Core\Analysis\DefaultUpgradeAnalyzer;
-use PhpUpgradePreflight\Core\Model\ComposerExecutionConfiguration;
-use PhpUpgradePreflight\Core\Model\ExtensionAssumption;
-use PhpUpgradePreflight\Core\Model\ReportFormat;
-use PhpUpgradePreflight\Core\Model\UpgradeRequest;
-use PhpUpgradePreflight\Core\Model\UpgradeTarget;
 use PhpUpgradePreflight\Laravel\LaravelFrameworkIntegration;
+use PhpUpgradePreflight\Tests\Support\FiveMinuteDemoAnalysis;
 use PhpUpgradePreflight\Tests\Support\FixtureSnapshot;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Process\Process;
 
 final class FiveMinuteDemoTest extends TestCase
 {
@@ -28,22 +25,8 @@ final class FiveMinuteDemoTest extends TestCase
         putenv('COMPOSER_ROOT_VERSION=1.0.0');
 
         try {
-            $report = (new DefaultUpgradeAnalyzer([new LaravelFrameworkIntegration()]))->analyzeUpgrade(
-                new UpgradeRequest(
-                    $target,
-                    [new UpgradeTarget('laravel/framework', '^13.0')],
-                    '8.1',
-                    '8.3',
-                    [],
-                    ['laravel'],
-                    ReportFormat::JSON,
-                    $this->demoRoot() . '/reports/laravel-10-to-13.json',
-                    false,
-                    [ExtensionAssumption::fromAbsenceInput('ext-preflight-stage')],
-                    null,
-                    ComposerExecutionConfiguration::restricted()
-                )
-            );
+            $report = (new DefaultUpgradeAnalyzer([new LaravelFrameworkIntegration()]))
+                ->analyzeUpgrade(FiveMinuteDemoAnalysis::request());
         } finally {
             $this->restoreEnvironment('COMPOSER_DISABLE_NETWORK', $previousDisableNetwork);
             $this->restoreEnvironment('COMPOSER_ROOT_VERSION', $previousRootVersion);
@@ -240,11 +223,121 @@ final class FiveMinuteDemoTest extends TestCase
         self::assertStringContainsString('--without-extension=ext-preflight-stage', $script);
         self::assertStringContainsString('--composer-mode=restricted', $script);
         self::assertStringContainsString('reports/laravel-10-to-13.json', $script);
-        self::assertStringContainsString('staged_resolution', $script);
+        self::assertStringContainsString('summarize-report.php', $script);
+        self::assertStringContainsString('staged_resolution', $this->read($this->demoRoot() . '/summarize-report.php'));
         self::assertStringContainsString('bash examples/five-minute-demo/run-demo.sh', $tape);
         $gifSize = filesize($this->demoRoot() . '/laravel-10-to-13.gif');
         self::assertIsInt($gifSize);
         self::assertGreaterThan(0, $gifSize);
+    }
+
+    public function testDemoSummarizerExecutesAgainstTheCheckedInReport(): void
+    {
+        $json = FiveMinuteDemoAnalysis::canonicalJsonPath();
+        $process = $this->runSummarizer($json, $json);
+        $output = $process->getOutput() . $process->getErrorOutput();
+
+        self::assertSame(0, $process->getExitCode(), $output);
+        self::assertStringContainsString('Direct final target: BLOCKED', $output);
+        self::assertStringContainsString('Staged resolution:   BLOCKED', $output);
+        self::assertStringContainsString('Stage 10->11: FEASIBLE_WITH_CHANGES', $output);
+        self::assertStringContainsString('Stage 12->13: BLOCKED', $output);
+        self::assertStringContainsString(
+            'Original-source finding: tests/Feature/LegacyCsrfTest.php:',
+            $output
+        );
+        self::assertStringContainsString('VerifyCsrfToken', $output);
+    }
+
+    /**
+     * The summarizer guards the recorded demo against reports that no longer match
+     * the committed evidence. Passing the canonical report as both inputs cannot
+     * exercise those guards, so each case here mutates a copy: a drifting stage is
+     * compared against the canonical report, while a broken source-impact
+     * reference is compared against itself so the projection matches and only the
+     * reference guard can reject it.
+     *
+     * @return iterable<string, array{mutate: callable(array<string, mixed>): array<string, mixed>, compareAgainstCanonical: bool, expected: string}>
+     */
+    public static function summarizerRejectionProvider(): iterable
+    {
+        yield 'stage resolution drifts from the canonical report' => [
+            'mutate' => static function (array $report): array {
+                $report['staged_resolution']['stages'][1]['resolution_status'] = 'blocked';
+
+                return $report;
+            },
+            'compareAgainstCanonical' => true,
+            'expected' => 'differs from the checked-in canonical report',
+        ];
+
+        yield 'final stage references a missing source-impact finding' => [
+            'mutate' => static function (array $report): array {
+                $report['staged_resolution']['stages'][2]['source_impact'] = ['source-impact-does-not-exist'];
+
+                return $report;
+            },
+            'compareAgainstCanonical' => false,
+            'expected' => 'resolvable source-impact finding',
+        ];
+
+        yield 'final stage reports no source impact at all' => [
+            'mutate' => static function (array $report): array {
+                $report['staged_resolution']['stages'][2]['source_impact'] = [];
+
+                return $report;
+            },
+            'compareAgainstCanonical' => false,
+            'expected' => 'resolvable source-impact finding',
+        ];
+    }
+
+    /**
+     * @dataProvider summarizerRejectionProvider
+     * @param callable(array<string, mixed>): array<string, mixed> $mutate
+     */
+    public function testDemoSummarizerRejectsReportsThatLoseTheCanonicalEvidence(
+        callable $mutate,
+        bool $compareAgainstCanonical,
+        string $expected
+    ): void {
+        $canonicalPath = FiveMinuteDemoAnalysis::canonicalJsonPath();
+        /** @var array<string, mixed> $canonical */
+        $canonical = json_decode($this->read($canonicalPath), true, 512, JSON_THROW_ON_ERROR);
+
+        $mutatedPath = tempnam(sys_get_temp_dir(), 'preflight-demo-drift-');
+        self::assertIsString($mutatedPath);
+
+        try {
+            file_put_contents($mutatedPath, json_encode(
+                $mutate($canonical),
+                JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES
+            ));
+
+            $process = $this->runSummarizer(
+                $mutatedPath,
+                $compareAgainstCanonical ? $canonicalPath : $mutatedPath
+            );
+            $output = $process->getOutput() . $process->getErrorOutput();
+
+            self::assertNotSame(0, $process->getExitCode(), $output);
+            self::assertStringContainsString($expected, $output);
+        } finally {
+            unlink($mutatedPath);
+        }
+    }
+
+    private function runSummarizer(string $generatedPath, string $canonicalPath): Process
+    {
+        $process = new Process([
+            PHP_BINARY,
+            FiveMinuteDemoAnalysis::summarizerPath(),
+            $generatedPath,
+            $canonicalPath,
+        ]);
+        $process->run();
+
+        return $process;
     }
 
     /** @param array<string, mixed> $canonical */

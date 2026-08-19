@@ -2,7 +2,7 @@
   "name": "demo/laravel-10-application",
   "description": "Deterministic offline target for the PHP Upgrade Preflight five-minute demo.",
   "type": "project",
-  "license": "PolyForm-Noncommercial-1.0.0",
+  "license": "MIT",
   "repositories": [
     {
       "type": "path",

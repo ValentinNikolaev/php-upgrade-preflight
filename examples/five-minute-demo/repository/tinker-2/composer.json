@@ -3,7 +3,7 @@
   "description": "Metadata-only Tinker 2 package for the offline demo.",
   "version": "2.9.0",
   "type": "metapackage",
-  "license": "PolyForm-Noncommercial-1.0.0",
+  "license": "MIT",
   "require": {
     "php": "^8.1"
   }

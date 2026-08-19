@@ -53,6 +53,37 @@ final class FixtureSnapshot
         }
     }
 
+    /**
+     * Names every fixture file that no longer matches the captured snapshot.
+     *
+     * `assertUnchanged()` is the PHPUnit form of this check. This returns the raw
+     * difference so a plain maintainer script can prove the same read-only
+     * contract without depending on a test case.
+     *
+     * @return list<string>
+     */
+    public function differencesFromDisk(): array
+    {
+        $actualFiles = self::filesIn($this->rootPath);
+        $changed = [];
+
+        foreach ($this->files as $relativePath => $contents) {
+            if (($actualFiles[$relativePath] ?? null) !== $contents) {
+                $changed[] = $relativePath;
+            }
+        }
+
+        foreach (array_keys($actualFiles) as $relativePath) {
+            if (! array_key_exists($relativePath, $this->files)) {
+                $changed[] = $relativePath;
+            }
+        }
+
+        sort($changed);
+
+        return $changed;
+    }
+
     /** @return array<string, string> */
     private static function filesIn(string $rootPath): array
     {
