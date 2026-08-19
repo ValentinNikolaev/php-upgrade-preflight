@@ -34,8 +34,17 @@ named? It checks the active release series, `ReportMetadata::TOOL_VERSION` and
 `SCHEMA_VERSION`, the `MAJOR.MINOR.x-dev` branch aliases and root path-repository
 versions, the `^MAJOR.MINOR` constraints between the three packages, the absence of
 `version` fields in package manifests, a dated `[VERSION]` changelog heading, and a
-release-notes file whose first line names the version. The Release workflow runs it
-as its first gate; run it locally before proposing a release commit.
+release-notes file whose first line names the version. It first runs the offline
+release-Wiki materialization check, then requires the release notes to link a
+machine-readable file that names all four Wiki destinations. Every destination
+must contain a real published Wiki commit SHA, or a reviewed unchanged remote SHA
+with a passed inventory check. Historical baselines and readiness placeholders do
+not authorize releases. The Release workflow runs this combined gate after tag
+trust verification; run it locally before proposing a release commit.
+
+Use `composer release:wiki:check` for only the read-only Wiki-tree validation. Both
+commands are offline; publication to the four `.wiki.git` repositories is a
+separate maintainer step.
 
 ## Distribution repositories
 

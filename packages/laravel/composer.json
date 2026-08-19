@@ -2,7 +2,7 @@
   "name": "php-upgrade-preflight/laravel",
   "description": "Laravel adapter and rules for PHP Upgrade Preflight.",
   "type": "library",
-  "license": "PolyForm-Noncommercial-1.0.0",
+  "license": "MIT",
   "keywords": [
     "composer",
     "dependency-analysis",

@@ -1,11 +1,11 @@
 name: Bug report
-description: Report a reproducible problem without submitting an implementation patch.
+description: Report a reproducible problem.
 title: "[Bug]: "
 body:
   - type: markdown
     attributes:
       value: |
-        Thank you for reporting a problem. External code contributions are not currently accepted. A bug report does not authorize a code contribution. Remove credentials, private source code, and other sensitive information before submitting.
+        Thank you for reporting a problem. Remove credentials, private source code, and other sensitive information before submitting. Pull requests with a fix are also welcome — see the [contribution policy](https://github.com/ValentinNikolaev/php-upgrade-preflight/blob/main/CONTRIBUTING.md).
 
         Report security vulnerabilities privately through the [repository security policy](https://github.com/ValentinNikolaev/php-upgrade-preflight/blob/main/SECURITY.md) instead of this form.
   - type: input

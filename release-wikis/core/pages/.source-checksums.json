@@ -1,0 +1,71 @@
+{
+    "schema_version": 1,
+    "set": "core",
+    "manifest_sha256": "0ebf65f41894ce3d525c04062a4926544cbc6498c3573237ed523d941d2d3691",
+    "pages": [
+        {
+            "source": "wiki/Core-Package-Guide.md",
+            "destination": "Home.md",
+            "source_sha256": "4166c2d6e07fcad0f07f97e9df59e6006ec2501bb819bd0bb149cce7c82561af",
+            "materialized_sha256": "50ac48779d794333779b85586335ce700fde870ff0fd14e2fb4811ae2ff9cd42"
+        },
+        {
+            "source": "wiki/Core-Service-Reference.md",
+            "destination": "Core-Service-Reference.md",
+            "source_sha256": "062fa0f37e20a08c2de3c5c7f04ee60733c502706442f7c0e5cb00f0a542b320",
+            "materialized_sha256": "26cff4d935b647811f17d60ebbca5a0e3d36360cef106347f4d0503fac71ccf5"
+        },
+        {
+            "source": "wiki/Core-Analysis-Pipeline.md",
+            "destination": "Core-Analysis-Pipeline.md",
+            "source_sha256": "ef4fea09c0fbf74bf6cc8b0fe6f658ed13a1090e2c70bf4a90717c8bbb52de88",
+            "materialized_sha256": "f77a9f7b717355fe104f9158e6e58940be6195a77c6b9ffc031fbfe067c67488"
+        },
+        {
+            "source": "wiki/Key-Concepts.md",
+            "destination": "Key-Concepts.md",
+            "source_sha256": "f527127a5826e7e983867aeb680f816d78dcef2a95d23dee2c2182eb8b4c5453",
+            "materialized_sha256": "bd2e5f7a86e2431a6178a53ff83278ce3a63ee66bb6d37ba601e86bd43430120"
+        },
+        {
+            "source": "wiki/Architecture-Overview.md",
+            "destination": "Architecture-Overview.md",
+            "source_sha256": "bd0a505e02bad58d6e58d48ce9e3ef3c51cee7c2b8bff0bbf61700339be776b6",
+            "materialized_sha256": "411b1a2544cc381228166fefe8acfd9de641a5941b98719478b9485379adb6ed"
+        },
+        {
+            "source": "wiki/Writing-a-Framework-Adapter.md",
+            "destination": "Writing-a-Framework-Adapter.md",
+            "source_sha256": "30fce1eee1ac0ec19a96db9b9fd2e4a64248cabfcd4d6e445eb0dd7297f5e31b",
+            "materialized_sha256": "8bb8562c09af65d3fab6cfc94b8051962a7bb26aaed251b1b14f7e0fe4baa349"
+        },
+        {
+            "source": "wiki/Test-Adapters.md",
+            "destination": "Test-Adapters.md",
+            "source_sha256": "e88b9c055a4cd1a1145837a1ec1b3c073711879d5191084b72f4afea29d83177",
+            "materialized_sha256": "63523c3de7a29366b28278708ce6bc61a8a82b177a479031e37df977a20fd70e"
+        },
+        {
+            "source": "wiki/Safety-and-Trust-Boundaries.md",
+            "destination": "Safety-and-Trust-Boundaries.md",
+            "source_sha256": "d341e6690c47e16b9ac32a705b5799b213ac972a9ba390df481049a026287f63",
+            "materialized_sha256": "5ce8417063ca9a519310c98867df76e00900955749ea214258a98ab0657cb1cf"
+        },
+        {
+            "source": "wiki/Troubleshooting-and-FAQ.md",
+            "destination": "Troubleshooting-and-FAQ.md",
+            "source_sha256": "1f785702dfee0d78c239233584b868e32d26f9178a1989620955eef25980481f",
+            "materialized_sha256": "43ec407ce2ea2dceb093532a325f4ce6544bf01d982452c2cc55b7b5f2866ec4"
+        },
+        {
+            "source": "wiki/Roadmap-and-Status.md",
+            "destination": "Roadmap-and-Status.md",
+            "source_sha256": "198590a9158f2f50811b1d893f17c9c24f351e97abfe3625c24e233516071544",
+            "materialized_sha256": "af2e1de8285ca6b2f3c3eda4e7c65fb5ef98d0202388a77a2bf1813956275b2e"
+        }
+    ],
+    "generated": {
+        "_Sidebar.md": "70f1b8afe51a3536f5e82062157019e57fce6c5fb775048ad99d8e98e0d60173",
+        "_Footer.md": "2a4d7aaef19f71d3fb795704d686a6dd98a0577abadf7fd006e970fd366dc0c9"
+    }
+}

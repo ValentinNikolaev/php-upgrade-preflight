@@ -63,9 +63,18 @@ printf 'Target SHA-256 before: %s\nTarget SHA-256 after:  %s\n' "$before" "$afte
 
 Do not use `--debug` for a report that will be shared. Debug mode retains workspaces and exact temporary paths.
 
-## Record the terminal GIF
+## Record the terminal GIFs
 
-The checked-in VHS tape runs the real analyzer in an offline PHP container. The script refuses to present the result unless its stable stage, state-chain, blocker-lifecycle, and resolution projection matches the checked-in canonical JSON. It records the adjacent-stage outcomes, blocker lifecycles, original-source finding, and matching target digests; its temporary JSON report is removed automatically.
+Four checked-in VHS tapes run the real analyzer in an offline PHP container. Each records a different aspect of one analysis, and each writes its GIF next to the tape:
+
+| Tape | GIF | What it records |
+|---|---|---|
+| `laravel-10-to-13.tape` | `laravel-10-to-13.gif` | The full staged run through `run-demo.sh`, which refuses to present the result unless its stable stage, state-chain, blocker-lifecycle, and resolution projection matches the checked-in canonical JSON. It records the adjacent-stage outcomes, blocker lifecycles, original-source finding, and matching target digests. |
+| `blocker-deep-dive.tape` | `blocker-deep-dive.gif` | A `jq` walk over the generated JSON: resolution statuses, the retained Collision blocker with its dependency path and resolution options, and the evidence entry that blocker links to, with the exact Composer command and the solver's output excerpt. |
+| `immutability-proof.tape` | `immutability-proof.gif` | `immutability-proof.sh`: a recursive SHA-256 digest of the target before the analysis, the analysis itself, and the identical digest afterwards. |
+| `markdown-report.tape` | `markdown-report.gif` | The Markdown projection: its section list, risk and effort with assumptions, and the staged actions for the blocked 12→13 stage. |
+
+Every tape removes its temporary report automatically. The `blocker-deep-dive` and `markdown-report` tapes select report data by stable keys — package name, evidence link, stage id, section anchor — rather than by array position or line offset, so a fixture or schema change surfaces as visibly different content instead of a silently empty frame.
 
 From the repository root in PowerShell:
 
@@ -74,4 +83,6 @@ docker build --file examples/five-minute-demo/Dockerfile.vhs --tag php-upgrade-p
 docker run --rm --volume "${PWD}:/app" --volume "${PWD}/examples/five-minute-demo:/vhs" php-upgrade-preflight-vhs:0.11.0 laravel-10-to-13.tape
 ```
 
-The resulting `examples/five-minute-demo/laravel-10-to-13.gif` is reproducible from the tape. The first build downloads the pinned VHS and Composer images plus the PHP packages used by the recording environment.
+Pass a different tape name as the last argument to record the others. Rebuild the image after changing `Dockerfile.vhs`: the recording environment also provides `jq` and `bat`, which the deep-dive and Markdown tapes require.
+
+Each GIF is reproducible from its tape, and these four files are the only tracked copies. The [landing page](../../site/index.html) serves them from `site/assets/`, where its deploy workflow copies them; local copies under `site/assets/` are git-ignored, so run `cp examples/five-minute-demo/*.gif site/assets/` to preview the page after re-recording. The first build downloads the pinned VHS and Composer images plus the PHP packages used by the recording environment.

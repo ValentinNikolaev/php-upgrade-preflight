@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "destination_repository": "ValentinNikolaev/php-upgrade-preflight-cli",
+  "purpose": "Standalone CLI package documentation",
+  "pages": [
+    {"source": "wiki/CLI-Reference.md", "destination": "Home.md"},
+    {"source": "wiki/Getting-Started.md", "destination": "Getting-Started.md"},
+    {"source": "wiki/CLI-Package-Internals.md", "destination": "CLI-Package-Internals.md"},
+    {"source": "wiki/Key-Concepts.md", "destination": "Key-Concepts.md"},
+    {"source": "wiki/Writing-a-Framework-Adapter.md", "destination": "Writing-a-Framework-Adapter.md"},
+    {"source": "wiki/Safety-and-Trust-Boundaries.md", "destination": "Safety-and-Trust-Boundaries.md"},
+    {"source": "wiki/Troubleshooting-and-FAQ.md", "destination": "Troubleshooting-and-FAQ.md"},
+    {"source": "wiki/Roadmap-and-Status.md", "destination": "Roadmap-and-Status.md"}
+  ],
+  "sidebar": [
+    "Home", "Getting-Started", "CLI-Package-Internals", "Key-Concepts",
+    "Writing-a-Framework-Adapter", "Safety-and-Trust-Boundaries",
+    "Troubleshooting-and-FAQ", "Roadmap-and-Status"
+  ],
+  "footer": "PHP Upgrade Preflight CLI package Wiki"
+}

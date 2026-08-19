@@ -2,7 +2,7 @@
   "name": "php-upgrade-preflight/monorepo",
   "description": "Development monorepo for PHP Upgrade Preflight.",
   "type": "project",
-  "license": "PolyForm-Noncommercial-1.0.0",
+  "license": "MIT",
   "authors": [
     {
       "name": "Valentin Nikolaev"
@@ -130,6 +130,7 @@
     "test:cli": "phpunit --testsuite cli",
     "test:laravel": "phpunit --testsuite laravel",
     "test:fixtures": "phpunit --filter LaravelFixtureAnalysisTest",
+    "release:wiki:check": "php tools/materialize-release-wikis.php --check",
     "release:verify": "php tools/verify-release.php",
     "analyse": [
       "phpstan analyse --configuration=phpstan.neon.dist --memory-limit=512M",
@@ -138,6 +139,7 @@
     "lint": "php-cs-fixer fix --dry-run --diff",
     "check": [
       "@validate:all",
+      "@release:wiki:check",
       "@test",
       "@analyse",
       "@lint"

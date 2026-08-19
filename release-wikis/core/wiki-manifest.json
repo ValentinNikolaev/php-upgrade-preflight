@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "destination_repository": "ValentinNikolaev/php-upgrade-preflight-core",
+  "purpose": "Framework-neutral Core package documentation",
+  "pages": [
+    {"source": "wiki/Core-Package-Guide.md", "destination": "Home.md"},
+    {"source": "wiki/Core-Service-Reference.md", "destination": "Core-Service-Reference.md"},
+    {"source": "wiki/Core-Analysis-Pipeline.md", "destination": "Core-Analysis-Pipeline.md"},
+    {"source": "wiki/Key-Concepts.md", "destination": "Key-Concepts.md"},
+    {"source": "wiki/Architecture-Overview.md", "destination": "Architecture-Overview.md"},
+    {"source": "wiki/Writing-a-Framework-Adapter.md", "destination": "Writing-a-Framework-Adapter.md"},
+    {"source": "wiki/Test-Adapters.md", "destination": "Test-Adapters.md"},
+    {"source": "wiki/Safety-and-Trust-Boundaries.md", "destination": "Safety-and-Trust-Boundaries.md"},
+    {"source": "wiki/Troubleshooting-and-FAQ.md", "destination": "Troubleshooting-and-FAQ.md"},
+    {"source": "wiki/Roadmap-and-Status.md", "destination": "Roadmap-and-Status.md"}
+  ],
+  "sidebar": [
+    "Home", "Core-Service-Reference", "Core-Analysis-Pipeline", "Key-Concepts",
+    "Architecture-Overview", "Writing-a-Framework-Adapter", "Test-Adapters",
+    "Safety-and-Trust-Boundaries", "Troubleshooting-and-FAQ", "Roadmap-and-Status"
+  ],
+  "footer": "PHP Upgrade Preflight Core package Wiki"
+}

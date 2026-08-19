@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PHP Upgrade Preflight — Know what breaks, before you upgrade</title>
+<meta name="description" content="A deterministic, read-only preflight analyzer for Composer-based PHP and Laravel upgrades. Real Composer scenarios in disposable workspaces, evidence-linked blockers, staged upgrade paths, risk and effort — your project stays byte-for-byte unchanged.">
+<link rel="canonical" href="https://valentinnikolaev.github.io/php-upgrade-preflight/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="PHP Upgrade Preflight — Know what breaks, before you upgrade">
+<meta property="og:description" content="Deterministic, read-only preflight analysis for Composer-based PHP and Laravel upgrades. Real Composer solves, evidence-linked blockers, staged Laravel 7→13 paths. Your project stays byte-for-byte unchanged.">
+<meta property="og:url" content="https://valentinnikolaev.github.io/php-upgrade-preflight/">
+<meta property="og:image" content="https://valentinnikolaev.github.io/php-upgrade-preflight/assets/social-preview.png">
+<meta property="og:image:width" content="1280">
+<meta property="og:image:height" content="640">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="PHP Upgrade Preflight — Know what breaks, before you upgrade">
+<meta name="twitter:description" content="Deterministic, read-only preflight analysis for Composer-based PHP and Laravel upgrades. Real Composer solves, evidence-linked blockers, staged Laravel 7→13 paths.">
+<meta name="twitter:image" content="https://valentinnikolaev.github.io/php-upgrade-preflight/assets/social-preview.png">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'%3E%3Crect%20width='64'%20height='64'%20rx='14'%20fill='%231e1e2e'/%3E%3Cpath%20d='M18%2044%2030%2016m4%2028%2012-28'%20stroke='%23a5a1f5'%20stroke-width='6'%20stroke-linecap='round'%20fill='none'/%3E%3Ccircle%20cx='32'%20cy='54'%20r='4'%20fill='%23a6e3a1'/%3E%3C/svg%3E">
+<style>
+:root {
+  --bg: #fbfaf9;
+  --bg-raised: #ffffff;
+  --bg-inset: #f1efec;
+  --text: #1d1c1a;
+  --text-muted: #5b5852;
+  --accent: #4f46b8;
+  --primary-foreground: #ffffff;
+  --accent-soft: #ecebfa;
+  --border: #e3e0da;
+  --terminal: #11111b;
+  --terminal-text: #cdd6f4;
+  --install-control-background: #1c1c2c;
+  --terminal-control-border: #7f849c;
+  --terminal-focus: #a5a1f5;
+  --good: #1a7f37;
+  --warn-bg: #fff7e8;
+  --warn-border: #e8c777;
+  --shadow: 0 1px 2px rgba(20, 18, 14, .05), 0 8px 24px rgba(20, 18, 14, .06);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #14141c;
+    --bg-raised: #1c1c26;
+    --bg-inset: #23232f;
+    --text: #e6e4f0;
+    --text-muted: #a09eae;
+    --accent: #a5a1f5;
+    --primary-foreground: #14141c;
+    --accent-soft: #26263a;
+    --border: #2e2e3c;
+    --terminal: #11111b;
+    --terminal-text: #cdd6f4;
+    --good: #7ddc8f;
+    --warn-bg: #2a2415;
+    --warn-border: #7a6428;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 8px 24px rgba(0, 0, 0, .35);
+  }
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font: 17px/1.6 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+code, pre, .mono {
+  font-family: ui-monospace, SFMono-Regular, "Cascadia Code", Menlo, Consolas, monospace;
+}
+.wrap { max-width: 1060px; margin: 0 auto; padding: 0 24px; }
+a { color: var(--accent); }
+h2 { font-size: 1.7rem; line-height: 1.25; letter-spacing: -.01em; margin-bottom: .5rem; }
+.section { padding: 72px 0 8px; }
+.section-lead { color: var(--text-muted); max-width: 46em; margin-bottom: 40px; }
+
+/* Hero */
+.hero { padding: 88px 0 64px; text-align: center; }
+.badges { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 28px; }
+.badge {
+  font-size: .78rem; font-weight: 600; letter-spacing: .02em;
+  padding: 4px 12px; border-radius: 999px;
+  background: var(--accent-soft); color: var(--accent);
+  border: 1px solid var(--border);
+}
+.hero h1 { font-size: clamp(2.2rem, 5.5vw, 3.4rem); line-height: 1.1; letter-spacing: -.02em; }
+.hero .slogan {
+  margin-top: 14px; font-size: clamp(1.15rem, 2.6vw, 1.5rem);
+  font-weight: 600; color: var(--accent);
+}
+.hero .pitch { margin: 22px auto 0; max-width: 46em; color: var(--text-muted); }
+.install {
+  margin: 36px auto 0; max-width: 720px;
+  display: flex; align-items: stretch; text-align: left;
+  background: var(--terminal); color: var(--terminal-text);
+  border-radius: 12px; box-shadow: var(--shadow); overflow: hidden;
+}
+.install pre {
+  flex: 1; padding: 16px 18px; overflow-x: auto;
+  font-size: .88rem; line-height: 1.5; white-space: pre;
+}
+.install .prompt { color: #a6e3a1; user-select: none; }
+.install button {
+  border: 0; border-left: 1px solid #2c2c3f; cursor: pointer;
+  background: var(--install-control-background); color: #cdd6f4; padding: 0 18px;
+  font-family: inherit; font-size: .82rem; font-weight: 600; line-height: 1;
+}
+.install button:hover { background: #26263c; }
+.install button.copied { color: #a6e3a1; }
+.install button:focus-visible { outline-color: var(--terminal-focus); outline-offset: -4px; }
+.install-intro {
+  max-width: 720px; margin: 32px auto -20px; color: var(--text-muted);
+  font-size: .9rem; text-align: left;
+}
+.install-intro strong { color: var(--text); }
+.install-alternative {
+  max-width: 720px; margin: 14px auto 0; text-align: left;
+  background: var(--bg-raised); border: 1px solid var(--border); border-radius: 10px;
+  padding: 12px 16px;
+}
+.install-alternative summary { cursor: pointer; font-weight: 600; }
+.install-alternative p { color: var(--text-muted); font-size: .86rem; margin-top: 9px; }
+.install-alternative code { display: block; overflow-x: auto; margin-top: 8px; }
+.cta { margin-top: 26px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.btn {
+  display: inline-flex; align-items: center; gap: 9px;
+  padding: 11px 22px; border-radius: 10px; font-weight: 600; font-size: .95rem;
+  text-decoration: none; border: 1px solid var(--border);
+}
+.btn svg { flex: none; }
+.btn-primary { background: var(--accent); color: var(--primary-foreground); border-color: transparent; }
+.btn-primary:hover { filter: brightness(1.08); }
+.btn-secondary { background: var(--bg-raised); color: var(--text); }
+.btn-secondary:hover { border-color: var(--accent); }
+
+/* Gallery */
+.gallery { display: grid; gap: 36px; }
+.shot {
+  background: var(--bg-raised); border: 1px solid var(--border);
+  border-radius: 14px; box-shadow: var(--shadow); overflow: hidden;
+}
+.recording {
+  position: relative; display: grid; place-items: center; width: 100%;
+  aspect-ratio: 1200 / 720; overflow: hidden; background: var(--terminal);
+  color: var(--terminal-text);
+}
+.recording-placeholder { text-align: center; padding: 24px; }
+.recording-placeholder strong { display: block; font-size: 1.05rem; }
+.recording-placeholder span { display: block; margin-top: 6px; color: #a6adc8; font-size: .86rem; }
+.recording img { position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: contain; }
+.recording-toggle {
+  position: relative; z-index: 1; min-height: 44px; margin-top: 18px; padding: 10px 18px;
+  border: 1px solid var(--terminal-control-border); border-radius: 9px; background: #252536;
+  color: var(--terminal-text); cursor: pointer; font: inherit; font-weight: 600;
+}
+.recording.playing .recording-toggle { position: absolute; right: 14px; bottom: 14px; margin: 0; }
+.recording-toggle:hover { background: #313147; }
+.recording-toggle:focus-visible { outline-color: var(--terminal-focus); }
+.shot figcaption { padding: 16px 20px; font-size: .93rem; color: var(--text-muted); }
+.shot figcaption strong { color: var(--text); }
+.motion-note { margin-top: 18px; color: var(--text-muted); font-size: .88rem; }
+.visually-hidden {
+  position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+}
+
+/* Features */
+.features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+.feature {
+  background: var(--bg-raised); border: 1px solid var(--border);
+  border-radius: 14px; padding: 22px;
+}
+.feature .icon {
+  width: 40px; height: 40px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--accent-soft); color: var(--accent); margin-bottom: 14px;
+}
+.feature h3 { font-size: 1.02rem; margin-bottom: 6px; }
+.feature p { font-size: .9rem; color: var(--text-muted); }
+
+/* Pipeline */
+.pipeline {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 10px;
+  background: var(--bg-raised); border: 1px solid var(--border);
+  border-radius: 14px; padding: 22px;
+}
+.step {
+  background: var(--bg-inset); border: 1px solid var(--border);
+  border-radius: 9px; padding: 7px 13px;
+  font-size: .85rem; font-weight: 600; white-space: nowrap;
+}
+.step small { display: block; font-weight: 400; font-size: .74rem; color: var(--text-muted); }
+.pipe-arrow { color: var(--text-muted); flex: none; }
+.pipeline-note { margin-top: 14px; font-size: .9rem; color: var(--text-muted); max-width: 52em; }
+
+/* Disclaimer */
+.disclaimer {
+  background: var(--warn-bg); border: 1px solid var(--warn-border);
+  border-radius: 14px; padding: 24px;
+}
+.disclaimer h2 { font-size: 1.2rem; }
+.disclaimer p { font-size: .93rem; margin-top: 8px; color: var(--text-muted); }
+.disclaimer strong { color: var(--text); }
+
+/* Footer */
+footer {
+  margin-top: 88px; border-top: 1px solid var(--border);
+  padding: 32px 0 48px; font-size: .9rem; color: var(--text-muted);
+}
+footer .wrap { display: flex; flex-wrap: wrap; gap: 12px 28px; justify-content: space-between; align-items: center; }
+footer nav { display: flex; flex-wrap: wrap; gap: 20px; }
+footer a { color: var(--text-muted); text-decoration: none; }
+footer a:hover { color: var(--accent); }
+
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+
+@media (max-width: 880px) { .features { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 580px) {
+  .features { grid-template-columns: 1fr; }
+  .section { padding-top: 56px; }
+  .hero { padding: 64px 0 48px; }
+  .install { flex-direction: column; }
+  .install button { border-left: 0; border-top: 1px solid #2c2c3f; padding: 12px; }
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="badges">
+      <span class="badge">Public beta</span>
+      <span class="badge">Latest release v0.3.1 · schema 0.8</span>
+      <span class="badge">PHP ^8.0</span>
+      <span class="badge">Repository HEAD · MIT</span>
+      <span class="badge">v0.3.1 packages · PolyForm Noncommercial</span>
+    </div>
+    <h1>PHP Upgrade Preflight</h1>
+    <p class="slogan">Know what breaks — before you upgrade.</p>
+    <p class="pitch">
+      A deterministic, read-only preflight analyzer for Composer-based PHP and Laravel upgrades.
+      It runs real Composer scenarios in disposable workspaces and reports blockers, package changes,
+      staged upgrade paths, source impact, risk, effort, and uncertainty — every finding linked to
+      evidence. During analysis, the target project is immutable input; installing the tool is a
+      separate Composer operation in whichever tools directory or application you choose below.
+    </p>
+    <p class="install-intro">
+      <strong>Safest first install: use a separate tools directory.</strong>
+      These commands change only that new directory, not the application you later analyze.
+      The latest published v0.3.1 packages remain under PolyForm Noncommercial 1.0.0.
+    </p>
+    <div class="install">
+      <pre id="install-cmd"><span class="prompt">$</span> mkdir php-upgrade-tools
+<span class="prompt">$</span> cd php-upgrade-tools
+<span class="prompt">$</span> composer require php-upgrade-preflight/cli:^0.3 php-upgrade-preflight/laravel:^0.3</pre>
+      <button id="copy-btn" type="button" aria-label="Copy external tools-directory install commands">Copy</button>
+    </div>
+    <span id="interaction-status" class="visually-hidden" role="status" aria-live="polite" aria-atomic="true"></span>
+    <details class="install-alternative">
+      <summary>Alternative: install as application development dependencies</summary>
+      <p>This intentionally changes that application's <code>composer.json</code>, lock file, and development dependencies. It is not part of the analyzer's read-only execution guarantee.</p>
+      <code>composer require --dev php-upgrade-preflight/cli:^0.3 php-upgrade-preflight/laravel:^0.3</code>
+    </details>
+    <div class="cta">
+      <a class="btn btn-primary" href="https://github.com/ValentinNikolaev/php-upgrade-preflight">
+        <svg width="18" height="18" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.6 7.6 0 0 1 2-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        GitHub
+      </a>
+      <a class="btn btn-secondary" href="https://packagist.org/packages/php-upgrade-preflight/cli">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 3 8 4.5v9L12 21l-8-4.5v-9L12 3Z"/><path d="M12 12 4 7.5M12 12l8-4.5M12 12v9"/></svg>
+        Packagist
+      </a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="section" id="demos">
+    <div class="wrap">
+      <h2>See it under the hood</h2>
+      <p class="section-lead">
+        Real recordings of the analyzer working against the repository's deterministic offline demo —
+        local Composer path repositories, real solver runs, no network. Recordings never autoplay.
+      </p>
+      <div class="gallery">
+        <figure class="shot">
+          <div class="recording" data-recording="assets/laravel-10-to-13.gif" data-alt="Terminal recording of a full staged Laravel 10 to 13 preflight analysis">
+            <div class="recording-placeholder" aria-hidden="true"><strong>Staged Laravel 10 → 13</strong><span>18.8-second terminal recording</span></div>
+            <button class="recording-toggle" type="button" aria-pressed="false">Play recording</button>
+          </div>
+          <figcaption>
+            <strong>Staged Laravel 10 → 13 preflight, end to end.</strong>
+            Direct and staged resolution both come back <code>blocked</code>: the 10→11 hop retains two
+            simultaneous blockers with different lifecycles, 11→12 is Composer-feasible, and 12→13 stops
+            on a missing platform extension plus an original-source finding. Before/after target digests match.
+          </figcaption>
+        </figure>
+        <figure class="shot">
+          <div class="recording" data-recording="assets/blocker-deep-dive.gif" data-alt="Terminal recording walking a JSON report with jq from a blocker to its evidence">
+            <div class="recording-placeholder" aria-hidden="true"><strong>Blocker deep dive</strong><span>51.4-second terminal recording</span></div>
+            <button class="recording-toggle" type="button" aria-pressed="false">Play recording</button>
+          </div>
+          <figcaption>
+            <strong>A blocker, up close.</strong>
+            After the analysis, <code>jq</code> walks the canonical JSON: <code>resolution.status</code>,
+            the blocker's dependency path and resolution options, then its <code>evidence</code> IDs —
+            straight to the exact Composer command and the solver's own output excerpt.
+          </figcaption>
+        </figure>
+        <figure class="shot">
+          <div class="recording" data-recording="assets/immutability-proof.gif" data-alt="Terminal recording proving the analyzed project is unchanged via recursive SHA-256 digests">
+            <div class="recording-placeholder" aria-hidden="true"><strong>Immutability proof</strong><span>16.6-second terminal recording</span></div>
+            <button class="recording-toggle" type="button" aria-pressed="false">Play recording</button>
+          </div>
+          <figcaption>
+            <strong>Immutability, proven.</strong>
+            A recursive SHA-256 digest over every file of the analyzed project before the run,
+            a full analysis with real Composer scenarios in temporary workspaces, and the same
+            digest afterwards. Byte-for-byte identical.
+          </figcaption>
+        </figure>
+        <figure class="shot">
+          <div class="recording" data-recording="assets/markdown-report.gif" data-alt="Terminal recording browsing the generated Markdown report sections">
+            <div class="recording-placeholder" aria-hidden="true"><strong>Markdown report tour</strong><span>42.4-second terminal recording</span></div>
+            <button class="recording-toggle" type="button" aria-pressed="false">Play recording</button>
+          </div>
+          <figcaption>
+            <strong>The Markdown projection.</strong>
+            The same analysis rendered as Markdown — a faithful projection of the canonical JSON:
+            the report's sections, the staged actions for the blocked 12→13 stage, and risk plus
+            effort ranges with assumptions and confidence.
+          </figcaption>
+        </figure>
+      </div>
+      <p class="motion-note">Choose Play to load a recording. Choose Stop to remove it immediately. No motion starts without your action, including when your system requests reduced motion.</p>
+    </div>
+  </section>
+
+  <section class="section" id="features">
+    <div class="wrap">
+      <h2>What you get</h2>
+      <p class="section-lead">Decision-support evidence for the upgrade you haven't started yet.</p>
+      <div class="features">
+        <div class="feature">
+          <div class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+          <h3>Read-only, provably</h3>
+          <p>The analyzed project is immutable input. Composer runs only in disposable workspaces with
+          scripts and plugins disabled, and recursive digests prove the target stayed byte-for-byte unchanged.</p>
+        </div>
+        <div class="feature">
+          <div class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v18M5 8l7-5 7 5M5 16l7 5 7-5"/></svg></div>
+          <h3>Real Composer resolutions</h3>
+          <p>No solver guesswork: the analyzer runs actual Composer scenarios and preserves each exact
+          command, version, duration, exit status, output excerpt, and candidate-lock fingerprint.</p>
+        </div>
+        <div class="feature">
+          <div class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 18h4v-4h4v-4h4V6h4"/></svg></div>
+          <h3>Staged Laravel 7 → 13</h3>
+          <p>Sequential analysis across adjacent Laravel hops, each with its own Composer evidence.
+          Only the selected candidate state feeds the next stage; the direct final-target result stays independent.</p>
+        </div>
+        <div class="feature">
+          <div class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2M15 3h6v6M10 14 21 3"/></svg></div>
+          <h3>Canonical JSON + Markdown</h3>
+          <p>JSON (schema 0.8) is the canonical report; Markdown is a faithful projection of the same
+          data with no independent analysis logic. Automation reads statuses from the report, not exit codes.</p>
+        </div>
+        <div class="feature">
+          <div class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2 3 7v6c0 5 4 8.4 9 9 5-.6 9-4 9-9V7l-9-5Z"/><path d="m9 12 2 2 4-4"/></svg></div>
+          <h3>Risk, effort, uncertainty</h3>
+          <p>Risk drivers, effort as ranges with assumptions and confidence — never precise promises.
+          Missing or weak evidence is reported as explicit uncertainty, and every finding links evidence IDs.</p>
+        </div>
+        <div class="feature">
+          <div class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><path d="m4 4 16 16"/></svg></div>
+          <h3>Secret redaction</h3>
+          <p>Composer output passes through a deterministic secret boundary: credential-bearing URLs,
+          tokens, and auth values become stable redaction markers, and local paths become portable placeholders.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="how-it-works">
+    <div class="wrap">
+      <h2>How it works</h2>
+      <p class="section-lead">One deterministic pipeline from project state to evidence-linked report.</p>
+      <div class="pipeline" role="list">
+        <span class="step" role="listitem">Project state<small>composer.json + lock</small></span>
+        <svg class="pipe-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg>
+        <span class="step" role="listitem">Composer scenarios<small>isolated workspaces</small></span>
+        <svg class="pipe-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg>
+        <span class="step" role="listitem">Lock diff<small>root + transitive</small></span>
+        <svg class="pipe-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg>
+        <span class="step" role="listitem">Blockers<small>paths + options</small></span>
+        <svg class="pipe-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg>
+        <span class="step" role="listitem">Source scan<small>nikic/php-parser</small></span>
+        <svg class="pipe-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg>
+        <span class="step" role="listitem">Framework rules<small>Laravel adapter</small></span>
+        <svg class="pipe-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg>
+        <span class="step" role="listitem">Report<small>JSON + Markdown</small></span>
+      </div>
+      <p class="pipeline-note">
+        The core is framework-neutral; Laravel is the first adapter, and third-party adapters register
+        through Composer metadata. Composer remains the dependency solver — the analyzer explains its
+        results instead of re-implementing them.
+      </p>
+    </div>
+  </section>
+
+  <section class="section" id="scope">
+    <div class="wrap">
+      <div class="disclaimer">
+        <h2>What it is — and what it is not</h2>
+        <p>
+          <strong>PHP Upgrade Preflight is in public beta.</strong> It provides decision-support evidence:
+          it does <strong>not</strong> perform the upgrade, does not modify or execute the analyzed
+          application, does not prove runtime compatibility, and does not guarantee a successful deployment.
+          Effort figures are ranges with stated assumptions, not promises.
+        </p>
+        <p>
+          Review every report and validate the resulting upgrade with the application's own test and
+          deployment process. Secret redaction is a publication safeguard, not an execution sandbox.
+        </p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Repository HEAD: MIT · Published v0.3.1 packages: PolyForm Noncommercial 1.0.0 · © 2026 Valentin Nikolaev</span>
+    <nav>
+      <a href="https://github.com/ValentinNikolaev/php-upgrade-preflight">GitHub</a>
+      <a href="https://github.com/ValentinNikolaev/php-upgrade-preflight/tree/main/docs">Documentation</a>
+      <a href="https://github.com/ValentinNikolaev/php-upgrade-preflight/blob/main/CHANGELOG.md">Changelog</a>
+      <a href="https://github.com/ValentinNikolaev/php-upgrade-preflight/blob/main/docs/project-status.md#licensing">Licensing</a>
+      <a href="https://packagist.org/packages/php-upgrade-preflight/cli">Packagist</a>
+    </nav>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var btn = document.getElementById('copy-btn');
+  var status = document.getElementById('interaction-status');
+  var cmd = document.getElementById('install-cmd').textContent.replace(/^\s*\$\s*/gm, '').trim();
+  var originalCopyLabel = btn.getAttribute('aria-label');
+  var announce = function (message) {
+    status.textContent = '';
+    window.setTimeout(function () { status.textContent = message; }, 10);
+  };
+  var flash = function (label, accessibleLabel, cls) {
+    btn.textContent = label;
+    btn.setAttribute('aria-label', accessibleLabel);
+    announce(accessibleLabel);
+    if (cls) { btn.classList.add(cls); }
+    setTimeout(function () {
+      btn.textContent = 'Copy';
+      btn.setAttribute('aria-label', originalCopyLabel);
+      btn.classList.remove('copied');
+    }, 1600);
+  };
+  var legacyCopy = function () {
+    var ta = document.createElement('textarea');
+    ta.value = cmd;
+    document.body.appendChild(ta);
+    ta.select();
+    var copied = false;
+    try { copied = document.execCommand('copy'); } catch (e) {}
+    document.body.removeChild(ta);
+    flash(copied ? 'Copied!' : 'Copy failed', copied ? 'External tools-directory install commands copied' : 'Copy failed; select and copy the commands manually', copied ? 'copied' : null);
+  };
+  btn.addEventListener('click', function () {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(cmd).then(function () {
+        flash('Copied!', 'External tools-directory install commands copied', 'copied');
+      }, legacyCopy);
+    } else {
+      legacyCopy();
+    }
+  });
+
+  Array.prototype.forEach.call(document.querySelectorAll('.recording'), function (recording) {
+    var toggle = recording.querySelector('.recording-toggle');
+    var heading = recording.querySelector('.recording-placeholder strong');
+    var subject = heading ? heading.textContent.trim() : 'terminal';
+    var label = function (action) { return action + ' the ' + subject + ' recording'; };
+    toggle.setAttribute('aria-label', label('Play'));
+    toggle.addEventListener('click', function () {
+      var activeImage = recording.querySelector('img');
+      if (activeImage) {
+        activeImage.remove();
+        recording.classList.remove('playing');
+        toggle.textContent = 'Play recording';
+        toggle.setAttribute('aria-label', label('Play'));
+        toggle.setAttribute('aria-pressed', 'false');
+        announce('Recording stopped');
+        return;
+      }
+
+      var image = document.createElement('img');
+      image.src = recording.getAttribute('data-recording');
+      image.alt = recording.getAttribute('data-alt');
+      image.width = 1200;
+      image.height = 720;
+      recording.insertBefore(image, toggle);
+      recording.classList.add('playing');
+      toggle.textContent = 'Stop recording';
+      toggle.setAttribute('aria-label', label('Stop'));
+      toggle.setAttribute('aria-pressed', 'true');
+      announce('Recording started. Choose Stop recording to remove the animation.');
+    });
+  });
+})();
+</script>
+
+</body>
+</html>

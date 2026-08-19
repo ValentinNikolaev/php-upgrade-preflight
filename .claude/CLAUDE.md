@@ -48,7 +48,7 @@ The core package must not depend on Laravel or another framework package. Keep f
 
 - Make the smallest coherent change that completes an active checklist item or a well-defined slice of it.
 - Add or update tests with every behavior change. Test failure paths as structured outcomes when analysis can continue.
-- Update every affected public document in the same change whenever behavior, commands, options, installation, compatibility, report schemas or semantics, limitations, troubleshooting, package metadata, or the release process changes. Review `README.md`, `docs/`, `CHANGELOG.md`, and contributor or security guidance as applicable before declaring the work complete.
+- Update every affected public document in the same change whenever behavior, commands, options, installation, compatibility, report schemas or semantics, limitations, troubleshooting, package metadata, or the release process changes. Review `README.md`, `docs/`, `CHANGELOG.md`, `site/`, and contributor or security guidance as applicable before declaring the work complete.
 - Prefer typed value objects and phase-specific interfaces internally. Use arrays primarily at serialization and integration boundaries.
 - Make DTOs immutable where PHP 8.0 permits, and use explicit parameter and return types.
 - Normalize paths, target ordering, package ordering, evidence ordering, and temporary-directory values before snapshots or report serialization.
@@ -104,12 +104,22 @@ CI runs `composer check` on PHP 8.0 through 8.5. Changes must pass on the PHP 8.
 - Update `.claude/memory/MEMORY.md` only for durable architecture, constraints, or decisions. Do not record session logs, temporary failures, or facts cheaply derived from code.
 - Keep the plan directional. Preserve milestone order unless concrete dependencies justify a change, and document that reason.
 
+## Public Site
+
+`site/` holds the public GitHub Pages landing page at https://valentinnikolaev.github.io/php-upgrade-preflight/, deployed by `.github/workflows/pages.yml` on pushes to `main` that touch `site/**`. It is marketing surface, not product code, and the same honesty rules apply to it as to the reports.
+
+- Keep the page a projection of facts already stated in `README.md` and `docs/`. Do not describe a capability, guarantee, or supported transition the documentation does not state, and keep the public-beta scope disclaimer intact.
+- Keep it self-contained: one HTML file plus local assets under `site/assets/`, with no CDN, external fonts, analytics, or trackers.
+- Record demo GIFs from committed VHS tapes in `examples/five-minute-demo/`, and publish the copy under `site/assets/`. A tape and its published GIF must stay in sync; re-record rather than hand-edit an asset.
+- State the license as MIT wherever the page mentions licensing.
+
 ## Release Notes and Versions
 
 - Do not create a release-notes file, move changelog entries into a dated release, or change tool/package version metadata for every ordinary change.
 - Keep completed work under `CHANGELOG.md`'s `[Unreleased]` section until the user explicitly asks to prepare a new release or the active milestone specifically requires one.
 - When a new release is intentionally prepared, update its release notes, changelog heading, `ReportMetadata::TOOL_VERSION`, branch aliases, internal package constraints, and matching tag plan together, then run the release verification workflow. Publish only from an annotated, GitHub-verified signed tag whose commit is on the approved release line: `0.1.x` for v0.1, `0.2.x` for v0.2, or `main` for the active v0.3 series.
 - Release automation on `main` permits only the active `0.3.x` series. The signed v0.1.0 and v0.2.1 contracts remain immutable historical evidence; maintenance releases stay on their protected series branches.
+- Refresh `site/` in the same change that prepares a release tag, before the tag is created. Update every release-pinned string on the page — the version and schema badges, the `composer require` constraints in both the visible command and the copy-button script, and any schema reference in the feature or scope copy — and re-record a demo GIF whose recorded output the release changed. A published page that advertises a superseded version or hands out a stale install constraint is a release defect, not a cosmetic one.
 
 ## v0.1 Completion Standard
 

@@ -170,6 +170,40 @@ final class ReleaseVerifierTest extends TestCase
                 "release notes heading must be '# PHP Upgrade Preflight v0.3.0'; found '# PHP Upgrade Preflight v0.4.0'",
             ],
             ['empty-release-notes-body', 'release notes must contain content after the heading'],
+            [
+                'missing-wiki-evidence-link',
+                'release notes must link machine-readable Wiki evidence v0.3.0-wiki-evidence.json',
+            ],
+            ['missing-wiki-evidence', 'v0.3.0-wiki-evidence.json: could not read file'],
+            ['invalid-wiki-evidence-json', 'v0.3.0-wiki-evidence.json: Syntax error'],
+            ['wrong-wiki-evidence-schema', "Wiki evidence schema_version must be '1'; found '2'"],
+            [
+                'wrong-wiki-evidence-mode',
+                "Wiki evidence evidence_mode must be 'release-candidate'; found 'historical-baseline'",
+            ],
+            ['wrong-wiki-evidence-release', "Wiki evidence release must be '0.3.0'; found '0.3.1'"],
+            [
+                'wrong-wiki-materialization-gate',
+                "Wiki evidence materialization_gate must be 'php tools/materialize-release-wikis.php --check'",
+            ],
+            ['missing-wiki-destination', 'Wiki evidence is missing required laravel destination'],
+            [
+                'non-list-wiki-destinations',
+                'Wiki evidence destinations must be a JSON array containing all four Wiki sets',
+            ],
+            ['non-object-wiki-destination', 'Wiki evidence destinations[1] must be an object'],
+            ['non-object-wiki-result', 'Wiki evidence cli result must be an object'],
+            ['duplicate-wiki-destination', 'Wiki evidence contains duplicate common destination'],
+            ['unknown-wiki-destination', "Wiki evidence destinations[3] has unknown set 'unknown'"],
+            [
+                'wrong-wiki-repository',
+                "Wiki evidence cli destination_repository must be 'ValentinNikolaev/php-upgrade-preflight-cli'",
+            ],
+            ['unknown-wiki-result', 'Wiki evidence core result status must be published or unchanged-after-review'],
+            ['invalid-published-wiki-sha', 'Wiki evidence common wiki_commit must be a full lowercase 40-character Git SHA'],
+            ['invalid-reviewed-wiki-sha', 'Wiki evidence core reviewed_remote_commit must be a full lowercase 40-character Git SHA'],
+            ['failed-wiki-inventory-check', "Wiki evidence core inventory_check must be 'passed'; found 'failed'"],
+            ['extra-wiki-result-field', 'Wiki evidence common published result must contain exactly [status, wiki_commit]'],
         ];
     }
 
@@ -327,6 +361,140 @@ final class ReleaseVerifierTest extends TestCase
 
             return;
         }
+        if ($case === 'missing-wiki-evidence-link') {
+            $this->filesystem->dumpFile(
+                $this->root . '/docs/releases/v0.3.0.md',
+                "# PHP Upgrade Preflight v0.3.0\n\nRelease notes without Wiki evidence.\n"
+            );
+
+            return;
+        }
+        if ($case === 'missing-wiki-evidence') {
+            $this->filesystem->remove($this->root . '/docs/releases/v0.3.0-wiki-evidence.json');
+
+            return;
+        }
+        if ($case === 'invalid-wiki-evidence-json') {
+            $this->filesystem->dumpFile($this->root . '/docs/releases/v0.3.0-wiki-evidence.json', '{');
+
+            return;
+        }
+        if ($case === 'wrong-wiki-evidence-schema') {
+            $evidence = $this->readJson($this->root . '/docs/releases/v0.3.0-wiki-evidence.json');
+            $evidence['schema_version'] = 2;
+            $this->writeJson($this->root . '/docs/releases/v0.3.0-wiki-evidence.json', $evidence);
+
+            return;
+        }
+        if ($case === 'wrong-wiki-evidence-mode') {
+            $evidence = $this->readJson($this->root . '/docs/releases/v0.3.0-wiki-evidence.json');
+            $evidence['evidence_mode'] = 'historical-baseline';
+            $this->writeJson($this->root . '/docs/releases/v0.3.0-wiki-evidence.json', $evidence);
+
+            return;
+        }
+        if ($case === 'wrong-wiki-evidence-release') {
+            $evidence = $this->readJson($this->root . '/docs/releases/v0.3.0-wiki-evidence.json');
+            $evidence['release'] = '0.3.1';
+            $this->writeJson($this->root . '/docs/releases/v0.3.0-wiki-evidence.json', $evidence);
+
+            return;
+        }
+        if ($case === 'wrong-wiki-materialization-gate') {
+            $evidence = $this->readJson($this->root . '/docs/releases/v0.3.0-wiki-evidence.json');
+            $evidence['materialization_gate'] = 'skipped';
+            $this->writeJson($this->root . '/docs/releases/v0.3.0-wiki-evidence.json', $evidence);
+
+            return;
+        }
+        if ($case === 'non-list-wiki-destinations') {
+            $evidence = $this->readJson($this->root . '/docs/releases/v0.3.0-wiki-evidence.json');
+            $evidence['destinations'] = ['common' => $evidence['destinations'][0]];
+            $this->writeJson($this->root . '/docs/releases/v0.3.0-wiki-evidence.json', $evidence);
+
+            return;
+        }
+        if ($case === 'non-object-wiki-destination') {
+            $evidence = $this->readJson($this->root . '/docs/releases/v0.3.0-wiki-evidence.json');
+            $evidence['destinations'][1] = 'common';
+            $this->writeJson($this->root . '/docs/releases/v0.3.0-wiki-evidence.json', $evidence);
+
+            return;
+        }
+        if ($case === 'non-object-wiki-result') {
+            $evidence = $this->readJson($this->root . '/docs/releases/v0.3.0-wiki-evidence.json');
+            foreach ($evidence['destinations'] as $index => $destination) {
+                if (($destination['set'] ?? null) === 'cli') {
+                    $evidence['destinations'][$index]['result'] = 'published';
+                }
+            }
+            $this->writeJson($this->root . '/docs/releases/v0.3.0-wiki-evidence.json', $evidence);
+
+            return;
+        }
+        if ($case === 'missing-wiki-destination') {
+            $evidence = $this->readJson($this->root . '/docs/releases/v0.3.0-wiki-evidence.json');
+            array_pop($evidence['destinations']);
+            $this->writeJson($this->root . '/docs/releases/v0.3.0-wiki-evidence.json', $evidence);
+
+            return;
+        }
+        if ($case === 'duplicate-wiki-destination') {
+            $evidence = $this->readJson($this->root . '/docs/releases/v0.3.0-wiki-evidence.json');
+            $evidence['destinations'][3] = $evidence['destinations'][0];
+            $this->writeJson($this->root . '/docs/releases/v0.3.0-wiki-evidence.json', $evidence);
+
+            return;
+        }
+        if ($case === 'unknown-wiki-destination') {
+            $evidence = $this->readJson($this->root . '/docs/releases/v0.3.0-wiki-evidence.json');
+            $evidence['destinations'][3]['set'] = 'unknown';
+            $this->writeJson($this->root . '/docs/releases/v0.3.0-wiki-evidence.json', $evidence);
+
+            return;
+        }
+        if ($case === 'wrong-wiki-repository') {
+            $evidence = $this->readJson($this->root . '/docs/releases/v0.3.0-wiki-evidence.json');
+            $evidence['destinations'][2]['destination_repository'] = 'ValentinNikolaev/wrong';
+            $this->writeJson($this->root . '/docs/releases/v0.3.0-wiki-evidence.json', $evidence);
+
+            return;
+        }
+        if ($case === 'unknown-wiki-result') {
+            $evidence = $this->readJson($this->root . '/docs/releases/v0.3.0-wiki-evidence.json');
+            $evidence['destinations'][1]['result']['status'] = 'ready-to-publish';
+            $this->writeJson($this->root . '/docs/releases/v0.3.0-wiki-evidence.json', $evidence);
+
+            return;
+        }
+        if ($case === 'invalid-published-wiki-sha') {
+            $evidence = $this->readJson($this->root . '/docs/releases/v0.3.0-wiki-evidence.json');
+            $evidence['destinations'][0]['result']['wiki_commit'] = 'abc123';
+            $this->writeJson($this->root . '/docs/releases/v0.3.0-wiki-evidence.json', $evidence);
+
+            return;
+        }
+        if ($case === 'invalid-reviewed-wiki-sha') {
+            $evidence = $this->readJson($this->root . '/docs/releases/v0.3.0-wiki-evidence.json');
+            $evidence['destinations'][1]['result']['reviewed_remote_commit'] = strtoupper(str_repeat('b', 40));
+            $this->writeJson($this->root . '/docs/releases/v0.3.0-wiki-evidence.json', $evidence);
+
+            return;
+        }
+        if ($case === 'failed-wiki-inventory-check') {
+            $evidence = $this->readJson($this->root . '/docs/releases/v0.3.0-wiki-evidence.json');
+            $evidence['destinations'][1]['result']['inventory_check'] = 'failed';
+            $this->writeJson($this->root . '/docs/releases/v0.3.0-wiki-evidence.json', $evidence);
+
+            return;
+        }
+        if ($case === 'extra-wiki-result-field') {
+            $evidence = $this->readJson($this->root . '/docs/releases/v0.3.0-wiki-evidence.json');
+            $evidence['destinations'][0]['result']['note'] = 'not allowed';
+            $this->writeJson($this->root . '/docs/releases/v0.3.0-wiki-evidence.json', $evidence);
+
+            return;
+        }
 
         self::fail(sprintf('Unknown invalid release fixture case %s.', $case));
     }
@@ -380,8 +548,52 @@ final class ReleaseVerifierTest extends TestCase
         );
         $this->filesystem->dumpFile(
             $this->root . '/docs/releases/v' . $version . '.md',
-            sprintf("# PHP Upgrade Preflight v%s\n\nRelease notes.\n", $version)
+            sprintf(
+                "# PHP Upgrade Preflight v%s\n\nRelease notes.\n\n[Wiki release evidence](v%s-wiki-evidence.json)\n",
+                $version,
+                $version
+            )
         );
+        $this->writeJson(
+            $this->root . '/docs/releases/v' . $version . '-wiki-evidence.json',
+            $this->wikiEvidence($version)
+        );
+    }
+
+    /** @return array<string, mixed> */
+    private function wikiEvidence(string $version): array
+    {
+        $repositories = [
+            'common' => 'ValentinNikolaev/php-upgrade-preflight',
+            'core' => 'ValentinNikolaev/php-upgrade-preflight-core',
+            'cli' => 'ValentinNikolaev/php-upgrade-preflight-cli',
+            'laravel' => 'ValentinNikolaev/php-upgrade-preflight-laravel',
+        ];
+        $destinations = [];
+        foreach ($repositories as $set => $repository) {
+            $destinations[] = [
+                'set' => $set,
+                'destination_repository' => $repository,
+                'wiki_repository' => 'https://github.com/' . $repository . '.wiki.git',
+                'manifest' => 'release-wikis/' . $set . '/wiki-manifest.json',
+                'result' => $set === 'common' || $set === 'cli'
+                    ? ['status' => 'published', 'wiki_commit' => str_repeat('a', 40)]
+                    : [
+                        'status' => 'unchanged-after-review',
+                        'reviewed_remote_commit' => str_repeat('b', 40),
+                        'inventory_check' => 'passed',
+                    ],
+            ];
+        }
+
+        return [
+            '$schema' => 'wiki-evidence.schema.json',
+            'schema_version' => 1,
+            'evidence_mode' => 'release-candidate',
+            'release' => $version,
+            'materialization_gate' => 'php tools/materialize-release-wikis.php --check',
+            'destinations' => $destinations,
+        ];
     }
 
     /** @param array<string, mixed> $contents */
