@@ -49,7 +49,9 @@ Sleep 3s
 Type "clear"
 Enter
 
-Type `jq '.staged_resolution.blocker_registry[0] | {blocking_package, constraint, dependency_path, lifecycle, options, evidence}' /tmp/report.json`
+Type `blocker='.staged_resolution.blocker_registry[] | select(.blocking_package == "nunomaduro/collision")'`
+Enter
+Type `jq "$blocker | {stage_id, constraint, dependency_path, lifecycle, options, evidence}" /tmp/report.json`
 Enter
 Wait
 Sleep 7s
@@ -57,20 +59,27 @@ Sleep 7s
 Type "clear"
 Enter
 
-Type `jq '.evidence[] | select(.id == "solver-5") | {summary, scenario: .context.scenario, exit_code: .context.exit_code, confidence}' /tmp/report.json`
+Type `id=$(jq -r "$blocker | .evidence[0]" /tmp/report.json) && echo "evidence: $id"`
+Enter
+Wait
+Sleep 3s
+
+Type `jq --arg id "$id" '.evidence[] | select(.id == $id) | {summary, scenario: .context.scenario, exit_code: .context.exit_code}' /tmp/report.json`
+Enter
+Wait
+Sleep 6s
+
+Type `scenario=$(jq -r --arg id "$id" '.evidence[] | select(.id == $id) | .context.scenario' /tmp/report.json)`
+Enter
+Type `jq -r --arg s "$scenario" '.staged_resolution.stages[].attempts[] | select(.scenario.name == $s) | .scenario.command | join(" ")' /tmp/report.json`
 Enter
 Wait
 Sleep 5s
 
-Type `jq -r '.staged_resolution.stages[0].attempts[0].scenario.command | join(" ")' /tmp/report.json`
-Enter
-Wait
-Sleep 4s
-
 Type "clear"
 Enter
 
-Type `jq -r '.evidence[] | select(.id == "solver-5") | .context.output_excerpt' /tmp/report.json`
+Type `jq -r --arg id "$id" '.evidence[] | select(.id == $id) | .context.output_excerpt' /tmp/report.json`
 Enter
 Wait
 Sleep 10s

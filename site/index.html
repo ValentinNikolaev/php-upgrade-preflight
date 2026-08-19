@@ -99,7 +99,7 @@ h2 { font-size: 1.7rem; line-height: 1.25; letter-spacing: -.01em; margin-bottom
 .install button {
   border: 0; border-left: 1px solid #2c2c3f; cursor: pointer;
   background: #1c1c2c; color: #cdd6f4; padding: 0 18px;
-  font: 600 .82rem/1 inherit; font-family: inherit;
+  font-family: inherit; font-size: .82rem; font-weight: 600; line-height: 1;
 }
 .install button:hover { background: #26263c; }
 .install button.copied { color: #a6e3a1; }
@@ -121,7 +121,7 @@ h2 { font-size: 1.7rem; line-height: 1.25; letter-spacing: -.01em; margin-bottom
   background: var(--bg-raised); border: 1px solid var(--border);
   border-radius: 14px; box-shadow: var(--shadow); overflow: hidden;
 }
-.shot img { display: block; width: 100%; height: auto; background: var(--terminal); }
+.shot img { display: block; width: 100%; height: auto; aspect-ratio: 1200 / 720; background: var(--terminal); }
 .shot figcaption { padding: 16px 20px; font-size: .93rem; color: var(--text-muted); }
 .shot figcaption strong { color: var(--text); }
 
@@ -228,7 +228,7 @@ footer a:hover { color: var(--accent); }
       </p>
       <div class="gallery">
         <figure class="shot">
-          <img src="assets/laravel-10-to-13.gif" alt="Terminal recording of a full staged Laravel 10 to 13 preflight analysis" loading="lazy">
+          <img src="assets/laravel-10-to-13.gif" width="1200" height="720" alt="Terminal recording of a full staged Laravel 10 to 13 preflight analysis" loading="lazy">
           <figcaption>
             <strong>Staged Laravel 10 → 13 preflight, end to end.</strong>
             Direct and staged resolution both come back <code>blocked</code>: the 10→11 hop retains two
@@ -237,7 +237,7 @@ footer a:hover { color: var(--accent); }
           </figcaption>
         </figure>
         <figure class="shot">
-          <img src="assets/blocker-deep-dive.gif" alt="Terminal recording walking a JSON report with jq from a blocker to its evidence" loading="lazy">
+          <img src="assets/blocker-deep-dive.gif" width="1200" height="720" alt="Terminal recording walking a JSON report with jq from a blocker to its evidence" loading="lazy">
           <figcaption>
             <strong>A blocker, up close.</strong>
             After the analysis, <code>jq</code> walks the canonical JSON: <code>resolution.status</code>,
@@ -246,7 +246,7 @@ footer a:hover { color: var(--accent); }
           </figcaption>
         </figure>
         <figure class="shot">
-          <img src="assets/immutability-proof.gif" alt="Terminal recording proving the analyzed project is unchanged via recursive SHA-256 digests" loading="lazy">
+          <img src="assets/immutability-proof.gif" width="1200" height="720" alt="Terminal recording proving the analyzed project is unchanged via recursive SHA-256 digests" loading="lazy">
           <figcaption>
             <strong>Immutability, proven.</strong>
             A recursive SHA-256 digest over every file of the analyzed project before the run,
@@ -255,7 +255,7 @@ footer a:hover { color: var(--accent); }
           </figcaption>
         </figure>
         <figure class="shot">
-          <img src="assets/markdown-report.gif" alt="Terminal recording browsing the generated Markdown report sections" loading="lazy">
+          <img src="assets/markdown-report.gif" width="1200" height="720" alt="Terminal recording browsing the generated Markdown report sections" loading="lazy">
           <figcaption>
             <strong>The Markdown projection.</strong>
             The same analysis rendered as Markdown — a faithful projection of the canonical JSON:
@@ -373,25 +373,32 @@ footer a:hover { color: var(--accent); }
 <script>
 (function () {
   var btn = document.getElementById('copy-btn');
-  var cmd = 'composer require php-upgrade-preflight/cli:^0.3 php-upgrade-preflight/laravel:^0.3';
+  var cmd = document.getElementById('install-cmd').textContent.replace(/^\s*\$\s*/, '').trim();
+  var flash = function (label, cls) {
+    btn.textContent = label;
+    if (cls) { btn.classList.add(cls); }
+    setTimeout(function () {
+      btn.textContent = 'Copy';
+      btn.classList.remove('copied');
+    }, 1600);
+  };
+  var legacyCopy = function () {
+    var ta = document.createElement('textarea');
+    ta.value = cmd;
+    document.body.appendChild(ta);
+    ta.select();
+    var copied = false;
+    try { copied = document.execCommand('copy'); } catch (e) {}
+    document.body.removeChild(ta);
+    flash(copied ? 'Copied!' : 'Press Ctrl+C', copied ? 'copied' : null);
+  };
   btn.addEventListener('click', function () {
-    var done = function () {
-      btn.textContent = 'Copied!';
-      btn.classList.add('copied');
-      setTimeout(function () {
-        btn.textContent = 'Copy';
-        btn.classList.remove('copied');
-      }, 1600);
-    };
     if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(cmd).then(done);
+      navigator.clipboard.writeText(cmd).then(function () {
+        flash('Copied!', 'copied');
+      }, legacyCopy);
     } else {
-      var ta = document.createElement('textarea');
-      ta.value = cmd;
-      document.body.appendChild(ta);
-      ta.select();
-      try { document.execCommand('copy'); done(); } catch (e) {}
-      document.body.removeChild(ta);
+      legacyCopy();
     }
   });
 })();

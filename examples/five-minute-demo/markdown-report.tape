@@ -57,7 +57,7 @@ Sleep 9s
 Type "clear"
 Enter
 
-Type `sed -n '/^## Staged Plan/,/^## Risk And Effort/p' /tmp/report.md | head -n -1 | tail -n 5 | cut -c1-110 | bat --paging=never -p -l md --color=always`
+Type `sed -n '/^## Staged Plan/,/^## Risk And Effort/p' /tmp/report.md | grep -E '\*\*laravel-12-to-13\*\*|\[laravel-12-to-13\]' | sed 's/; executed stage.*//' | bat --paging=never -p -l md --color=always`
 Enter
 Wait
 Sleep 8s
