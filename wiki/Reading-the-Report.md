@@ -25,7 +25,7 @@ The repository's checked-in five-minute demo analyzes Laravel 10→13. This real
     "schema_version": "0.8",
     "tool": {
       "name": "php-upgrade-preflight",
-      "version": "0.3.1"
+      "version": "0.3.2"
     }
   }
 }

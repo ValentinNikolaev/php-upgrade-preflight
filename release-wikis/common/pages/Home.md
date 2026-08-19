@@ -14,7 +14,7 @@ It answers practical questions such as:
 
 It does this by treating the project as immutable input. The analyzer copies Composer manifests into disposable workspaces, runs Composer there with scripts and plugins disabled, parses PHP source, applies active adapter rules, and assembles evidence into a report.
 
-> **Public beta:** the current published line is v0.3.x. The latest release recorded in the repository is v0.3.1, and its canonical report schema is 0.8.
+> **Public beta:** the current published line is v0.3.x. The latest release recorded in the repository is v0.3.2, and its canonical report schema is 0.8.
 
 ## What problem it solves
 

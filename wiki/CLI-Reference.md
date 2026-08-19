@@ -347,4 +347,3 @@ vendor/bin/upgrade-intel analyze \
 - [[Safety and Trust Boundaries|Safety-and-Trust-Boundaries]]
 - [[Troubleshooting and FAQ|Troubleshooting-and-FAQ]]
 - [[Report Schema|Report-Schema]]
-

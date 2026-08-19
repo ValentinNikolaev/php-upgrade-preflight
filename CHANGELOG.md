@@ -4,6 +4,8 @@ This project follows [Semantic Versioning](https://semver.org/). Report schema v
 
 ## [Unreleased]
 
+## [0.3.2] - 2026-08-19
+
 ### Added
 
 - Published a public GitHub Pages landing page under `site/`, deployed by its own workflow, with opt-in terminal recordings of the offline demo, an explicit separate-tools-directory install path, and an artifact validator that checks page structure, local references, control contrast, and the licensing and install disclosures before deployment.
@@ -173,7 +175,8 @@ This project follows [Semantic Versioning](https://semver.org/). Report schema v
 - Checksum-verified release-archive consumers that install all three ZIPs, run the CLI, analyze an immutable fixture, and boot Laravel package discovery before publication.
 - Composer-installed CLI entry-point discovery for both generated proxy and standard `vendor/` package layouts.
 
-[Unreleased]: https://github.com/ValentinNikolaev/php-upgrade-preflight/compare/v0.3.1...HEAD
+[Unreleased]: https://github.com/ValentinNikolaev/php-upgrade-preflight/compare/v0.3.2...HEAD
+[0.3.2]: https://github.com/ValentinNikolaev/php-upgrade-preflight/releases/tag/v0.3.2
 [0.3.1]: https://github.com/ValentinNikolaev/php-upgrade-preflight/releases/tag/v0.3.1
 [0.3.0]: https://github.com/ValentinNikolaev/php-upgrade-preflight/releases/tag/v0.3.0
 [0.2.1]: https://github.com/ValentinNikolaev/php-upgrade-preflight/releases/tag/v0.2.1

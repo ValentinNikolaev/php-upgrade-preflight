@@ -347,4 +347,3 @@ vendor/bin/upgrade-intel analyze \
 - [[Safety and Trust Boundaries|Safety-and-Trust-Boundaries]]
 - [[Troubleshooting and FAQ|Troubleshooting-and-FAQ]]
 - [Report Schema](https://github.com/ValentinNikolaev/php-upgrade-preflight/wiki/Report-Schema)
-

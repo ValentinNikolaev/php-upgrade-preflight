@@ -125,9 +125,13 @@ steps.
 The v0.3.1 Wiki repositories were not found during the 2026-08-19 review, so
 `docs/releases/v0.3.1-wiki-baseline.json` records a historical baseline under a
 separate schema. It deliberately does not satisfy `release:verify`; it prevents a
-missing publication from being rewritten as a successful result. `composer check`
-may still validate development quality, while a release remains blocked until real
-per-destination evidence exists.
+missing publication from being rewritten as a successful result. That baseline stays
+as written: it is evidence about v0.3.1 and is not amended by any later publication.
+
+All four Wiki repositories were created and populated for v0.3.2, whose
+per-destination commits are recorded in `docs/releases/v0.3.2-wiki-evidence.json`.
+A release remains blocked until real per-destination evidence exists for that
+release; evidence from an earlier release never satisfies a later one.
 
 ## Manual publication commands
 

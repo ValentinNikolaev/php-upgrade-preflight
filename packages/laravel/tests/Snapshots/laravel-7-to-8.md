@@ -1,6 +1,6 @@
 # PHP Upgrade Preflight Report
 
-Resolution: **feasible_with_changes** | Staged: **feasible_with_changes** | Schema: `0.8` | Tool: `php-upgrade-preflight 0.3.1`
+Resolution: **feasible_with_changes** | Staged: **feasible_with_changes** | Schema: `0.8` | Tool: `php-upgrade-preflight 0.3.2`
 
 ## Analysis Request
 - Project: `<PROJECT_PATH>`
