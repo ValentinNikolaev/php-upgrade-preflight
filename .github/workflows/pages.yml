@@ -4,11 +4,6 @@ on:
   push:
     branches:
       - main
-    paths:
-      - 'site/**'
-      - 'examples/five-minute-demo/*.gif'
-      - 'tools/tests/verify-pages-site.py'
-      - '.github/workflows/pages.yml'
   workflow_dispatch:
 
 permissions:
