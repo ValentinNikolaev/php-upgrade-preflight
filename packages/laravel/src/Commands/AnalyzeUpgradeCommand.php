@@ -117,7 +117,8 @@ final class AnalyzeUpgradeCommand extends Command
             return self::FAILURE;
         }
 
-        $this->progressReporter?->attach($this->output->getErrorStyle());
+        $errorStyle = $this->output->getErrorStyle();
+        $this->progressReporter?->attach($errorStyle, $errorStyle);
         try {
             $report = $this->analyzer->analyzeUpgrade($request);
             $rendered = $this->reportWriterResolver->resolve($format)->render($report);

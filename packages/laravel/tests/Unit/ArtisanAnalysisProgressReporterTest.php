@@ -22,6 +22,8 @@ use PhpUpgradePreflight\Laravel\Console\ArtisanAnalysisProgressReporter;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Output\StreamOutput;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 final class ArtisanAnalysisProgressReporterTest extends TestCase
@@ -29,10 +31,10 @@ final class ArtisanAnalysisProgressReporterTest extends TestCase
     public function testItWritesDurableRawLinesOnlyWhileAttachedToATerminal(): void
     {
         $output = new BufferedOutput();
-        $reporter = new ArtisanAnalysisProgressReporter(static fn (): bool => true);
+        $reporter = new ArtisanAnalysisProgressReporter(static fn (OutputInterface $output): bool => true);
 
         $reporter->report(AnalysisProgressEvent::analysisStarted());
-        $reporter->attach(new SymfonyStyle(new ArrayInput([]), $output));
+        $reporter->attach(new SymfonyStyle(new ArrayInput([]), $output), $output);
         $reporter->report(AnalysisProgressEvent::analysisStarted());
         $reporter->report(AnalysisProgressEvent::phaseStarted(AnalysisPhase::SOURCE_SCAN));
         $reporter->detach();
@@ -47,8 +49,8 @@ final class ArtisanAnalysisProgressReporterTest extends TestCase
     public function testItStaysSilentForRedirectedDiagnostics(): void
     {
         $output = new BufferedOutput();
-        $reporter = new ArtisanAnalysisProgressReporter(static fn (): bool => false);
-        $reporter->attach(new SymfonyStyle(new ArrayInput([]), $output));
+        $reporter = new ArtisanAnalysisProgressReporter(static fn (OutputInterface $output): bool => false);
+        $reporter->attach(new SymfonyStyle(new ArrayInput([]), $output), $output);
 
         $reporter->report(AnalysisProgressEvent::analysisStarted());
 
@@ -58,8 +60,8 @@ final class ArtisanAnalysisProgressReporterTest extends TestCase
     public function testItRendersAnalysisAndScenarioLifecycleLines(): void
     {
         $output = new BufferedOutput();
-        $reporter = new ArtisanAnalysisProgressReporter(static fn (): bool => true);
-        $reporter->attach(new SymfonyStyle(new ArrayInput([]), $output));
+        $reporter = new ArtisanAnalysisProgressReporter(static fn (OutputInterface $output): bool => true);
+        $reporter->attach(new SymfonyStyle(new ArrayInput([]), $output), $output);
 
         $reporter->report(AnalysisProgressEvent::analysisCompleted($this->report()));
         $reporter->report(AnalysisProgressEvent::analysisFailed());
@@ -80,8 +82,8 @@ final class ArtisanAnalysisProgressReporterTest extends TestCase
     public function testItRendersEveryPhaseAndBothCompletionStatuses(): void
     {
         $output = new BufferedOutput();
-        $reporter = new ArtisanAnalysisProgressReporter(static fn (): bool => true);
-        $reporter->attach(new SymfonyStyle(new ArrayInput([]), $output));
+        $reporter = new ArtisanAnalysisProgressReporter(static fn (OutputInterface $output): bool => true);
+        $reporter->attach(new SymfonyStyle(new ArrayInput([]), $output), $output);
         $labels = [
             AnalysisPhase::PROJECT_LOADING => 'Loading project metadata',
             AnalysisPhase::COMPOSER_FEASIBILITY => 'Checking Composer feasibility',
@@ -112,23 +114,50 @@ final class ArtisanAnalysisProgressReporterTest extends TestCase
     {
         $output = new BufferedOutput();
         $reporter = new ArtisanAnalysisProgressReporter();
+        $reporter->attach(new SymfonyStyle(new ArrayInput([]), $output), $output);
+
+        $reporter->report(AnalysisProgressEvent::analysisStarted());
+
+        self::assertSame('', $output->fetch());
+    }
+
+    public function testDefaultTerminalDetectionInspectsTheAttachedOutput(): void
+    {
+        $stream = fopen('php://memory', 'w+');
+        self::assertIsResource($stream);
+        $output = new StreamOutput($stream);
+        $output->setDecorated(true);
+        $reporter = new ArtisanAnalysisProgressReporter();
+        $style = new SymfonyStyle(new ArrayInput([]), $output);
+        $reporter->attach($style, $style);
+
+        $reporter->report(AnalysisProgressEvent::analysisStarted());
+
+        rewind($stream);
+        self::assertSame("[working] Analysis started\n", stream_get_contents($stream));
+        fclose($stream);
+    }
+
+    public function testAttachWithoutAnOutputObjectStaysConservativelySilent(): void
+    {
+        $output = new BufferedOutput();
+        $reporter = new ArtisanAnalysisProgressReporter(
+            static fn (OutputInterface $output): bool => true
+        );
         $reporter->attach(new SymfonyStyle(new ArrayInput([]), $output));
 
         $reporter->report(AnalysisProgressEvent::analysisStarted());
 
-        self::assertContains(
-            str_replace("\r\n", "\n", $output->fetch()),
-            ['', "[working] Analysis started\n"]
-        );
+        self::assertSame('', $output->fetch());
     }
 
     public function testTerminalDetectionAndOutputFailuresNeverEscape(): void
     {
         $output = new BufferedOutput();
-        $detectorFailure = new ArtisanAnalysisProgressReporter(static function (): bool {
+        $detectorFailure = new ArtisanAnalysisProgressReporter(static function (OutputInterface $output): bool {
             throw new \RuntimeException('terminal detection failed');
         });
-        $detectorFailure->attach(new SymfonyStyle(new ArrayInput([]), $output));
+        $detectorFailure->attach(new SymfonyStyle(new ArrayInput([]), $output), $output);
         $detectorFailure->report(AnalysisProgressEvent::analysisStarted());
 
         $throwingOutput = new class () extends BufferedOutput {
@@ -137,8 +166,8 @@ final class ArtisanAnalysisProgressReporterTest extends TestCase
                 throw new \RuntimeException('diagnostic write failed');
             }
         };
-        $writeFailure = new ArtisanAnalysisProgressReporter(static fn (): bool => true);
-        $writeFailure->attach(new SymfonyStyle(new ArrayInput([]), $throwingOutput));
+        $writeFailure = new ArtisanAnalysisProgressReporter(static fn (OutputInterface $output): bool => true);
+        $writeFailure->attach(new SymfonyStyle(new ArrayInput([]), $throwingOutput), $throwingOutput);
         $writeFailure->report(AnalysisProgressEvent::analysisStarted());
 
         self::assertSame('', $output->fetch());
@@ -147,8 +176,8 @@ final class ArtisanAnalysisProgressReporterTest extends TestCase
     public function testItIgnoresEventsWithoutARenderableMessage(): void
     {
         $output = new BufferedOutput();
-        $reporter = new ArtisanAnalysisProgressReporter(static fn (): bool => true);
-        $reporter->attach(new SymfonyStyle(new ArrayInput([]), $output));
+        $reporter = new ArtisanAnalysisProgressReporter(static fn (OutputInterface $output): bool => true);
+        $reporter->attach(new SymfonyStyle(new ArrayInput([]), $output), $output);
 
         $reporter->report($this->rawEvent('future-event'));
         $reporter->report($this->rawEvent('future-event', AnalysisPhase::SOURCE_SCAN));
@@ -160,8 +189,8 @@ final class ArtisanAnalysisProgressReporterTest extends TestCase
     public function testItDistinguishesScenarioOutcomeCategories(string $outcome, string $label): void
     {
         $output = new BufferedOutput();
-        $reporter = new ArtisanAnalysisProgressReporter(static fn (): bool => true);
-        $reporter->attach(new SymfonyStyle(new ArrayInput([]), $output));
+        $reporter = new ArtisanAnalysisProgressReporter(static fn (OutputInterface $output): bool => true);
+        $reporter->attach(new SymfonyStyle(new ArrayInput([]), $output), $output);
         $result = $this->scenarioResult($outcome);
 
         $reporter->report(AnalysisProgressEvent::scenarioCompleted($result));

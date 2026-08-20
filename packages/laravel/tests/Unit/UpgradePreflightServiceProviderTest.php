@@ -10,6 +10,7 @@ use PhpUpgradePreflight\Core\Contracts\UpgradeAnalyzer;
 use PhpUpgradePreflight\Laravel\Console\ArtisanAnalysisProgressReporter;
 use PhpUpgradePreflight\Laravel\UpgradePreflightServiceProvider;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Console\Output\OutputInterface;
 
 final class UpgradePreflightServiceProviderTest extends TestCase
 {
@@ -34,7 +35,7 @@ final class UpgradePreflightServiceProviderTest extends TestCase
             self::fail('The analyzer singleton must be registered through a factory.');
         }
 
-        $reporter = new ArtisanAnalysisProgressReporter(static fn (): bool => false);
+        $reporter = new ArtisanAnalysisProgressReporter(static fn (OutputInterface $output): bool => false);
         $resolver = $this->createMock(Application::class);
         $resolver->expects(self::once())
             ->method('make')

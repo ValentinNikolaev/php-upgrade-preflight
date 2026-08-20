@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace PhpUpgradePreflight\Laravel\Tests\Unit;
 
 use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Console\OutputStyle;
 use PhpUpgradePreflight\Core\Contracts\UpgradeAnalyzer;
 use PhpUpgradePreflight\Core\Model\ComposerJson;
 use PhpUpgradePreflight\Core\Model\ComposerLock;
@@ -25,7 +26,7 @@ use PhpUpgradePreflight\Laravel\Commands\AnalyzeUpgradeCommand;
 use PhpUpgradePreflight\Laravel\Console\ArtisanAnalysisProgressReporter;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Tester\CommandTester;
 
 final class AnalyzeUpgradeCommandTest extends TestCase
@@ -100,7 +101,7 @@ final class AnalyzeUpgradeCommandTest extends TestCase
 
     public function testTerminalProgressUsesStderrWithoutChangingCanonicalStdout(): void
     {
-        $progress = new ArtisanAnalysisProgressReporter(static fn (): bool => true);
+        $progress = new ArtisanAnalysisProgressReporter(static fn (OutputInterface $output): bool => true);
         $analyzer = new ProgressEmittingUpgradeAnalyzer($progress);
         $tester = $this->commandTester($analyzer, null, $progress);
 
@@ -124,7 +125,7 @@ final class AnalyzeUpgradeCommandTest extends TestCase
 
     public function testRedirectedArtisanDiagnosticsSuppressProgressWithoutChangingStdout(): void
     {
-        $progress = new ArtisanAnalysisProgressReporter(static fn (): bool => false);
+        $progress = new ArtisanAnalysisProgressReporter();
         $analyzer = new ProgressEmittingUpgradeAnalyzer($progress);
         $tester = $this->commandTester($analyzer, null, $progress);
 
@@ -137,6 +138,35 @@ final class AnalyzeUpgradeCommandTest extends TestCase
         self::assertSame(Command::SUCCESS, $exitCode);
         self::assertJson($tester->getDisplay());
         self::assertSame('', $tester->getErrorOutput());
+    }
+
+    public function testCapturedOutputControlsProgressIndependentlyOfHostStderr(): void
+    {
+        $attachedOutput = null;
+        $attachedIsTerminal = null;
+        $progress = new ArtisanAnalysisProgressReporter(
+            static function (OutputInterface $output) use (&$attachedOutput, &$attachedIsTerminal): bool {
+                $attachedOutput = $output;
+
+                $attachedIsTerminal = $output->isDecorated();
+
+                return $attachedIsTerminal;
+            }
+        );
+        $analyzer = new ProgressEmittingUpgradeAnalyzer($progress);
+        $tester = $this->commandTester($analyzer, null, $progress);
+
+        $exitCode = $tester->execute([
+            '--path' => dirname(__DIR__, 4),
+            '--target-php' => '8.2',
+            '--format' => ReportFormat::JSON,
+        ]);
+
+        self::assertSame(Command::SUCCESS, $exitCode);
+        self::assertInstanceOf(OutputInterface::class, $attachedOutput);
+        self::assertSame(false, $attachedIsTerminal);
+        self::assertJson($tester->getDisplay());
+        self::assertStringNotContainsString('[working]', $tester->getDisplay());
     }
 
     /** An unknown format never reaches rendering, so the resolver's JSON fallback stays reachable only from core. */
@@ -420,7 +450,7 @@ final class AnalyzeUpgradeCommandTest extends TestCase
         $application = $this->createMock(Application::class);
         $application->method('basePath')->willReturn($basePath);
         $application->method('make')->willReturnCallback(
-            static fn (string $abstract, array $parameters): SymfonyStyle => new SymfonyStyle(
+            static fn (string $abstract, array $parameters): OutputStyle => new OutputStyle(
                 $parameters['input'],
                 $parameters['output']
             )

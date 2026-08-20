@@ -1,10 +1,10 @@
 # Roadmap and Project Status
 
-> Point-in-time status: **2026-08-19**. This page reports repository-backed commitments and boundaries; it does not invent delivery dates or unapproved features.
+> Point-in-time status: **2026-08-21**. This page reports repository-backed commitments and boundaries; it does not invent delivery dates or unapproved features.
 
 ## Current status
 
-PHP Upgrade Preflight is an Open Source **public beta**. The latest published release recorded by the repository is **v0.3.2**, producing tool version `0.3.2` reports with schema `0.8`. Development on `main` uses `0.3.x-dev` aliases and `^0.3` internal constraints.
+PHP Upgrade Preflight is an Open Source **public beta**. The latest published release recorded by the repository is **v0.3.3**, producing tool version `0.3.3` reports with schema `0.8`. Development on `main` uses `0.3.x-dev` aliases and `^0.3` internal constraints.
 
 Public beta means the public PHP API, CLI and Artisan surfaces, adapter extension points, package boundaries, and report semantics are still being proven before `1.0`. It does **not** mean the analyzer guarantees a successful production upgrade.
 
@@ -18,7 +18,7 @@ The analyzer provides decision-support evidence. It does not:
 
 ## Release lines
 
-| Line | Status on 2026-08-19 | Report schema | Policy |
+| Line | Status on 2026-08-21 | Report schema | Policy |
 |---|---|---|---|
 | `0.3.x` | Active published line from `main` | `0.8` | Patch compatibility commitment |
 | `0.2.x` | Archival | `0.7` | Signed artifacts retained; no features, routine fixes, or security fixes |

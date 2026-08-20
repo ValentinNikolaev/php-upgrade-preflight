@@ -14,35 +14,40 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 final class ArtisanAnalysisProgressReporter implements AnalysisProgressReporter
 {
     private ?SymfonyStyle $stderr = null;
-    /** @var \Closure(): bool */
+    private ?OutputInterface $errorOutput = null;
+    /** @var \Closure(OutputInterface): bool */
     private \Closure $isTerminal;
 
-    /** @param callable(): bool|null $isTerminal */
+    /** @param callable(OutputInterface): bool|null $isTerminal */
     public function __construct(?callable $isTerminal = null)
     {
         $this->isTerminal = $isTerminal === null
-            ? static function (): bool {
-                return defined('STDERR')
-                    && function_exists('stream_isatty')
-                    && stream_isatty(\STDERR);
+            ? static function (OutputInterface $output): bool {
+                return $output->isDecorated();
             }
         : \Closure::fromCallable($isTerminal);
     }
 
-    public function attach(SymfonyStyle $stderr): void
+    public function attach(SymfonyStyle $stderr, ?OutputInterface $errorOutput = null): void
     {
         $this->stderr = $stderr;
+        $this->errorOutput = $errorOutput;
     }
 
     public function detach(): void
     {
         $this->stderr = null;
+        $this->errorOutput = null;
     }
 
     public function report(AnalysisProgressEvent $event): void
     {
         try {
-            if ($this->stderr === null || !(($this->isTerminal)())) {
+            if (
+                $this->stderr === null
+                || $this->errorOutput === null
+                || !(($this->isTerminal)($this->errorOutput))
+            ) {
                 return;
             }
 

@@ -6,6 +6,6 @@ namespace PhpUpgradePreflight\Core\Progress;
 
 interface AnalysisProgressReporter
 {
-    /** Implementations must return normally so observation cannot change analysis behavior. */
+    /** Analyzer entry points contain reporter failures so observation cannot change analysis behavior. */
     public function report(AnalysisProgressEvent $event): void;
 }

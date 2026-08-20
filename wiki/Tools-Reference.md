@@ -34,12 +34,12 @@ Unless a section says otherwise, a successful command exits with `0`, a detected
 **Safe use.** This is read-only and offline. It verifies repository files but does not clone or push a `.wiki.git` repository. A historical baseline records missing old evidence but cannot authorize a release. Run the command only after recording real candidate evidence and before creating a tag:
 
 ```bash
-php tools/verify-release.php 0.3.2
+php tools/verify-release.php 0.3.3
 # Equivalent Composer entry point:
-composer release:verify -- 0.3.2
+composer release:verify -- 0.3.3
 ```
 
-**Input and output.** The only input is a version without the `v` prefix. Success prints a confirmation; each inconsistency is printed as an `ERROR:` line. `v0.3.2`, `0.2.9`, and incomplete versions are rejected by the current release-series policy.
+**Input and output.** The only input is a version without the `v` prefix. Success prints a confirmation; each inconsistency is printed as an `ERROR:` line. `v0.3.3`, `0.2.9`, and incomplete versions are rejected by the current release-series policy.
 
 **CI/release role.** It is the first metadata gate in `.github/workflows/release.yml`. The PHP implementation is split between the entry point and `tools/ReleaseVerifier.php`.
 
@@ -81,10 +81,10 @@ bash tools/prepare-distribution.sh /tmp/php-upgrade-preflight-dist
 
 ```bash
 # Inspect commands without changing the clones or remotes
-bash tools/release-distribution.sh --tag v0.3.2 --dry-run
+bash tools/release-distribution.sh --tag v0.3.3 --dry-run
 
 # Use a non-default prepared directory, still with confirmations
-bash tools/release-distribution.sh --tag v0.3.2 --work /tmp/php-upgrade-preflight-dist
+bash tools/release-distribution.sh --tag v0.3.3 --work /tmp/php-upgrade-preflight-dist
 ```
 
 Options:
@@ -129,16 +129,16 @@ All options use `--name=value` syntax.
 
 ```bash
 php tools/release-artifact-metadata.php generate \
-  --version=0.3.2 \
+  --version=0.3.3 \
   --dist=dist \
   --repository=https://github.com/ValentinNikolaev/php-upgrade-preflight \
   --commit=0123456789abcdef0123456789abcdef01234567 \
-  --ref=refs/tags/v0.3.2 \
+  --ref=refs/tags/v0.3.3 \
   --workflow=.github/workflows/release.yml \
   --run-uri=https://github.com/OWNER/REPO/actions/runs/RUN_ID
 
 php tools/release-artifact-metadata.php verify \
-  --version=0.3.2 \
+  --version=0.3.3 \
   --dist=dist
 ```
 
@@ -154,7 +154,7 @@ php tools/release-artifact-metadata.php verify \
 
 ```bash
 php tools/verify-installed-package-references.php \
-  0.3.2 \
+  0.3.3 \
   /tmp/consumer/composer.lock \
   CORE_TAG_COMMIT \
   CLI_TAG_COMMIT \

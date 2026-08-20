@@ -1,7 +1,7 @@
 {
     "contract": "php-upgrade-preflight-v0.3",
     "development_identity": {
-        "tool_version": "0.3.2",
+        "tool_version": "0.3.3",
         "package_branch_alias": "0.3.x-dev",
         "internal_constraint": "^0.3",
         "release_series": "0.3",

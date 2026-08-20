@@ -52,6 +52,41 @@ final class DefaultUpgradeAnalyzerProgressTest extends TestCase
         ], $reporter->events());
     }
 
+    public function testReporterFailuresAreContainedAcrossTheSuccessfulLifecycle(): void
+    {
+        $reporter = new ThrowingAnalysisProgressReporter();
+        $report = (new DefaultUpgradeAnalyzer(
+            scenarioRunner: $this->successfulScenarioRunner(),
+            progressReporter: $reporter
+        ))->analyzeUpgrade($this->request());
+
+        self::assertSame('feasible_with_changes', $report->resolutionStatus());
+        self::assertSame([
+            AnalysisProgressEvent::ANALYSIS_STARTED,
+            AnalysisProgressEvent::PHASE_STARTED,
+            AnalysisProgressEvent::PHASE_COMPLETED,
+            AnalysisProgressEvent::PHASE_STARTED,
+            AnalysisProgressEvent::SCENARIO_STARTED,
+            AnalysisProgressEvent::SCENARIO_COMPLETED,
+            AnalysisProgressEvent::SCENARIO_STARTED,
+            AnalysisProgressEvent::SCENARIO_COMPLETED,
+            AnalysisProgressEvent::SCENARIO_STARTED,
+            AnalysisProgressEvent::SCENARIO_COMPLETED,
+            AnalysisProgressEvent::SCENARIO_STARTED,
+            AnalysisProgressEvent::SCENARIO_COMPLETED,
+            AnalysisProgressEvent::PHASE_COMPLETED,
+            AnalysisProgressEvent::PHASE_STARTED,
+            AnalysisProgressEvent::PHASE_COMPLETED,
+            AnalysisProgressEvent::PHASE_STARTED,
+            AnalysisProgressEvent::PHASE_COMPLETED,
+            AnalysisProgressEvent::PHASE_STARTED,
+            AnalysisProgressEvent::PHASE_COMPLETED,
+            AnalysisProgressEvent::PHASE_STARTED,
+            AnalysisProgressEvent::PHASE_COMPLETED,
+            AnalysisProgressEvent::ANALYSIS_COMPLETED,
+        ], $reporter->eventTypes());
+    }
+
     public function testDefaultNoOpReporterPreservesTheReport(): void
     {
         $defaultReport = (new DefaultUpgradeAnalyzer(
@@ -127,6 +162,35 @@ final class DefaultUpgradeAnalyzerProgressTest extends TestCase
         ], $reporter->events());
     }
 
+    public function testReporterFailuresCannotMaskTheOriginalAnalysisFailure(): void
+    {
+        $reporter = new ThrowingAnalysisProgressReporter();
+        $request = $this->request();
+        $request = new UpgradeRequest(
+            $request->projectPath(),
+            [new UpgradeTarget('fixture/dependency', '^2.0')],
+            null,
+            null,
+            [],
+            ['missing-framework']
+        );
+
+        try {
+            (new DefaultUpgradeAnalyzer(progressReporter: $reporter))->analyzeUpgrade($request);
+            self::fail('The unavailable framework must fail analysis.');
+        } catch (\InvalidArgumentException $failure) {
+            self::assertStringContainsString('missing-framework', $failure->getMessage());
+            self::assertStringNotContainsString('progress reporter failed', $failure->getMessage());
+        }
+
+        self::assertSame([
+            AnalysisProgressEvent::ANALYSIS_STARTED,
+            AnalysisProgressEvent::PHASE_STARTED,
+            AnalysisProgressEvent::PHASE_COMPLETED,
+            AnalysisProgressEvent::ANALYSIS_FAILED,
+        ], $reporter->eventTypes());
+    }
+
     private function successfulScenarioRunner(): ComposerScenarioRunner
     {
         return new ComposerScenarioRunner(null, null, static function (array $command, string $directory): array {
@@ -174,5 +238,24 @@ final class RecordingAnalysisProgressReporter implements AnalysisProgressReporte
     public function events(): array
     {
         return $this->events;
+    }
+}
+
+final class ThrowingAnalysisProgressReporter implements AnalysisProgressReporter
+{
+    /** @var list<string> */
+    private array $eventTypes = [];
+
+    public function report(AnalysisProgressEvent $event): void
+    {
+        $this->eventTypes[] = $event->type();
+
+        throw new \RuntimeException('progress reporter failed');
+    }
+
+    /** @return list<string> */
+    public function eventTypes(): array
+    {
+        return $this->eventTypes;
     }
 }
