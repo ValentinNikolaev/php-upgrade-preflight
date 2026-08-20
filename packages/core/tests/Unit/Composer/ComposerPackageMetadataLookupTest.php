@@ -75,6 +75,22 @@ final class ComposerPackageMetadataLookupTest extends TestCase
         self::assertSame(0, $result->matchingVersionCount());
     }
 
+    public function testEmptyDuplicateAndUnparseableVersionsAreHandledWithoutInventingMatches(): void
+    {
+        $lookup = $this->lookupReturning(0, json_encode([
+            'name' => 'vendor/package',
+            'versions' => ['', '  ', '2.0.0', '* 2.0.0', 'not-a-semver-version'],
+        ], JSON_THROW_ON_ERROR));
+
+        $result = $this->lookup($lookup, '^2.0');
+
+        self::assertSame(PackageMetadataLookupResult::STATUS_FOUND, $result->status());
+        self::assertSame(['2.0.0', 'not-a-semver-version'], $result->versions());
+        self::assertSame(['2.0.0'], $result->matchingVersions());
+        self::assertSame(2, $result->availableVersionCount());
+        self::assertSame(1, $result->matchingVersionCount());
+    }
+
     public function testProjectRepositoryLookupCanReportAnExplicitPackageNotFoundResult(): void
     {
         $lookup = $this->lookupReturning(
@@ -179,6 +195,41 @@ final class ComposerPackageMetadataLookupTest extends TestCase
         self::assertSame(PackageMetadataLookupResult::REASON_MALFORMED_OUTPUT, $result->reason());
     }
 
+    public function testInvalidProjectIsUnverifiedWithoutStartingComposer(): void
+    {
+        $calls = 0;
+        $lookup = new ComposerPackageMetadataLookup(
+            static function () use (&$calls): array {
+                ++$calls;
+
+                return ['exit_code' => 0, 'stdout' => '{}', 'stderr' => ''];
+            }
+        );
+
+        $result = $lookup->lookup(
+            __DIR__ . DIRECTORY_SEPARATOR . 'missing-project',
+            'vendor/package',
+            '^2.0',
+            ComposerExecutionConfiguration::compatible(),
+            PackageMetadataLookupMode::PROJECT_REPOSITORIES
+        );
+
+        self::assertSame(PackageMetadataLookupResult::STATUS_UNVERIFIED, $result->status());
+        self::assertSame(PackageMetadataLookupResult::REASON_INVALID_PROJECT, $result->reason());
+        self::assertSame(0, $calls);
+    }
+
+    public function testOversizedComposerJsonOutputIsUnverifiedBeforeDecoding(): void
+    {
+        $lookup = $this->lookupReturning(0, str_repeat('x', 2_000_001), 'safe diagnostic');
+
+        $result = $this->lookup($lookup, '^2.0');
+
+        self::assertSame(PackageMetadataLookupResult::STATUS_UNVERIFIED, $result->status());
+        self::assertSame(PackageMetadataLookupResult::REASON_OUTPUT_TOO_LARGE, $result->reason());
+        self::assertSame('safe diagnostic', $result->diagnostic());
+    }
+
     /** @return list<array{string}> */
     public function malformedOutputProvider(): array
     {
@@ -206,6 +257,38 @@ final class ComposerPackageMetadataLookupTest extends TestCase
         self::assertSame(PackageMetadataLookupResult::REASON_PROCESS_TIMEOUT, $result->reason());
     }
 
+    public function testUnexpectedRunnerFailureIsOperationallyUnverified(): void
+    {
+        $lookup = new ComposerPackageMetadataLookup(
+            static function (): array {
+                throw new \RuntimeException('runner unavailable');
+            }
+        );
+
+        $result = $this->lookup($lookup, '^2.0');
+
+        self::assertSame(PackageMetadataLookupResult::STATUS_UNVERIFIED, $result->status());
+        self::assertSame(PackageMetadataLookupResult::REASON_PROCESS_FAILURE, $result->reason());
+        self::assertSame('runner unavailable', $result->diagnostic());
+    }
+
+    public function testDefaultSymfonyProcessRunnerReturnsAClassifiedProcessResult(): void
+    {
+        $execution = new ComposerExecutionConfiguration(PHP_BINARY, '*', 300, 5);
+
+        $result = (new ComposerPackageMetadataLookup())->lookup(
+            $this->projectPath(),
+            'vendor/package',
+            '^2.0',
+            $execution,
+            PackageMetadataLookupMode::PROJECT_REPOSITORIES
+        );
+
+        self::assertSame(PackageMetadataLookupResult::STATUS_UNVERIFIED, $result->status());
+        self::assertSame(PackageMetadataLookupResult::REASON_PROCESS_FAILURE, $result->reason());
+        self::assertNotSame('', $result->diagnostic());
+    }
+
     public function testMalformedPackageAndConstraintDoNotStartComposer(): void
     {
         $calls = 0;
@@ -231,11 +314,20 @@ final class ComposerPackageMetadataLookupTest extends TestCase
             ComposerExecutionConfiguration::compatible(),
             PackageMetadataLookupMode::PROJECT_REPOSITORIES
         );
+        $emptyConstraint = $lookup->lookup(
+            $this->projectPath(),
+            'vendor/package',
+            '',
+            ComposerExecutionConfiguration::compatible(),
+            PackageMetadataLookupMode::PROJECT_REPOSITORIES
+        );
 
         self::assertSame(PackageMetadataLookupResult::STATUS_INVALID, $invalidPackage->status());
         self::assertSame(PackageMetadataLookupResult::REASON_INVALID_PACKAGE, $invalidPackage->reason());
         self::assertSame(PackageMetadataLookupResult::STATUS_INVALID, $invalidConstraint->status());
         self::assertSame(PackageMetadataLookupResult::REASON_INVALID_CONSTRAINT, $invalidConstraint->reason());
+        self::assertSame(PackageMetadataLookupResult::STATUS_INVALID, $emptyConstraint->status());
+        self::assertSame(PackageMetadataLookupResult::REASON_INVALID_CONSTRAINT, $emptyConstraint->reason());
         self::assertSame(0, $calls);
     }
 

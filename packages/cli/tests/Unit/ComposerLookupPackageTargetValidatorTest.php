@@ -69,6 +69,27 @@ final class ComposerLookupPackageTargetValidatorTest extends TestCase
         self::assertStringContainsString('analysis may still proceed', $unverifiedResult->message());
     }
 
+    public function testItMapsInvalidLookupInputWithoutRunningComposer(): void
+    {
+        $validator = $this->validatorReturning(0, '');
+
+        $result = $validator->validate($this->projectPath(), 'not-a-package', '^2.0');
+
+        self::assertSame(PackageTargetValidation::INVALID, $result->status());
+        self::assertFalse($result->permitsAnalysis());
+        self::assertStringContainsString('Composer rejected', $result->message());
+    }
+
+    public function testDiscoveryReturnsNoCandidatesWhenMetadataIsUnverified(): void
+    {
+        $validator = $this->validatorReturning(1, '', 'Could not resolve host repo.example.test.');
+
+        $result = $validator->discover($this->projectPath(), 'vendor/package');
+
+        self::assertSame(PackageTargetValidation::UNVERIFIED, $result->status());
+        self::assertSame([], $result->candidateConstraints());
+    }
+
     private function validatorReturning(
         int $exitCode,
         string $stdout,

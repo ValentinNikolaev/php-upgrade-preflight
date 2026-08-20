@@ -21,6 +21,8 @@ use PhpUpgradePreflight\Core\Model\ReportFormat;
 use PhpUpgradePreflight\Core\Model\RiskSummary;
 use PhpUpgradePreflight\Core\Model\UpgradeReport;
 use PhpUpgradePreflight\Core\Model\UpgradeRequest;
+use PhpUpgradePreflight\Core\Reporting\ReportDestinationFilesystem;
+use PhpUpgradePreflight\Core\Reporting\ReportFileWriter;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Filesystem\Filesystem;
 
@@ -289,6 +291,54 @@ final class AnalyzeCommandTest extends TestCase
         }
     }
 
+    public function testItReturnsFailureWhenSavedCopyValidationFailsUnexpectedly(): void
+    {
+        $command = new AnalyzeCommand(
+            $this->analyzer,
+            $this->stdout,
+            $this->stderr,
+            new ReportFileWriter(new ThrowingResolveReportFilesystem())
+        );
+
+        $exitCode = $command->run([
+            'upgrade-intel',
+            'analyze',
+            '--path=' . dirname(__DIR__, 4),
+            '--target-php=8.2',
+            '--save-report=' . sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'report.json',
+        ]);
+
+        self::assertSame(AnalyzeCommand::FAILURE, $exitCode);
+        self::assertNull($this->analyzer->request);
+        self::assertStringContainsString('Analysis failed: filesystem probe failed', $this->streamContents($this->stderr));
+    }
+
+    public function testItReportsFailureWhenTheOptionalCopyCannotBeWrittenAfterPrinting(): void
+    {
+        $command = new AnalyzeCommand(
+            $this->analyzer,
+            $this->stdout,
+            $this->stderr,
+            new ReportFileWriter(new ThrowingWriteReportFilesystem())
+        );
+
+        $exitCode = $command->run([
+            'upgrade-intel',
+            'analyze',
+            '--path=' . dirname(__DIR__, 4),
+            '--target-php=8.2',
+            '--save-report=' . sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'report.json',
+        ]);
+
+        self::assertSame(AnalyzeCommand::FAILURE, $exitCode);
+        self::assertNotNull($this->analyzer->request);
+        self::assertJson($this->streamContents($this->stdout));
+        self::assertStringContainsString(
+            'The report was printed, but its additional file copy could not be saved: write failed',
+            $this->streamContents($this->stderr)
+        );
+    }
+
     public function testLegacyOutputRemainsFileOnly(): void
     {
         $outputPath = sys_get_temp_dir() . DIRECTORY_SEPARATOR
@@ -387,6 +437,11 @@ final class AnalyzeCommandTest extends TestCase
                 '--target-php=8.2',
                 '--with-extension=ext-a..b',
             ], 'must use Composer ext-name syntax'],
+            [[
+                '--path=' . $projectPath,
+                '--target-php=8.2',
+                '--composer-timeout=not-a-number',
+            ], 'must be a positive integer'],
         ];
     }
 
@@ -732,5 +787,70 @@ final class BlockedUpgradeAnalyzer implements UpgradeAnalyzer
             [],
             [new Evidence('solver-1', Evidence::E1_SOLVER, 'Composer rejected the target.')]
         );
+    }
+}
+
+final class ThrowingResolveReportFilesystem implements ReportDestinationFilesystem
+{
+    public function isDirectory(string $path): bool
+    {
+        return false;
+    }
+
+    public function isFile(string $path): bool
+    {
+        return false;
+    }
+
+    public function isWritable(string $path): bool
+    {
+        return true;
+    }
+
+    public function exists(string $path): bool
+    {
+        return false;
+    }
+
+    public function resolve(string $path): string|false
+    {
+        throw new \RuntimeException('filesystem probe failed');
+    }
+
+    public function dumpFile(string $path, string $contents): void
+    {
+    }
+}
+
+final class ThrowingWriteReportFilesystem implements ReportDestinationFilesystem
+{
+    public function isDirectory(string $path): bool
+    {
+        return false;
+    }
+
+    public function isFile(string $path): bool
+    {
+        return false;
+    }
+
+    public function isWritable(string $path): bool
+    {
+        return true;
+    }
+
+    public function exists(string $path): bool
+    {
+        return false;
+    }
+
+    public function resolve(string $path): string
+    {
+        return $path;
+    }
+
+    public function dumpFile(string $path, string $contents): void
+    {
+        throw new \RuntimeException('write failed');
     }
 }

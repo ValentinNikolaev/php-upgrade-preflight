@@ -262,11 +262,7 @@ final class WizardCommand implements CommandRunner
     /** @param array{exact: ?string, display: string, provenance: string} $currentPhp */
     private function chooseTargetPhp(array $currentPhp): string
     {
-        $runtimeVersion = sprintf('%d.%d.%d', PHP_MAJOR_VERSION, PHP_MINOR_VERSION, PHP_RELEASE_VERSION);
-        $runtime = (new UpgradeTargetSet([], $runtimeVersion))->targetPhp();
-        if ($runtime === null) {
-            throw new \LogicException('The analyzer runtime PHP version could not be normalized.');
-        }
+        $runtime = sprintf('%d.%d.%d', PHP_MAJOR_VERSION, PHP_MINOR_VERSION, PHP_RELEASE_VERSION);
         $choices = $this->phpTargetChoices($runtime, $currentPhp);
 
         $this->write("\nChoose a target PHP version.\n");
@@ -592,17 +588,23 @@ final class WizardCommand implements CommandRunner
     /** @param list<string> $arguments */
     private function shellCommand(array $arguments): string
     {
-        return implode(' ', array_map(function (string $argument): string {
-            if ($argument === 'upgrade-intel' || $argument === 'analyze') {
-                return $argument;
-            }
+        return implode(' ', array_map(
+            fn (string $argument): string => $this->shellArgument($argument, DIRECTORY_SEPARATOR === '\\'),
+            $arguments
+        ));
+    }
 
-            if (DIRECTORY_SEPARATOR === '\\') {
-                return "'" . str_replace("'", "''", $argument) . "'";
-            }
+    private function shellArgument(string $argument, bool $windows): string
+    {
+        if ($argument === 'upgrade-intel' || $argument === 'analyze') {
+            return $argument;
+        }
 
-            return "'" . str_replace("'", "'\\''", $argument) . "'";
-        }, $arguments));
+        if ($windows) {
+            return "'" . str_replace("'", "''", $argument) . "'";
+        }
+
+        return "'" . str_replace("'", "'\\''", $argument) . "'";
     }
 
     /**
