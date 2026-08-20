@@ -134,7 +134,10 @@ final class ArtisanAnalysisProgressReporterTest extends TestCase
         $reporter->report(AnalysisProgressEvent::analysisStarted());
 
         rewind($stream);
-        self::assertSame("[working] Analysis started\n", stream_get_contents($stream));
+        self::assertSame(
+            "[working] Analysis started\n",
+            str_replace("\r\n", "\n", (string) stream_get_contents($stream))
+        );
         fclose($stream);
     }
 
