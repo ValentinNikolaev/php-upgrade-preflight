@@ -282,7 +282,11 @@ final class DefaultUpgradeAnalyzer implements UpgradeAnalyzer
 
     private function reportProgress(AnalysisProgressEvent $event): void
     {
-        $this->progressReporter->report($event);
+        try {
+            $this->progressReporter->report($event);
+        } catch (\Throwable) {
+            // Progress is observational and cannot alter or mask analysis behavior.
+        }
     }
 
     private function inputFailureReport(UpgradeRequest $request, ProjectStateLoadResult $projectLoad): UpgradeReport

@@ -177,7 +177,7 @@ final class FiveMinuteDemoTest extends TestCase
         $canonical = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
 
         self::assertSame('0.8', $canonical['metadata']['schema_version'] ?? null);
-        self::assertSame('0.3.2', $canonical['metadata']['tool']['version'] ?? null);
+        self::assertSame('0.3.3', $canonical['metadata']['tool']['version'] ?? null);
         self::assertSame('blocked', $canonical['resolution']['status'] ?? null);
         self::assertSame('blocked', $canonical['staged_resolution']['status'] ?? null);
         self::assertSame('restricted', $canonical['composer_execution']['mode'] ?? null);

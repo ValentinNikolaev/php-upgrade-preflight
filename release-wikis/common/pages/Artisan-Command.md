@@ -279,7 +279,7 @@ php artisan upgrade:analyze --target-php=8.2 --format=markdown
 
 For automation, prefer a validated output file. If you redirect stdout yourself, the shell can create a destination inside the application before the analyzer sees it, defeating the destination guard.
 
-Progress is observational and never changes the report. It is suppressed when stderr is redirected or not a TTY, so report stdout remains suitable for pipes. The renderer uses ordinary lines rather than a spinner or cursor-control sequences.
+Progress is observational and never changes the report. Terminal detection follows the command's attached error output rather than the host process: redirected, buffered, or captured invocations remain silent, so report stdout remains suitable for pipes. The renderer uses ordinary lines rather than a spinner or cursor-control sequences.
 
 ## Debugging a boot failure
 

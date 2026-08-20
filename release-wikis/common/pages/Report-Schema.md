@@ -12,7 +12,7 @@ This page is a consumer guide. The schema file is authoritative for exact types,
     "schema_version": "0.8",
     "tool": {
       "name": "php-upgrade-preflight",
-      "version": "0.3.2"
+      "version": "0.3.3"
     }
   }
 }

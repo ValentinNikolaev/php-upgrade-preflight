@@ -12,8 +12,8 @@
         {
             "source": "wiki/Core-Service-Reference.md",
             "destination": "Core-Service-Reference.md",
-            "source_sha256": "da19c3ca0a7c4e04f76a51f6da589361bb5ad064b26df68efd8d997c4329fae8",
-            "materialized_sha256": "9f8955d3f93b8af22ecc29a60e2b5f37ec26582939e4d86b73488d4272658569"
+            "source_sha256": "f91c0e2ef37891bbf8d24ee8d751ebc53157f54865a348894ccf495f89a2cde4",
+            "materialized_sha256": "4f625ca68b980b644e753b2c5e47f4f44de94c4d68a152a374367ec3e33690aa"
         },
         {
             "source": "wiki/Core-Analysis-Pipeline.md",
@@ -60,8 +60,8 @@
         {
             "source": "wiki/Roadmap-and-Status.md",
             "destination": "Roadmap-and-Status.md",
-            "source_sha256": "5c9fe4607aca7df0c340d043c5d9e757a54fb493b6466eacfddbcf28289bd4e2",
-            "materialized_sha256": "173618041daed5d8b8a5339d1250ad6cb2d2c106ffd4e5201454678a0f2248cd"
+            "source_sha256": "497021508ecba9ea226025f7120eeaf68b3acac198ff7c588a3ad78a78795f4d",
+            "materialized_sha256": "ae43fe831bf0800d626b1c3a1bd0170d7339add62b5460a8d7b39323e1da53b4"
         }
     ],
     "generated": {

@@ -76,7 +76,7 @@ Adapter returned an expected stage
 | `AnalysisPhase` | Stable phase identifiers for project loading, Composer feasibility, staged resolution, source scan, framework evaluation, and report assembly |
 | `NoOpAnalysisProgressReporter` | Default sink for embeddings that do not expose progress |
 
-`DefaultUpgradeAnalyzer` emits lifecycle events but contains reporter exceptions. Reporters must not change ordering, evidence, report status, or failures. CLI and Laravel own terminal-specific rendering; Core contains no TTY or console styling code.
+`DefaultUpgradeAnalyzer` emits lifecycle events and contains every exception thrown by a reporter, including analysis-start and analysis-failure notifications. Reporter failures therefore cannot change ordering, evidence, report status, returned reports, or thrown analysis failures. CLI and Laravel own terminal-specific rendering; Core contains no TTY or console styling code.
 
 ## Filesystem services
 
