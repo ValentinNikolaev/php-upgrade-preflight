@@ -1,8 +1,8 @@
 # PHP Upgrade Preflight Development Plan
 
-Last updated: 2026-08-18
+Last updated: 2026-08-21
 
-- Released baseline: `0.3.1` (published 2026-08-18)
+- Released baseline: `0.3.2` (published 2026-08-20)
 - Released report schema: `0.8`
 - Active development target: `0.4.0`
 - Planned v0.4 report schema: `0.9`
@@ -40,7 +40,7 @@ Schemas `0.2` through `0.8` and every signed compatibility artifact remain immut
 
 ## Released v0.3.x Baseline
 
-The published baseline is documented in the [v0.3.0 release notes](../docs/releases/v0.3.0.md), the [v0.3.1 release notes](../docs/releases/v0.3.1.md), and the [v0.3 contract](../docs/v0.3-contract.md).
+The published baseline is documented in the [v0.3.0 release notes](../docs/releases/v0.3.0.md), the [v0.3.1 release notes](../docs/releases/v0.3.1.md), the [v0.3.2 release notes](../docs/releases/v0.3.2.md), and the [v0.3 contract](../docs/v0.3-contract.md).
 
 - Schema `0.8` carries required `staged_resolution`, Composer execution provenance, target-platform-profile projections, adjacent stage attempts, candidate-state fingerprints, and blocker lifecycle history.
 - Laravel guidance covers 7 to 8, the retained direct 7 to 9 path, and every adjacent hop from 8 to 9 through 12 to 13, with real Composer evidence per contiguous stage.
@@ -49,6 +49,7 @@ The published baseline is documented in the [v0.3.0 release notes](../docs/relea
 - Excerpt truncation and redaction failure are visible in canonical output, closing the last open finding of the 2026-08-16 architecture audit.
 - v0.3.0 was published from `main` at `3959b0fe` through release run 32136742538, with verified signed tags in four repositories, byte-compared distribution payloads, checksum-bound archives, and a published-package quick start that left the analyzed fixture unchanged.
 - v0.3.1 followed on the same day from `83a9ba2f` through release run 32178181503. It reports tool `0.3.1` on unchanged schema `0.8`, makes excerpt truncation and redaction failure visible, and replaces the pre-publication documentation the v0.3.0 packages had shipped with.
+- v0.3.2 was published from `e6744c09` through release run 32272063360. It keeps schema `0.8` and the analyzer behavior unchanged while publishing the MIT relicensing, the GitHub Pages and four-destination Wiki surfaces, and the repaired offline demo.
 
 ## v0.4 Evidence and Gap Map
 
@@ -88,6 +89,19 @@ v0.4.0 delivers a proven second framework, deliberately narrow:
 - the existing PHP `^8.0` runtime floor. The Symfony requirement applies to the analyzed project and never raises the analyzer floor, exactly as the Laravel 13 requirement did not.
 
 Deferred to [the v0.5 proposal](DEVELOPMENT_PLAN_0.5.0-PROPOSAL.md) rather than dropped: the Symfony console command, a broader Symfony matrix, the adapter migration guide with a worked diff, published conformance tooling, and the Composer process-count reduction. Each is a lever this plan can pull if the cycle runs long, and none of them is required to prove neutrality.
+
+### Separate maintenance patch: GitHub Actions JavaScript runtime
+
+Land the GitHub Actions runtime refresh as its own maintenance patch and pull request before the v0.4.0 release gate. It belongs to the v0.4 development map because it keeps that development and release pipeline supportable, but it does not change the v0.4 product, schema, adapter, command, or compatibility scope.
+
+- [ ] Inventory every pinned JavaScript action and record which revisions still target a deprecated Node.js runtime, starting with the pinned `actions/cache` revision that currently emits the Node.js 20 deprecation warning.
+- [ ] Replace affected actions with reviewed immutable commit SHAs from upstream releases that target GitHub's supported JavaScript runtime; do not replace SHA pins with floating tags.
+- [ ] Preserve workflow permissions, cache keys, restore-key behavior, cross-platform paths, concurrency, artifact retention, and existing job topology unless a separately reviewed compatibility change is required.
+- [ ] Run workflow static validation and the complete Quality and CodeQL matrices on Linux and Windows, including all supported PHP versions.
+- [ ] Confirm the completed runs contain no Node.js 20 deprecation annotation and that cache restore/save behavior remains visible and successful where expected.
+- [ ] Publish the change independently of feature work, with rollback instructions and links to the upstream action release notes and the validating workflow runs.
+
+Acceptance gate: all JavaScript actions remain commit-pinned, no workflow run reports a deprecated Node.js 20 action runtime, existing security permissions and cache semantics are unchanged, and the full required CI matrix passes. This patch does not authorize any v0.4 feature or contract change.
 
 ## v0.4 Scope and Non-Goals
 
