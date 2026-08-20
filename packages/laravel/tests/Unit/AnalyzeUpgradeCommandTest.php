@@ -15,11 +15,14 @@ use PhpUpgradePreflight\Core\Model\ReportFormat;
 use PhpUpgradePreflight\Core\Model\RiskSummary;
 use PhpUpgradePreflight\Core\Model\UpgradeReport;
 use PhpUpgradePreflight\Core\Model\UpgradeRequest;
+use PhpUpgradePreflight\Core\Progress\AnalysisPhase;
+use PhpUpgradePreflight\Core\Progress\AnalysisProgressEvent;
 use PhpUpgradePreflight\Core\Reporting\JsonReportWriter;
 use PhpUpgradePreflight\Core\Reporting\MarkdownReportWriter;
 use PhpUpgradePreflight\Core\Reporting\ReportWriter;
 use PhpUpgradePreflight\Core\Reporting\ReportWriterResolver;
 use PhpUpgradePreflight\Laravel\Commands\AnalyzeUpgradeCommand;
+use PhpUpgradePreflight\Laravel\Console\ArtisanAnalysisProgressReporter;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Style\SymfonyStyle;
@@ -93,6 +96,47 @@ final class AnalyzeUpgradeCommandTest extends TestCase
 
         self::assertNotNull($analyzer->report);
         self::assertSame($this->canonicalLines((new MarkdownReportWriter())->render($analyzer->report)), $display);
+    }
+
+    public function testTerminalProgressUsesStderrWithoutChangingCanonicalStdout(): void
+    {
+        $progress = new ArtisanAnalysisProgressReporter(static fn (): bool => true);
+        $analyzer = new ProgressEmittingUpgradeAnalyzer($progress);
+        $tester = $this->commandTester($analyzer, null, $progress);
+
+        $exitCode = $tester->execute([
+            '--path' => dirname(__DIR__, 4),
+            '--target-php' => '8.2',
+            '--format' => ReportFormat::JSON,
+        ], ['capture_stderr_separately' => true]);
+
+        self::assertSame(Command::SUCCESS, $exitCode);
+        self::assertJson($tester->getDisplay());
+        self::assertStringNotContainsString('[working]', $tester->getDisplay());
+        self::assertSame(
+            "[working] Analysis started\n"
+            . "[working] Loading project metadata\n"
+            . "[done] Loading project metadata\n"
+            . "[done] Analysis complete: unknown\n",
+            str_replace("\r\n", "\n", $tester->getErrorOutput())
+        );
+    }
+
+    public function testRedirectedArtisanDiagnosticsSuppressProgressWithoutChangingStdout(): void
+    {
+        $progress = new ArtisanAnalysisProgressReporter(static fn (): bool => false);
+        $analyzer = new ProgressEmittingUpgradeAnalyzer($progress);
+        $tester = $this->commandTester($analyzer, null, $progress);
+
+        $exitCode = $tester->execute([
+            '--path' => dirname(__DIR__, 4),
+            '--target-php' => '8.2',
+            '--format' => ReportFormat::JSON,
+        ], ['capture_stderr_separately' => true]);
+
+        self::assertSame(Command::SUCCESS, $exitCode);
+        self::assertJson($tester->getDisplay());
+        self::assertSame('', $tester->getErrorOutput());
     }
 
     /** An unknown format never reaches rendering, so the resolver's JSON fallback stays reachable only from core. */
@@ -367,8 +411,11 @@ final class AnalyzeUpgradeCommandTest extends TestCase
         }
     }
 
-    private function commandTester(UpgradeAnalyzer $analyzer, ?string $basePath = null): CommandTester
-    {
+    private function commandTester(
+        UpgradeAnalyzer $analyzer,
+        ?string $basePath = null,
+        ?ArtisanAnalysisProgressReporter $progressReporter = null
+    ): CommandTester {
         $basePath = $basePath ?? dirname(__DIR__, 4);
         $application = $this->createMock(Application::class);
         $application->method('basePath')->willReturn($basePath);
@@ -382,7 +429,7 @@ final class AnalyzeUpgradeCommandTest extends TestCase
             static fn (callable $callback): int => (int) $callback()
         );
 
-        $command = new AnalyzeUpgradeCommand($analyzer);
+        $command = new AnalyzeUpgradeCommand($analyzer, null, null, $progressReporter);
         $command->setLaravel($application);
 
         return new CommandTester($command);
@@ -442,5 +489,26 @@ final class MessageFailingUpgradeAnalyzer implements UpgradeAnalyzer
     public function analyzeUpgrade(UpgradeRequest $request): UpgradeReport
     {
         throw new \RuntimeException($this->message);
+    }
+}
+
+final class ProgressEmittingUpgradeAnalyzer implements UpgradeAnalyzer
+{
+    private ArtisanAnalysisProgressReporter $progressReporter;
+
+    public function __construct(ArtisanAnalysisProgressReporter $progressReporter)
+    {
+        $this->progressReporter = $progressReporter;
+    }
+
+    public function analyzeUpgrade(UpgradeRequest $request): UpgradeReport
+    {
+        $this->progressReporter->report(AnalysisProgressEvent::analysisStarted());
+        $this->progressReporter->report(AnalysisProgressEvent::phaseStarted(AnalysisPhase::PROJECT_LOADING));
+        $this->progressReporter->report(AnalysisProgressEvent::phaseCompleted(AnalysisPhase::PROJECT_LOADING));
+        $report = (new RecordingUpgradeAnalyzer())->analyzeUpgrade($request);
+        $this->progressReporter->report(AnalysisProgressEvent::analysisCompleted($report));
+
+        return $report;
     }
 }

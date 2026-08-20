@@ -4,6 +4,22 @@ This project follows [Semantic Versioning](https://semver.org/). Report schema v
 
 ## [Unreleased]
 
+### Added
+
+- Added the line-oriented `upgrade-intel wizard`, which detects the project, separates current and target PHP, offers locally derivable PHP and package-version candidates, validates package targets through explicitly selected Composer metadata sources, reviews the complete plan, and prints a shell-copyable non-interactive command before analysis.
+- Added typed Core analysis-progress events and terminal-aware CLI and Laravel Artisan renderers. Progress and human diagnostics stay on stderr, non-terminal consumers remain quiet, and canonical JSON or Markdown stdout is unchanged.
+- Added `--save-report=PATH` to keep the canonical report on stdout while saving an identical optional copy outside the analyzed project. The existing `--output=PATH` file-only behavior remains supported.
+- Added read-only Composer package metadata lookup modes for local cache and configured project repositories, with distinct `found`, `no_matching_version`, `not_found`, and operationally `unverified` results.
+
+### Changed
+
+- Expanded the release Wiki and CLI documentation with the interactive workflow, package lookup and credential boundaries, cancellation and non-TTY behavior, progress semantics, report-copy behavior, and the new public Core, CLI, and Laravel services.
+- Made Composer scenario status rendering distinguish dependency blockers, invalid analysis input, timeouts, unverified results, and operational failures instead of labeling every unsuccessful scenario as blocked.
+
+### Fixed
+
+- Corrected the distribution release script's stale `build/` command references and aligned Wiki/release contributor guidance with the mandatory Wiki-before-tag evidence process.
+
 ## [0.3.2] - 2026-08-19
 
 ### Added

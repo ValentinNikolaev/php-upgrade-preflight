@@ -66,6 +66,10 @@ mkdir -p /work/reports
 vendor/bin/upgrade-intel analyze --path=/work/app --target-php=8.2 --output=/work/reports/app.json
 ```
 
+Use `--save-report=/work/reports/app.json` when the canonical report must also remain on stdout. It performs the same pre-analysis destination validation and writes the identical rendered bytes. It cannot be combined with `--output`.
+
+Stdout is reserved for the report except for the established file-only `--output` acknowledgement. Diagnostics and terminal progress use stderr. Progress is emitted only for a terminal-attached stderr and is suppressed when redirected, so it cannot corrupt a report pipe. Progress reporters are observational and their failures are contained.
+
 ## Temporary workspaces and debug mode
 
 Default mode cleans analyzer-owned workspaces. Canonical reports replace exact temporary roots with `[ANALYZER_WORKSPACE]`.
@@ -133,6 +137,18 @@ For untrusted projects, run the analyzer inside a disposable container or restri
 Both modes disable scripts, plugins, package installation, audit, interaction, and progress output. This reduces side effects but can also change resolution compared with a project's normal Composer workflow.
 
 A project that relies on plugin behavior may therefore receive incomplete or different evidence. The report must be read with that limitation.
+
+## Wizard package-metadata lookup boundary
+
+The wizard's optional package lookup is a pre-analysis convenience, not Composer feasibility evidence and not a replacement for `--composer-mode`. The user chooses the lookup source explicitly:
+
+- `composer.json` only starts no Composer process;
+- local-cache-only lookup requests no network and treats missing metadata as unverified;
+- configured project repositories may use network, global Composer state, repository credentials, proxy, Git, and SSH configuration.
+
+Composer metadata lookup disables plugins, scripts, interaction, and ANSI and has a bounded timeout and redacted, bounded diagnostics. Only an explicit package-not-found response from the configured repository universe becomes `not_found`. DNS, offline, authentication, timeout, malformed-output, and other operational failures remain `unverified`. Restricted Composer execution is also unverified without starting a lookup process until an isolated lookup home/cache is available.
+
+Candidate versions are advisory prompt choices. The actual analyzer still runs its bounded scenarios in analyzer-owned workspaces under the separately selected Composer analysis mode.
 
 ## Credentials and redaction
 
@@ -238,7 +254,7 @@ An adapter rule failure is contained and recorded as uncertainty so the report c
 
 Process exit code 0 means the command produced a valid report. It includes reports whose direct resolution is `blocked` or `unknown`.
 
-Process codes 1 and 2 mean no valid analysis report was produced. They are operational/interface results, not Composer solver results.
+Process codes 1 and 2 mean no valid analysis report was produced. Wizard cancellation before analysis uses conventional code 130. They are operational/interface results, not Composer solver results.
 
 Within a valid report, read independently:
 

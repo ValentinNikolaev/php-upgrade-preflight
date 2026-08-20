@@ -76,6 +76,8 @@ $report = (new DefaultUpgradeAnalyzer())->analyzeUpgrade($request);
 
 The CLI packages remain the easier entry point for most users.
 
+Embedders may inject an `AnalysisProgressReporter` into `DefaultUpgradeAnalyzer`. Core emits validated lifecycle events for analysis, phases, and Composer scenarios. `NoOpAnalysisProgressReporter` is the default. Reporter failures are contained, so progress remains observational and cannot change the returned report.
+
 ## Constructing a valid request
 
 `UpgradeRequest` validates its inputs immediately.
@@ -140,6 +142,14 @@ Defaults are:
 Scenario timeout must be from 1 through 3600 seconds.
 
 Diagnostic timeout must be from 1 through 900 seconds.
+
+## Package metadata discovery
+
+`ComposerPackageMetadataLookup` is the bounded read-only discovery service used by interactive clients before analysis. Its public `lookup()` operation requires the project path, package, constraint, `ComposerExecutionConfiguration`, and an explicit `PackageMetadataLookupMode`.
+
+The result is a `PackageMetadataLookupResult` with one of four statuses: `invalid`, `found`, `not_found`, or `unverified`. A found result includes bounded discovered and constraint-matching version lists and their full counts. Local-cache misses, timeout, offline, malformed output, and process failures are unverified rather than guessed nonexistence. Project-repository mode may use configured repositories, credentials, and network; only its explicit package-not-found response becomes `not_found`.
+
+Restricted execution currently returns `restricted_execution_unavailable` without starting a process. This preserves the restricted contract until lookup can create isolated Composer home/cache state. Lookup diagnostics are bounded and redacted, and the service never writes analysis results into the target project.
 
 ## Loading project state
 

@@ -59,8 +59,24 @@ Adapter returned an expected stage
 | `ScenarioWorkspacePreparer` | Seed and modify copied Composer files and construct restricted environment | Never writes target changes to the analyzed tree |
 | `ScenarioOutcomeClassifier` | Separate success, solver failure, and operational outcomes | Process failure does not always mean dependency blockage |
 | `CandidateLockFileReader` | Fingerprint LF-normalized candidate lockfile bytes and package them as `CandidateLockEvidence` | Unreadable lock evidence becomes uncertainty rather than guessed data |
+| `ComposerPackageMetadataLookup` | Read-only, bounded package/version discovery for interactive target selection | The caller must explicitly choose cache-only or project-repository lookup; operational failures remain unverified |
+| `PackageMetadataLookupMode` | Closed vocabulary for `local_cache_only` and `project_repositories` | Network permission is explicit rather than hidden in a default API |
+| `PackageMetadataLookupResult` | Invalid/found/not-found/unverified result plus bounded version and diagnostic data | Offline, timeout, malformed output, and cache misses are not package nonexistence |
 
 `ComposerScenarioRunner` is intentionally broad because it owns one external-process boundary. Analysis interpretation remains in `Analysis` services.
+
+`ComposerPackageMetadataLookup` is a separate pre-analysis discovery boundary. It invokes the selected Composer executable with `show --all --format=json`, plugins, scripts, interaction, and ANSI disabled, and uses the configured diagnostic timeout. Project-repository mode may use repository configuration, credentials, and network. Local-cache mode requests network disablement and never returns `not_found` for a cache miss. Restricted `ComposerExecutionConfiguration` currently returns an explicit unverified result without starting a process because isolated lookup state is not yet implemented.
+
+## Progress services
+
+| Type | Responsibility |
+| --- | --- |
+| `AnalysisProgressReporter` | Optional observational event sink injected into the analyzer |
+| `AnalysisProgressEvent` | Validated analysis, phase, and Composer-scenario lifecycle event |
+| `AnalysisPhase` | Stable phase identifiers for project loading, Composer feasibility, staged resolution, source scan, framework evaluation, and report assembly |
+| `NoOpAnalysisProgressReporter` | Default sink for embeddings that do not expose progress |
+
+`DefaultUpgradeAnalyzer` emits lifecycle events but contains reporter exceptions. Reporters must not change ordering, evidence, report status, or failures. CLI and Laravel own terminal-specific rendering; Core contains no TTY or console styling code.
 
 ## Filesystem services
 

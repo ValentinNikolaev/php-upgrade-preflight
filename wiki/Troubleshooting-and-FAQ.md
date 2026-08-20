@@ -84,12 +84,18 @@ The PHP 8 analyzer can model PHP 7.4 as the source state. It does not boot the t
 
 Host installability and analyzed target scope are separate. Project-local adapter installation requires Laravel 8–13 and the applicable host PHP floor. External CLI analysis installs the adapter in its own PHP 8 tools project, then reads Laravel 7 metadata and source without booting Laravel 7.
 
-## `Unknown command`; expected `analyze`
+## `Unknown command`; expected `analyze` or `wizard`
 
-The standalone CLI has one required subcommand:
+Use explicit options for automation:
 
 ```bash
 vendor/bin/upgrade-intel analyze --target-php=8.2
+```
+
+Use the guided flow only in a real terminal:
+
+```bash
+vendor/bin/upgrade-intel wizard
 ```
 
 The Artisan command is different:
@@ -97,6 +103,22 @@ The Artisan command is different:
 ```bash
 php artisan upgrade:analyze --target-php=8.2
 ```
+
+## The wizard says it requires an interactive terminal
+
+The wizard requires both terminal-attached stdin and a visible terminal on stderr. It intentionally rejects pipes, redirected prompt streams, CI sessions, and other non-TTY contexts instead of silently accepting defaults. Use the equivalent `upgrade-intel analyze --name=value` command in automation.
+
+End-of-input returns code `2`. Entering `cancel`, `quit`, or `q` returns `130`; no analysis starts in either case.
+
+## Wizard package validation is unverified
+
+`unverified` means the package lookup could not prove the answer. Common causes are an empty local cache, disabled or unavailable network, authentication failure, timeout, malformed Composer metadata, or restricted execution without an isolated lookup state. It is not evidence that the package does not exist.
+
+Choose `composer.json` only to avoid an external lookup, retry with the configured project repositories if their network and credential boundary is acceptable, or continue and let the actual analysis scenarios produce report evidence. An explicit `not_found` is reserved for a clear response from the configured repository universe; `no_matching_version` means the package was found but the chosen constraint matched none of its discovered versions.
+
+## No progress appears
+
+Progress is printed only when stderr is attached to a terminal. It is deliberately suppressed when stderr is redirected or piped, while stdout remains the canonical report stream. Both `upgrade-intel analyze` and `php artisan upgrade:analyze` use durable phase lines rather than an animated spinner.
 
 ## `Unsupported argument at position ...`
 
@@ -292,7 +314,7 @@ Stable markers normalize common absolute roots, but Composer-produced lock metad
 
 ## The output path is rejected
 
-`--output` must be outside the analyzed project. Its parent must already exist and be writable, and the destination must not be a directory.
+`--output` and `--save-report` destinations must be outside the analyzed project. Their parent must already exist and be writable, and the destination must not be a directory. The two options cannot be combined: `--output` is file-only delivery, while `--save-report` preserves stdout and adds an identical file copy.
 
 ```bash
 mkdir -p /work/reports

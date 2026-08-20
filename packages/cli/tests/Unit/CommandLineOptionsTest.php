@@ -44,12 +44,21 @@ final class CommandLineOptionsTest extends TestCase
             }
 
             $documented[] = $option->name();
+            if ($option->name() === 'output') {
+                continue;
+            }
             $argv[] = $option->mode() === CommandLineOption::MODE_FLAG
                 ? '--' . $option->name()
                 : '--' . $option->name() . '=' . $this->sampleValue($option->name());
         }
 
         $options = (new CommandLineParser())->parse($argv);
+        $legacyOutput = (new CommandLineParser())->parse([
+            'upgrade-intel',
+            'analyze',
+            '--target-php=8.2',
+            '--output=report.json',
+        ]);
 
         self::assertSame(['ext-intl', 'ext-xdebug'], array_map(
             static fn ($assumption): string => $assumption->name(),
@@ -62,6 +71,7 @@ final class CommandLineOptionsTest extends TestCase
 
             self::assertArrayHasKey($name, $options, $name);
         }
+        self::assertSame('report.json', $legacyOutput['output']);
     }
 
     public function testTheParseResultExposesNoUndocumentedKeys(): void

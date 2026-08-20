@@ -277,10 +277,11 @@ writes nothing. Run it against one cloned Wiki after copying the selected set. F
 surplus remote page, review the page, remove only that path with `git rm`, and rerun
 the comparison; never bulk-delete the checkout.
 
-**CI/release role.** Current GitHub Actions and distribution scripts do not call
-this tool. Passing `--check` and publishing/reviewing the four Wiki sets are a
-mandatory pre-tag process described in [Release Wiki Strategy](Release-Wiki-Strategy).
-Codex, Claude, and other agents preparing a tag must regenerate and verify the sets.
+**CI/release role.** The release workflow runs `composer release:verify`, whose
+verifier invokes this tool in `--check` mode. Distribution scripts do not publish
+Wiki repositories. Regenerating the four sets, passing the drift check, publishing
+or reviewing all four Wiki destinations, and recording their remote commit SHAs
+remain mandatory pre-tag work described in [Release Wiki Strategy](Release-Wiki-Strategy).
 
 ## Reporting helper
 

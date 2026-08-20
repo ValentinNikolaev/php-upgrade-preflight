@@ -91,6 +91,11 @@ final class CommandLineOptions
                 null
             ),
             CommandLineOption::optionalValue(
+                'save-report',
+                '--save-report=PATH',
+                'Also save the stdout report to a file'
+            ),
+            CommandLineOption::optionalValue(
                 'composer-mode',
                 '--composer-mode=MODE',
                 'compatible or restricted (default: compatible)'

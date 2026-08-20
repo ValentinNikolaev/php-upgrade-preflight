@@ -163,7 +163,7 @@ Every behavior change must update affected public documentation in its pull requ
 3. verify the text is understandable to a Junior developer and a technical manager;
 4. run `composer release:verify -- VERSION` and complete the release checklist.
 
-Codex, Claude, and all other coding agents are explicitly required to perform the Wiki update when their work creates or prepares a release tag. They must not defer it as optional cleanup. As of 2026-08-19, `verify-release.php` checks repository metadata, changelog, and release notes, but Wiki freshness remains a mandatory human/agent review item.
+Codex, Claude, and all other coding agents are explicitly required to perform the Wiki update when their work creates or prepares a release tag. They must not defer it as optional cleanup. `verify-release.php` checks repository metadata, changelog, release notes, and the materialized Wiki trees. Human or agent review is still required for behavioral accuracy and for the published four-destination evidence that a local drift check cannot prove.
 
 ## Release changes
 

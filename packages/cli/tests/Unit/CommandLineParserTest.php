@@ -28,6 +28,7 @@ final class CommandLineParserTest extends TestCase
             '--composer-version=^2.8',
             '--composer-timeout=120',
             '--composer-diagnostic-timeout=15',
+            '--save-report=/tmp/report.json',
             '--debug',
         ]);
 
@@ -46,6 +47,7 @@ final class CommandLineParserTest extends TestCase
         self::assertSame('^2.8', $options['composer-version']);
         self::assertSame('120', $options['composer-timeout']);
         self::assertSame('15', $options['composer-diagnostic-timeout']);
+        self::assertSame('/tmp/report.json', $options['save-report']);
     }
 
     public function testTargetPhpAloneIsAValidTargetSelection(): void
@@ -98,6 +100,13 @@ final class CommandLineParserTest extends TestCase
             ], 'may only be specified once'],
             [['upgrade-intel', 'analyze', '--target-php=8.2', '--debug=false'], 'does not accept a value'],
             [['upgrade-intel', 'analyze', '--target-php=8.2', '--debug', '--debug'], 'may only be specified once'],
+            [[
+                'upgrade-intel',
+                'analyze',
+                '--target-php=8.2',
+                '--output=report.json',
+                '--save-report=copy.json',
+            ], 'cannot be combined'],
             [['upgrade-intel', 'analyze', '--target-php=8.2', '--unsupported=1'], 'Unknown option.'],
             [['upgrade-intel', 'analyze', '--target-php=8.2', '--unsupported'], 'Unsupported argument at position 1.'],
             [[

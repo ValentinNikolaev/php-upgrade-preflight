@@ -188,7 +188,7 @@ Without `--framework=laravel`, detection can activate the installed integration 
 
 ## Laravel service provider and Artisan command
 
-Laravel package metadata also advertises `UpgradePreflightServiceProvider`. Its `register()` method binds `UpgradeAnalyzer` as a singleton containing one `LaravelFrameworkIntegration`. Its `boot()` method registers `AnalyzeUpgradeCommand` only while the application is running in console mode.
+Laravel package metadata also advertises `UpgradePreflightServiceProvider`. Its `register()` method binds `ArtisanAnalysisProgressReporter` and `UpgradeAnalyzer` as singletons; the analyzer contains one `LaravelFrameworkIntegration` and receives the reporter. Its `boot()` method registers `AnalyzeUpgradeCommand` only while the application is running in console mode.
 
 ```bash
 php artisan upgrade:analyze \
@@ -198,6 +198,8 @@ php artisan upgrade:analyze \
 ```
 
 The Artisan command defaults `--path` to the Laravel application base path and always requests the `laravel` integration. Its main options mirror the generic CLI, except it does not expose a repeatable `--framework` selector because the command is already Laravel-specific.
+
+`AnalyzeUpgradeCommand` attaches `ArtisanAnalysisProgressReporter` to Symfony Console's error style only for the command run and detaches it afterward. The reporter renders Core phase/scenario events only when stderr is a TTY, catches its own failures, and never modifies canonical report stdout or analysis semantics.
 
 ## Class reference
 
@@ -214,6 +216,7 @@ The Artisan command defaults `--path` to the Laravel application base path and a
 | `LaravelRuleCatalogValidator` | Catalog consistency checks |
 | `UpgradePreflightServiceProvider` | Container binding and console registration |
 | `Commands\AnalyzeUpgradeCommand` | Artisan request construction and report delivery |
+| `Console\ArtisanAnalysisProgressReporter` | TTY-only stderr rendering of Core progress events |
 
 ## Related pages
 

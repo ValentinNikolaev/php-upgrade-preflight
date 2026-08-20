@@ -261,6 +261,80 @@ final class AnalyzeCommandTest extends TestCase
         self::assertStringContainsString('outside the analyzed project', $this->streamContents($this->stderr));
     }
 
+    public function testItPrintsTheCanonicalReportAndSavesAnIdenticalOptionalCopy(): void
+    {
+        $copyPath = sys_get_temp_dir() . DIRECTORY_SEPARATOR
+            . 'php-upgrade-preflight-report-copy-' . bin2hex(random_bytes(8)) . '.json';
+
+        try {
+            $exitCode = $this->command->run([
+                'upgrade-intel',
+                'analyze',
+                '--path=' . dirname(__DIR__, 4),
+                '--target-php=8.2',
+                '--save-report=' . $copyPath,
+            ]);
+
+            $stdout = $this->streamContents($this->stdout);
+            self::assertSame(AnalyzeCommand::SUCCESS, $exitCode);
+            self::assertNotNull($this->analyzer->request);
+            self::assertNull($this->analyzer->request->outputPath());
+            self::assertSame($stdout, file_get_contents($copyPath));
+            self::assertJson($stdout);
+            self::assertStringContainsString('Saved report copy to ', $this->streamContents($this->stderr));
+        } finally {
+            if (is_file($copyPath)) {
+                unlink($copyPath);
+            }
+        }
+    }
+
+    public function testLegacyOutputRemainsFileOnly(): void
+    {
+        $outputPath = sys_get_temp_dir() . DIRECTORY_SEPARATOR
+            . 'php-upgrade-preflight-file-only-' . bin2hex(random_bytes(8)) . '.json';
+
+        try {
+            $exitCode = $this->command->run([
+                'upgrade-intel',
+                'analyze',
+                '--path=' . dirname(__DIR__, 4),
+                '--target-php=8.2',
+                '--output=' . $outputPath,
+            ]);
+
+            self::assertSame(AnalyzeCommand::SUCCESS, $exitCode);
+            self::assertStringStartsWith('Wrote report to ', $this->streamContents($this->stdout));
+            $saved = file_get_contents($outputPath);
+            self::assertIsString($saved);
+            self::assertJson($saved);
+        } finally {
+            if (is_file($outputPath)) {
+                unlink($outputPath);
+            }
+        }
+    }
+
+    public function testItRejectsASavedCopyInsideTheAnalyzedProject(): void
+    {
+        $projectPath = dirname(__DIR__, 4);
+        $composerPath = $projectPath . DIRECTORY_SEPARATOR . 'composer.json';
+        $before = file_get_contents($composerPath);
+
+        $exitCode = $this->command->run([
+            'upgrade-intel',
+            'analyze',
+            '--path=' . $projectPath,
+            '--target=fixture/dependency:^2.0',
+            '--save-report=' . $composerPath,
+        ]);
+
+        self::assertSame(AnalyzeCommand::INVALID, $exitCode);
+        self::assertNull($this->analyzer->request);
+        self::assertSame($before, file_get_contents($composerPath));
+        self::assertStringContainsString('outside the analyzed project', $this->streamContents($this->stderr));
+    }
+
     public function testItValidatesTheOutputDestinationBeforeRunningAnalysis(): void
     {
         $exitCode = $this->command->run([

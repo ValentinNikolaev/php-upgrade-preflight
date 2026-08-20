@@ -11,13 +11,23 @@ Use it to find the package boundary and the deeper Wiki page for a symbol. “Va
 | Namespace and class/interface | Purpose | Deeper page |
 | --- | --- | --- |
 | `PhpUpgradePreflight\Cli\AdapterManifestReader` | Reads and validates one installed package's adapter declaration | [[CLI Package Internals|CLI-Package-Internals]] |
+| `PhpUpgradePreflight\Cli\Application` | Dispatches the executable to analysis or the interactive wizard | [[CLI Package Internals|CLI-Package-Internals]] |
 | `PhpUpgradePreflight\Cli\AnalyzeCommand` | Runs the generic `upgrade-intel analyze` command | [[CLI Package Internals|CLI-Package-Internals]] |
 | `PhpUpgradePreflight\Cli\AnalyzerFactory` | Factory interface for constructing an analyzer from integrations | [[CLI Package Internals|CLI-Package-Internals]] |
 | `PhpUpgradePreflight\Cli\CommandLineOption` | Value definition for one documented CLI option | [[CLI Package Internals|CLI-Package-Internals]] |
 | `PhpUpgradePreflight\Cli\CommandLineOptions` | Canonical CLI option vocabulary, defaults, modes, and help | [[CLI Package Internals|CLI-Package-Internals]] |
 | `PhpUpgradePreflight\Cli\CommandLineParser` | Validates arguments and creates normalized option data | [[CLI Package Internals|CLI-Package-Internals]] |
+| `PhpUpgradePreflight\Cli\CommandRunner` | Shared executable-command interface | [[CLI Package Internals|CLI-Package-Internals]] |
+| `PhpUpgradePreflight\Cli\ComposerLookupPackageTargetValidator` | Adapts Core package metadata lookup results for wizard choices | [[CLI Package Internals|CLI-Package-Internals]] |
 | `PhpUpgradePreflight\Cli\DefaultAnalyzerFactory` | Creates `DefaultUpgradeAnalyzer` with discovered integrations | [[CLI Package Internals|CLI-Package-Internals]] |
 | `PhpUpgradePreflight\Cli\FrameworkIntegrationRegistry` | Discovers, instantiates, sorts, and selects framework integrations | [[CLI Package Internals|CLI-Package-Internals]] |
+| `PhpUpgradePreflight\Cli\LocalPackageTargetValidator` | Validates package targets against root Composer requirements without a process | [[CLI Package Internals|CLI-Package-Internals]] |
+| `PhpUpgradePreflight\Cli\PackageTargetCandidateProvider` | Optional contract for discovered package-target choices | [[CLI Package Internals|CLI-Package-Internals]] |
+| `PhpUpgradePreflight\Cli\PackageTargetValidation` | Package target found/not-found/no-match/unverified/invalid value | [[CLI Package Internals|CLI-Package-Internals]] |
+| `PhpUpgradePreflight\Cli\PackageTargetValidator` | Package-target validation contract used by the wizard | [[CLI Package Internals|CLI-Package-Internals]] |
+| `PhpUpgradePreflight\Cli\TerminalAnalysisProgressReporter` | Renders Core progress events to terminal-attached stderr | [[CLI Package Internals|CLI-Package-Internals]] |
+| `PhpUpgradePreflight\Cli\WizardCommand` | Collects, reviews, and delegates an interactive analysis request | [[CLI Package Internals|CLI-Package-Internals]] |
+| `PhpUpgradePreflight\Cli\WizardInputException` | Typed wizard cancellation or input termination | [[CLI Package Internals|CLI-Package-Internals]] |
 
 ## Core analysis namespace
 
@@ -54,10 +64,13 @@ Use it to find the package boundary and the deeper Wiki page for a symbol. “Va
 | --- | --- | --- |
 | `PhpUpgradePreflight\Core\Composer\CandidateLockFileReader` | Fingerprints candidate lock bytes and creates evidence | [[Determinism and Evidence|Determinism-and-Evidence]] |
 | `PhpUpgradePreflight\Core\Composer\ComposerScenarioRunner` | Owns Composer process execution, diagnostics, candidate locks, and cleanup | [[Core Analysis Pipeline|Core-Analysis-Pipeline]] |
+| `PhpUpgradePreflight\Core\Composer\ComposerPackageMetadataLookup` | Performs explicit-mode bounded Composer package discovery | [[Core Service Reference|Core-Service-Reference]] |
 | `PhpUpgradePreflight\Core\Composer\InvalidJsonException` | Typed invalid Composer JSON failure | [[Core Package Guide|Core-Package-Guide]] |
 | `PhpUpgradePreflight\Core\Composer\JsonFileException` | Base exception carrying a Composer JSON path | [[Core Package Guide|Core-Package-Guide]] |
 | `PhpUpgradePreflight\Core\Composer\JsonFileReader` | Strictly reads Composer JSON objects | [[Core Package Guide|Core-Package-Guide]] |
 | `PhpUpgradePreflight\Core\Composer\MissingJsonFileException` | Typed missing Composer JSON file failure | [[Core Package Guide|Core-Package-Guide]] |
+| `PhpUpgradePreflight\Core\Composer\PackageMetadataLookupMode` | Cache-only and project-repository lookup vocabulary | [[Core Service Reference|Core-Service-Reference]] |
+| `PhpUpgradePreflight\Core\Composer\PackageMetadataLookupResult` | Invalid/found/not-found/unverified package metadata result | [[Core Service Reference|Core-Service-Reference]] |
 | `PhpUpgradePreflight\Core\Composer\ProjectStateBuilder` | Loads manifest and lock data into project state | [[Core Analysis Pipeline|Core-Analysis-Pipeline]] |
 | `PhpUpgradePreflight\Core\Composer\ProjectStateLoadResult` | Value carrying project state plus optional load failure | [[Core Package Guide|Core-Package-Guide]] |
 | `PhpUpgradePreflight\Core\Composer\ScenarioOutcome` | Internal classified scenario failure/outcome pair | [[Core Service Reference|Core-Service-Reference]] |
@@ -65,6 +78,15 @@ Use it to find the package boundary and the deeper Wiki page for a symbol. “Va
 | `PhpUpgradePreflight\Core\Composer\ScenarioWorkspacePreparer` | Writes temporary manifest and restricted environment data | [[Core Analysis Pipeline|Core-Analysis-Pipeline]] |
 | `PhpUpgradePreflight\Core\Composer\TargetPlatformProfileFileReader` | Reads and validates a target-platform profile file | [[Core Package Guide|Core-Package-Guide]] |
 | `PhpUpgradePreflight\Core\Composer\UnreadableJsonFileException` | Typed unreadable Composer JSON file failure | [[Core Package Guide|Core-Package-Guide]] |
+
+## Core progress namespace
+
+| Namespace and class/interface | Purpose | Deeper page |
+| --- | --- | --- |
+| `PhpUpgradePreflight\Core\Progress\AnalysisPhase` | Stable analysis phase vocabulary | [[Core Analysis Pipeline|Core-Analysis-Pipeline]] |
+| `PhpUpgradePreflight\Core\Progress\AnalysisProgressEvent` | Validated analysis, phase, and scenario lifecycle event | [[Core Service Reference|Core-Service-Reference]] |
+| `PhpUpgradePreflight\Core\Progress\AnalysisProgressReporter` | Optional observational progress sink contract | [[Core Service Reference|Core-Service-Reference]] |
+| `PhpUpgradePreflight\Core\Progress\NoOpAnalysisProgressReporter` | Silent default progress sink | [[Core Service Reference|Core-Service-Reference]] |
 
 ## Core contracts, filesystem, and framework namespaces
 
@@ -187,6 +209,7 @@ Use it to find the package boundary and the deeper Wiki page for a symbol. “Va
 | Namespace and class | Purpose | Deeper page |
 | --- | --- | --- |
 | `PhpUpgradePreflight\Laravel\Commands\AnalyzeUpgradeCommand` | Laravel Artisan analysis command | [[Laravel Package Internals|Laravel-Package-Internals]] |
+| `PhpUpgradePreflight\Laravel\Console\ArtisanAnalysisProgressReporter` | Renders Core progress events through terminal-attached Artisan stderr | [[Laravel Package Internals|Laravel-Package-Internals]] |
 | `PhpUpgradePreflight\Laravel\LaravelFrameworkDetector` | Detects Laravel or Illuminate projects from Composer metadata | [[Laravel Package Internals|Laravel-Package-Internals]] |
 | `PhpUpgradePreflight\Laravel\LaravelFrameworkIntegration` | Facade implementing all Laravel adapter capabilities | [[Laravel Package Internals|Laravel-Package-Internals]] |
 | `PhpUpgradePreflight\Laravel\LaravelPackageFamilyClassifier` | Classifies Laravel, Illuminate, and Symfony package families | [[Laravel Package Internals|Laravel-Package-Internals]] |
