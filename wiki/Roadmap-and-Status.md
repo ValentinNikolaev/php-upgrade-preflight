@@ -32,7 +32,8 @@ Within v0.3.x, patch releases preserve documented public PHP operation, CLI/Arti
 
 - Three supported external Composer packages: `core`, `cli`, and `laravel`.
 - Two internal test packages proving modern and legacy third-party adapter contracts.
-- Generic CLI and Laravel Artisan entry points with canonical report parity.
+- Automation-safe generic CLI, an interactive standalone wizard, and Laravel Artisan entry points over the same canonical analyzer.
+- TTY-only durable progress events for standalone CLI and Artisan without contaminating report stdout.
 - JSON schema `0.8` plus Markdown projection.
 - Read-only Composer scenario analysis in analyzer-owned workspaces.
 - Compatible and restricted Composer execution policies.
@@ -114,7 +115,7 @@ Do not turn “possible” into a date, supported platform, adapter, or package 
 
 ## Mandatory release documentation rule
 
-Before any new release tag, update this point-in-time page and every affected Wiki page. Record the new release, schema, support boundary, limitations, and verified examples. Codex, Claude, and other agents preparing the tag must perform this update as part of release work. As of 2026-08-19 this rule is mandatory but review-enforced; repository automation does not independently determine whether the Wiki is current.
+Before any new release tag, update this point-in-time page and every affected Wiki page. Record the new release, schema, support boundary, limitations, and verified examples. Codex, Claude, and other agents preparing the tag must perform this update as part of release work. Repository automation checks materialized Wiki drift, while behavioral accuracy and published four-destination commit evidence still require human or agent review.
 
 ## Where to verify details
 
@@ -142,6 +143,10 @@ This table distinguishes implemented capability from interpretation.
 | JSON report | Canonical schema 0.8 contract | Future schemas cannot add or change fields under versioning policy |
 | Markdown report | Human-readable projection | Markdown is an independent analysis engine |
 | Restricted Composer mode | Isolates analyzer state and requests no network | Operating-system sandboxing is guaranteed |
+| Interactive wizard | Builds and reviews an explicit analysis request in a TTY | Prompts are supported in CI or replace the `analyze` contract |
+| Package metadata choices | Distinguish found, no-match, not-found, and operationally unverified | A pre-analysis lookup proves final Composer feasibility |
+| Terminal progress | Shows durable phases and scenarios on TTY stderr | Progress changes report semantics or appears in redirected streams |
+| `--save-report` | Preserves stdout and writes an identical validated copy | Destinations inside the analyzed project are allowed |
 
 ## Supported entry points
 
@@ -149,10 +154,11 @@ The supported user-facing entry points are:
 
 ```text
 vendor/bin/upgrade-intel analyze
+vendor/bin/upgrade-intel wizard
 php artisan upgrade:analyze
 ```
 
-Both create `UpgradeRequest` and delegate to `UpgradeAnalyzer`.
+`analyze` and Artisan create `UpgradeRequest` directly and delegate to `UpgradeAnalyzer`. The wizard collects and reviews choices, prints an equivalent explicit command, then delegates to `analyze`.
 
 They should agree on canonical analysis when normalized requests and integrations agree.
 

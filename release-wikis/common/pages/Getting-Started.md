@@ -98,6 +98,22 @@ New-Item -ItemType Directory -Force C:\work\upgrade-reports | Out-Null
 
 Do not write the report under the analyzed project. The command rejects that destination to preserve the read-only input contract.
 
+## Guided first run
+
+In a terminal, start the interactive wizard:
+
+```bash
+vendor/bin/upgrade-intel wizard
+```
+
+```powershell
+vendor\bin\upgrade-intel.bat wizard
+```
+
+It shows available project evidence, asks whether to model PHP, packages, or both, and requires an explicit Composer analysis mode. For package targets, the default reads only `composer.json`. You may instead request a local-cache-only metadata check or configured project repositories; the latter can use network access and credentials. A package that is explicitly absent or has no matching discovered version must be corrected. Offline, timeout, and metadata failures are shown as unverified rather than falsely labeled nonexistent.
+
+The default report format is readable Markdown. The wizard always keeps the report on stdout and can also save the same bytes to a validated path outside the project. It shows the equivalent flag-based `analyze` command before confirmation. Use that explicit command in CI or any redirected/non-TTY session. Enter `cancel`, `quit`, or `q` to stop before analysis.
+
 ## Run a first PHP-only analysis
 
 Linux or macOS:
@@ -161,6 +177,7 @@ The shell exit code answers, “Did the command produce a valid report?” It do
 | `0` | Help was shown or a complete canonical report was produced |
 | `1` | An internal or operational failure prevented report production |
 | `2` | The invocation, target, path, format, framework, profile, or destination was invalid |
+| `130` | The interactive wizard was cancelled before analysis |
 
 A solver-blocked upgrade is successful analysis output, so it returns `0`.
 

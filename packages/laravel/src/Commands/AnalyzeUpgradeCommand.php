@@ -16,6 +16,7 @@ use PhpUpgradePreflight\Core\Reporting\ReportFileWriter;
 use PhpUpgradePreflight\Core\Reporting\ReportWriterResolver;
 use PhpUpgradePreflight\Core\Support\PathExposurePolicy;
 use PhpUpgradePreflight\Core\Support\SensitiveOutputRedactor;
+use PhpUpgradePreflight\Laravel\Console\ArtisanAnalysisProgressReporter;
 use Symfony\Component\Console\Output\OutputInterface;
 
 final class AnalyzeUpgradeCommand extends Command
@@ -45,16 +46,19 @@ final class AnalyzeUpgradeCommand extends Command
     private UpgradeAnalyzer $analyzer;
     private ReportFileWriter $reportFileWriter;
     private ReportWriterResolver $reportWriterResolver;
+    private ?ArtisanAnalysisProgressReporter $progressReporter;
 
     public function __construct(
         UpgradeAnalyzer $analyzer,
         ?ReportFileWriter $reportFileWriter = null,
-        ?ReportWriterResolver $reportWriterResolver = null
+        ?ReportWriterResolver $reportWriterResolver = null,
+        ?ArtisanAnalysisProgressReporter $progressReporter = null
     ) {
         parent::__construct();
         $this->analyzer = $analyzer;
         $this->reportFileWriter = $reportFileWriter ?? new ReportFileWriter();
         $this->reportWriterResolver = $reportWriterResolver ?? new ReportWriterResolver();
+        $this->progressReporter = $progressReporter;
     }
 
     public function handle(): int
@@ -113,6 +117,7 @@ final class AnalyzeUpgradeCommand extends Command
             return self::FAILURE;
         }
 
+        $this->progressReporter?->attach($this->output->getErrorStyle());
         try {
             $report = $this->analyzer->analyzeUpgrade($request);
             $rendered = $this->reportWriterResolver->resolve($format)->render($report);
@@ -132,6 +137,8 @@ final class AnalyzeUpgradeCommand extends Command
             $this->diagnostic('Analysis failed: ' . $exception->getMessage());
 
             return self::FAILURE;
+        } finally {
+            $this->progressReporter?->detach();
         }
     }
 

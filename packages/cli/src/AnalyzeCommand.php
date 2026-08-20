@@ -14,7 +14,7 @@ use PhpUpgradePreflight\Core\Reporting\ReportWriterResolver;
 use PhpUpgradePreflight\Core\Support\PathExposurePolicy;
 use PhpUpgradePreflight\Core\Support\SensitiveOutputRedactor;
 
-final class AnalyzeCommand
+final class AnalyzeCommand implements CommandRunner
 {
     public const SUCCESS = 0;
     public const FAILURE = 1;
@@ -51,7 +51,9 @@ final class AnalyzeCommand
         $this->reportFileWriter = $reportFileWriter ?? new ReportFileWriter();
         $this->parser = $parser ?? new CommandLineParser();
         $this->frameworkIntegrations = $frameworkIntegrations ?? new FrameworkIntegrationRegistry();
-        $this->analyzerFactory = $analyzerFactory ?? new DefaultAnalyzerFactory();
+        $this->analyzerFactory = $analyzerFactory ?? new DefaultAnalyzerFactory(
+            new TerminalAnalysisProgressReporter($this->stderr)
+        );
         $this->reportWriters = $reportWriters ?? new ReportWriterResolver();
     }
 
@@ -66,6 +68,7 @@ final class AnalyzeCommand
 
         try {
             $options = $this->parser->parse($argv);
+            $saveReportPath = $options['save-report'] ?? null;
             $targets = array_map(static fn (string $target): UpgradeTarget => UpgradeTarget::fromString($target), $options['target']);
             $targetPlatformProfile = $this->loadTargetPlatformProfile($options['target-platform-profile'] ?? null);
             $composerExecution = new ComposerExecutionConfiguration(
@@ -100,6 +103,9 @@ final class AnalyzeCommand
             if ($request->outputPath() !== null) {
                 $this->reportFileWriter->validateDestination($request->projectPath(), $request->outputPath());
             }
+            if ($saveReportPath !== null) {
+                $this->reportFileWriter->validateDestination($request->projectPath(), $saveReportPath);
+            }
         } catch (\InvalidArgumentException $exception) {
             $this->diagnostic('Invalid invocation: ' . $exception->getMessage());
 
@@ -129,6 +135,26 @@ final class AnalyzeCommand
                 ));
             } else {
                 fwrite($this->stdout, $rendered);
+                if ($saveReportPath !== null) {
+                    try {
+                        $writtenPath = $this->reportFileWriter->write(
+                            $request->projectPath(),
+                            $saveReportPath,
+                            $rendered
+                        );
+                    } catch (\Throwable $exception) {
+                        $this->diagnostic(
+                            'The report was printed, but its additional file copy could not be saved: '
+                            . $exception->getMessage()
+                        );
+
+                        return self::FAILURE;
+                    }
+                    $this->diagnostic(sprintf(
+                        'Saved report copy to %s',
+                        PathExposurePolicy::operationalPath($writtenPath)
+                    ));
+                }
             }
 
             return self::SUCCESS;
@@ -148,6 +174,7 @@ final class AnalyzeCommand
         return "Usage:\n"
             . "  upgrade-intel analyze --target=package:constraint [options]\n"
             . "  upgrade-intel analyze --target-platform-profile=PATH [options]\n"
+            . "  upgrade-intel wizard\n"
             . "\n"
             . "Options:\n"
             . CommandLineOptions::usageLines();

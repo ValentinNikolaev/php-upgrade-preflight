@@ -17,7 +17,7 @@ $autoloads = array_merge($autoloads, [
 foreach ($autoloads as $autoload) {
     if (is_file($autoload)) {
         require $autoload;
-        exit((new PhpUpgradePreflight\Cli\AnalyzeCommand())->run($argv));
+        exit((new PhpUpgradePreflight\Cli\Application())->run($argv));
     }
 }
 

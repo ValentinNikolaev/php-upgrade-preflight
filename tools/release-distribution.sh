@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Commit-and-sign step for the three distribution repositories.
-# Run it after build/prepare-distribution.sh has staged the payloads.
+# Run it after tools/prepare-distribution.sh has staged the payloads.
 #
-#   bash build/release-distribution.sh [--tag v0.3.0] [--work DIR] [--dry-run] [--yes]
+#   bash tools/release-distribution.sh [--tag v0.3.0] [--work DIR] [--dry-run] [--yes]
 #
 # The tag is the only thing asked for: it defaults to the newest dated changelog
 # release and can be edited at the prompt. Commit and tag messages follow the
@@ -113,7 +113,7 @@ for package in "${packages[@]}"; do
   echo "== php-upgrade-preflight/${package} =="
 
   if [[ ! -d "${directory}/.git" ]]; then
-    echo "  ${directory} is not a Git clone; run build/prepare-distribution.sh first." >&2
+    echo "  ${directory} is not a Git clone; run tools/prepare-distribution.sh first." >&2
     exit 1
   fi
 

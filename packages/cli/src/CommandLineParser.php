@@ -26,6 +26,7 @@ use PhpUpgradePreflight\Core\Model\ReportFormat;
  *     extension-assumptions?: list<ExtensionAssumption>,
  *     format: string,
  *     output: ?string,
+ *     save-report?: string,
  *     debug: bool,
  *     composer-mode?: string,
  *     composer-executable?: string,
@@ -119,6 +120,11 @@ final class CommandLineParser
         if ($options['target'] === [] && $options['target-php'] === null && !isset($options['target-platform-profile'])) {
             throw new \InvalidArgumentException(
                 'At least one --target=package:constraint, --target-php=VERSION, or --target-platform-profile=PATH option is required.'
+            );
+        }
+        if ($options['output'] !== null && isset($options['save-report'])) {
+            throw new \InvalidArgumentException(
+                'Options "--output" and "--save-report" cannot be combined; use --save-report to keep the report on stdout.'
             );
         }
 

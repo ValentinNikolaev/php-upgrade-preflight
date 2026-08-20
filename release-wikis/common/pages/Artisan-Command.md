@@ -111,6 +111,8 @@ At least one package target, target PHP, or target-platform profile is required.
 
 Targets, platform profiles, extension assumptions, source validation, report writers, output safety, Composer execution modes, debug behavior, and exit policy otherwise use the same underlying model.
 
+The standalone CLI also provides `upgrade-intel wizard`; Artisan remains an explicit option-based command and does not add a second interactive prompt surface.
+
 ## Choosing between Artisan and an external CLI
 
 | Situation | Recommended entry point | Reason |
@@ -269,13 +271,15 @@ Use compatible mode only with scoped credentials appropriate for the repositorie
 
 ## Reading output from stdout
 
-When `--output` is absent, Artisan writes the rendered report to stdout and diagnostics through Symfony Console's error style. This is convenient for a developer:
+When `--output` is absent, Artisan writes the rendered report to stdout and diagnostics through Symfony Console's error style. When stderr is attached to a terminal, it also prints durable `[working]`, `[done]`, `[blocked]`, `[timed-out]`, and `[unverified]` progress lines for analysis phases and Composer scenarios. This is convenient for a developer:
 
 ```bash
 php artisan upgrade:analyze --target-php=8.2 --format=markdown
 ```
 
 For automation, prefer a validated output file. If you redirect stdout yourself, the shell can create a destination inside the application before the analyzer sees it, defeating the destination guard.
+
+Progress is observational and never changes the report. It is suppressed when stderr is redirected or not a TTY, so report stdout remains suitable for pipes. The renderer uses ordinary lines rather than a spinner or cursor-control sequences.
 
 ## Debugging a boot failure
 

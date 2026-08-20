@@ -39,6 +39,16 @@ See [Installation](docs/installation.md) and [External analysis](docs/external-a
 
 ## Run an analysis
 
+For an interactive, line-oriented setup that detects the project, separates the current and target PHP versions, validates package targets, and shows the equivalent repeatable command, run:
+
+```bash
+vendor/bin/upgrade-intel wizard
+```
+
+![Interactive `upgrade-intel wizard` demo](docs/assets/upgrade-intel-wizard-demo.gif)
+
+The wizard defaults to a Markdown report in the terminal and can optionally save an identical copy outside the analyzed project. Package discovery starts with local `composer.json` facts; local-cache and configured-repository lookups are explicit choices, and the latter warns before metadata lookup may use network access or inherited credentials. Before analysis, the wizard separately requires an explicit choice between restricted and compatible Composer execution, shows its network and credential implications in the reviewed plan, and adds the matching `--composer-mode` option to the repeatable command. Scripts and CI should continue to use the non-interactive command and explicit options; `--save-report=PATH` preserves the canonical stdout report while saving a copy, whereas the existing `--output=PATH` remains file-only:
+
 ```bash
 vendor/bin/upgrade-intel analyze \
   --path=/projects/legacy-app \
@@ -100,7 +110,7 @@ Six application-shaped Laravel fixtures have approved JSON and Markdown snapshot
 ## Packages
 
 - `php-upgrade-preflight/core` contains the analysis pipeline and report contract.
-- `php-upgrade-preflight/cli` provides `upgrade-intel analyze`.
+- `php-upgrade-preflight/cli` provides the non-interactive `upgrade-intel analyze` command and the interactive `upgrade-intel wizard` workflow.
 - `php-upgrade-preflight/laravel` provides Laravel detection, rules, and `upgrade:analyze`.
 
 Third-party adapter packages register themselves through Composer metadata, so they can provide detection, source paths, rules, and package-family classification without editing the CLI. See [Framework adapters](docs/adapters.md).

@@ -92,7 +92,7 @@ The Composer monorepo publishes three packages in lockstep:
 | Package | Responsibility |
 | --- | --- |
 | `php-upgrade-preflight/core` | Framework-neutral analysis engine and report contract |
-| `php-upgrade-preflight/cli` | The `upgrade-intel analyze` command |
+| `php-upgrade-preflight/cli` | The explicit `upgrade-intel analyze` command and interactive `upgrade-intel wizard` |
 | `php-upgrade-preflight/laravel` | Laravel adapter and `upgrade:analyze` Artisan command |
 
 All shipped packages have a PHP `^8.0` language/runtime floor. The separate tools-directory workflow allows that PHP 8 analyzer to inspect an older target project without requiring the target application to boot.
@@ -127,7 +127,7 @@ The JSON report is the source of truth. The Markdown writer renders that report 
 
 1. Install the analyzer separately or as a development dependency.
 2. State exact targets and, where possible, explicit platform assumptions.
-3. Run the CLI or Artisan entry point.
+3. Run the interactive wizard, explicit CLI, or Artisan entry point.
 4. Confirm a report was produced.
 5. Read `resolution.status`, framework guidance status, and staged status independently.
 6. Trace important findings through their evidence IDs.
@@ -168,7 +168,7 @@ The JSON report is the source of truth. The Markdown writer renders that report 
 
 ## First safety rule
 
-Never place `--output` inside the analyzed project. The tool rejects that destination because producing a report inside the input tree would violate its byte-for-byte immutability guarantee.
+Never place `--output` or `--save-report` inside the analyzed project. The tool rejects that destination because producing a report inside the input tree would violate its byte-for-byte immutability guarantee.
 
 ## Canonical references
 
@@ -295,6 +295,8 @@ Read related uncertainties before proposing a fix.
 Finally, verify the proposed change in a normal upgrade branch with the project's own tests.
 
 ## Choosing the right command entry point
+
+Use `upgrade-intel wizard` for a guided local terminal session. It proposes PHP and package choices, distinguishes repository not-found from operationally unverified metadata, reviews the equivalent explicit command, and delegates to the same analyzer. It is not available for redirected or non-TTY automation.
 
 Use `upgrade-intel analyze` when the analyzer is installed as a generic CLI tool or when multiple framework adapters may be installed.
 

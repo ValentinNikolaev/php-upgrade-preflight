@@ -3,6 +3,7 @@
 The standalone executable is installed by `php-upgrade-preflight/cli`.
 
 ```text
+upgrade-intel wizard
 upgrade-intel analyze --target=package:constraint [options]
 upgrade-intel analyze --target-platform-profile=PATH [options]
 ```
@@ -19,14 +20,15 @@ vendor\bin\upgrade-intel.bat --help
 
 ## Parsing rules that prevent surprises
 
-- The `analyze` subcommand is required unless `-h` or `--help` is present.
+- Choose `wizard` for an interactive terminal session or `analyze` for explicit, automation-safe options.
+- `wizard` accepts no options. It requires terminal-attached stdin and stderr.
 - Value options use one token: `--name=value`.
 - `--path /work/app` is invalid; use `--path=/work/app`.
 - `--debug` is a flag and must not have a value.
 - Scalar options may be supplied once.
 - Repeatable options are `--target`, `--with-extension`, `--without-extension`, `--source`, and `--framework`.
 - At least one `--target`, `--target-php`, or `--target-platform-profile` is required.
-- Diagnostics go to stderr. The report goes to stdout unless `--output` is used.
+- Diagnostics and terminal progress go to stderr. The report goes to stdout unless `--output` is used.
 
 ## Complete option table
 
@@ -43,6 +45,7 @@ vendor\bin\upgrade-intel.bat --help
 | `--framework=NAME` | Yes | Auto-detection | Explicit installed framework adapter |
 | `--format=json\|markdown` | No | `json` | Report writer |
 | `--output=PATH` | No | stdout | Report file outside the project |
+| `--save-report=PATH` | No | None | Keep the report on stdout and save the identical rendered bytes outside the project |
 | `--composer-mode=compatible\|restricted` | No | `compatible` | Composer state and network policy |
 | `--composer-executable=PATH` | No | `composer` | Composer command or executable selection |
 | `--composer-version=RANGE` | No | `>=2.0.0 <3.0.0` | Accepted Composer version constraint |
@@ -50,6 +53,30 @@ vendor\bin\upgrade-intel.bat --help
 | `--composer-diagnostic-timeout=SEC` | No | `60` | Diagnostic timeout, 1–900 seconds |
 | `--debug` | No | Off | Preserve workspaces and expose exact temporary paths |
 | `-h`, `--help` | No | — | Print help and return 0 |
+
+`--output` and `--save-report` are mutually exclusive. Use `--output` for legacy file-only delivery and `--save-report` when a human or pipeline needs both the canonical stdout stream and a validated file copy.
+
+## Interactive wizard
+
+Run the guided flow in a real terminal:
+
+```bash
+vendor/bin/upgrade-intel wizard
+```
+
+The wizard reads `composer.json`, shows the analyzer runtime and available project PHP evidence, then asks for the Composer analysis policy, PHP and/or package targets, report format, and an optional saved copy. It never silently treats the analyzer's PHP runtime as the desired target. Before running, it prints the equivalent quoted `upgrade-intel analyze` command so the choice can be reviewed or reused in automation.
+
+Package-target selection has three explicit metadata sources:
+
+| Source | Network and trust behavior | Result handling |
+| --- | --- | --- |
+| `composer.json` only | Default; no Composer metadata process | Root requirements are offered, but external existence is not claimed |
+| Local Composer cache | Requests no network | Cache misses and operational failures are `unverified`, never “package does not exist” |
+| Configured project repositories | May use the lookup's configured Composer executable, repository configuration, network, and credentials | Explicit not-found, found, matching-version, and operationally unverified results are kept distinct |
+
+When repository metadata is found, the wizard offers a bounded set of compatible release-line and exact-version candidates plus a custom-constraint choice. Invalid syntax, an explicit repository not-found result, or a constraint with no discovered matching version must be corrected. A timeout, offline failure, malformed metadata, or unavailable lookup remains `unverified`; the wizard warns and allows the actual analysis to decide.
+
+Enter `cancel`, `quit`, or `q` at a prompt to stop before analysis with exit code `130`. End-of-input is invalid input (`2`). The wizard rejects redirected/non-TTY input or diagnostics instead of guessing defaults; use `analyze` in scripts.
 
 ## Project and source paths
 
@@ -244,13 +271,23 @@ The parser first requires digits; the configuration then enforces 1–3600 and 1
 
 ## Output and streams
 
-Without `--output`, the report is written to stdout and diagnostics to stderr:
+Without `--output`, the report is written to stdout. Diagnostics and human progress are written only to stderr:
 
 ```bash
 vendor/bin/upgrade-intel analyze --path=/work/app --target-php=8.2 > /tmp/report.json
 ```
 
 Shell redirection happens before the analyzer validates a destination. Do not redirect stdout into the analyzed project.
+
+For an atomic, validated copy while preserving the stdout report, use `--save-report`:
+
+```bash
+vendor/bin/upgrade-intel analyze --path=/work/app --target-php=8.2 --save-report=/work/reports/app.json
+```
+
+The saved file contains the same rendered bytes emitted to stdout. The destination is validated before analysis and written with the same project-boundary checks as `--output`. `--output` and `--save-report` cannot be combined.
+
+If the additional copy fails after stdout was written, the report remains available on stdout, a redacted diagnostic explains the copy failure on stderr, and the process returns `1`.
 
 Prefer `--output`, which validates that the destination is outside the project, is not a directory, and has an existing writable parent:
 
@@ -266,6 +303,12 @@ vendor\bin\upgrade-intel.bat analyze --path=C:\work\app --target-php=8.2 --outpu
 
 On success with `--output`, stdout contains a short “Wrote report” message rather than report JSON.
 
+### Terminal progress contract
+
+When stderr is attached to a terminal, both the standalone CLI and Laravel Artisan entry point print durable phase and Composer-scenario lines such as `[working]`, `[done]`, `[blocked]`, `[timed-out]`, and `[unverified]`. The phases cover project metadata loading, Composer feasibility, staged paths, source scanning, framework rules, and report assembly.
+
+Progress is observational: reporter failures are ignored and cannot alter analysis or report status. No spinner or cursor-control sequence is used. When stderr is redirected or is not a TTY, progress is suppressed; stdout remains a clean report stream suitable for a pipe. Errors remain redacted stderr diagnostics.
+
 ## Exit code versus report status
 
 Never use `$?`, `$LASTEXITCODE`, or a CI step's green/red state as the upgrade verdict.
@@ -275,6 +318,7 @@ Never use `$?`, `$LASTEXITCODE`, or a CI step's green/red state as the upgrade v
 | `0` | Help or a valid canonical report was produced |
 | `1` | Report production failed internally or operationally |
 | `2` | Invocation validation failed |
+| `130` | The interactive wizard was cancelled before analysis |
 
 | `resolution.status` | Direct final-target meaning |
 | --- | --- |

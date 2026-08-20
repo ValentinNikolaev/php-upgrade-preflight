@@ -44,7 +44,11 @@ The following Mermaid diagram uses the real production class names.
 
 ```mermaid
 flowchart TD
-    User[Developer or CI] --> CLI[Cli\\AnalyzeCommand]
+    User[Developer or CI] --> App[Cli\\Application]
+    App --> CLI[Cli\\AnalyzeCommand]
+    App --> Wizard[Cli\\WizardCommand]
+    Wizard --> Lookup[Core\\Composer\\ComposerPackageMetadataLookup]
+    Wizard --> CLI
     Artisan[Laravel Artisan] --> LAC[Laravel\\Commands\\AnalyzeUpgradeCommand]
     CLI --> Parser[Cli\\CommandLineParser]
     Parser --> Request[Core\\Model\\UpgradeRequest]
@@ -54,6 +58,9 @@ flowchart TD
     LAC --> Request
     Factory --> Analyzer[Core\\Analysis\\DefaultUpgradeAnalyzer]
     Request --> Analyzer
+    Analyzer -. observational events .-> Progress[Core\\Progress\\AnalysisProgressReporter]
+    Progress --> CliProgress[Cli\\TerminalAnalysisProgressReporter]
+    Progress --> ArtisanProgress[Laravel\\Console\\ArtisanAnalysisProgressReporter]
     Analyzer --> State[Core\\Composer\\ProjectStateBuilder]
     State --> Platform[Core\\Model\\TargetPlatform]
     Analyzer --> Engine[Core\\Analysis\\FrameworkRuleEngine]
@@ -90,9 +97,9 @@ For example, no active stage provider means staged analysis is skipped.
 
 ## Layer 1: delivery boundaries
 
-There are two user-facing command boundaries.
+There are three user-facing command flows over two executables.
 
-The generic executable is `upgrade-intel analyze`.
+The generic executable offers automation-safe `upgrade-intel analyze` and terminal-only `upgrade-intel wizard` flows. `Cli\Application` dispatches them. `Cli\AnalyzeCommand` owns explicit option parsing and delivery; `Cli\WizardCommand` collects choices, validates optional package metadata, prints the equivalent explicit command, and delegates back to the same analyzer command.
 
 Its controller is `Cli\AnalyzeCommand`.
 
@@ -100,7 +107,7 @@ The Laravel command is `php artisan upgrade:analyze`.
 
 Its controller is `Laravel\Commands\AnalyzeUpgradeCommand`.
 
-Both controllers perform the same broad work:
+The standalone analysis and Artisan controllers perform the same broad work:
 
 1. Parse command input.
 2. Construct validated model objects.
@@ -115,6 +122,8 @@ They do not calculate risk.
 They do not contain Laravel transition rules.
 
 This keeps presentation concerns outside the analysis engine.
+
+Terminal progress follows the same boundary. Core emits validated observational events through `AnalysisProgressReporter`; CLI and Laravel render them to terminal-attached stderr. Non-TTY execution stays silent, and progress reporter failures cannot affect the canonical report.
 
 ## Layer 2: request model
 

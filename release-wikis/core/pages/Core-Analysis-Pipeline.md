@@ -43,6 +43,12 @@ In normal application code, prefer the generic CLI or Laravel command; the examp
 | 11 | `RiskAndEffortEstimator` | Blockers, changes, findings, impact, stages | Aggregate risk and effort ranges |
 | 12 | `ReportAssembler` | All accumulated evidence | Canonical `UpgradeReport` |
 
+## Observational progress events
+
+`DefaultUpgradeAnalyzer` can receive an `AnalysisProgressReporter`. It emits analysis start/completion/failure, phase start/completion, and Composer scenario start/completion events around the same pipeline. The stable phases are project loading, Composer feasibility, staged resolution, source scan, framework evaluation, and report assembly.
+
+Progress is deliberately outside the report model. A reporter exception is caught and ignored; it cannot cancel, retry, reorder, or reinterpret work. The default reporter is `NoOpAnalysisProgressReporter`. The standalone CLI and Laravel package provide their own TTY-aware stderr renderers, while non-terminal and embedded consumers retain the original silent behavior.
+
 ## Project input handling
 
 `ProjectStateBuilder` reads `composer.json` and `composer.lock` through `JsonFileReader`. Missing or invalid input does not have to crash the whole command. `DefaultUpgradeAnalyzer` can return an input-failure report with a `project-input` scenario.
@@ -194,6 +200,7 @@ Report writers do not analyze the project and must not introduce independent con
 | Add framework-specific knowledge | An adapter package, not Core |
 | Improve redaction | `Support/SensitiveOutputRedactor` and path policy tests |
 | Change staged attempt policy | Staged planner/executor services and budget tests |
+| Add or rename a progress phase | `Progress/AnalysisPhase`, analyzer event tests, and both console renderers |
 
 ## Related pages
 

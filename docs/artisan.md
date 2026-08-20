@@ -58,4 +58,6 @@ Laravel guidance covers 7→8, the retained direct 7→9 path, and adjacent 8→
 
 Schema `0.8` preserves raw `source_inventory` and actionable direct `source_impact`, then adds the same staged result as the generic CLI. Read direct `resolution.status`, `transition.framework_guidance[].status`, and `staged_resolution.status` separately; Composer feasibility and rule-pack coverage do not imply one another.
 
+When stderr is attached to a terminal, Artisan writes durable phase and Composer-scenario progress lines there. Solver conflicts are labeled `blocked`, Composer validation failures `invalid`, timeouts `timed-out`, unavailable repository metadata `unverified`, and other operational failures `failed`. Redirected or non-terminal diagnostics remain free of progress output, and the canonical JSON or Markdown report on stdout is unchanged.
+
 The command returns `0` after writing any valid report, including a blocked result. It returns `2` for invalid invocation and `1` when it cannot produce a report.

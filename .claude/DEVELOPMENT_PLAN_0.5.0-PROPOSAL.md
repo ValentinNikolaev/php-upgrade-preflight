@@ -47,6 +47,50 @@ None of these is chosen. They are recorded so the decision starts from a list ra
 | PHP language and API deprecation catalog | Matches the product's name, which promises PHP upgrade preflight rather than framework preflight | Overlaps Rector and PHPCompatibility, and every claim must meet the project's evidence rules, which is expensive |
 | Consolidation toward `1.0` | Freezes contracts, sharpens documentation, reduces the maintenance surface | Premature while adoption is unproven; `1.0` is a promise, not a milestone |
 
+## Candidate Milestone 6 — Rich Interactive Terminal and Report Explorer
+
+This milestone is deliberately later than the line-oriented wizard and phase progress work. It is not required to make ordinary analysis usable, and it must not hold the automation-safe CLI contract hostage to a full-screen interface. It becomes eligible only after the simpler interactive workflow has shipped, has real usage evidence, and has proved which selections and report sections users repeatedly need to revisit.
+
+### Outcome
+
+An opt-in adaptive terminal interface lets a person configure an analysis, understand repository and version provenance, follow long-running work, and explore the resulting report without assembling long flag lists or writing `jq`, `grep`, and `sed` pipelines. The same operation remains expressible through `upgrade-intel analyze` flags, and the same canonical JSON or Markdown report remains the source of truth.
+
+### Candidate Scope
+
+- a full-screen mode entered explicitly, for example through `upgrade-intel wizard --ui=full` or a separately approved `upgrade-intel explore` command; never inferred only from stdout being attached to a terminal;
+- searchable package and version selection with local Composer metadata first, explicit repository/network lookup, visible provenance, bounded waits, and an `unverified` state distinct from `not found`;
+- compatibility views that keep package existence, matching published versions, PHP/framework requirements, and project installability as separate claims;
+- persistent but compact progress for project discovery, Composer feasibility scenarios, staged transitions, source scanning, report assembly, cancellation, and cleanup;
+- report exploration for the executive summary, direct and staged resolution, active blockers, package changes, framework findings, source impact, evidence, uncertainties, risk, effort, and test guidance;
+- filtering, search, drill-down, back navigation, copyable identifiers and commands, and explicit save/export actions;
+- an always-available view of the equivalent non-interactive command so an accepted interactive configuration can be repeated in CI or documentation;
+- graceful terminal resize, narrow-width layouts, color-disabled and ASCII fallbacks, and a line-oriented mode with equivalent outcomes for unsupported terminals and assistive workflows.
+
+### Contract Boundaries
+
+- The rich interface is a presentation and request-building layer. It does not create a second analyzer, report schema, package-resolution policy, or exit-code taxonomy.
+- `upgrade-intel analyze` remains non-interactive. Machine-readable stdout stays free of prompts, progress, ANSI sequences, and commentary.
+- Network access, inherited Composer configuration, credentials, and private repositories are never hidden behind discovery. The user selects the lookup mode before a remote probe starts.
+- EOF, an unavailable TTY, invalid input, timeout, and cancellation never imply consent. Cancellation restores the terminal and reports cleanup or retained temporary state honestly.
+- The interface does not modify the analyzed application, install candidate dependencies into it, execute it, upload reports, add telemetry, or weaken the standing non-goals.
+- The line-oriented wizard remains supported even if the full-screen interface ships; it is the compatibility and accessibility fallback, not a temporary scaffold.
+
+### Entry and Acceptance Gates
+
+- Evidence from the line-oriented wizard identifies repeated navigation or report-reading work that a richer interface materially reduces.
+- The command contract, prompt precedence, repository lookup modes, progress events, cancellation semantics, and report summary vocabulary are stable before full-screen rendering begins.
+- Pseudo-terminal coverage exercises Linux and Windows behavior, normal and narrow widths, resize, no-color/plain output, Unicode and ASCII symbols, redirected streams, EOF, and `Ctrl+C` during lookup, analysis, and cleanup.
+- Snapshot or transcript tests protect navigation states and stream boundaries without freezing incidental animation frames or styling.
+- The full-screen and line-oriented paths produce equivalent `UpgradeRequest` values and canonical reports for the same approved choices.
+- A terminal capability failure falls back before side effects and never corrupts the terminal, stdout report, saved report, or exit result.
+- Package and report searches remain bounded for representative large dependency graphs and reports; measured latency and memory budgets are recorded with the acceptance evidence.
+
+### Explicitly Deferred Beyond This Milestone
+
+- mouse-first interaction, terminal graphics protocols, embedded editors, and terminal-emulator-specific extensions;
+- hosted dashboards, synchronized sessions, telemetry, collaborative review, or remote report storage;
+- applying remediations, editing `composer.json`, running the analyzed application, or turning report exploration into an upgrade executor.
+
 ## Standing Non-Goals
 
 Unchanged from v0.3 and v0.4, restated so no proposal quietly reopens them:
