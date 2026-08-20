@@ -426,6 +426,7 @@ final class WizardCommandTest extends TestCase
     public function testEquivalentCommandQuotesWindowsShellArguments(): void
     {
         $method = new \ReflectionMethod(WizardCommand::class, 'shellArgument');
+        $method->setAccessible(true);
 
         self::assertSame(
             "'--path=C:\\Program Files\\O''Brien'",
@@ -738,7 +739,9 @@ final class WizardCommandTest extends TestCase
         $this->filesystem->mkdir($unreadableProject);
         $composerPath = $unreadableProject . DIRECTORY_SEPARATOR . 'composer.json';
         $this->filesystem->dumpFile($composerPath, '{}');
-        $GLOBALS['php_upgrade_preflight_cli_unreadable_path'] = $composerPath;
+        $resolvedComposerPath = realpath($composerPath);
+        self::assertNotFalse($resolvedComposerPath);
+        $GLOBALS['php_upgrade_preflight_cli_unreadable_path'] = $resolvedComposerPath;
         $this->supplyInput([
             $unreadableProject,
             $this->projectPath,
