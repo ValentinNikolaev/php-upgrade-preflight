@@ -1,6 +1,6 @@
 {
   "name": "php-upgrade-preflight/cli",
-  "description": "Generic CLI for PHP Upgrade Preflight.",
+  "description": "Interactive and CI-ready preflight analysis for Composer-based PHP upgrades.",
   "type": "library",
   "license": "MIT",
   "keywords": [

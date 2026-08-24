@@ -447,7 +447,9 @@ def validate(site_root: Path, repo_root: Path) -> list[str]:
         errors.append("The quick start must link to the Wiki troubleshooting guide.")
 
     quick_start_claims = (
+        "vendor/bin/upgrade-intel wizard",
         "vendor/bin/upgrade-intel analyze",
+        "Scripts and CI",
         "--format=json",
         "--output=",
         "resolution.status",

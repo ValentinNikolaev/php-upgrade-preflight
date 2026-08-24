@@ -13,7 +13,7 @@ body:
     attributes:
       label: Version
       description: Which PHP Upgrade Preflight version produced the problem?
-      placeholder: 0.2.1
+      placeholder: 0.3.3
     validations:
       required: true
   - type: textarea

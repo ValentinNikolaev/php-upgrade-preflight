@@ -1,6 +1,6 @@
 {
   "name": "php-upgrade-preflight/laravel",
-  "description": "Laravel adapter and rules for PHP Upgrade Preflight.",
+  "description": "Evidence-linked blockers and staged paths for Laravel upgrade decisions.",
   "type": "library",
   "license": "MIT",
   "keywords": [

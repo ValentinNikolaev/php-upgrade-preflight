@@ -3,20 +3,20 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>PHP Upgrade Preflight — Know what breaks, before you upgrade</title>
+<title>PHP Upgrade Preflight — Plan your upgrade with evidence</title>
 <meta name="description" content="A deterministic, read-only preflight analyzer for Composer-based PHP and Laravel upgrades. Real Composer scenarios in disposable workspaces, evidence-linked blockers, staged upgrade paths, risk and effort — your project stays byte-for-byte unchanged.">
 <link rel="canonical" href="https://valentinnikolaev.github.io/php-upgrade-preflight/">
 <meta property="og:type" content="website">
-<meta property="og:title" content="PHP Upgrade Preflight — Know what breaks, before you upgrade">
+<meta property="og:title" content="PHP Upgrade Preflight — Plan your upgrade with evidence">
 <meta property="og:description" content="Deterministic, read-only preflight analysis for Composer-based PHP and Laravel upgrades. Real Composer solves, evidence-linked blockers, staged Laravel 7→13 paths. Your project stays byte-for-byte unchanged.">
 <meta property="og:url" content="https://valentinnikolaev.github.io/php-upgrade-preflight/">
-<meta property="og:image" content="https://valentinnikolaev.github.io/php-upgrade-preflight/assets/social-preview.png">
+<meta property="og:image" content="https://valentinnikolaev.github.io/php-upgrade-preflight/assets/social-preview-v2.png">
 <meta property="og:image:width" content="1280">
 <meta property="og:image:height" content="640">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="PHP Upgrade Preflight — Know what breaks, before you upgrade">
+<meta name="twitter:title" content="PHP Upgrade Preflight — Plan your upgrade with evidence">
 <meta name="twitter:description" content="Deterministic, read-only preflight analysis for Composer-based PHP and Laravel upgrades. Real Composer solves, evidence-linked blockers, staged Laravel 7→13 paths.">
-<meta name="twitter:image" content="https://valentinnikolaev.github.io/php-upgrade-preflight/assets/social-preview.png">
+<meta name="twitter:image" content="https://valentinnikolaev.github.io/php-upgrade-preflight/assets/social-preview-v2.png">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'%3E%3Crect%20width='64'%20height='64'%20rx='14'%20fill='%231e1e2e'/%3E%3Cpath%20d='M18%2044%2030%2016m4%2028%2012-28'%20stroke='%23a5a1f5'%20stroke-width='6'%20stroke-linecap='round'%20fill='none'/%3E%3Ccircle%20cx='32'%20cy='54'%20r='4'%20fill='%23a6e3a1'/%3E%3C/svg%3E">
 <style>
 :root {
@@ -203,6 +203,11 @@ h2 { font-size: 1.7rem; line-height: 1.25; letter-spacing: -.01em; margin-bottom
   background: var(--terminal); color: var(--terminal-text); font-size: .82rem; line-height: 1.55;
 }
 .result-note { border-left: 4px solid var(--good); padding-left: 14px; }
+.automation-alternative { margin-top: 16px; border-top: 1px solid var(--border); padding-top: 10px; }
+.automation-alternative summary {
+  min-height: 44px; display: flex; align-items: center; cursor: pointer; color: var(--text); font-weight: 600;
+}
+.automation-alternative p { margin-top: 10px; }
 .docs-links { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 8px 16px; }
 .docs-links a { min-height: 44px; display: inline-flex; align-items: center; }
 
@@ -302,7 +307,7 @@ footer a:hover { color: var(--accent); }
       <span class="badge">v0.3.3 packages · MIT</span>
     </div>
     <h1>PHP Upgrade Preflight</h1>
-    <p class="slogan">Know what breaks — before you upgrade.</p>
+    <p class="slogan">Plan your upgrade — with evidence.</p>
     <p class="pitch">
       A deterministic, read-only preflight analyzer for Composer-based PHP and Laravel upgrades.
       It runs real Composer scenarios in disposable workspaces and reports blockers, package changes,
@@ -342,7 +347,7 @@ footer a:hover { color: var(--accent); }
   <section class="section" id="quick-start">
     <div class="wrap">
       <h2>Run your first preflight</h2>
-      <p class="section-lead">From a separate tools directory to a canonical JSON report, without writing into the project you analyze.</p>
+      <p class="section-lead">Start interactively with the wizard; keep explicit options for repeatable scripts and CI.</p>
       <div class="quick-start">
         <div class="quick-card">
           <h3>Before you run it</h3>
@@ -358,17 +363,24 @@ footer a:hover { color: var(--accent); }
           </div>
         </div>
         <div class="quick-card">
-          <h3>Analyze a PHP target</h3>
-          <p>Run this from the external tools directory, replacing the example paths and versions with your own:</p>
-          <pre class="command"><code>vendor/bin/upgrade-intel analyze \
+          <h3>Start with the interactive wizard</h3>
+          <p>Run this from the external tools directory in a terminal. The wizard detects the Composer project, collects PHP and package targets, requires an explicit Composer execution policy, and reviews the plan before analysis:</p>
+          <pre class="command"><code>vendor/bin/upgrade-intel wizard</code></pre>
+          <p class="result-note"><strong>The wizard is for local, terminal-attached runs.</strong> It prints the equivalent shell-copyable <code>upgrade-intel analyze</code> command before analysis. A valid report may still describe a blocked or unknown upgrade; review its blockers, evidence, and uncertainties before deciding what to change.</p>
+          <details class="automation-alternative">
+            <summary>Scripts and CI: explicit, non-interactive command</summary>
+            <p>Use <code>analyze</code> with explicit options; it never prompts:</p>
+            <pre class="command"><code>vendor/bin/upgrade-intel analyze \
   --path=/work/legacy-app \
   --from-php=7.4 \
   --target-php=8.2 \
   --format=json \
   --output=/work/upgrade-reports/php-82.json</code></pre>
-          <p class="result-note"><strong>A valid report may still describe a blocked upgrade.</strong> First check whether the command produced a report, then read <code>resolution.status</code> for <code>feasible</code>, <code>feasible_with_changes</code>, <code>blocked</code>, or <code>unknown</code>. Review its blockers, evidence, and uncertainties before deciding what to change.</p>
+            <p>Automation should treat a produced report separately from upgrade feasibility and read <code>resolution.status</code>.</p>
+          </details>
           <div class="docs-links">
-            <a href="https://github.com/ValentinNikolaev/php-upgrade-preflight/wiki/Getting-Started#run-a-first-php-only-analysis">Linux, macOS, and Windows commands</a>
+            <a href="https://github.com/ValentinNikolaev/php-upgrade-preflight/wiki/Getting-Started#guided-first-run">Guided wizard details</a>
+            <a href="https://github.com/ValentinNikolaev/php-upgrade-preflight/wiki/Getting-Started#run-a-first-php-only-analysis">CI-ready commands</a>
             <a href="https://github.com/ValentinNikolaev/php-upgrade-preflight/wiki/Troubleshooting-and-FAQ">Troubleshooting</a>
             <a href="https://github.com/ValentinNikolaev/php-upgrade-preflight/wiki/Reading-the-Report">Read the report</a>
           </div>
