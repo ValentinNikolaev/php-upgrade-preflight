@@ -1,0 +1,232 @@
+{
+  "format_version": 1,
+  "release_version": "0.3.5",
+  "schema_version": "0.8",
+  "published_at": "2026-10-06T23:03:05Z",
+  "release_url": "https://github.com/ValentinNikolaev/php-upgrade-preflight/releases/tag/v0.3.5",
+  "source": {
+    "commit": "60f0c49f5a357406e37ee75ffcb03c2b90abf43f",
+    "tree": "155ab6f2376bd48139ba68987ee258f7fe9c79cd",
+    "tested_candidate": "48a20b4afef2e95f693c94b9fc526b68642cb315",
+    "candidate_and_release_trees_equal": true
+  },
+  "signed_tags": {
+    "monorepo": {
+      "tag_object": "db738523e401f9235e0149092f76bdc225395719",
+      "commit": "60f0c49f5a357406e37ee75ffcb03c2b90abf43f"
+    },
+    "core": {
+      "tag_object": "e0609595db0b78e7f3fe50b025064235950e132c",
+      "commit": "618caaad7fcf7a9fbe86c34594a70dbbb53ae7a5",
+      "payload_files": 274
+    },
+    "cli": {
+      "tag_object": "439dd501f1e2c94f8eec1f9af78f9427bd01b72c",
+      "commit": "dd81dabc6934332e806e18a67f1b8546573a59ff",
+      "payload_files": 76
+    },
+    "laravel": {
+      "tag_object": "1fe02ce65fa5bbf37c0b569306209982ca0e1d86",
+      "commit": "e1d608a4a12c1f77594eefda7c99df0145378f9d",
+      "payload_files": 118
+    }
+  },
+  "signature_verification": {
+    "provider": "GitHub git tag API",
+    "all_four_verified": true,
+    "all_four_reason": "valid"
+  },
+  "distribution_verification": {
+    "paths_blobs_modes_match_source": true,
+    "all_actual_files_mode": "100644",
+    "actual_symlinks": 0,
+    "negative_boundary": "POSIX synthetic executable and symlink modes are regression-tested; Windows placeholder symlink re-add behavior is not claimed."
+  },
+  "workflow": {
+    "id": 37543254451,
+    "attempt": 1,
+    "url": "https://github.com/ValentinNikolaev/php-upgrade-preflight/actions/runs/37543254451",
+    "event": "push",
+    "ref": "refs/tags/v0.3.5",
+    "head_sha": "60f0c49f5a357406e37ee75ffcb03c2b90abf43f",
+    "conclusion": "success",
+    "jobs": 45,
+    "successful_jobs": 45,
+    "skipped_jobs": 0,
+    "tag_signature_and_distribution_checks_executed": true,
+    "packagist_install_and_reference_checks_executed": true,
+    "publisher_executed": true,
+    "coverage_and_staged_budgets_passed": true,
+    "killed_selective_mutations": 18,
+    "windows_posix_test_skips": 2,
+    "codeql_languages": [
+      "actions",
+      "python"
+    ]
+  },
+  "assets": [
+    {
+      "name": "ARTIFACT-PROVENANCE.json",
+      "bytes": 1439,
+      "sha256": "23b4fe69358dd9903719d042affd9c2f3e787324678eea3ef3a35c3faed5a185"
+    },
+    {
+      "name": "DEPENDENCY-INVENTORY.json",
+      "bytes": 13043,
+      "sha256": "4777b48d926aa09c316886a3ba8780a709d1bd38b840aa83e2e9480ffa632b2d"
+    },
+    {
+      "name": "php-upgrade-preflight-cli-v0.3.5.zip",
+      "bytes": 451216,
+      "sha256": "bdfa17aeae011411f4eff497446305077eed3a378d18b6eeddc86ccaab3f2382"
+    },
+    {
+      "name": "php-upgrade-preflight-core-v0.3.5.zip",
+      "bytes": 806962,
+      "sha256": "9eb15248dc2126c1eca458c29fdad91769493eeb8245e710c02df79a30daf6e7"
+    },
+    {
+      "name": "php-upgrade-preflight-laravel-v0.3.5.zip",
+      "bytes": 600062,
+      "sha256": "918ca9fa02830dd22f7466a08ea4f4a08e9d1676a90f174fbc49216fc8bdbad8"
+    },
+    {
+      "name": "SHA256SUMS",
+      "bytes": 497,
+      "sha256": "433c212b4145f4fd384983fa4fae0ca0b1b8b3eb3a50e313374765568580d380"
+    }
+  ],
+  "asset_verification": {
+    "independently_downloaded_all_six": true,
+    "checksum_records": 5,
+    "all_checksum_records_match_downloaded_bytes": true,
+    "provenance_matches_source_tag_and_run": true,
+    "repository_metadata_verifier": "passed against exact source/ref/workflow/run"
+  },
+  "published_consumer": {
+    "schema": "0.8",
+    "tool": "0.3.5",
+    "php": "8.3.33",
+    "tree_digest_algorithm": "Normalize relative paths to forward slashes; map each path to lowercase file SHA-256; ksort with default SORT_REGULAR; SHA-256 of compact PHP json_encode with JSON_THROW_ON_ERROR and default slash escaping, no trailing newline.",
+    "target_files": 3,
+    "repository_files": 13,
+    "target_tree_sha256": "cc958cdbdb84372a244aa352bc414756aa5b6736497113ed3594c2a00f2eafc2",
+    "repository_tree_sha256": "f5ef359f7fc91ecc204d9d044532846e0a38ab5fb101e05eac212d3e04b3a70c",
+    "host_lock_sha256": "7423a9cce3b979fdd84f222982186cbcda3ad85f74a7d1a2e37babaedb42a35f",
+    "reports": {
+      "cli": {
+        "sha256": "768a32d9971f1f61d8adb562403a68554c27327b0defe065bf52832c019e152d",
+        "bytes": 205808,
+        "framework_findings": 10,
+        "direct_scenarios": 6,
+        "direct_composer_duration_ms": 2093,
+        "staged_attempts": 7,
+        "staged_composer_duration_ms": 4140,
+        "evidence_class_counts": {
+          "E1": 16,
+          "E4": 23,
+          "E2": 24,
+          "E3": 3,
+          "E5": 3
+        }
+      },
+      "artisan": {
+        "sha256": "46255384e2c7e2d063be405e7031a9be4aca0ad428226f95f91f903c26eaa0b0",
+        "bytes": 205808,
+        "framework_findings": 10,
+        "direct_scenarios": 6,
+        "direct_composer_duration_ms": 1850,
+        "staged_attempts": 7,
+        "staged_composer_duration_ms": 4335,
+        "evidence_class_counts": {
+          "E1": 16,
+          "E4": 23,
+          "E2": 24,
+          "E3": 3,
+          "E5": 3
+        }
+      }
+    },
+    "installed_dependency_count": 80,
+    "laravel_host": "v13.35.0",
+    "published_packages": {
+      "php-upgrade-preflight/cli": {
+        "version": "v0.3.5",
+        "source_reference": "dd81dabc6934332e806e18a67f1b8546573a59ff",
+        "dist_reference": "dd81dabc6934332e806e18a67f1b8546573a59ff"
+      },
+      "php-upgrade-preflight/core": {
+        "version": "v0.3.5",
+        "source_reference": "618caaad7fcf7a9fbe86c34594a70dbbb53ae7a5",
+        "dist_reference": "618caaad7fcf7a9fbe86c34594a70dbbb53ae7a5"
+      },
+      "php-upgrade-preflight/laravel": {
+        "version": "v0.3.5",
+        "source_reference": "e1d608a4a12c1f77594eefda7c99df0145378f9d",
+        "dist_reference": "e1d608a4a12c1f77594eefda7c99df0145378f9d"
+      }
+    },
+    "composer": "2.10.2",
+    "clean_packagist_install": true,
+    "security_blocking_enabled": true,
+    "audit_advisories": 0,
+    "audit_abandoned": 0,
+    "cli_exit": 0,
+    "artisan_exit": 0,
+    "semantic_parity": true,
+    "installed_schema_validation_passed": true,
+    "input_immutability_passed": true,
+    "identity_negative_control": {
+      "result": "PROVEN_DETECTION",
+      "expected_exit": 1,
+      "message": "cli tool identity differs.",
+      "unmodified_control_exit": 0,
+      "scope": "Independent consumer verifier tool-identity guard only."
+    },
+    "boundary": "Only the trusted Laravel 13 consumer host is booted. Static analysis and Composer evidence do not certify the analyzed application's runtime compatibility."
+  },
+  "workflow_target_immutability": {
+    "linux_before_and_after": "e7fc002d5fec60dec556b90c51b806dd8433036a5f124e8089db9c6022d1cb37",
+    "windows_before_and_after": "c14fd624be2ea1fee3f451dc012dc950dd85bebb9a37f48e0a157a863efc9f56",
+    "boundary": "Same-host raw fixture hashes only; cross-host raw equality is not claimed."
+  },
+  "wiki": {
+    "pre_tag_evidence": "v0.3.5-wiki-evidence.json",
+    "pre_tag_evidence_unchanged": true,
+    "post_publication_status": {
+      "published_after_release": true,
+      "reason": "Record completed Laravel milestone and next v0.4 gate without rewriting pre-tag evidence.",
+      "commits": {
+        "common": "cf7e5774af26320849a3a48573c95344c3c863ce",
+        "core": "4b2060fc4dad161e225c9ecc050d3b393be2d776",
+        "cli": "39cf6c43bf4ccf40a7da41bc933effc58b58da89",
+        "laravel": "d9df1c1ff811c71c77208d1417615eef4fac0f99"
+      },
+      "all_remote_heads_verified": true,
+      "exact_markdown_inventories": {
+        "common": 28,
+        "core": 12,
+        "cli": 10,
+        "laravel": 10
+      },
+      "local_links_and_sidebar_checks": "passed"
+    }
+  },
+  "recovery": {
+    "withheld_candidate": "v0.3.4",
+    "immutable_distribution_tags_retained": true,
+    "monorepo_tag_created": false,
+    "github_release_published": false,
+    "next_patch_repair": "v0.3.5"
+  },
+  "handoff": {
+    "laravel_milestone": "complete within reviewed patch-compatible scope",
+    "next": "v0.4 Milestone 0",
+    "retained_exclusions": [
+      "Same-major Laravel guidance/staging",
+      "Illuminate-only staged solving",
+      "Mixed Laravel-family staged solving"
+    ],
+    "symfony_implementation_requires": "v0.4 theme/contract gate, framework version identity and multi-adapter ownership decisions."
+  }
+}

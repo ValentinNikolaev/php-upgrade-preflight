@@ -2,9 +2,9 @@
 
 Last updated: 2026-10-07
 
-- Released baseline: `0.3.3` (published 2026-08-21)
+- Released baseline: `0.3.5` (published 2026-10-07 Europe/Rome; 2026-10-06 at 23:03:05 UTC)
 - Released report schema: `0.8`
-- Immediate work: intermediate Laravel completion milestone on `0.3.x`
+- Immediate work: v0.4 Milestone 0; the bounded Laravel completion milestone is complete
 - Active development target: `0.4.0`
 - Planned v0.4 report schema: `0.9`
 
@@ -28,7 +28,7 @@ v0.4 should prove the architectural claim the product has asserted since v0.1 an
 
 | Contract | State entering v0.4 | v0.4 direction |
 | --- | --- | --- |
-| Tool and package line | `0.3.3` published; Laravel completion patches precede the switch; `0.3.x-dev` aliases; `^0.3` internal constraints | `0.4.0`; identity switched atomically in Milestone 0 |
+| Tool and package line | `0.3.5` published; bounded Laravel completion accepted; `0.3.x-dev` aliases; `^0.3` internal constraints | `0.4.0`; identity switched atomically in Milestone 0 |
 | Canonical report | Schema `0.8` | New schema `0.9` for framework-declared version identity and adapter attribution |
 | Published packages | `core`, `cli`, `laravel` | Adds `symfony` as a fourth published package and distribution repository |
 | Active release policy | `0.3.x` from `main`; `0.2.x` and `0.1.x` archival | `0.4.x` from `main` once Milestone 0 establishes the protected `0.3.x` branch |
@@ -41,7 +41,7 @@ Schemas `0.2` through `0.8` and every signed compatibility artifact remain immut
 
 ## Released v0.3.x Baseline
 
-The published baseline is documented in the [v0.3.0 release notes](../docs/releases/v0.3.0.md), the [v0.3.1 release notes](../docs/releases/v0.3.1.md), the [v0.3.2 release notes](../docs/releases/v0.3.2.md), and the [v0.3 contract](../docs/v0.3-contract.md).
+The current published baseline is documented in the [v0.3.5 release notes](../docs/releases/v0.3.5.md). The [v0.3.0 release notes](../docs/releases/v0.3.0.md), [v0.3.1 release notes](../docs/releases/v0.3.1.md), [v0.3.2 release notes](../docs/releases/v0.3.2.md), and [v0.3 contract](../docs/v0.3-contract.md) retain the earlier release and contract evidence.
 
 - Schema `0.8` carries required `staged_resolution`, Composer execution provenance, target-platform-profile projections, adjacent stage attempts, candidate-state fingerprints, and blocker lifecycle history.
 - Laravel guidance covers 7 to 8, the retained direct 7 to 9 path, and every adjacent hop from 8 to 9 through 12 to 13, with real Composer evidence per contiguous stage.
@@ -52,6 +52,7 @@ The published baseline is documented in the [v0.3.0 release notes](../docs/relea
 - v0.3.1 followed on the same day from `83a9ba2f` through release run 32178181503. It reports tool `0.3.1` on unchanged schema `0.8`, makes excerpt truncation and redaction failure visible, and replaces the pre-publication documentation the v0.3.0 packages had shipped with.
 - v0.3.2 was published from `e6744c09` through release run 32272063360. It keeps schema `0.8` and the analyzer behavior unchanged while publishing the MIT relicensing, the GitHub Pages and four-destination Wiki surfaces, and the repaired offline demo.
 - v0.3.3 was published from `3725603a` through the verified release workflow. It keeps schema `0.8` and the PHP `^8.0` runtime floor while adding the interactive wizard, terminal progress, optional report copies, package metadata lookup modes, and the wizard-first Pages workflow.
+- v0.3.5 was published from `60f0c49f5a357406e37ee75ffcb03c2b90abf43f` through [release run 37543254451](https://github.com/ValentinNikolaev/php-upgrade-preflight/actions/runs/37543254451), with all 45 jobs successful and none skipped. It publishes the bounded Laravel corrections, earlier merged hardening and maintenance, and the distribution file-mode repair while retaining schema `0.8`, the PHP `^8.0` floor, and existing patch contracts. The v0.3.4 distribution-only candidate remains an immutable recovery record, not the final baseline.
 
 ## v0.4 Evidence and Gap Map
 
@@ -78,7 +79,7 @@ Exact version endpoints stay illustrative until Milestone 3 reviews official upg
 
 ### v0.3.x stabilization
 
-Complete the intermediate Laravel completion milestone through compatible `0.3.x` patches before beginning the v0.4 foundation. Keep schema `0.8`, the public PHP operation, CLI and Artisan behavior, adapter metadata, exit policy, staged-analysis semantics, and supported Laravel transitions compatible. Establish and protect the `0.3.x` maintenance branch before `main` adopts v0.4 identity, so urgent patch work never requires backporting v0.4 behavior.
+The intermediate Laravel completion milestone is complete in published v0.3.5. Keep subsequent `0.3.x` maintenance compatible with schema `0.8`, the public PHP operation, CLI and Artisan behavior, adapter metadata, exit policy, staged-analysis semantics, and supported Laravel transitions. Establish and protect the `0.3.x` maintenance branch in Milestone 0 before `main` adopts v0.4 identity, so urgent patch work never requires backporting v0.4 behavior.
 
 ### v0.4.0
 
@@ -94,16 +95,20 @@ Deferred to [the v0.5 proposal](DEVELOPMENT_PLAN_0.5.0-PROPOSAL.md) rather than 
 
 ### Separate maintenance patch: GitHub Actions JavaScript runtime
 
-Land the GitHub Actions runtime refresh as its own maintenance patch and pull request before the v0.4.0 release gate. It belongs to the v0.4 development map because it keeps that development and release pipeline supportable, but it does not change the v0.4 product, schema, adapter, command, or compatibility scope.
+The bounded cache-action refresh already merged in [PR #23](https://github.com/ValentinNikolaev/php-upgrade-preflight/pull/23): Quality and Compatibility smoke use `actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9` (v6.1.0, Node.js 24). Commit `660b2b1892bfba43fefebe0ed096230e390b7a3f` is included in signed v0.3.5, but is not an ancestor of signed v0.3.3; the latter retains the cache v4 pin. This is not evidence that every JavaScript action or deprecation annotation has been audited.
 
-- [ ] Inventory every pinned JavaScript action and record which revisions still target a deprecated Node.js runtime, starting with the pinned `actions/cache` revision that currently emits the Node.js 20 deprecation warning.
-- [ ] Replace affected actions with reviewed immutable commit SHAs from upstream releases that target GitHub's supported JavaScript runtime; do not replace SHA pins with floating tags.
+- [x] Publish the reviewed, immutable Node.js 24 cache-action pin in the v0.3.5 baseline.
+
+Separate audit TODO: complete the broader JavaScript-action inventory and verify any remaining runtime maintenance before the v0.4.0 release gate. This work does not change the v0.4 product, schema, adapter, command, or compatibility scope.
+
+- [ ] Inventory every pinned JavaScript action and record which revisions still target a deprecated Node.js runtime; do not infer completion from the cache-action refresh.
+- [ ] Replace any remaining affected actions with reviewed immutable commit SHAs from upstream releases that target GitHub's supported JavaScript runtime; do not replace SHA pins with floating tags.
 - [ ] Preserve workflow permissions, cache keys, restore-key behavior, cross-platform paths, concurrency, artifact retention, and existing job topology unless a separately reviewed compatibility change is required.
 - [ ] Run workflow static validation and the complete Quality and CodeQL matrices on Linux and Windows, including all supported PHP versions.
 - [ ] Confirm the completed runs contain no Node.js 20 deprecation annotation and that cache restore/save behavior remains visible and successful where expected.
 - [ ] Publish the change independently of feature work, with rollback instructions and links to the upstream action release notes and the validating workflow runs.
 
-Acceptance gate: all JavaScript actions remain commit-pinned, no workflow run reports a deprecated Node.js 20 action runtime, existing security permissions and cache semantics are unchanged, and the full required CI matrix passes. This patch does not authorize any v0.4 feature or contract change.
+Acceptance gate for the remaining audit: all JavaScript actions remain commit-pinned, no workflow run reports a deprecated Node.js 20 action runtime, existing security permissions and cache semantics are unchanged, and the full required CI matrix passes. The cache refresh alone does not close this audit or authorize any v0.4 feature or contract change.
 
 ## v0.4 Scope and Non-Goals
 
@@ -225,10 +230,10 @@ Acceptance: every supported transition and known exclusion is exercised, all cor
 
 Dependencies: L3. Output: passing candidate gates and documentation of the reviewed Laravel coverage.
 
-- [ ] Run focused Laravel/catalog/contract/parity checks, then the complete deterministic `composer check` gate. Use the documented Docker invocation with `COMPOSER_PROCESS_TIMEOUT=0` when needed; complete the PHP 8.0-8.5 and required Windows CI coverage.
-- [ ] Run coverage, selective mutation, staged-budget, privacy, and immutability gates. Extend the selective checks for corrected critical rules; preserve existing process/runtime/memory/report-size limits.
-- [ ] Verify normal and lowest-dependency consumer installs for every advertised Laravel 8-13 host line through `Compatibility smoke`, including the separate-tools workflow for older analyzed projects. Record current upstream/installability failures separately.
-- [ ] Update affected README, CLI/Artisan, limitations, transition coverage, troubleshooting, Wiki, site claims, and `[Unreleased]` notes. Explain how users handle Illuminate-only, mixed-target, same-major, dynamic-source, and manual migration cases today.
+- [x] Run focused Laravel/catalog/contract/parity checks, then the complete deterministic `composer check` gate. Use the documented Docker invocation with `COMPOSER_PROCESS_TIMEOUT=0` when needed; complete the PHP 8.0-8.5 and required Windows CI coverage.
+- [x] Run coverage, selective mutation, staged-budget, privacy, and immutability gates. Extend the selective checks for corrected critical rules; preserve existing process/runtime/memory/report-size limits.
+- [x] Verify normal and lowest-dependency consumer installs for every advertised Laravel 8-13 host line through `Compatibility smoke`, including the separate-tools workflow for older analyzed projects. Record current upstream/installability failures separately.
+- [x] Update affected README, CLI/Artisan, limitations, transition coverage, troubleshooting, Wiki, site claims, and `[Unreleased]` notes. Explain how users handle Illuminate-only, mixed-target, same-major, dynamic-source, and manual migration cases today.
 
 Acceptance: the patch candidate passes required checks and public claims match the coverage ledger. No checklist item becomes complete solely because its implementation or documentation exists.
 
@@ -236,17 +241,19 @@ Acceptance: the patch candidate passes required checks and public claims match t
 
 Dependencies: L4. Output: published and verified compatible patches, a closed gap ledger, and the v0.4 handoff.
 
-- [~] Group corrections into coherent `0.3.x` patches; recheck remote state before allocating each version. Reconcile any already merged unreleased Laravel-relevant fixes and evidence so the release notes describe the actual payload.
-- [ ] For every patch, follow `docs/release-checklist.md` and `wiki/Release-Wiki-Strategy.md`: verify source claims, update canonical and destination Wiki pages, run `composer release:wiki:check`, attach versioned four-destination evidence with real reviewed/published remote SHAs, validate links/sidebar coverage, and publish the matching Wiki commits before release completion.
-- [ ] Verify coordinated release identity, signed tags in the monorepo and three distribution repositories, distribution payloads, archive checksums/provenance, Packagist references, and published-package CLI/Artisan quick starts. Keep schema `0.8`, `0.3.x-dev` aliases, and `^0.3` internal constraints. An unavailable required Wiki publication blocks release completion.
-- [ ] Close each gap with its fix and acceptance evidence, or with its tested contract limitation, concrete user workaround, and named v0.4 decision. Re-evaluate the Symfony theme using the real-use results; if a material patch-compatible Laravel defect remains open, this milestone remains incomplete.
-- [ ] Record the final published `0.3.x` patch as the v0.4 migration/regression baseline, retaining the signed v0.3.0 evidence separately. Carry same-major identity to Milestone 1 and rooted-family/multi-adapter decisions to Milestones 0 and 2 before Symfony Milestone 3.
+- [x] Group corrections into coherent `0.3.x` patches; recheck remote state before allocating each version. Reconcile any already merged unreleased Laravel-relevant fixes and evidence so the release notes describe the actual payload.
+- [x] For every patch, follow `docs/release-checklist.md` and `wiki/Release-Wiki-Strategy.md`: verify source claims, update canonical and destination Wiki pages, run `composer release:wiki:check`, attach versioned four-destination evidence with real reviewed/published remote SHAs, validate links/sidebar coverage, and publish the matching Wiki commits before release completion.
+- [x] Verify coordinated release identity, signed tags in the monorepo and three distribution repositories, distribution payloads, archive checksums/provenance, Packagist references, and published-package CLI/Artisan quick starts. Keep schema `0.8`, `0.3.x-dev` aliases, and `^0.3` internal constraints. An unavailable required Wiki publication blocks release completion.
+- [x] Close each gap with its fix and acceptance evidence, or with its tested contract limitation, concrete user workaround, and named v0.4 decision. Re-evaluate the Symfony theme using the real-use results; if a material patch-compatible Laravel defect remains open, this milestone remains incomplete.
+- [x] Record the final published `0.3.x` patch as the v0.4 migration/regression baseline, retaining the signed v0.3.0 evidence separately. Carry same-major identity to Milestone 1 and rooted-family/multi-adapter decisions to Milestones 0 and 2 before Symfony Milestone 3.
 
 Acceptance gate: every listed gap has evidence and an explicit disposition; all patch-compatible defects are corrected and published; the required compatibility, quality, privacy, immutability, and Wiki gates pass; and the final patch baseline plus remaining contract decisions are ready for v0.4.
 
 Recovery: implement each correction in a focused change so an unsuccessful candidate can be revised or reverted without unrelated changes. Never move or replace a published signed tag or schema; correct a released regression through the next tested patch. Track temporary paths, consume and delete only task-owned disposable artifacts, and report retained diagnostics and why they remain.
 
-Status: L0–L3 accepted through PR #29 (`995567538e61223d2fc8821b1445beb73ed510c7`), with all 299 guide headings accounted for and three primary applications plus two supplemental snapshots evaluated without input mutation. Independent runtime review defects were fixed and re-reviewed. Docker `composer check`, all 18 Quality jobs in run 37536388442, all 16 normal/lowest consumer jobs in run 37536462123, locked dependency security and Actions/Python CodeQL passed the final implementation commit `63d31dc05efb2ab8a7bd80317e87e1bff570989e`; coverage and all 18 selective mutations passed. L4–L5 release preparation remains active on the same `codex/laravel-v03-completion` branch: the v0.3.4 distribution-only candidate was withheld after an export file-mode defect was found; its three signed distribution tags remain immutable and no monorepo release tag was created. The exporter repair and v0.3.5 identity, documentation and four Wiki destinations require fresh candidate verification and coordinated publication before the milestone is complete.
+Status: L0–L5 complete within the reviewed scope, published as [v0.3.5](../docs/releases/v0.3.5.md) from `60f0c49f5a357406e37ee75ffcb03c2b90abf43f`. All 299 pinned guide headings have explicit dispositions; three primary applications plus two supplemental snapshots were evaluated without input mutation. The retained v0.3.3 evaluation baseline and signed historical contracts remain unchanged. Manual database/runtime/configuration checks and existing Illuminate-only, mixed-target, same-major, ambiguous and unsupported transition exclusions remain limitations, not new supported modes.
+
+Acceptance evidence: the final Docker `composer check` passed 1,368 unit tests, 94 integration tests, two smoke tests, both static-analysis configurations and lint; coverage, all 18 selective mutations and both staged budgets passed without weakened floors. [Actual tag run 37543254451](https://github.com/ValentinNikolaev/php-upgrade-preflight/actions/runs/37543254451) passed all 45 jobs with none skipped, including required runtime/Windows, consumer, signature, distribution paths/blobs/modes, archive/provenance, Packagist and publication gates. The [four-destination Wiki evidence](../docs/releases/v0.3.5-wiki-evidence.json) records publication before tagging; independently verified published-package CLI/Artisan reports retained schema `0.8` and target immutability. The failed v0.3.4 distribution-only candidate and its three signed tags remain immutable; the repaired v0.3.5 release supersedes it without replacing any tag. Next is v0.4 Milestone 0, not Symfony implementation.
 
 ## Milestone 0: Confirm the Theme, Freeze v0.3.x, Lock the v0.4 Contract
 
@@ -413,7 +420,7 @@ These are collected with rationale in [the v0.5 proposal](DEVELOPMENT_PLAN_0.5.0
 
 ## Recommended Next Work Session
 
-Start the intermediate Laravel completion milestone at L0: verify the published `0.3.x` baseline and record the patch compatibility checklist and gap ledger. Then perform L1's real-application evaluation and guide/package coverage review before implementing corrections. Complete and publish the compatible patches before v0.4 Milestone 0; use their evidence to decide whether the second-adapter theme should proceed.
+Start v0.4 Milestone 0 with the published v0.3.5 baseline and the bounded Laravel coverage/application evidence. Confirm the release theme, freeze the final patch's migration/regression evidence separately from historical contracts, establish the protected `0.3.x` maintenance branch, and define the v0.4 contract before changing development identity. Do not begin Symfony implementation or check off later v0.4 work from the Laravel milestone's completion. The separate JavaScript-action audit remains open.
 
 Operational notes carried forward:
 

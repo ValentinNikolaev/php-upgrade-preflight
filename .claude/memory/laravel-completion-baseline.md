@@ -1,0 +1,28 @@
+---
+memory_contract: 1
+name: laravel-completion-baseline
+description: Use when sequencing v0.4 work after the published Laravel completion milestone.
+type: project
+related: []
+provenance:
+  - kind: repository
+    locator: .
+    retrieved_at: 2026-10-07
+    revision: 60f0c49f5a357406e37ee75ffcb03c2b90abf43f
+  - kind: url
+    locator: https://github.com/ValentinNikolaev/php-upgrade-preflight/actions/runs/37543254451
+    retrieved_at: 2026-10-07
+    revision: v0.3.5
+last_updated: 2026-10-07
+last_reviewed: 2026-10-07
+---
+
+# Laravel completion baseline
+
+The intermediate Laravel milestone shipped as v0.3.5 after a bounded review of 299 guide headings and five pinned application snapshots. All 45 actual tag-workflow jobs passed. Canonical details are in `docs/releases/v0.3.5.md` and its publication receipt; `.claude/DEVELOPMENT_PLAN.md` owns sequencing.
+
+The next gate is the active **v0.4 Milestone 0**, not a reopening of the completed historical v0.3 Milestone 0. Review the published evidence, confirm the theme, freeze the migration baseline and define identity, family targets, attribution and arbitration before switching development identity. Symfony implementation follows the identity and multi-adapter milestones.
+
+Same-major Laravel and Illuminate-only/mixed-family staging remain deliberate exclusions, not completed support. The coverage review and static reports never certify target runtime compatibility.
+
+The v0.3.4 distribution-only candidate was withheld after an export-mode defect. Its three signed distribution tags remain immutable; no monorepo v0.3.4 tag or GitHub release was published. v0.3.5 repaired and tested source Git-mode projection before coordinated publication. Distinguish immutable candidate history from the published baseline.
