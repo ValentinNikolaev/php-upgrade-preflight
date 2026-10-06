@@ -4,7 +4,7 @@
 
 ## Current status
 
-PHP Upgrade Preflight is an Open Source **public beta**. The latest published release recorded by the repository is **v0.3.4**, producing tool version `0.3.4` reports with schema `0.8`. Development on `main` uses `0.3.x-dev` aliases and `^0.3` internal constraints.
+PHP Upgrade Preflight is an Open Source **public beta**. The latest published release recorded by the repository is **v0.3.5**, producing tool version `0.3.5` reports with schema `0.8`. Development on `main` uses `0.3.x-dev` aliases and `^0.3` internal constraints.
 
 Public beta means the public PHP API, CLI and Artisan surfaces, adapter extension points, package boundaries, and report semantics are still being proven before `1.0`. It does **not** mean the analyzer guarantees a successful production upgrade.
 

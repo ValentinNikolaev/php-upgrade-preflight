@@ -12,8 +12,8 @@
         {
             "source": "wiki/Getting-Started.md",
             "destination": "Getting-Started.md",
-            "source_sha256": "5fb1da4e0e250f18aff2debcf84b0af32fd343396464006e793e0704266d20e1",
-            "materialized_sha256": "0cc4d9c1e949115dafcd16830b0f97fa516de792d895ebde8a72414864797c0b"
+            "source_sha256": "be9e5acab828e449bd30bb0aea8b8f2303912c4404aab07a3fde2c203d0e4c80",
+            "materialized_sha256": "8c02ab5913393e4ce1e327a5565874ff4547cfd3f732f2786fba135ccc94f638"
         },
         {
             "source": "wiki/Artisan-Command.md",
@@ -48,8 +48,8 @@
         {
             "source": "wiki/Roadmap-and-Status.md",
             "destination": "Roadmap-and-Status.md",
-            "source_sha256": "95c45ef8f331220d2b0cb2718711fe398e70254b4db6b1e2723b3c5ab838ae56",
-            "materialized_sha256": "1b6a9dac45b28bfa1929d7d918581085940e35fc0dfb346a33ed7cb07f718f48"
+            "source_sha256": "2355de268e3203fcefff2cd6f727e6d888b1e0955dc23a919515e66cdb83265f",
+            "materialized_sha256": "0659897390d40dc6713c8732e78ad65c95b4690f029dca916b1aec92795fa6fa"
         }
     ],
     "generated": {

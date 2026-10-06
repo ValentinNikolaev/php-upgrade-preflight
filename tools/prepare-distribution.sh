@@ -22,6 +22,7 @@ for package in core cli laravel; do
 
   rm -rf "${target}" "${expected}"
   git clone --quiet "https://github.com/${owner}/php-upgrade-preflight-${package}.git" "${target}"
+  git -C "${target}" config core.filemode false
 
   # Build the payload the release workflow expects: the package subtree plus the
   # shared licence, readme, changelog, security policy, and documentation tree.
@@ -33,6 +34,21 @@ for package in core cli laravel; do
   git -C "${target}" rm -rq --ignore-unmatch .
   cp -R "${expected}/." "${target}/"
   git -C "${target}" add -A
+
+  # Bind mounts can report every file executable (or none). Use the committed
+  # source modes, not stat bits, while retaining the blobs staged from the copy.
+  git ls-tree -r -z "${release_commit}" -- "packages/${package}" docs LICENSE README.md CHANGELOG.md SECURITY.md |
+    while IFS= read -r -d '' entry; do
+      mode="${entry%% *}"
+      source_path="${entry#*$'\t'}"
+      path="${source_path#packages/${package}/}"
+      case "${mode}" in
+        100644|100755|120000) ;;
+        *) echo "Unsupported distribution source mode ${mode}: ${source_path}" >&2; exit 1 ;;
+      esac
+      blob="$(git -C "${target}" rev-parse ":${path}")"
+      git -C "${target}" update-index --cacheinfo "${mode}" "${blob}" "${path}"
+    done
 
   if ! diff -r --exclude=.git "${expected}" "${target}" > /dev/null; then
     echo "Distribution payload for ${package} does not match the expected tree." >&2

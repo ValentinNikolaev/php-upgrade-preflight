@@ -19,7 +19,7 @@ composer test:coverage
 composer test:mutation
 php tools/verify-report-privacy.php
 composer audit --locked --no-interaction --no-ansi
-composer release:verify -- 0.3.4
+composer release:verify -- 0.3.5
 ```
 
 This local sequence is useful, but GitHub Actions remains authoritative because it also tests multiple PHP versions, Windows, fresh consumer installations, dependency-resolution variants, distribution tags, and release archives.
@@ -175,19 +175,19 @@ From the exact committed monorepo state:
 
 ```bash
 bash tools/prepare-distribution.sh
-bash tools/release-distribution.sh --tag v0.3.4 --dry-run
-bash tools/release-distribution.sh --tag v0.3.4
+bash tools/release-distribution.sh --tag v0.3.5 --dry-run
+bash tools/release-distribution.sh --tag v0.3.5
 ```
 
-Inspect staged changes and the dry run before accepting pushes. Only `core`, `cli`, and `laravel` have distribution repositories; the two adapter packages are development fixtures.
+Inspect staged changes and the dry run before accepting pushes. Compare exact staged and committed Git paths, blobs and modes with the source commit after package-path flattening; a filesystem byte check alone cannot detect executable-bit drift. Preparation stages authoritative source modes even when a Docker/Windows bind mount reports different permissions. Only `core`, `cli`, and `laravel` have distribution repositories; the two adapter packages are development fixtures.
 
 ### 3. Create the monorepo tag
 
 After all three distribution tags exist, create the signed annotated monorepo tag using the commands printed by `release-distribution.sh`:
 
 ```bash
-git tag -s v0.3.4 -m "php-upgrade-preflight v0.3.4"
-git push origin v0.3.4
+git tag -s v0.3.5 -m "php-upgrade-preflight v0.3.5"
+git push origin v0.3.5
 ```
 
 Pushing this tag starts the publishing workflow. A tag is an external, consequential action: confirm the version, commit, signatures, and Wiki state first.
@@ -227,7 +227,7 @@ Only after those gates pass does the workflow create or update the GitHub Releas
 Run the exact version locally:
 
 ```bash
-php tools/verify-release.php 0.3.4
+php tools/verify-release.php 0.3.5
 ```
 
 Read every `ERROR:` line. Do not fix only the first one: a release version is repeated deliberately across metadata, constraints, changelog, and release notes.

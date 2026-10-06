@@ -63,7 +63,10 @@ Clones the three distribution repositories into `build/dist/<package>` (or
 `WORK_DIR`), replaces their content with exactly that payload, stages it, and fails
 if the result differs from what the release workflow will compare against. It
 refuses to run on a dirty working tree, so the payload always matches a real commit.
-It never commits, tags, or pushes.
+It stages file modes from the committed source tree rather than host filesystem
+permissions, preserving copied blob bytes. Review exact staged and committed Git
+paths, blobs and modes before signing, including after any final `git add`; the
+filesystem verifier cannot inspect the Git index. It never commits, tags, or pushes.
 
 ### `release-distribution.sh`
 
