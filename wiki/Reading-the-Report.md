@@ -25,7 +25,7 @@ The repository's checked-in five-minute demo analyzes Laravel 10→13. This real
     "schema_version": "0.8",
     "tool": {
       "name": "php-upgrade-preflight",
-      "version": "0.3.3"
+      "version": "0.3.4"
     }
   }
 }
@@ -289,13 +289,13 @@ Real actionable impact:
 
 ```json
 {
-  "id": "source-impact-967745ebc2016f78d1c2",
+  "id": "source-impact-e51206a9bd272d8c6994",
   "stage_ids": [],
   "affected_package": null,
   "ownership": "unknown",
   "relevance": "framework_rule",
   "reason": "Referenced by active laravel compatibility guidance; package ownership has not been established.",
-  "severity": "high",
+  "severity": "medium",
   "occurrences": [
     {
       "file": "tests/Feature/LegacyCsrfTest.php",

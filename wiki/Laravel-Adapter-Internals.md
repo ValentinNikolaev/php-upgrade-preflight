@@ -158,8 +158,9 @@ For each scanned file, `sourceUsageVisitors()` yields a fresh `LaravelSourceUsag
 - `config_reference`
 - `test_double`
 - `deprecated_queue_dispatch`
+- `deprecated_asset_helper`
 
-Examples include provider and alias arrays in `config/app.php`, middleware and command registration, configuration keys, Laravel facade test doubles, and legacy `dispatchNow` calls. The visitor emits symbol, usage type, and exact line. Laravel skeleton and high-signal rules consume this vocabulary; Core does not give it generic meaning.
+Examples include provider and alias arrays in `config/app.php`, middleware and command registration, configuration keys, Laravel facade test doubles, legacy `dispatchNow` calls, and explicitly resolved global `elixir` calls. The visitor emits symbol, usage type, and exact line. Unresolved namespaced function fallbacks remain manual review. Laravel skeleton and high-signal rules consume this vocabulary; Core does not give it generic meaning.
 
 There is a documented seam: generic PHPUnit, Mockery, and Prophecy `test_double` detection is intentionally limited to Laravel's active source collector rather than Core.
 

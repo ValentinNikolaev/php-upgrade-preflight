@@ -6,14 +6,14 @@
         {
             "source": "wiki/Home.md",
             "destination": "Home.md",
-            "source_sha256": "537fd370f890dc647ecf3fae266c2c765c7222e8fc6fe55749f556ff0d2f9c4f",
-            "materialized_sha256": "5a8b0375b00ac54dbca1acd6df1adfac6489bf23698f430f4cfb9ce18cf48f51"
+            "source_sha256": "fa48a1e552c8f59c7e9be6a6f49402fc1b08532515694cd201cdc60192f9b95c",
+            "materialized_sha256": "f475ffce5c359ac4ea7c708cc94e3fa5e986943470fd8e2d063d6e7cfce5065b"
         },
         {
             "source": "wiki/Getting-Started.md",
             "destination": "Getting-Started.md",
-            "source_sha256": "c6ed84425762ed1924f164d2f43cab939759e4d6113769ddc2aaf7a2c4fa9745",
-            "materialized_sha256": "c6ed84425762ed1924f164d2f43cab939759e4d6113769ddc2aaf7a2c4fa9745"
+            "source_sha256": "5fb1da4e0e250f18aff2debcf84b0af32fd343396464006e793e0704266d20e1",
+            "materialized_sha256": "5fb1da4e0e250f18aff2debcf84b0af32fd343396464006e793e0704266d20e1"
         },
         {
             "source": "wiki/Package-Map.md",
@@ -24,8 +24,8 @@
         {
             "source": "wiki/Class-and-Service-Index.md",
             "destination": "Class-and-Service-Index.md",
-            "source_sha256": "94036a0fc98308cdfe06eaa8301e9d4d9b74ab94a77b6da5bb3e5d4b71ded380",
-            "materialized_sha256": "94036a0fc98308cdfe06eaa8301e9d4d9b74ab94a77b6da5bb3e5d4b71ded380"
+            "source_sha256": "990882b33774241c2fc23a967c89900e1886bd9815b65b22df49531d3900aea2",
+            "materialized_sha256": "990882b33774241c2fc23a967c89900e1886bd9815b65b22df49531d3900aea2"
         },
         {
             "source": "wiki/Architecture-Overview.md",
@@ -42,14 +42,14 @@
         {
             "source": "wiki/Reading-the-Report.md",
             "destination": "Reading-the-Report.md",
-            "source_sha256": "b0f7b42bae5b6e51b24cd6aff1724b7fb2d7412227a64615e0a59de05247b1f0",
-            "materialized_sha256": "b0f7b42bae5b6e51b24cd6aff1724b7fb2d7412227a64615e0a59de05247b1f0"
+            "source_sha256": "aebd6ffc15dc28dac24c6f677d632ac5f7fc83d2d58dee80c8db18be51e394bb",
+            "materialized_sha256": "aebd6ffc15dc28dac24c6f677d632ac5f7fc83d2d58dee80c8db18be51e394bb"
         },
         {
             "source": "wiki/Report-Schema.md",
             "destination": "Report-Schema.md",
-            "source_sha256": "65b7740a4bb499412939d4db9921c1c2ad55f5d12f6333f2ed3794507ea063d7",
-            "materialized_sha256": "a90ee52649d9c836b735e0c668d8ecaf3c57bbbf5f873ff0bfd00e8a48faadba"
+            "source_sha256": "fee17667d3dd779b6d6b8eea5ce0862d247e434166938379e9916d411c194c8a",
+            "materialized_sha256": "268a550e3c5804f77742acbd634093fcb335ea451960f9859925899228b43515"
         },
         {
             "source": "wiki/Determinism-and-Evidence.md",
@@ -66,8 +66,8 @@
         {
             "source": "wiki/Core-Service-Reference.md",
             "destination": "Core-Service-Reference.md",
-            "source_sha256": "f91c0e2ef37891bbf8d24ee8d751ebc53157f54865a348894ccf495f89a2cde4",
-            "materialized_sha256": "f91c0e2ef37891bbf8d24ee8d751ebc53157f54865a348894ccf495f89a2cde4"
+            "source_sha256": "d1119224deb62619f5b685dbeef06e339ab0671591b981aa74114406ccd34d8f",
+            "materialized_sha256": "d1119224deb62619f5b685dbeef06e339ab0671591b981aa74114406ccd34d8f"
         },
         {
             "source": "wiki/Core-Analysis-Pipeline.md",
@@ -96,8 +96,8 @@
         {
             "source": "wiki/Laravel-Adapter-Internals.md",
             "destination": "Laravel-Adapter-Internals.md",
-            "source_sha256": "d32c7b3e30e002f047ccc07cee1136d670a8fa0c68c05968418bd94043116cc0",
-            "materialized_sha256": "d32c7b3e30e002f047ccc07cee1136d670a8fa0c68c05968418bd94043116cc0"
+            "source_sha256": "8b00238812a4f45f695924dba02d02f8967d1135d86d768bcbe128d37d7e8b37",
+            "materialized_sha256": "8b00238812a4f45f695924dba02d02f8967d1135d86d768bcbe128d37d7e8b37"
         },
         {
             "source": "wiki/Artisan-Command.md",
@@ -126,14 +126,14 @@
         {
             "source": "wiki/Tools-Reference.md",
             "destination": "Tools-Reference.md",
-            "source_sha256": "d960a2ab74953374259fe1967a5da9475f281dbdf6a25793dd4eacd481f26c9a",
-            "materialized_sha256": "d960a2ab74953374259fe1967a5da9475f281dbdf6a25793dd4eacd481f26c9a"
+            "source_sha256": "9f5bde2df5fffa9ef1dcb55aded0eff6d2625432a864632366eeb34bfa3f3aee",
+            "materialized_sha256": "9f5bde2df5fffa9ef1dcb55aded0eff6d2625432a864632366eeb34bfa3f3aee"
         },
         {
             "source": "wiki/Quality-and-Release-Tooling.md",
             "destination": "Quality-and-Release-Tooling.md",
-            "source_sha256": "a2a547aa4a9c3d6cc88c6d86e321a82ec37b6006ebb597950ba1b42a1dd10409",
-            "materialized_sha256": "a2a547aa4a9c3d6cc88c6d86e321a82ec37b6006ebb597950ba1b42a1dd10409"
+            "source_sha256": "40dbad5bb75dc50c61569394d3c7c46fa50acb2fa96000c50e820fd441f14463",
+            "materialized_sha256": "40dbad5bb75dc50c61569394d3c7c46fa50acb2fa96000c50e820fd441f14463"
         },
         {
             "source": "wiki/Release-Wiki-Strategy.md",
@@ -150,8 +150,8 @@
         {
             "source": "wiki/Roadmap-and-Status.md",
             "destination": "Roadmap-and-Status.md",
-            "source_sha256": "497021508ecba9ea226025f7120eeaf68b3acac198ff7c588a3ad78a78795f4d",
-            "materialized_sha256": "497021508ecba9ea226025f7120eeaf68b3acac198ff7c588a3ad78a78795f4d"
+            "source_sha256": "95c45ef8f331220d2b0cb2718711fe398e70254b4db6b1e2723b3c5ab838ae56",
+            "materialized_sha256": "95c45ef8f331220d2b0cb2718711fe398e70254b4db6b1e2723b3c5ab838ae56"
         },
         {
             "source": "wiki/Troubleshooting-and-FAQ.md",

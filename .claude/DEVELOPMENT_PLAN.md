@@ -1,6 +1,6 @@
 # PHP Upgrade Preflight Development Plan
 
-Last updated: 2026-10-06
+Last updated: 2026-10-07
 
 - Released baseline: `0.3.3` (published 2026-08-21)
 - Released report schema: `0.8`
@@ -177,10 +177,10 @@ Patch boundary: retain schema `0.8`, PHP `^8.0`, existing public interfaces, com
 
 Dependencies: none. Output: a reviewed compatibility checklist and an initial gap ledger linked from this milestone.
 
-- [~] Verify the latest published `0.3.x` release in the monorepo, distribution repositories, and Packagist; record exact versions, source references, and the reviewed implementation commit.
-- [ ] Record the existing schema, command, adapter, transition, and staged-skip contracts before editing behavior. Preserve all signed historical schemas, reports, and fixtures; keep new patch expectations separate from frozen artifacts.
-- [ ] Classify every map entry as a confirmed defect, missing evidence, or deliberate limitation. For each proposed fix, record its affected contract and whether it fits the published patch policy.
-- [ ] Record that enabling Illuminate-only/mixed-target staging or same-major framework transitions changes the declared v0.3 scope. Preserve those refusals in this patch milestone; carry explicit acceptance cases into the v0.4 contract decision rather than treating documentation as implemented support.
+- [x] Verify the latest published `0.3.x` release in the monorepo, distribution repositories, and Packagist; record exact versions, source references, and the reviewed implementation commit.
+- [x] Record the existing schema, command, adapter, transition, and staged-skip contracts before editing behavior. Preserve all signed historical schemas, reports, and fixtures; keep new patch expectations separate from frozen artifacts.
+- [x] Classify every map entry as a confirmed defect, missing evidence, or deliberate limitation. For each proposed fix, record its affected contract and whether it fits the published patch policy.
+- [x] Record that enabling Illuminate-only/mixed-target staging or same-major framework transitions changes the declared v0.3 scope. Preserve those refusals in this patch milestone; carry explicit acceptance cases into the v0.4 contract decision rather than treating documentation as implemented support.
 
 Acceptance: each known gap has an owner area, patch disposition, and failure-revealing check. Historical compatibility tests cannot be weakened to make a new behavior pass.
 
@@ -188,12 +188,12 @@ Acceptance: each known gap has an owner area, patch disposition, and failure-rev
 
 Dependencies: L0. Output: a bounded evaluation corpus, feedback record, and coverage ledger.
 
-- [~] Select three real Laravel applications covering a legacy 7/8/9 project, a 10/11 project retaining its existing skeleton, and a 12/13 project with rooted ecosystem dependencies. Pin authorized snapshots to exact commits; record substitutions and any unavailable case. Keep sensitive project details out of committed evidence.
-- [ ] Analyze those snapshots with the exact published baseline from a separate tools directory. Record requests, platform/execution policy, canonical reports, normalized fingerprints, immutability checks, timings, and what the maintainer actually needs to change next. Keep live/networked runs separate from the deterministic gate.
-- [ ] Compare report findings with official upgrade guides, package manifests, and independently reviewed expected work. Record missed findings, false positives, wrong ranges, weak confidence, and unclear next actions; do not infer runtime correctness from Composer success.
-- [ ] Review every guide section for 7->8 and each adjacent hop through 12->13, retaining the direct 7->9 path. Pin upstream guide/manifest sources to real reviewed commits; classify every item as implemented, patch omission, manual review, not applicable, or contract-dependent. Review changes since the existing pins without overwriting historical evidence.
-- [ ] Inventory the corpus's rooted first-party packages and all packages mentioned by the reviewed guides. Cover package/test-tool/extension/PHP requirements, removed or renamed symbols, configuration and skeleton changes, and migration or runtime tasks that require manual verification. Bound the ecosystem claim to this recorded inventory.
-- [ ] Open a bounded feedback window with actual start/end dates and record received feedback or its absence. Convert confirmed findings into minimal sanitized application-shaped fixtures; do not import arbitrary public applications into offline tests.
+- [x] Select three real Laravel applications covering a legacy 7/8/9 project, a 10/11 project retaining its existing skeleton, and a 12/13 project with rooted ecosystem dependencies. Pin authorized snapshots to exact commits; record substitutions and any unavailable case. Keep sensitive project details out of committed evidence.
+- [x] Analyze those snapshots with the exact published baseline from a separate tools directory. Record requests, platform/execution policy, canonical reports, normalized fingerprints, immutability checks, timings, and what the maintainer actually needs to change next. Keep live/networked runs separate from the deterministic gate.
+- [x] Compare report findings with official upgrade guides, package manifests, and independently reviewed expected work. Record missed findings, false positives, wrong ranges, weak confidence, and unclear next actions; do not infer runtime correctness from Composer success.
+- [x] Review every guide section for 7->8 and each adjacent hop through 12->13, retaining the direct 7->9 path. Pin upstream guide/manifest sources to real reviewed commits; classify every item as implemented, patch omission, manual review, not applicable, or contract-dependent. Review changes since the existing pins without overwriting historical evidence.
+- [x] Inventory the corpus's rooted first-party packages and all packages mentioned by the reviewed guides. Cover package/test-tool/extension/PHP requirements, removed or renamed symbols, configuration and skeleton changes, and migration or runtime tasks that require manual verification. Bound the ecosystem claim to this recorded inventory.
+- [x] Review a bounded public-feedback window with actual start/end dates and record received feedback or its absence; identify this as retrospective review, not fresh solicitation. Convert confirmed findings into minimal sanitized application-shaped fixtures; do not import arbitrary public applications into offline tests.
 
 Acceptance: every reviewed guide item and inventoried package has a recorded disposition, and every confirmed omission or false positive maps to a reproducible fixture or an explicit manual-review limitation. Record corpus access blockers; fabricated substitute evidence cannot close the gate.
 
@@ -201,11 +201,11 @@ Acceptance: every reviewed guide item and inventoried package has a recorded dis
 
 Dependencies: L1. Output: small independently reviewable patches in `packages/laravel`, with evidence and regression coverage.
 
-- [~] Correct every patch-compatible omission found in L1, prioritizing incorrect blockers, missing exact package/platform requirements, and source findings that can be proved statically. Review Laravel 13's bounded pack as thoroughly as the earlier hops.
-- [ ] Review first-party and guide-mentioned package guidance against exact manifests and maintainer sources. Correct direct/transitive applicability, compatible constraints, replacement/removal advice, and test-tool transitions. Unknown or unreviewed versions must remain uncertainty.
-- [ ] Add or correct parser-based checks for proved removed/renamed APIs and supported configuration references. Keep framework knowledge inside the Laravel adapter and source inspection against the original snapshot.
-- [ ] Protect the optional Laravel 11 skeleton choice: retaining the Laravel 10 skeleton must not itself create a mandatory migration. Keep structural review locations at appropriate confidence and avoid presenting dynamic/container behavior as confirmed incompatibility.
-- [ ] For each corrected rule, add a case that would fail before the fix and a negative/non-applicable case. Verify hop attribution, evidence references, severity, confidence, duplicate handling, and catalog validation before reviewing snapshot changes.
+- [x] Correct every patch-compatible omission found in L1, prioritizing incorrect blockers, missing exact package/platform requirements, and source findings that can be proved statically. Review Laravel 13's bounded pack as thoroughly as the earlier hops.
+- [x] Review first-party and guide-mentioned package guidance against exact manifests and maintainer sources. Correct direct/transitive applicability, compatible constraints, replacement/removal advice, and test-tool transitions. Unknown or unreviewed versions must remain uncertainty.
+- [x] Add or correct parser-based checks for proved removed/renamed APIs and supported configuration references. Keep framework knowledge inside the Laravel adapter and source inspection against the original snapshot.
+- [x] Protect the optional Laravel 11 skeleton choice: retaining the Laravel 10 skeleton must not itself create a mandatory migration. Keep structural review locations at appropriate confidence and avoid presenting dynamic/container behavior as confirmed incompatibility.
+- [x] For each corrected rule, add a case that would fail before the fix and a negative/non-applicable case. Verify hop attribution, evidence references, severity, confidence, duplicate handling, and catalog validation before reviewing snapshot changes.
 
 Acceptance: all patch-compatible L1 defects are fixed with E1-E4 evidence where applicable; remaining manual work is named with its reason and verification action. Unrelated baseline findings do not change silently.
 
@@ -213,11 +213,11 @@ Acceptance: all patch-compatible L1 defects are fixed with E1-E4 evidence where 
 
 Dependencies: L2, using L0's contract decisions. Output: expanded full-analyzer and command-parity coverage.
 
-- [ ] Exercise feasible and blocked/advisory outcomes for every approved adjacent hop, the direct 7->9 guidance path, and representative multi-hop chains. Verify real offline Composer evidence, carried candidate state, multiple blockers and lifecycles, and independent direct/guidance/staged outcomes.
-- [ ] Cover rooted Illuminate-only projects, mixed framework/component targets, inconsistent rooted component versions, same-major targets, downgrades, ambiguous ranges, missing hops, and endpoints outside Laravel 7-13. Assert the declared guidance status and staged refusal with evidence-backed reasons while verifying direct solving still honors all valid supplied targets.
-- [ ] Cover explicit absent extensions, unavailable exact stage PHP, provider conflicts, transitive-only framework dependencies, and active Laravel package-family labels. Include the Laravel/Symfony collision cases in the v0.4 handoff without changing ownership semantics in patches.
-- [ ] Verify CLI/Artisan canonical parity, JSON/Markdown projection, deterministic normalization, and target immutability for the new fixtures. Cover timeout/failure cleanup and the documented debug retention path without deleting user-owned diagnostics.
-- [ ] Rerun the pinned real-application analyses against the corrected candidate with the same declared inputs. Explain changed findings and measured outcomes; report live ecosystem drift separately from product regressions.
+- [x] Exercise feasible and blocked/advisory outcomes for every approved adjacent hop, the direct 7->9 guidance path, and representative multi-hop chains. Verify real offline Composer evidence, carried candidate state, multiple blockers and lifecycles, and independent direct/guidance/staged outcomes.
+- [x] Cover rooted Illuminate-only projects, mixed framework/component targets, inconsistent rooted component versions, same-major targets, downgrades, ambiguous ranges, missing hops, and endpoints outside Laravel 7-13. Assert the declared guidance status and staged refusal with evidence-backed reasons while verifying direct solving still honors all valid supplied targets.
+- [x] Cover explicit absent extensions, unavailable exact stage PHP, provider conflicts, transitive-only framework dependencies, and active Laravel package-family labels. Include the Laravel/Symfony collision cases in the v0.4 handoff without changing ownership semantics in patches.
+- [x] Verify CLI/Artisan canonical parity, JSON/Markdown projection, deterministic normalization, and target immutability for the new fixtures. Cover timeout/failure cleanup and the documented debug retention path without deleting user-owned diagnostics.
+- [x] Rerun the pinned real-application analyses against the corrected candidate with the same declared inputs. Explain changed findings and measured outcomes; report live ecosystem drift separately from product regressions.
 
 Acceptance: every supported transition and known exclusion is exercised, all corrected findings resolve to evidence, and before/after application reports demonstrate the corrections without inventing new staged support.
 
@@ -236,7 +236,7 @@ Acceptance: the patch candidate passes required checks and public claims match t
 
 Dependencies: L4. Output: published and verified compatible patches, a closed gap ledger, and the v0.4 handoff.
 
-- [ ] Group corrections into coherent `0.3.x` patches; recheck remote state before allocating each version. Reconcile any already merged unreleased Laravel-relevant fixes and evidence so the release notes describe the actual payload.
+- [~] Group corrections into coherent `0.3.x` patches; recheck remote state before allocating each version. Reconcile any already merged unreleased Laravel-relevant fixes and evidence so the release notes describe the actual payload.
 - [ ] For every patch, follow `docs/release-checklist.md` and `wiki/Release-Wiki-Strategy.md`: verify source claims, update canonical and destination Wiki pages, run `composer release:wiki:check`, attach versioned four-destination evidence with real reviewed/published remote SHAs, validate links/sidebar coverage, and publish the matching Wiki commits before release completion.
 - [ ] Verify coordinated release identity, signed tags in the monorepo and three distribution repositories, distribution payloads, archive checksums/provenance, Packagist references, and published-package CLI/Artisan quick starts. Keep schema `0.8`, `0.3.x-dev` aliases, and `^0.3` internal constraints. An unavailable required Wiki publication blocks release completion.
 - [ ] Close each gap with its fix and acceptance evidence, or with its tested contract limitation, concrete user workaround, and named v0.4 decision. Re-evaluate the Symfony theme using the real-use results; if a material patch-compatible Laravel defect remains open, this milestone remains incomplete.
@@ -246,7 +246,7 @@ Acceptance gate: every listed gap has evidence and an explicit disposition; all 
 
 Recovery: implement each correction in a focused change so an unsuccessful candidate can be revised or reverted without unrelated changes. Never move or replace a published signed tag or schema; correct a released regression through the next tested patch. Track temporary paths, consume and delete only task-owned disposable artifacts, and report retained diagnostics and why they remain.
 
-Status: in progress on `codex/laravel-v03-completion`. L0-L3 implementation/evidence is prepared: all 299 guide headings are accounted for, three primary applications and two supplemental snapshots have immutable before/after evaluations, and package/source corrections have regression tests. Independent runtime review findings have been fixed. The expanded deterministic gate, cross-platform CI and consumer install matrix remain required before acceptance; no patch publication or milestone completion is claimed.
+Status: L0–L3 accepted through PR #29 (`995567538e61223d2fc8821b1445beb73ed510c7`), with all 299 guide headings accounted for and three primary applications plus two supplemental snapshots evaluated without input mutation. Independent runtime review defects were fixed and re-reviewed. Docker `composer check`, all 18 Quality jobs in run 37536388442, all 16 normal/lowest consumer jobs in run 37536462123, locked dependency security and Actions/Python CodeQL passed the final implementation commit `63d31dc05efb2ab8a7bd80317e87e1bff570989e`; coverage and all 18 selective mutations passed. L4–L5 release preparation remains active on the same `codex/laravel-v03-completion` branch: v0.3.4 identity, documentation and four Wiki destinations require final candidate verification and publication before the milestone is complete.
 
 ## Milestone 0: Confirm the Theme, Freeze v0.3.x, Lock the v0.4 Contract
 

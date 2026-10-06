@@ -12,8 +12,8 @@
         {
             "source": "wiki/Getting-Started.md",
             "destination": "Getting-Started.md",
-            "source_sha256": "c6ed84425762ed1924f164d2f43cab939759e4d6113769ddc2aaf7a2c4fa9745",
-            "materialized_sha256": "e8e1bf342c36cf0b6ebb0a9d2bd96ab8b61ef144c118861f66dd7c46c1a15b51"
+            "source_sha256": "5fb1da4e0e250f18aff2debcf84b0af32fd343396464006e793e0704266d20e1",
+            "materialized_sha256": "16b33252d0190d4af1a4df1ebc36f9fb898c3281ddca651e791fef32173cf4e8"
         },
         {
             "source": "wiki/CLI-Package-Internals.md",
@@ -48,8 +48,8 @@
         {
             "source": "wiki/Roadmap-and-Status.md",
             "destination": "Roadmap-and-Status.md",
-            "source_sha256": "497021508ecba9ea226025f7120eeaf68b3acac198ff7c588a3ad78a78795f4d",
-            "materialized_sha256": "ae43fe831bf0800d626b1c3a1bd0170d7339add62b5460a8d7b39323e1da53b4"
+            "source_sha256": "95c45ef8f331220d2b0cb2718711fe398e70254b4db6b1e2723b3c5ab838ae56",
+            "materialized_sha256": "1b6a9dac45b28bfa1929d7d918581085940e35fc0dfb346a33ed7cb07f718f48"
         }
     ],
     "generated": {

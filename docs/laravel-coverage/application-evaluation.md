@@ -18,7 +18,7 @@ The historical harness identifier `bookstack10` means the supplemental Laravel 9
 
 ## What the saved comparisons show
 
-Baseline tools are the published CLI, core and Laravel packages at exactly 0.3.3, installed in a separate tools directory. The candidate is an unpublished working tree whose metadata still says 0.3.3; that shared version string is not proof of identical implementation. The JSON records each published source reference separately.
+Baseline tools were the published CLI, core and Laravel packages at exactly 0.3.3, installed in a separate tools directory. The evaluated candidate was an unpublished working tree whose metadata still said 0.3.3; that shared version string was not proof of identical implementation. The JSON records each published source reference separately. Release preparation subsequently advanced current tool identity to 0.3.4 without rewriting these recorded runs.
 
 The tools and monorepo candidate have separately locked dependency graphs; the JSON records baseline dependency versions and the candidate's relevant analyzer libraries. This is not a fully controlled dependency-version experiment. Sanitized red/green regression cases independently establish the named corrections, and networked timings are not causal performance comparisons. Reinstalling exact tool versions later can resolve different transitive versions; compare the recorded lock hash/inventory rather than assuming a fresh install reproduces every byte.
 
@@ -85,6 +85,6 @@ The retry neither edits the application repositories nor supplies private creden
 
 ## Evidence limits and retention
 
-Raw reports and summaries remain in the root agent's temporary evaluation directory, outside the repository; their hashes preserve identity, not public availability. They are retained for ongoing final reruns and review. This documentation task created no disposable files. Normalized findings omit evidence IDs, paths and timings but preserve severity, summary text and hop attribution, so corrected ranges remain visible.
+Raw reports and summaries remain in the root agent's temporary evaluation directory, outside the repository; their hashes preserve identity, not public availability. Their identities, outcomes and normalized summaries have been consumed and independently reviewed. Automatic deletion is blocked by the execution environment, so these task-owned artifacts are retained rather than bypassing its safety policy. Normalized findings omit evidence IDs, paths and timings but preserve severity, summary text and hop attribution, so corrected ranges remain visible.
 
 Live network/cache/security-policy measurements are non-deterministic and separate from offline regression gates. A [bounded retrospective feedback review](compatibility-baseline.json) covers 2026-08-21 through 2026-10-06: it is a review of existing public reports, not fresh solicitation or proof of compatibility. No post-release Laravel regression report was found in that bounded record. Neither document existence nor solver success closes the remaining milestone quality, CI, consumer-install, Wiki or release gates, or proves the applications safe to deploy.

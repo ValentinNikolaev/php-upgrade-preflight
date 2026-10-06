@@ -95,6 +95,7 @@ Cleanup failures matter because a retained workspace can contain copied Composer
 | Service | Responsibility |
 | --- | --- |
 | `SourceUsageScanner` | Find PHP files under selected paths, parse ASTs, and collect inventory |
+| `SourceScanLimits` | Positive library-level caps for selected files, per-file/aggregate bytes, and retained unique usages |
 | `SourceUsageVisitor` | Collect common names and usages from PHP AST nodes |
 | `ExplicitFullyQualifiedNameVisitor` | Record explicitly fully qualified names |
 | `SymbolDeclarationVisitor` | Record declarations used to build ownership information |
@@ -102,6 +103,8 @@ Cleanup failures matter because a retained workspace can contain copied Composer
 | `SymbolOwnershipIndex` | Query which package owns a discovered symbol |
 
 Framework adapters can add collectors with `SourceUsageVisitorProvider`. They augment the framework-neutral scan; they do not replace Core's parser.
+
+Default source limits are 10,000 files, 2 MiB per file, 64 MiB aggregate input and 10,000 usages. Omission produces `E3` evidence and uncertainty; it is not a complete-source result. Embedded callers may pass an optional `SourceScanLimits` to `SourceUsageScanner`; existing calls retain these defaults. CLI and Artisan do not add new limit flags in this patch.
 
 ## Reporting services
 
