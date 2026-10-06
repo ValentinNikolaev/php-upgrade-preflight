@@ -180,6 +180,7 @@ Use it to find the package boundary and the deeper Wiki page for a symbol. “Va
 | `PhpUpgradePreflight\Core\Source\AutoloadOwnershipIndexBuilder` | Builds package ownership from Composer autoload metadata | [[Core Analysis Pipeline|Core-Analysis-Pipeline]] |
 | `PhpUpgradePreflight\Core\Source\ExplicitFullyQualifiedNameVisitor` | Collects explicit fully qualified names from PHP ASTs | [[Core Service Reference|Core-Service-Reference]] |
 | `PhpUpgradePreflight\Core\Source\SourceUsageCollector` | Common contract for AST source-usage collectors | [[Core Package Guide|Core-Package-Guide]] |
+| `PhpUpgradePreflight\Core\Source\SourceScanLimits` | Configurable finite source file, byte and usage caps | [[Core Service Reference|Core-Service-Reference]] |
 | `PhpUpgradePreflight\Core\Source\SourceUsageScanner` | Finds, parses, and inventories project PHP source | [[Core Analysis Pipeline|Core-Analysis-Pipeline]] |
 | `PhpUpgradePreflight\Core\Source\SourceUsageVisitor` | Collects common PHP symbol usages | [[Core Service Reference|Core-Service-Reference]] |
 | `PhpUpgradePreflight\Core\Source\SymbolDeclarationVisitor` | Collects and orders PHP symbol declarations | [[Determinism and Evidence|Determinism-and-Evidence]] |

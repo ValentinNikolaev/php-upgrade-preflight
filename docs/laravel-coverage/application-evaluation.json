@@ -561,7 +561,7 @@
     "network_measurements": "Live repository state, caches, advisory policy and inherited global configuration may change outcomes and timings; these runs are not deterministic gate evidence.",
     "original_execution_helper": {
       "sha256": "acf1166ff7cb6189366ab2d14d5907f4b0a03946f6d79bce02b8f520df3dbc42",
-      "path": "evaluate.php in retained external evaluation directory",
+      "path": "evaluate.php in external evaluation directory used for the recorded runs",
       "used_for_recorded_runs": true
     },
     "repository_reproduction_helper": {
@@ -6642,7 +6642,7 @@
   "follow_up": [
     "Complete independent documentation review and the remaining milestone quality/CI/consumer/Wiki/release gates; evaluation completion does not close them.",
     "Retain raw reports until their identities, outcomes and normalized summaries are consumed and reviewed; clean only root-owned temporary evidence when authorized and no longer needed.",
-    "For any later candidate edits or release identity changes, rerun affected cases under new labels and capture fresh provenance rather than overwriting this evidence."
+    "Later behavior edits require affected application reruns under new labels and fresh provenance rather than overwriting this evidence. Identity-only preparation is covered by current report, fixture and contract checks; it does not relabel these measured runs."
   ],
   "rooted_inventory_policy": "Rooted first-party, upgrade-guide, test-tool and Laravel-owned Symfony-family package inventory; explicit Composer contracts and manual work are distinct from dedicated rule coverage.",
   "confirmed_corpus_findings": [
