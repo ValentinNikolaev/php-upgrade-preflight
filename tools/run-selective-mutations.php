@@ -36,6 +36,10 @@ $requiredMutations = [
     'stage-plan-stop-on-gap' => ['file' => 'packages/laravel/src/LaravelStagePlanner.php', 'test_filter' => 'LaravelFrameworkIntegrationTest'],
     'aggregate-uncertainty-deduplication' => ['file' => 'packages/core/src/Model/UpgradeReport.php', 'test_filter' => 'ReportAssemblerTest'],
     'old-style-adapter-stage-provider-guard' => ['file' => 'packages/core/src/Analysis/StagedUpgradeOrchestrator.php', 'test_filter' => 'testOldStyleAdapterWithoutStageProviderRemainsCompatible'],
+    'laravel-queue-facade-identity' => ['file' => 'packages/laravel/src/Source/LaravelSourceUsageVisitor.php', 'test_filter' => 'LaravelQueueDispatchVisitorTest'],
+    'laravel-optional-phpunit-upgrade-range' => ['file' => 'packages/laravel/src/Catalog/LaravelRuleCatalog.php', 'test_filter' => 'LaravelCompletionPackageRulesTest'],
+    'laravel-removed-uuid-trait-identity' => ['file' => 'packages/laravel/src/Rules/LaravelHighSignalSourceRule.php', 'test_filter' => 'LaravelHighSignalSourceRuleTest'],
+    'laravel-csrf-alias-review-severity' => ['file' => 'packages/laravel/src/Rules/LaravelHighSignalSourceRule.php', 'test_filter' => 'LaravelHighSignalSourceRuleTest'],
 ];
 /** @var array<string, array{file: string, test_filter: string}> $configuredMutations */
 $configuredMutations = [];

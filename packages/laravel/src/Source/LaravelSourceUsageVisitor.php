@@ -195,6 +195,11 @@ final class LaravelSourceUsageVisitor extends NodeVisitorAbstract implements Sou
 
         $function = $this->shortName((string) $call->name);
         $arguments = $this->arguments($call->args);
+        if ($this->isNamedFunction($call->name, 'elixir')
+            && ($this->namespace === '' || $call->name->isFullyQualified())) {
+            $this->addUsage('elixir', 'deprecated_asset_helper', $call->getStartLine());
+        }
+
         if ($this->isNamedFunction($call->name, 'config') && isset($arguments[0])) {
             $this->addConfigReferences($arguments[0]->value);
         }
@@ -218,7 +223,7 @@ final class LaravelSourceUsageVisitor extends NodeVisitorAbstract implements Sou
             && $call instanceof Expr\StaticCall
             && $call->class instanceof Name) {
             $class = strtolower(ltrim((string) $call->class, '\\'));
-            if ($class === 'bus' || str_ends_with($class, '\\facades\\bus')) {
+            if ($class === 'bus' || $class === 'illuminate\\support\\facades\\bus') {
                 $this->addUsage((string) $call->class . '::dispatchNow', 'deprecated_queue_dispatch', $call->getStartLine());
             }
         }

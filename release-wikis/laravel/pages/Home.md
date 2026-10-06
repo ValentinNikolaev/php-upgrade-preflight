@@ -97,6 +97,10 @@ The catalog includes far more than `laravel/framework`. Examples include:
 
 Each catalog entry carries applicability and source URLs. A package rule applies only when its transition and project evidence match.
 
+The [Laravel completion review](https://github.com/ValentinNikolaev/php-upgrade-preflight/blob/main/docs/laravel-coverage/README.md) accounts for every heading in the pinned Laravel 8–13 upgrade guides. Its ledgers distinguish automated checks from database, deployment, dynamic-source, and custom-contract work requiring manual verification. Fresh skeleton test-tool versions are not automatically mandatory upgrades.
+
+Exact removed-symbol checks cover Laravel's legacy asset helper, serializable-closure classes, testing trait, and UUIDv7 trait. Laravel 13's previous CSRF middleware names remain deprecated aliases; direct references receive medium-severity review guidance, not a removal blocker. Unused imports and unrelated classes do not establish those source changes.
+
 ## Transition guidance versus staged solving
 
 These are separate outputs:

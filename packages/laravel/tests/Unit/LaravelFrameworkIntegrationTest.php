@@ -33,7 +33,7 @@ final class LaravelFrameworkIntegrationTest extends TestCase
         self::assertSame('laravel', $integration->name());
         self::assertTrue($detection->isDetected());
         self::assertSame('v8.83.27', $detection->version());
-        self::assertCount(66, iterator_to_array($integration->rules()));
+        self::assertCount(count(LaravelRuleCatalog::v0_2()->rules()), iterator_to_array($integration->rules()));
         self::assertSame(['src', 'app', 'bootstrap', 'config', 'database', 'routes', 'tests'], $integration->defaultSourcePaths($project));
         self::assertSame(['laravel'], $integration->packageFamilies('laravel/framework'));
     }
@@ -420,22 +420,30 @@ final class LaravelFrameworkIntegrationTest extends TestCase
             static fn ($stage): string => $stage->targets()->packageTargets()[0]->constraint(),
             $plan->stages()
         ));
-        self::assertSame(['^11.0.1'], array_map(
+        self::assertSame([], array_map(
             static fn (UpgradeTarget $target): string => $target->constraint(),
             $plan->stages()[0]->remediationTargets()
         ));
-        self::assertSame(['^11.0'], array_map(
+        self::assertSame([], array_map(
             static fn (UpgradeTarget $target): string => $target->constraint(),
             $plan->stages()[1]->remediationTargets()
         ));
-        self::assertSame(['^12.0'], array_map(
+        self::assertSame(['^11.5.50|^12.0|^13.0.3'], array_map(
             static fn (UpgradeTarget $target): string => $target->constraint(),
             $plan->stages()[2]->remediationTargets()
         ));
-        self::assertNotSame([], $plan->stages()[0]->remediationEvidence('PHPUnit/PHPUnit'));
+        self::assertSame([], $plan->stages()[0]->remediationEvidence('PHPUnit/PHPUnit'));
+        self::assertNotSame([], $plan->stages()[2]->remediationEvidence('PHPUnit/PHPUnit'));
+        self::assertSame([
+            [
+                'package' => 'phpunit/phpunit',
+                'constraint' => '^11.5.50|^12.0|^13.0.3',
+                'evidence' => $plan->stages()[2]->remediationEvidence('phpunit/phpunit'),
+            ],
+        ], $plan->stages()[2]->toArray()['remediation_targets']);
         self::assertSame([], $plan->stages()[0]->remediationEvidence('vendor/absent'));
         self::assertSame($plan->stages()[0]->evidence(), $plan->stages()[0]->toArray()['evidence']);
-        self::assertCount(6, $ledger->all());
+        self::assertCount(4, $ledger->all());
         $ledger->validateReferences(array_merge($plan->evidence(), ...array_map(
             static fn ($stage): array => array_merge(
                 $stage->evidence(),

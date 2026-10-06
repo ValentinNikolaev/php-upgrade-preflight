@@ -117,7 +117,7 @@ final class LaravelFixtureAnalysisTest extends TestCase
             'Remove fideloper/proxy and review the trusted proxy middleware for the Laravel 9 target.',
             'Review removal of fruitcake/laravel-cors because Laravel 9 integrates CORS middleware through the framework.',
             'nunomaduro/collision v4.3.0 is outside the encoded Laravel 9 review range `^6.1`; review its upgrade or replacement.',
-            'laravel/ui v2.5.0 is outside the encoded Laravel 9 review range `^4.0`; review its upgrade or replacement.',
+            'laravel/ui v2.5.0 is outside the encoded Laravel 9 review range `^3.4|^4.0`; review its upgrade or replacement.',
             'orchestra/testbench v5.4.0 is outside the encoded Laravel 9 review range `^7.0`; review its upgrade or replacement.',
         ]);
         self::assertContains(Evidence::E2_PACKAGE_METADATA, $this->evidenceClasses($report));

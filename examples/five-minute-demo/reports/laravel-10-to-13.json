@@ -117,7 +117,7 @@
                     "--no-plugins",
                     "--no-interaction"
                 ],
-                "duration_ms": 186,
+                "duration_ms": 176,
                 "exit_code": 0,
                 "succeeded": true,
                 "outcome": "success",
@@ -146,7 +146,7 @@
                     "--no-progress",
                     "--no-interaction"
                 ],
-                "duration_ms": 631,
+                "duration_ms": 624,
                 "exit_code": 2,
                 "succeeded": false,
                 "outcome": "solver_failure",
@@ -211,7 +211,7 @@
                     "--no-progress",
                     "--no-interaction"
                 ],
-                "duration_ms": 225,
+                "duration_ms": 233,
                 "exit_code": 2,
                 "succeeded": false,
                 "outcome": "solver_failure",
@@ -277,7 +277,7 @@
                     "--no-progress",
                     "--no-interaction"
                 ],
-                "duration_ms": 223,
+                "duration_ms": 230,
                 "exit_code": 2,
                 "succeeded": false,
                 "outcome": "solver_failure",
@@ -340,7 +340,7 @@
                     "--no-progress",
                     "--no-interaction"
                 ],
-                "duration_ms": 269,
+                "duration_ms": 230,
                 "exit_code": 0,
                 "succeeded": true,
                 "outcome": "success",
@@ -370,7 +370,7 @@
                     "--no-progress",
                     "--no-interaction"
                 ],
-                "duration_ms": 435,
+                "duration_ms": 429,
                 "exit_code": 2,
                 "succeeded": false,
                 "outcome": "solver_failure",
@@ -447,7 +447,7 @@
                     },
                     "effective_sha256": "f7867541fa8d250aab14dc390187c1a8930cdd8fb3b76e3dd72486cc5512107e"
                 },
-                "duration_ms": 1688,
+                "duration_ms": 1700,
                 "evidence": [
                     "laravel-stage-target-1",
                     "laravel-stage-remediation-1",
@@ -483,11 +483,11 @@
                     "state_sha256": "715c87cf5fc1a9e7cebc63ebe885bfc7b30d5c571373238a06086341b1b2276f"
                 },
                 "output_state": {
-                    "manifest_sha256": "318d01893176ee99c3aa0a8a5d3dc13415978f4f08b7736756fadfb14601b0ae",
+                    "manifest_sha256": "285d55f6f8756eda71af3c0c6907e74b521dd5d7c7c2059bba6e874f166dd4a9",
                     "lock_sha256": "0b2d77f70c9e5f6fcc43d003af6447647da43446a48cc9a1f9a6f80870ba1962",
                     "platform_sha256": "6c689c2a945689da7693f0293117541fb3fbc27cb4f072489e15428fd844dbd7",
                     "execution_policy_sha256": "f7867541fa8d250aab14dc390187c1a8930cdd8fb3b76e3dd72486cc5512107e",
-                    "state_sha256": "d213b46ed76d66dbb1a28dda6e95f1b96ed6c7bdd28c3aba978690201ef7994a"
+                    "state_sha256": "7e008915d6b2ca0c68fdd7c99728c03e80fe0f942cd615ca2da73a4c0218cb2c"
                 },
                 "attempts": [
                     {
@@ -520,7 +520,7 @@
                                 "--no-progress",
                                 "--no-interaction"
                             ],
-                            "duration_ms": 650,
+                            "duration_ms": 626,
                             "exit_code": 2,
                             "succeeded": false,
                             "outcome": "solver_failure",
@@ -629,7 +629,7 @@
                                 "--no-progress",
                                 "--no-interaction"
                             ],
-                            "duration_ms": 810,
+                            "duration_ms": 833,
                             "exit_code": 2,
                             "succeeded": false,
                             "outcome": "solver_failure",
@@ -744,7 +744,7 @@
                                 "package": "phpunit/phpunit",
                                 "change_type": "updated",
                                 "from_constraint": "^10.0",
-                                "to_constraint": "^11.0.1",
+                                "to_constraint": "^10.5.35|^11.0.1|^12.0.1",
                                 "reason": "Analyzer-only staged Composer simulation; the analyzed project was not changed.",
                                 "evidence": [
                                     "laravel-stage-remediation-2",
@@ -769,7 +769,7 @@
                                 "--no-progress",
                                 "--no-interaction"
                             ],
-                            "duration_ms": 228,
+                            "duration_ms": 241,
                             "exit_code": 0,
                             "succeeded": true,
                             "outcome": "success",
@@ -777,8 +777,8 @@
                             "stdout_excerpt": "",
                             "stderr_excerpt": "Loading composer repositories with package information\nUpdating dependencies\nLock file operations: 0 installs, 3 updates, 0 removals\n  - Upgrading laravel/framework (10.0.0 => 11.0.0)\n  - Upgrading nunomaduro/collision (7.11.0 => 8.6.0)\n  - Upgrading phpunit/phpunit (10.0.0 => 11.0.1)\nWriting lock file\n",
                             "candidate_lock": {
-                                "sha256": "dcb764ebe19de331d4d7f1574c997c390bbaeebd665e2b9890e529f066a96b15",
-                                "content_hash": "f4a0070009f23b43af5b778f5e560f57",
+                                "sha256": "b30882ac7bc6051e24e9da2e95320218def437463774a6308ea427314109c26b",
+                                "content_hash": "660e2985edfe87d03287c23c10fd8fb8",
                                 "package_count": 5
                             },
                             "diagnostics": [],
@@ -792,11 +792,11 @@
                             "state_sha256": "715c87cf5fc1a9e7cebc63ebe885bfc7b30d5c571373238a06086341b1b2276f"
                         },
                         "output_state": {
-                            "manifest_sha256": "318d01893176ee99c3aa0a8a5d3dc13415978f4f08b7736756fadfb14601b0ae",
+                            "manifest_sha256": "285d55f6f8756eda71af3c0c6907e74b521dd5d7c7c2059bba6e874f166dd4a9",
                             "lock_sha256": "0b2d77f70c9e5f6fcc43d003af6447647da43446a48cc9a1f9a6f80870ba1962",
                             "platform_sha256": "6c689c2a945689da7693f0293117541fb3fbc27cb4f072489e15428fd844dbd7",
                             "execution_policy_sha256": "f7867541fa8d250aab14dc390187c1a8930cdd8fb3b76e3dd72486cc5512107e",
-                            "state_sha256": "d213b46ed76d66dbb1a28dda6e95f1b96ed6c7bdd28c3aba978690201ef7994a"
+                            "state_sha256": "7e008915d6b2ca0c68fdd7c99728c03e80fe0f942cd615ca2da73a4c0218cb2c"
                         },
                         "blocker_ids": [],
                         "evidence": [
@@ -872,7 +872,7 @@
                     {
                         "framework": "laravel",
                         "severity": "medium",
-                        "summary": "phpunit/phpunit 10.0.0 is outside the encoded Laravel 11 review range `^11.0.1`; review its upgrade or replacement.",
+                        "summary": "phpunit/phpunit 10.0.0 is outside the encoded Laravel 11 review range `^10.5.35|^11.0.1|^12.0.1`; review its upgrade or replacement.",
                         "applies_to_hops": [
                             {
                                 "from_major": 10,
@@ -919,7 +919,7 @@
                 "recommended_actions": [
                     "[laravel-10-to-11] Reproduce and review only the selected Composer candidate state before advancing.",
                     "[laravel-10-to-11] Review the original-source finding: nunomaduro/collision 7.11.0 is outside the encoded Laravel 11 review range `^8.1`; review its upgrade or replacement.",
-                    "[laravel-10-to-11] Review the original-source finding: phpunit/phpunit 10.0.0 is outside the encoded Laravel 11 review range `^11.0.1`; review its upgrade or replacement."
+                    "[laravel-10-to-11] Review the original-source finding: phpunit/phpunit 10.0.0 is outside the encoded Laravel 11 review range `^10.5.35|^11.0.1|^12.0.1`; review its upgrade or replacement."
                 ],
                 "tests": [
                     {
@@ -992,7 +992,7 @@
                     },
                     "effective_sha256": "f7867541fa8d250aab14dc390187c1a8930cdd8fb3b76e3dd72486cc5512107e"
                 },
-                "duration_ms": 219,
+                "duration_ms": 230,
                 "evidence": [
                     "laravel-stage-target-2",
                     "laravel-stage-remediation-4",
@@ -1008,25 +1008,25 @@
                     "laravel-package-guidance-5"
                 ],
                 "predecessor_state": {
-                    "manifest_sha256": "318d01893176ee99c3aa0a8a5d3dc13415978f4f08b7736756fadfb14601b0ae",
+                    "manifest_sha256": "285d55f6f8756eda71af3c0c6907e74b521dd5d7c7c2059bba6e874f166dd4a9",
                     "lock_sha256": "0b2d77f70c9e5f6fcc43d003af6447647da43446a48cc9a1f9a6f80870ba1962",
                     "platform_sha256": "6c689c2a945689da7693f0293117541fb3fbc27cb4f072489e15428fd844dbd7",
                     "execution_policy_sha256": "f7867541fa8d250aab14dc390187c1a8930cdd8fb3b76e3dd72486cc5512107e",
-                    "state_sha256": "d213b46ed76d66dbb1a28dda6e95f1b96ed6c7bdd28c3aba978690201ef7994a"
+                    "state_sha256": "7e008915d6b2ca0c68fdd7c99728c03e80fe0f942cd615ca2da73a4c0218cb2c"
                 },
                 "input_state": {
-                    "manifest_sha256": "318d01893176ee99c3aa0a8a5d3dc13415978f4f08b7736756fadfb14601b0ae",
+                    "manifest_sha256": "285d55f6f8756eda71af3c0c6907e74b521dd5d7c7c2059bba6e874f166dd4a9",
                     "lock_sha256": "0b2d77f70c9e5f6fcc43d003af6447647da43446a48cc9a1f9a6f80870ba1962",
                     "platform_sha256": "6c689c2a945689da7693f0293117541fb3fbc27cb4f072489e15428fd844dbd7",
                     "execution_policy_sha256": "f7867541fa8d250aab14dc390187c1a8930cdd8fb3b76e3dd72486cc5512107e",
-                    "state_sha256": "d213b46ed76d66dbb1a28dda6e95f1b96ed6c7bdd28c3aba978690201ef7994a"
+                    "state_sha256": "7e008915d6b2ca0c68fdd7c99728c03e80fe0f942cd615ca2da73a4c0218cb2c"
                 },
                 "output_state": {
-                    "manifest_sha256": "a2cfa834d0f1fb9e8027c3973299728596e4bd1aa68807b6e85b1b5437d1b11b",
+                    "manifest_sha256": "5614c750c51f95ac7e519f2ed94a2d630ee7c5eebfc65ec1b93471298f7f2669",
                     "lock_sha256": "d968d3bc8d740678bff58946b5e1cfbd10e0ef83d531f21d7a17f9c48c8fb3fd",
                     "platform_sha256": "6c689c2a945689da7693f0293117541fb3fbc27cb4f072489e15428fd844dbd7",
                     "execution_policy_sha256": "f7867541fa8d250aab14dc390187c1a8930cdd8fb3b76e3dd72486cc5512107e",
-                    "state_sha256": "997107c825bef8b0d2891c2855bca150b3ae9f541cba6c93dcacc6f886adccb5"
+                    "state_sha256": "59a28bf7326eb23f3df1c1789cb43a9e997388ae8be3a5f43d21bf4e2a429848"
                 },
                 "attempts": [
                     {
@@ -1059,7 +1059,7 @@
                                 "--no-progress",
                                 "--no-interaction"
                             ],
-                            "duration_ms": 219,
+                            "duration_ms": 230,
                             "exit_code": 0,
                             "succeeded": true,
                             "outcome": "success",
@@ -1067,26 +1067,26 @@
                             "stdout_excerpt": "",
                             "stderr_excerpt": "Loading composer repositories with package information\nUpdating dependencies\nLock file operations: 0 installs, 1 update, 0 removals\n  - Upgrading laravel/framework (11.0.0 => 12.0.0)\nWriting lock file\n",
                             "candidate_lock": {
-                                "sha256": "62b2f0172c491d16a149ccb2129b1f58b9391e4cb23f5a502a907f3fd78746e7",
-                                "content_hash": "e16b20c164d60017734e2a412ae6e6ae",
+                                "sha256": "4c6cc6f9ad2206d6e953819ba08a09cb37d741be67b12bc02155c05949b2b158",
+                                "content_hash": "3ec15eebbf1d9233cd80d3605cff8556",
                                 "package_count": 5
                             },
                             "diagnostics": [],
                             "temp_path": null
                         },
                         "input_state": {
-                            "manifest_sha256": "318d01893176ee99c3aa0a8a5d3dc13415978f4f08b7736756fadfb14601b0ae",
+                            "manifest_sha256": "285d55f6f8756eda71af3c0c6907e74b521dd5d7c7c2059bba6e874f166dd4a9",
                             "lock_sha256": "0b2d77f70c9e5f6fcc43d003af6447647da43446a48cc9a1f9a6f80870ba1962",
                             "platform_sha256": "6c689c2a945689da7693f0293117541fb3fbc27cb4f072489e15428fd844dbd7",
                             "execution_policy_sha256": "f7867541fa8d250aab14dc390187c1a8930cdd8fb3b76e3dd72486cc5512107e",
-                            "state_sha256": "d213b46ed76d66dbb1a28dda6e95f1b96ed6c7bdd28c3aba978690201ef7994a"
+                            "state_sha256": "7e008915d6b2ca0c68fdd7c99728c03e80fe0f942cd615ca2da73a4c0218cb2c"
                         },
                         "output_state": {
-                            "manifest_sha256": "a2cfa834d0f1fb9e8027c3973299728596e4bd1aa68807b6e85b1b5437d1b11b",
+                            "manifest_sha256": "5614c750c51f95ac7e519f2ed94a2d630ee7c5eebfc65ec1b93471298f7f2669",
                             "lock_sha256": "d968d3bc8d740678bff58946b5e1cfbd10e0ef83d531f21d7a17f9c48c8fb3fd",
                             "platform_sha256": "6c689c2a945689da7693f0293117541fb3fbc27cb4f072489e15428fd844dbd7",
                             "execution_policy_sha256": "f7867541fa8d250aab14dc390187c1a8930cdd8fb3b76e3dd72486cc5512107e",
-                            "state_sha256": "997107c825bef8b0d2891c2855bca150b3ae9f541cba6c93dcacc6f886adccb5"
+                            "state_sha256": "59a28bf7326eb23f3df1c1789cb43a9e997388ae8be3a5f43d21bf4e2a429848"
                         },
                         "blocker_ids": [],
                         "evidence": [
@@ -1118,7 +1118,7 @@
                     {
                         "framework": "laravel",
                         "severity": "high",
-                        "summary": "phpunit/phpunit 10.0.0 is outside the encoded Laravel 12 review range `^11.0`; review its upgrade or replacement.",
+                        "summary": "phpunit/phpunit 10.0.0 is outside the encoded Laravel 12 review range `^10.5.35|^11.0|^12.0.1`; review its upgrade or replacement.",
                         "applies_to_hops": [
                             {
                                 "from_major": 11,
@@ -1166,7 +1166,7 @@
                     "stage_id": "laravel-11-to-12",
                     "level": "high",
                     "drivers": [
-                        "Stage laravel-11-to-12: phpunit/phpunit 10.0.0 is outside the encoded Laravel 12 review range `^11.0`; review its upgrade or replacement."
+                        "Stage laravel-11-to-12: phpunit/phpunit 10.0.0 is outside the encoded Laravel 12 review range `^10.5.35|^11.0|^12.0.1`; review its upgrade or replacement."
                     ]
                 },
                 "effort": {
@@ -1196,7 +1196,7 @@
                 },
                 "recommended_actions": [
                     "[laravel-11-to-12] Reproduce and review only the selected Composer candidate state before advancing.",
-                    "[laravel-11-to-12] Review the original-source finding: phpunit/phpunit 10.0.0 is outside the encoded Laravel 12 review range `^11.0`; review its upgrade or replacement.",
+                    "[laravel-11-to-12] Review the original-source finding: phpunit/phpunit 10.0.0 is outside the encoded Laravel 12 review range `^10.5.35|^11.0|^12.0.1`; review its upgrade or replacement.",
                     "[laravel-11-to-12] Review the original-source finding: nesbot/carbon 2.72.0 is outside the encoded Laravel 12 review range `^3.0`; review its upgrade or replacement.",
                     "[laravel-11-to-12] Review the original-source finding: nunomaduro/collision 7.11.0 is outside the encoded Laravel 12 review range `^8.6`; review its upgrade or replacement."
                 ],
@@ -1271,7 +1271,7 @@
                     },
                     "effective_sha256": "f7867541fa8d250aab14dc390187c1a8930cdd8fb3b76e3dd72486cc5512107e"
                 },
-                "duration_ms": 2089,
+                "duration_ms": 2251,
                 "evidence": [
                     "laravel-stage-target-3",
                     "laravel-stage-remediation-6",
@@ -1301,18 +1301,18 @@
                     "solver-9"
                 ],
                 "predecessor_state": {
-                    "manifest_sha256": "a2cfa834d0f1fb9e8027c3973299728596e4bd1aa68807b6e85b1b5437d1b11b",
+                    "manifest_sha256": "5614c750c51f95ac7e519f2ed94a2d630ee7c5eebfc65ec1b93471298f7f2669",
                     "lock_sha256": "d968d3bc8d740678bff58946b5e1cfbd10e0ef83d531f21d7a17f9c48c8fb3fd",
                     "platform_sha256": "6c689c2a945689da7693f0293117541fb3fbc27cb4f072489e15428fd844dbd7",
                     "execution_policy_sha256": "f7867541fa8d250aab14dc390187c1a8930cdd8fb3b76e3dd72486cc5512107e",
-                    "state_sha256": "997107c825bef8b0d2891c2855bca150b3ae9f541cba6c93dcacc6f886adccb5"
+                    "state_sha256": "59a28bf7326eb23f3df1c1789cb43a9e997388ae8be3a5f43d21bf4e2a429848"
                 },
                 "input_state": {
-                    "manifest_sha256": "a2cfa834d0f1fb9e8027c3973299728596e4bd1aa68807b6e85b1b5437d1b11b",
+                    "manifest_sha256": "5614c750c51f95ac7e519f2ed94a2d630ee7c5eebfc65ec1b93471298f7f2669",
                     "lock_sha256": "d968d3bc8d740678bff58946b5e1cfbd10e0ef83d531f21d7a17f9c48c8fb3fd",
                     "platform_sha256": "6c689c2a945689da7693f0293117541fb3fbc27cb4f072489e15428fd844dbd7",
                     "execution_policy_sha256": "f7867541fa8d250aab14dc390187c1a8930cdd8fb3b76e3dd72486cc5512107e",
-                    "state_sha256": "997107c825bef8b0d2891c2855bca150b3ae9f541cba6c93dcacc6f886adccb5"
+                    "state_sha256": "59a28bf7326eb23f3df1c1789cb43a9e997388ae8be3a5f43d21bf4e2a429848"
                 },
                 "output_state": null,
                 "attempts": [
@@ -1346,7 +1346,7 @@
                                 "--no-progress",
                                 "--no-interaction"
                             ],
-                            "duration_ms": 496,
+                            "duration_ms": 535,
                             "exit_code": 2,
                             "succeeded": false,
                             "outcome": "solver_failure",
@@ -1397,11 +1397,11 @@
                             "temp_path": null
                         },
                         "input_state": {
-                            "manifest_sha256": "a2cfa834d0f1fb9e8027c3973299728596e4bd1aa68807b6e85b1b5437d1b11b",
+                            "manifest_sha256": "5614c750c51f95ac7e519f2ed94a2d630ee7c5eebfc65ec1b93471298f7f2669",
                             "lock_sha256": "d968d3bc8d740678bff58946b5e1cfbd10e0ef83d531f21d7a17f9c48c8fb3fd",
                             "platform_sha256": "6c689c2a945689da7693f0293117541fb3fbc27cb4f072489e15428fd844dbd7",
                             "execution_policy_sha256": "f7867541fa8d250aab14dc390187c1a8930cdd8fb3b76e3dd72486cc5512107e",
-                            "state_sha256": "997107c825bef8b0d2891c2855bca150b3ae9f541cba6c93dcacc6f886adccb5"
+                            "state_sha256": "59a28bf7326eb23f3df1c1789cb43a9e997388ae8be3a5f43d21bf4e2a429848"
                         },
                         "output_state": null,
                         "blocker_ids": [
@@ -1454,7 +1454,7 @@
                                 "--no-progress",
                                 "--no-interaction"
                             ],
-                            "duration_ms": 705,
+                            "duration_ms": 733,
                             "exit_code": 2,
                             "succeeded": false,
                             "outcome": "solver_failure",
@@ -1524,11 +1524,11 @@
                             "temp_path": null
                         },
                         "input_state": {
-                            "manifest_sha256": "a2cfa834d0f1fb9e8027c3973299728596e4bd1aa68807b6e85b1b5437d1b11b",
+                            "manifest_sha256": "5614c750c51f95ac7e519f2ed94a2d630ee7c5eebfc65ec1b93471298f7f2669",
                             "lock_sha256": "d968d3bc8d740678bff58946b5e1cfbd10e0ef83d531f21d7a17f9c48c8fb3fd",
                             "platform_sha256": "6c689c2a945689da7693f0293117541fb3fbc27cb4f072489e15428fd844dbd7",
                             "execution_policy_sha256": "f7867541fa8d250aab14dc390187c1a8930cdd8fb3b76e3dd72486cc5512107e",
-                            "state_sha256": "997107c825bef8b0d2891c2855bca150b3ae9f541cba6c93dcacc6f886adccb5"
+                            "state_sha256": "59a28bf7326eb23f3df1c1789cb43a9e997388ae8be3a5f43d21bf4e2a429848"
                         },
                         "output_state": null,
                         "blocker_ids": [
@@ -1579,8 +1579,8 @@
                             {
                                 "package": "phpunit/phpunit",
                                 "change_type": "updated",
-                                "from_constraint": "^11.0.1",
-                                "to_constraint": "^12.0",
+                                "from_constraint": "^10.5.35|^11.0.1|^12.0.1",
+                                "to_constraint": "^11.5.50|^12.0|^13.0.3",
                                 "reason": "Analyzer-only staged Composer simulation; the analyzed project was not changed.",
                                 "evidence": [
                                     "laravel-stage-remediation-7",
@@ -1606,7 +1606,7 @@
                                 "--no-progress",
                                 "--no-interaction"
                             ],
-                            "duration_ms": 888,
+                            "duration_ms": 983,
                             "exit_code": 2,
                             "succeeded": false,
                             "outcome": "solver_failure",
@@ -1674,12 +1674,12 @@
                                 },
                                 {
                                     "package": "phpunit/phpunit",
-                                    "constraint": "^12.0",
+                                    "constraint": "^11.5.50|^12.0|^13.0.3",
                                     "command": [
                                         "composer",
                                         "prohibits",
                                         "phpunit/phpunit",
-                                        "^12.0",
+                                        "^11.5.50|^12.0|^13.0.3",
                                         "--tree",
                                         "--locked",
                                         "--no-scripts",
@@ -1689,17 +1689,17 @@
                                     "exit_code": 0,
                                     "outcome": "success",
                                     "stdout_excerpt": "",
-                                    "stderr_excerpt": "There is no installed package depending on \"phpunit/phpunit\" in versions not matching ^12.0\nNot finding what you were looking for? Try calling `composer require --dev \"phpunit/phpunit:^12.0\" --dry-run` to get another view on the problem.\n"
+                                    "stderr_excerpt": "There is no installed package depending on \"phpunit/phpunit\" in versions not matching ^11.5.50|^12.0|^13.0.3\nNot finding what you were looking for? Try calling `composer require --dev \"phpunit/phpunit:^11.5.50|^12.0|^13.0.3\" --dry-run` to get another view on the problem.\n"
                                 }
                             ],
                             "temp_path": null
                         },
                         "input_state": {
-                            "manifest_sha256": "a2cfa834d0f1fb9e8027c3973299728596e4bd1aa68807b6e85b1b5437d1b11b",
+                            "manifest_sha256": "5614c750c51f95ac7e519f2ed94a2d630ee7c5eebfc65ec1b93471298f7f2669",
                             "lock_sha256": "d968d3bc8d740678bff58946b5e1cfbd10e0ef83d531f21d7a17f9c48c8fb3fd",
                             "platform_sha256": "6c689c2a945689da7693f0293117541fb3fbc27cb4f072489e15428fd844dbd7",
                             "execution_policy_sha256": "f7867541fa8d250aab14dc390187c1a8930cdd8fb3b76e3dd72486cc5512107e",
-                            "state_sha256": "997107c825bef8b0d2891c2855bca150b3ae9f541cba6c93dcacc6f886adccb5"
+                            "state_sha256": "59a28bf7326eb23f3df1c1789cb43a9e997388ae8be3a5f43d21bf4e2a429848"
                         },
                         "output_state": null,
                         "blocker_ids": [
@@ -1751,7 +1751,7 @@
                     {
                         "framework": "laravel",
                         "severity": "high",
-                        "summary": "phpunit/phpunit 10.0.0 is outside the encoded Laravel 13 review range `^12.0`; review its upgrade or replacement.",
+                        "summary": "phpunit/phpunit 10.0.0 is outside the encoded Laravel 13 review range `^11.5.50|^12.0|^13.0.3`; review its upgrade or replacement.",
                         "applies_to_hops": [
                             {
                                 "from_major": 12,
@@ -1780,8 +1780,8 @@
                     },
                     {
                         "framework": "laravel",
-                        "severity": "high",
-                        "summary": "Replace 1 detected direct reference to VerifyCsrfToken or ValidateCsrfToken with PreventRequestForgery before targeting Laravel 13.",
+                        "severity": "medium",
+                        "summary": "Review 1 detected direct reference to VerifyCsrfToken or ValidateCsrfToken for PreventRequestForgery when targeting Laravel 13; deprecated aliases remain available.",
                         "applies_to_hops": [
                             {
                                 "from_major": 12,
@@ -1795,7 +1795,7 @@
                     }
                 ],
                 "source_impact": [
-                    "source-impact-967745ebc2016f78d1c2"
+                    "source-impact-e51206a9bd272d8c6994"
                 ],
                 "risk": {
                     "stage_id": "laravel-12-to-13",
@@ -1805,15 +1805,14 @@
                         "Stage laravel-12-to-13 retains an active Composer blocker.",
                         "Stage laravel-12-to-13: Update the root laravel/framework constraint from `^10.0` to a constraint compatible with Laravel 13.",
                         "Stage laravel-12-to-13: laravel/tinker 2.9.0 is outside the encoded Laravel 13 review range `^3.0`; review its upgrade or replacement.",
-                        "Stage laravel-12-to-13: phpunit/phpunit 10.0.0 is outside the encoded Laravel 13 review range `^12.0`; review its upgrade or replacement.",
-                        "Stage laravel-12-to-13: Replace 1 detected direct reference to VerifyCsrfToken or ValidateCsrfToken with PreventRequestForgery before targeting Laravel 13."
+                        "Stage laravel-12-to-13: phpunit/phpunit 10.0.0 is outside the encoded Laravel 13 review range `^11.5.50|^12.0|^13.0.3`; review its upgrade or replacement."
                     ]
                 },
                 "effort": {
                     "stage_id": "laravel-12-to-13",
                     "range_hours": [
                         6,
-                        31
+                        29
                     ],
                     "confidence": "low",
                     "components": {
@@ -1823,7 +1822,7 @@
                         ],
                         "source_changes": [
                             1,
-                            15
+                            13
                         ],
                         "tests_and_debugging": [
                             2,
@@ -2092,7 +2091,7 @@
         ],
         "source_impact": [
             {
-                "id": "source-impact-967745ebc2016f78d1c2",
+                "id": "source-impact-e51206a9bd272d8c6994",
                 "stage_ids": [
                     "laravel-12-to-13"
                 ],
@@ -2100,7 +2099,7 @@
                 "ownership": "unknown",
                 "relevance": "framework_rule",
                 "reason": "Referenced by active laravel compatibility guidance; package ownership has not been established.",
-                "severity": "high",
+                "severity": "medium",
                 "occurrences": [
                     {
                         "file": "tests/Feature/LegacyCsrfTest.php",
@@ -2276,13 +2275,13 @@
     ],
     "source_impact": [
         {
-            "id": "source-impact-967745ebc2016f78d1c2",
+            "id": "source-impact-e51206a9bd272d8c6994",
             "stage_ids": [],
             "affected_package": null,
             "ownership": "unknown",
             "relevance": "framework_rule",
             "reason": "Referenced by active laravel compatibility guidance; package ownership has not been established.",
-            "severity": "high",
+            "severity": "medium",
             "occurrences": [
                 {
                     "file": "tests/Feature/LegacyCsrfTest.php",
@@ -2333,7 +2332,7 @@
         {
             "framework": "laravel",
             "severity": "medium",
-            "summary": "phpunit/phpunit 10.0.0 is outside the encoded Laravel 11 review range `^11.0.1`; review its upgrade or replacement.",
+            "summary": "phpunit/phpunit 10.0.0 is outside the encoded Laravel 11 review range `^10.5.35|^11.0.1|^12.0.1`; review its upgrade or replacement.",
             "applies_to_hops": [
                 {
                     "from_major": 10,
@@ -2348,7 +2347,7 @@
         {
             "framework": "laravel",
             "severity": "high",
-            "summary": "phpunit/phpunit 10.0.0 is outside the encoded Laravel 12 review range `^11.0`; review its upgrade or replacement.",
+            "summary": "phpunit/phpunit 10.0.0 is outside the encoded Laravel 12 review range `^10.5.35|^11.0|^12.0.1`; review its upgrade or replacement.",
             "applies_to_hops": [
                 {
                     "from_major": 11,
@@ -2408,7 +2407,7 @@
         {
             "framework": "laravel",
             "severity": "high",
-            "summary": "phpunit/phpunit 10.0.0 is outside the encoded Laravel 13 review range `^12.0`; review its upgrade or replacement.",
+            "summary": "phpunit/phpunit 10.0.0 is outside the encoded Laravel 13 review range `^11.5.50|^12.0|^13.0.3`; review its upgrade or replacement.",
             "applies_to_hops": [
                 {
                     "from_major": 12,
@@ -2437,8 +2436,8 @@
         },
         {
             "framework": "laravel",
-            "severity": "high",
-            "summary": "Replace 1 detected direct reference to VerifyCsrfToken or ValidateCsrfToken with PreventRequestForgery before targeting Laravel 13.",
+            "severity": "medium",
+            "summary": "Review 1 detected direct reference to VerifyCsrfToken or ValidateCsrfToken for PreventRequestForgery when targeting Laravel 13; deprecated aliases remain available.",
             "applies_to_hops": [
                 {
                     "from_major": 12,
@@ -2460,7 +2459,7 @@
                 "actions": [
                     "[laravel-10-to-11] Reproduce and review only the selected Composer candidate state before advancing.",
                     "[laravel-10-to-11] Review the original-source finding: nunomaduro/collision 7.11.0 is outside the encoded Laravel 11 review range `^8.1`; review its upgrade or replacement.",
-                    "[laravel-10-to-11] Review the original-source finding: phpunit/phpunit 10.0.0 is outside the encoded Laravel 11 review range `^11.0.1`; review its upgrade or replacement.",
+                    "[laravel-10-to-11] Review the original-source finding: phpunit/phpunit 10.0.0 is outside the encoded Laravel 11 review range `^10.5.35|^11.0.1|^12.0.1`; review its upgrade or replacement.",
                     "[laravel-10-to-11] composer-validation: Validate the stage laravel-10-to-11 manifest.",
                     "[laravel-10-to-11] project-test-suite: Run the project test suite for stage laravel-10-to-11 after applying its evidenced changes.",
                     "[laravel-10-to-11] platform-requirements: Validate stage laravel-10-to-11 against analysis PHP 8.3.0 and its recorded platform.",
@@ -2494,7 +2493,7 @@
                 "summary": "Apply only the selected laravel-11-to-12 candidate, then validate before advancing.",
                 "actions": [
                     "[laravel-11-to-12] Reproduce and review only the selected Composer candidate state before advancing.",
-                    "[laravel-11-to-12] Review the original-source finding: phpunit/phpunit 10.0.0 is outside the encoded Laravel 12 review range `^11.0`; review its upgrade or replacement.",
+                    "[laravel-11-to-12] Review the original-source finding: phpunit/phpunit 10.0.0 is outside the encoded Laravel 12 review range `^10.5.35|^11.0|^12.0.1`; review its upgrade or replacement.",
                     "[laravel-11-to-12] Review the original-source finding: nesbot/carbon 2.72.0 is outside the encoded Laravel 12 review range `^3.0`; review its upgrade or replacement.",
                     "[laravel-11-to-12] Review the original-source finding: nunomaduro/collision 7.11.0 is outside the encoded Laravel 12 review range `^8.6`; review its upgrade or replacement.",
                     "[laravel-11-to-12] composer-validation: Validate the stage laravel-11-to-12 manifest.",
@@ -2564,7 +2563,6 @@
         "drivers": [
             "Composer resolution is blocked.",
             "Framework compatibility findings require review.",
-            "Weighted actionable source findings require review.",
             "Executed stage laravel-12-to-13 retains an active Composer blocker."
         ]
     },
@@ -2890,9 +2888,10 @@
             "context": {
                 "stage_id": "laravel-10-to-11",
                 "package": "phpunit/phpunit",
-                "constraint": "^11.0.1",
+                "constraint": "^10.5.35|^11.0.1|^12.0.1",
                 "sources": [
-                    "https://github.com/laravel/laravel/blob/11.x/composer.json"
+                    "https://github.com/laravel/laravel/blob/ecf6de4992d70dd37c21676be6b8ba4743151e63/composer.json",
+                    "https://github.com/laravel/framework/blob/e353708c960ec5066d76b0da4b81c8a68d183b93/composer.json"
                 ]
             }
         },
@@ -2922,9 +2921,10 @@
             "context": {
                 "stage_id": "laravel-11-to-12",
                 "package": "phpunit/phpunit",
-                "constraint": "^11.0",
+                "constraint": "^10.5.35|^11.0|^12.0.1",
                 "sources": [
-                    "https://laravel.com/docs/12.x/upgrade"
+                    "https://github.com/laravel/docs/blob/5b8c610735c8af96a3bda4e37a820b27dc40aee9/upgrade.md",
+                    "https://github.com/laravel/framework/blob/5260836df1b953a558d9b810880f20db15568c01/composer.json"
                 ]
             }
         },
@@ -2996,10 +2996,11 @@
             "context": {
                 "stage_id": "laravel-12-to-13",
                 "package": "phpunit/phpunit",
-                "constraint": "^12.0",
+                "constraint": "^11.5.50|^12.0|^13.0.3",
                 "sources": [
                     "https://github.com/laravel/docs/blob/9c5a062c14069bab9054b558829e282f9593a065/upgrade.md",
-                    "https://github.com/laravel/laravel/blob/c926b8ca7fa01e71852e19141f2bdd7fabfb6ade/composer.json"
+                    "https://github.com/laravel/laravel/blob/c926b8ca7fa01e71852e19141f2bdd7fabfb6ade/composer.json",
+                    "https://github.com/laravel/framework/blob/8df67f9d176d1d0375a866d8c6780be95ce0336e/composer.json"
                 ]
             }
         },
@@ -3285,7 +3286,7 @@
                 "stage_id": "laravel-10-to-11",
                 "package": "phpunit/phpunit",
                 "from_constraint": "^10.0",
-                "to_constraint": "^11.0.1",
+                "to_constraint": "^10.5.35|^11.0.1|^12.0.1",
                 "supporting_evidence": [
                     "laravel-stage-remediation-2"
                 ]
@@ -3574,7 +3575,7 @@
                     },
                     {
                         "package": "phpunit/phpunit",
-                        "constraint": "^12.0"
+                        "constraint": "^11.5.50|^12.0|^13.0.3"
                     }
                 ],
                 "exit_code": 2,
@@ -3639,12 +3640,12 @@
                     },
                     {
                         "package": "phpunit/phpunit",
-                        "constraint": "^12.0",
+                        "constraint": "^11.5.50|^12.0|^13.0.3",
                         "command": [
                             "composer",
                             "prohibits",
                             "phpunit/phpunit",
-                            "^12.0",
+                            "^11.5.50|^12.0|^13.0.3",
                             "--tree",
                             "--locked",
                             "--no-scripts",
@@ -3654,7 +3655,7 @@
                         "exit_code": 0,
                         "outcome": "success",
                         "stdout_excerpt": "",
-                        "stderr_excerpt": "There is no installed package depending on \"phpunit/phpunit\" in versions not matching ^12.0\nNot finding what you were looking for? Try calling `composer require --dev \"phpunit/phpunit:^12.0\" --dry-run` to get another view on the problem.\n"
+                        "stderr_excerpt": "There is no installed package depending on \"phpunit/phpunit\" in versions not matching ^11.5.50|^12.0|^13.0.3\nNot finding what you were looking for? Try calling `composer require --dev \"phpunit/phpunit:^11.5.50|^12.0|^13.0.3\" --dry-run` to get another view on the problem.\n"
                     }
                 ]
             }
@@ -3712,8 +3713,8 @@
             "context": {
                 "stage_id": "laravel-12-to-13",
                 "package": "phpunit/phpunit",
-                "from_constraint": "^11.0.1",
-                "to_constraint": "^12.0",
+                "from_constraint": "^10.5.35|^11.0.1|^12.0.1",
+                "to_constraint": "^11.5.50|^12.0|^13.0.3",
                 "supporting_evidence": [
                     "laravel-stage-remediation-7"
                 ]
@@ -3843,14 +3844,15 @@
         {
             "id": "laravel-package-guidance-2",
             "class": "E4",
-            "summary": "The encoded Laravel 11 guidance maps phpunit/phpunit to `^11.0.1`.",
+            "summary": "The encoded Laravel 11 guidance maps phpunit/phpunit to `^10.5.35|^11.0.1|^12.0.1`.",
             "confidence": "medium",
             "context": {
                 "package": "phpunit/phpunit",
                 "target_laravel_major": 11,
-                "compatible_package_constraint": "^11.0.1",
+                "compatible_package_constraint": "^10.5.35|^11.0.1|^12.0.1",
                 "sources": [
-                    "https://github.com/laravel/laravel/blob/11.x/composer.json"
+                    "https://github.com/laravel/laravel/blob/ecf6de4992d70dd37c21676be6b8ba4743151e63/composer.json",
+                    "https://github.com/laravel/framework/blob/e353708c960ec5066d76b0da4b81c8a68d183b93/composer.json"
                 ]
             }
         },
@@ -3870,14 +3872,15 @@
         {
             "id": "laravel-package-guidance-3",
             "class": "E4",
-            "summary": "The encoded Laravel 12 guidance maps phpunit/phpunit to `^11.0`.",
+            "summary": "The encoded Laravel 12 guidance maps phpunit/phpunit to `^10.5.35|^11.0|^12.0.1`.",
             "confidence": "medium",
             "context": {
                 "package": "phpunit/phpunit",
                 "target_laravel_major": 12,
-                "compatible_package_constraint": "^11.0",
+                "compatible_package_constraint": "^10.5.35|^11.0|^12.0.1",
                 "sources": [
-                    "https://laravel.com/docs/12.x/upgrade"
+                    "https://github.com/laravel/docs/blob/5b8c610735c8af96a3bda4e37a820b27dc40aee9/upgrade.md",
+                    "https://github.com/laravel/framework/blob/5260836df1b953a558d9b810880f20db15568c01/composer.json"
                 ]
             }
         },
@@ -3978,15 +3981,16 @@
         {
             "id": "laravel-package-guidance-7",
             "class": "E4",
-            "summary": "The encoded Laravel 13 guidance maps phpunit/phpunit to `^12.0`.",
+            "summary": "The encoded Laravel 13 guidance maps phpunit/phpunit to `^11.5.50|^12.0|^13.0.3`.",
             "confidence": "medium",
             "context": {
                 "package": "phpunit/phpunit",
                 "target_laravel_major": 13,
-                "compatible_package_constraint": "^12.0",
+                "compatible_package_constraint": "^11.5.50|^12.0|^13.0.3",
                 "sources": [
                     "https://github.com/laravel/docs/blob/9c5a062c14069bab9054b558829e282f9593a065/upgrade.md",
-                    "https://github.com/laravel/laravel/blob/c926b8ca7fa01e71852e19141f2bdd7fabfb6ade/composer.json"
+                    "https://github.com/laravel/laravel/blob/c926b8ca7fa01e71852e19141f2bdd7fabfb6ade/composer.json",
+                    "https://github.com/laravel/framework/blob/8df67f9d176d1d0375a866d8c6780be95ce0336e/composer.json"
                 ]
             }
         },

@@ -61,11 +61,111 @@ final class LaravelHighSignalSourceRule implements CompatibilityRule, HopAwareCo
             return null;
         }
 
+        if ($this->definition->rule() === BuiltinRuleDefinition::REMOVED_SOURCE_SYMBOLS) {
+            return $this->removedLegacySymbolFinding($evidence, $sourceUsages, $sourceMajor, $targetMajor);
+        }
+
         if ($sourceMajor === 12 && $targetMajor === 13) {
             return $this->requestForgeryFinding($evidence, $sourceUsages);
         }
 
+        if ($sourceMajor === 11 && $targetMajor === 12) {
+            return $this->removedUuidTraitFinding($evidence, $sourceUsages);
+        }
+
         return $this->queueDispatchFinding($evidence, $sourceUsages);
+    }
+
+    /** @param list<SourceUsage> $sourceUsages */
+    private function removedLegacySymbolFinding(
+        EvidenceLedger $evidence,
+        array $sourceUsages,
+        int $sourceMajor,
+        int $targetMajor
+    ): ?CompatibilityFinding {
+        if ($sourceMajor === 7 && $targetMajor === 8) {
+            $symbols = ['elixir'];
+            $usageTypes = ['deprecated_asset_helper'];
+            $summary = 'Review %d detected use%s of the removed elixir helper; migrate to a Laravel Mix / mix asset workflow before targeting Laravel 8.';
+            $source = 'https://github.com/laravel/docs/blob/13bfbca86689ae71739debd56e83ed6efc840ab2/upgrade.md#the-elixir-helper';
+        } elseif ($sourceMajor === 8 && $targetMajor === 9) {
+            $symbols = ['Illuminate\\Queue\\SerializableClosureFactory', 'Illuminate\\Queue\\SerializableClosure'];
+            $usageTypes = ['instantiated_class', 'inheritance', 'class_constant_access', 'static_call', 'fully_qualified_name'];
+            $summary = 'Review %d detected use%s of the removed Illuminate\\Queue\\SerializableClosureFactory or SerializableClosure classes; use laravel/serializable-closure replacements before targeting Laravel 9.';
+            $source = 'https://github.com/laravel/docs/blob/177c095cc802ea0a1fa5f765e870c2cccaae9aa2/upgrade.md#the-opis-closure-library';
+        } elseif ($sourceMajor === 9 && $targetMajor === 10) {
+            $symbols = ['Illuminate\\Foundation\\Testing\\Concerns\\MocksApplicationServices'];
+            $usageTypes = ['trait_reference'];
+            $summary = 'Review %d detected use%s of the removed MocksApplicationServices trait; use Event::fake, Bus::fake, and Notification::fake before targeting Laravel 10.';
+            $source = 'https://github.com/laravel/docs/blob/37e19ec52ec0894e9380fb57f3c5d0dd1f85872a/upgrade.md#service-mocking';
+        } else {
+            return null;
+        }
+
+        $normalizedSymbols = array_map('strtolower', $symbols);
+        $matched = array_values(array_filter(
+            $sourceUsages,
+            static fn (SourceUsage $usage): bool => in_array($usage->usageType(), $usageTypes, true)
+                && in_array(strtolower($usage->symbol()), $normalizedSymbols, true)
+        ));
+        if ($matched === []) {
+            return null;
+        }
+
+        $findingSummary = sprintf($summary, count($matched), count($matched) === 1 ? '' : 's');
+        $documentationId = $evidence->add(
+            'laravel-removed-source-symbol-guidance',
+            Evidence::E4_MAINTAINER_DOCUMENTATION,
+            $findingSummary,
+            'high',
+            ['removed_symbols' => $symbols, 'target_laravel_major' => $targetMajor, 'source' => $source]
+        )->id();
+        $references = [$documentationId];
+        foreach ($matched as $usage) {
+            $references = array_merge($references, $usage->evidence());
+        }
+
+        return new CompatibilityFinding('laravel', 'high', $findingSummary, array_values(array_unique($references)));
+    }
+
+    /** @param list<SourceUsage> $sourceUsages */
+    private function removedUuidTraitFinding(EvidenceLedger $evidence, array $sourceUsages): ?CompatibilityFinding
+    {
+        $matched = array_values(array_filter(
+            $sourceUsages,
+            static fn (SourceUsage $usage): bool => $usage->usageType() === 'trait_reference'
+                && strtolower($usage->symbol()) === 'illuminate\\database\\eloquent\\concerns\\hasversion7uuids'
+        ));
+        if ($matched === []) {
+            return null;
+        }
+
+        $documentationId = $evidence->add(
+            'laravel-uuid-trait-guidance',
+            Evidence::E4_MAINTAINER_DOCUMENTATION,
+            'Laravel 12 removes HasVersion7Uuids; HasUuids now provides UUIDv7 behavior.',
+            'high',
+            [
+                'removed_symbol' => 'Illuminate\\Database\\Eloquent\\Concerns\\HasVersion7Uuids',
+                'replacement_symbol' => 'Illuminate\\Database\\Eloquent\\Concerns\\HasUuids',
+                'source' => 'https://github.com/laravel/docs/blob/5b8c610735c8af96a3bda4e37a820b27dc40aee9/upgrade.md#models-and-uuidv7',
+            ]
+        )->id();
+        $references = [$documentationId];
+        foreach ($matched as $usage) {
+            $references = array_merge($references, $usage->evidence());
+        }
+
+        return new CompatibilityFinding(
+            'laravel',
+            'high',
+            sprintf(
+                'Replace %d detected use%s of the removed HasVersion7Uuids trait with HasUuids before targeting Laravel 12.',
+                count($matched),
+                count($matched) === 1 ? '' : 's'
+            ),
+            array_values(array_unique($references))
+        );
     }
 
     /** @param list<SourceUsage> $sourceUsages */
@@ -119,7 +219,7 @@ final class LaravelHighSignalSourceRule implements CompatibilityRule, HopAwareCo
         ];
         $matched = array_values(array_filter(
             $sourceUsages,
-            static fn (SourceUsage $usage): bool => $usage->usageType() === 'middleware_reference'
+            static fn (SourceUsage $usage): bool => in_array($usage->usageType(), ['middleware_reference', 'inheritance'], true)
                 && in_array(strtolower($usage->symbol()), $legacyMiddleware, true)
         ));
         if ($matched === []) {
@@ -147,9 +247,9 @@ final class LaravelHighSignalSourceRule implements CompatibilityRule, HopAwareCo
 
         return new CompatibilityFinding(
             'laravel',
-            'high',
+            'medium',
             sprintf(
-                'Replace %d detected direct reference%s to VerifyCsrfToken or ValidateCsrfToken with PreventRequestForgery before targeting Laravel 13.',
+                'Review %d detected direct reference%s to VerifyCsrfToken or ValidateCsrfToken for PreventRequestForgery when targeting Laravel 13; deprecated aliases remain available.',
                 count($matched),
                 count($matched) === 1 ? '' : 's'
             ),

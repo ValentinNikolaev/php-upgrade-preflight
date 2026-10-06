@@ -68,11 +68,19 @@ final class LaravelV02TransitionFixtureTest extends TestCase
         self::assertSame($case['guidance'], $guidance->status());
         self::assertSame($case['source_major'], $guidance->sourceMajor());
         self::assertSame($case['target_major'], $guidance->targetMajor());
-        self::assertGreaterThanOrEqual(
-            $case['minimum_framework_findings'] ?? 0,
-            count($report->frameworkFindings()),
-            $case['name']
-        );
+        if (isset($case['completion_expectation'])) {
+            self::assertCount($case['completion_expectation']['current_exact_framework_findings'], $report->frameworkFindings(), $case['name']);
+            $summaries = array_map(static fn ($finding): string => $finding->summary(), $report->frameworkFindings());
+            foreach ($case['completion_expectation']['absent_summary_fragments'] as $fragment) {
+                self::assertFalse($this->contains($summaries, $fragment), $case['name'] . ': ' . $fragment);
+            }
+        } else {
+            self::assertGreaterThanOrEqual(
+                $case['minimum_framework_findings'] ?? 0,
+                count($report->frameworkFindings()),
+                $case['name']
+            );
+        }
         $evidenceById = [];
         foreach ($report->evidence() as $item) {
             $evidenceById[$item->id()] = $item;
@@ -150,7 +158,6 @@ final class LaravelV02TransitionFixtureTest extends TestCase
             'root PHP constraint',
             'laravel/boost',
             'laravel/tinker',
-            'phpunit/phpunit',
             'pestphp/pest',
             'direct Symfony component constraints',
             'laravel/helpers',
@@ -159,6 +166,7 @@ final class LaravelV02TransitionFixtureTest extends TestCase
             self::assertTrue($this->contains($summaries, $expected), $expected . "\n" . implode("\n", $summaries));
         }
         self::assertFalse($this->contains($summaries, 'nunomaduro/collision'));
+        self::assertFalse($this->contains($summaries, 'phpunit/phpunit'));
         foreach ($report->frameworkFindings() as $finding) {
             self::assertSame([['from_major' => 12, 'to_major' => 13]], $finding->appliesToHops());
         }
@@ -273,7 +281,24 @@ final class LaravelV02TransitionFixtureTest extends TestCase
         self::assertIsArray($contract);
         self::assertIsArray($contract['cases']);
 
-        return $contract['cases'];
+        $patchContents = file_get_contents(dirname(__DIR__, 4) . '/tests/fixtures/laravel-completion/transition-expectations.json');
+        self::assertIsString($patchContents);
+        $patch = json_decode($patchContents, true, 512, JSON_THROW_ON_ERROR);
+        self::assertSame(1, $patch['schema_version']);
+        $cases = $contract['cases'];
+        $matched = [];
+        foreach ($cases as &$case) {
+            $expectation = $patch['cases'][$case['name']] ?? null;
+            if ($expectation !== null) {
+                self::assertSame($expectation['historical_minimum_framework_findings'], $case['minimum_framework_findings']);
+                $case['completion_expectation'] = $expectation;
+                $matched[] = $case['name'];
+            }
+        }
+        unset($case);
+        self::assertSame(array_keys($patch['cases']), $matched);
+
+        return $cases;
     }
 
     /** @return array<string, mixed> */

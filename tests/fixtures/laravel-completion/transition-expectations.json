@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "purpose": "Current v0.3 completion expectations; historical transition contracts remain unchanged.",
+  "cases": {
+    "advisory-heavy Laravel 9 to 10": {
+      "historical_minimum_framework_findings": 7,
+      "current_exact_framework_findings": 5,
+      "absent_summary_fragments": ["phpunit/phpunit", "nunomaduro/collision"],
+      "reason": "The locked PHPUnit 9.6 and Collision 6.4 versions are supported alternatives; newer test-tool majors are optional."
+    },
+    "advisory-heavy Laravel 11 to 12": {
+      "historical_minimum_framework_findings": 5,
+      "current_exact_framework_findings": 4,
+      "absent_summary_fragments": ["phpunit/phpunit"],
+      "reason": "The locked PHPUnit 10.5.58 version is included in the pinned framework's supported test range."
+    }
+  }
+}

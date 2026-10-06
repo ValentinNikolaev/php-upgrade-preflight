@@ -1,0 +1,59 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "fa670d0550be624699c00b3bfdd915b6",
+    "packages": [
+        {
+            "name": "illuminate/support",
+            "version": "12.0.0",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/illuminate-support-12.0.0",
+                "reference": "2cbcc3ee3732e4ca390f90c62aa7f24cc94c1b1b"
+            },
+            "require": {
+                "php": "^8.0"
+            },
+            "type": "metapackage",
+            "transport-options": {
+                "symlink": false,
+                "relative": true
+            }
+        },
+        {
+            "name": "laravel/framework",
+            "version": "12.0.0",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/laravel-framework-12.0.0",
+                "reference": "8620391a6591e11ff3ab2b396db745d77af19731"
+            },
+            "require": {
+                "illuminate/support": "^12.0",
+                "php": "^8.0"
+            },
+            "type": "metapackage",
+            "transport-options": {
+                "symlink": false,
+                "relative": true
+            }
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": {},
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": {
+        "php": "^8.0"
+    },
+    "platform-dev": {},
+    "platform-overrides": {
+        "php": "8.3.0"
+    },
+    "plugin-api-version": "2.9.0"
+}

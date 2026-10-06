@@ -93,6 +93,34 @@
       "test_filter": "ReportAssemblerTest"
     },
     {
+      "name": "laravel-queue-facade-identity",
+      "file": "packages/laravel/src/Source/LaravelSourceUsageVisitor.php",
+      "search": "$class === 'bus' || $class === 'illuminate\\\\support\\\\facades\\\\bus'",
+      "replace": "$class === 'bus' || str_ends_with($class, '\\\\facades\\\\bus')",
+      "test_filter": "LaravelQueueDispatchVisitorTest"
+    },
+    {
+      "name": "laravel-optional-phpunit-upgrade-range",
+      "file": "packages/laravel/src/Catalog/LaravelRuleCatalog.php",
+      "search": "'^9.5.8|^10.0.7'",
+      "replace": "'^10.0.7'",
+      "test_filter": "LaravelCompletionPackageRulesTest"
+    },
+    {
+      "name": "laravel-removed-uuid-trait-identity",
+      "file": "packages/laravel/src/Rules/LaravelHighSignalSourceRule.php",
+      "search": "strtolower($usage->symbol()) === 'illuminate\\\\database\\\\eloquent\\\\concerns\\\\hasversion7uuids'",
+      "replace": "strtolower($usage->symbol()) === 'illuminate\\\\database\\\\eloquent\\\\concerns\\\\hasuuids'",
+      "test_filter": "LaravelHighSignalSourceRuleTest"
+    },
+    {
+      "name": "laravel-csrf-alias-review-severity",
+      "file": "packages/laravel/src/Rules/LaravelHighSignalSourceRule.php",
+      "search": "'medium',\n            sprintf(\n                'Review %d detected direct reference",
+      "replace": "'high',\n            sprintf(\n                'Review %d detected direct reference",
+      "test_filter": "LaravelHighSignalSourceRuleTest"
+    },
+    {
       "name": "old-style-adapter-stage-provider-guard",
       "file": "packages/core/src/Analysis/StagedUpgradeOrchestrator.php",
       "search": "static fn (FrameworkIntegration $framework): bool => $framework instanceof FrameworkStageTargetProvider",

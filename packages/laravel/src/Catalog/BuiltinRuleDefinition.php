@@ -14,6 +14,7 @@ final class BuiltinRuleDefinition implements RuleDefinition
     public const COMPOSER_VERSION = 'composer_version';
     public const CURL_EXTENSION = 'curl_extension';
     public const HIGH_SIGNAL_SOURCE = 'high_signal_source';
+    public const REMOVED_SOURCE_SYMBOLS = 'removed_source_symbols';
 
     private string $key;
     private string $rule;

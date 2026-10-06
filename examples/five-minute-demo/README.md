@@ -36,7 +36,7 @@ The useful result is:
 - Laravel 12→13: blocked after all three attempts by the absent `ext-preflight-stage`, with no output state selected;
 - framework guidance: `supported` for 10→11, 11→12, and 12→13;
 - package findings: review PHPUnit 10 for every hop, Carbon 2 for 11→12, and Tinker 2 for 12→13;
-- source finding: replace the direct `VerifyCsrfToken` reference with `PreventRequestForgery` for 12→13;
+- source finding: review the direct `VerifyCsrfToken` reference for `PreventRequestForgery` on 12→13; Laravel 13 retains the deprecated alias, so this is migration advice rather than a removed-class blocker;
 - next manual step: provide a real target-platform decision for the missing extension, apply the reported package and source changes in a branch, rerun the full stage, and then run the application's own tests on PHP 8.3.
 
 The report does not perform the upgrade, execute an application, prove runtime compatibility, or establish production readiness. Extension values not explicitly modeled still come from the analyzer host.

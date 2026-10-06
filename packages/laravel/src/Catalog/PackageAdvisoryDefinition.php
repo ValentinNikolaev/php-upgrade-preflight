@@ -13,6 +13,9 @@ final class PackageAdvisoryDefinition implements RuleDefinition
     public const REVIEW_DBAL_REMOVAL = 'review_dbal_removal';
     public const REPLACE_FLYSYSTEM_SFTP = 'replace_flysystem_sftp';
     public const REVIEW_LEGACY_HELPERS = 'review_legacy_helpers';
+    public const REPLACE_NEXMO_CHANNEL = 'replace_nexmo_channel';
+    public const REPLACE_SWIFTMAILER_POSTMARK = 'replace_swiftmailer_postmark';
+    public const REMOVE_SPATIE_ONCE = 'remove_spatie_once';
 
     /**
      * The advisory action vocabulary, and the single source of truth for every
@@ -31,6 +34,21 @@ final class PackageAdvisoryDefinition implements RuleDefinition
      * refuses to render a summary, so a new action cannot resolve silently.
      */
     private const ACTIONS = [
+        self::REPLACE_NEXMO_CHANNEL => [
+            'package' => 'laravel/nexmo-notification-channel',
+            'exclusive' => true,
+            'summary' => 'Replace laravel/nexmo-notification-channel with laravel/vonage-notification-channel:^3.0 for the Laravel %2$d target; review the renamed notification methods, channels, and configuration.',
+        ],
+        self::REPLACE_SWIFTMAILER_POSTMARK => [
+            'package' => 'wildbit/swiftmailer-postmark',
+            'exclusive' => true,
+            'summary' => 'Replace wildbit/swiftmailer-postmark with symfony/postmark-mailer and symfony/http-client for the Laravel %2$d target; validate the Postmark transport after the Symfony Mailer migration.',
+        ],
+        self::REMOVE_SPATIE_ONCE => [
+            'package' => 'spatie/once',
+            'exclusive' => true,
+            'summary' => 'Remove spatie/once before targeting Laravel %2$d because Laravel now provides its own once helper; review any direct package API usage.',
+        ],
         self::REPLACE_IGNITION => [
             'package' => 'facade/ignition',
             'exclusive' => true,

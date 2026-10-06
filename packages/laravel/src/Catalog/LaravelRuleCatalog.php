@@ -72,6 +72,11 @@ final class LaravelRuleCatalog
         $laravel13Skeleton = 'https://github.com/laravel/laravel/blob/c926b8ca7fa01e71852e19141f2bdd7fabfb6ade/composer.json';
         $laravel8Skeleton = 'https://github.com/laravel/laravel/blob/8.x/composer.json';
         $laravel9Skeleton = 'https://github.com/laravel/laravel/blob/9.x/composer.json';
+        $laravel8ReviewedUpgrade = 'https://github.com/laravel/docs/blob/13bfbca86689ae71739debd56e83ed6efc840ab2/upgrade.md';
+        $laravel9ReviewedUpgrade = 'https://github.com/laravel/docs/blob/177c095cc802ea0a1fa5f765e870c2cccaae9aa2/upgrade.md';
+        $laravel10ReviewedUpgrade = 'https://github.com/laravel/docs/blob/37e19ec52ec0894e9380fb57f3c5d0dd1f85872a/upgrade.md';
+        $laravel8Framework = 'https://github.com/laravel/framework/blob/43bea00fd27c76c01fd009e46725a54885f4d2a5/composer.json';
+        $laravel9Framework = 'https://github.com/laravel/framework/blob/fbe7ed828819eadabb3cb9f95847a2ffe8846fd6/composer.json';
 
         $targets = [
             new TargetDefinition('target-8', 8, '^7.3|^8.0', [$laravel8Upgrade], '^5.0', [
@@ -112,6 +117,10 @@ final class LaravelRuleCatalog
         $rules = [
             new BuiltinRuleDefinition('rule-framework-constraint', BuiltinRuleDefinition::FRAMEWORK_CONSTRAINT, $implemented),
             new BuiltinRuleDefinition('rule-php-constraint', BuiltinRuleDefinition::PHP_CONSTRAINT, $implemented),
+            self::packageRule('rule-package-guzzle', 'guzzlehttp/guzzle', $appliesTo8, '^6.5.5|^7.0.1', 'medium', [$laravel8ReviewedUpgrade, $laravel8Framework], false, $appliesTo9, '^7.2', [$laravel9ReviewedUpgrade, $laravel9Framework]),
+            self::packageRule('rule-package-socialite', 'laravel/socialite', $appliesTo8, '^5.0', 'medium', [$laravel8ReviewedUpgrade], true, $appliesTo9, '^5.0', [
+                'https://github.com/laravel/socialite/blob/fa0181ee6204ca28a55cd67145fadd631ac209cf/composer.json',
+            ]),
             self::packageRule('rule-package-passport', 'laravel/passport', $appliesTo8, '^10.0', 'high', [$laravel8Upgrade], true, $appliesTo9, '^10.0|^11.0', [
                 'https://github.com/laravel/passport/blob/10.x/composer.json',
                 'https://github.com/laravel/passport/blob/11.x/composer.json',
@@ -143,11 +152,17 @@ final class LaravelRuleCatalog
                 new PackageConstraintDefinition('package-fruitcake-cors-7-8', 'fruitcake/laravel-cors', $appliesTo8, '^2.0', 'medium', [$laravel8Skeleton]),
             ]),
             new PackageAdvisoryDefinition('advisory-fruitcake-cors-7-9', 'fruitcake/laravel-cors', $appliesTo9, PackageAdvisoryDefinition::REVIEW_CORS_REMOVAL, 'medium', [$laravel9Upgrade]),
+            new PackageAdvisoryDefinition('advisory-nexmo-channel-7-9', 'laravel/nexmo-notification-channel', $appliesTo9, PackageAdvisoryDefinition::REPLACE_NEXMO_CHANNEL, 'high', [
+                'https://github.com/laravel/vonage-notification-channel/blob/1393b365b7b23d851e995e41d1047ab264c350cd/UPGRADE.md',
+            ]),
+            new PackageAdvisoryDefinition('advisory-swiftmailer-postmark-7-9', 'wildbit/swiftmailer-postmark', $appliesTo9, PackageAdvisoryDefinition::REPLACE_SWIFTMAILER_POSTMARK, 'high', [$laravel9ReviewedUpgrade]),
             self::packageRule('rule-package-collision', 'nunomaduro/collision', $appliesTo8, '^5.0', 'medium', [$laravel8Upgrade], false, $appliesTo9, '^6.1', [$laravel9Upgrade]),
             self::packageRule('rule-package-laravel-ui', 'laravel/ui', $appliesTo8, '^3.0', 'low', [
                 'https://github.com/laravel/ui/blob/3.x/composer.json',
-            ], false, $appliesTo9, '^4.0', [
-                'https://github.com/laravel/ui/blob/4.x/composer.json',
+            ], false, $appliesTo9, '^3.4|^4.0', [
+                'https://github.com/laravel/ui/blob/b3e804559bf3973ecca160a4ae1068e6c7c167c6/composer.json',
+                'https://github.com/laravel/ui/blob/65ec5c03f7fee2c8ecae785795b829a15be48c2c/composer.json',
+                'https://github.com/laravel/ui/blob/e6291e8083cb5255511eacd6da0ec078210beabd/composer.json',
             ]),
             self::packageRule('rule-package-testbench', 'orchestra/testbench', $appliesTo8, '^6.0', 'medium', [
                 'https://github.com/orchestral/testbench/blob/6.x/composer.json',
@@ -155,8 +170,10 @@ final class LaravelRuleCatalog
                 'https://github.com/orchestral/testbench/blob/7.x/composer.json',
             ]),
             new BuiltinRuleDefinition('rule-skeleton', BuiltinRuleDefinition::SKELETON, $retainedV01),
+            new BuiltinRuleDefinition('rule-removed-source-symbols-7-8', BuiltinRuleDefinition::REMOVED_SOURCE_SYMBOLS, [$appliesTo8]),
+            new BuiltinRuleDefinition('rule-removed-source-symbols-8-9', BuiltinRuleDefinition::REMOVED_SOURCE_SYMBOLS, [$applies8To9]),
 
-            self::singlePackageRule('rule-package-pusher-8-9', 'pusher/pusher-php-server', $applies8To9, '^5.0', 'medium', [$laravel9Upgrade]),
+            self::singlePackageRule('rule-package-pusher-8-9', 'pusher/pusher-php-server', $applies8To9, '^5.0|^6.0|^7.0', 'medium', [$laravel9ReviewedUpgrade, $laravel9Framework]),
             self::singlePackageRule('rule-package-spatie-ignition-8-9', 'spatie/laravel-ignition', $applies8To9, '^1.0', 'high', [$laravel9Upgrade]),
             self::singlePackageRule('rule-package-flysystem-s3-8-9', 'league/flysystem-aws-s3-v3', $applies8To9, '^3.0', 'high', [$laravel9Upgrade]),
             self::singlePackageRule('rule-package-flysystem-ftp-8-9', 'league/flysystem-ftp', $applies8To9, '^3.0', 'high', [$laravel9Upgrade]),
@@ -165,13 +182,17 @@ final class LaravelRuleCatalog
 
             new BuiltinRuleDefinition('rule-composer-version-9-10', BuiltinRuleDefinition::COMPOSER_VERSION, [$applies9To10]),
             new BuiltinRuleDefinition('rule-high-signal-source-9-10', BuiltinRuleDefinition::HIGH_SIGNAL_SOURCE, [$applies9To10]),
+            new BuiltinRuleDefinition('rule-removed-source-symbols-9-10', BuiltinRuleDefinition::REMOVED_SOURCE_SYMBOLS, [$applies9To10]),
             self::singlePackageRule('rule-package-dbal-9-10', 'doctrine/dbal', $applies9To10, '^3.0', 'high', [$laravel10Upgrade]),
             self::singlePackageRule('rule-package-passport-9-10', 'laravel/passport', $applies9To10, '^11.0', 'high', [$laravel10Upgrade]),
             self::singlePackageRule('rule-package-sanctum-9-10', 'laravel/sanctum', $applies9To10, '^3.2', 'high', [$laravel10Upgrade]),
             self::singlePackageRule('rule-package-ui-9-10', 'laravel/ui', $applies9To10, '^4.0', 'medium', [$laravel10Upgrade]),
             self::singlePackageRule('rule-package-ignition-9-10', 'spatie/laravel-ignition', $applies9To10, '^2.0', 'high', [$laravel10Upgrade]),
-            self::singlePackageRule('rule-package-collision-9-10', 'nunomaduro/collision', $applies9To10, '^7.0', 'medium', [$laravel10Upgrade]),
-            self::singlePackageRule('rule-package-phpunit-9-10', 'phpunit/phpunit', $applies9To10, '^10.0', 'medium', [$laravel10Upgrade]),
+            self::singlePackageRule('rule-package-collision-9-10', 'nunomaduro/collision', $applies9To10, '^6.1|^7.0', 'medium', [
+                $laravel10ReviewedUpgrade,
+                'https://github.com/nunomaduro/collision/blob/f05978827b9343cba381ca05b8c7deee346b6015/composer.json',
+            ]),
+            self::singlePackageRule('rule-package-phpunit-9-10', 'phpunit/phpunit', $applies9To10, '^9.5.8|^10.0.7', 'medium', [$laravel10ReviewedUpgrade, $laravel10Framework]),
 
             new BuiltinRuleDefinition('rule-curl-extension-10-11', BuiltinRuleDefinition::CURL_EXTENSION, [$applies10To11]),
             self::singlePackageRule('rule-package-collision-10-11', 'nunomaduro/collision', $applies10To11, '^8.1', 'medium', [$laravel11Upgrade]),
@@ -187,22 +208,32 @@ final class LaravelRuleCatalog
             self::singlePackageRule('rule-package-telescope-10-11', 'laravel/telescope', $applies10To11, '^5.0', 'high', [$laravel11Upgrade]),
             self::singlePackageRule('rule-package-livewire-10-11', 'livewire/livewire', $applies10To11, '^3.4', 'medium', [$laravel11Upgrade]),
             self::singlePackageRule('rule-package-inertia-10-11', 'inertiajs/inertia-laravel', $applies10To11, '^1.0', 'medium', [$laravel11Upgrade]),
-            self::singlePackageRule('rule-package-phpunit-10-11', 'phpunit/phpunit', $applies10To11, '^11.0.1', 'medium', ['https://github.com/laravel/laravel/blob/11.x/composer.json']),
+            self::singlePackageRule('rule-package-phpunit-10-11', 'phpunit/phpunit', $applies10To11, '^10.5.35|^11.0.1|^12.0.1', 'medium', [
+                'https://github.com/laravel/laravel/blob/ecf6de4992d70dd37c21676be6b8ba4743151e63/composer.json',
+                $laravel11Framework,
+            ]),
             new PackageAdvisoryDefinition('advisory-dbal-removal-10-11', 'doctrine/dbal', $applies10To11, PackageAdvisoryDefinition::REVIEW_DBAL_REMOVAL, 'low', [$laravel11Upgrade]),
             new PackageAdvisoryDefinition('advisory-cashier-migrations-10-11', 'laravel/cashier', $applies10To11, PackageAdvisoryDefinition::PUBLISH_MIGRATIONS, 'high', [$laravel11Upgrade]),
             new PackageAdvisoryDefinition('advisory-passport-migrations-10-11', 'laravel/passport', $applies10To11, PackageAdvisoryDefinition::PUBLISH_MIGRATIONS, 'high', [$laravel11Upgrade]),
             new PackageAdvisoryDefinition('advisory-sanctum-migrations-10-11', 'laravel/sanctum', $applies10To11, PackageAdvisoryDefinition::PUBLISH_MIGRATIONS, 'high', [$laravel11Upgrade]),
             new PackageAdvisoryDefinition('advisory-spark-migrations-10-11', 'laravel/spark-stripe', $applies10To11, PackageAdvisoryDefinition::PUBLISH_MIGRATIONS, 'high', [$laravel11Upgrade]),
             new PackageAdvisoryDefinition('advisory-telescope-migrations-10-11', 'laravel/telescope', $applies10To11, PackageAdvisoryDefinition::PUBLISH_MIGRATIONS, 'high', [$laravel11Upgrade]),
+            new PackageAdvisoryDefinition('advisory-spatie-once-10-11', 'spatie/once', $applies10To11, PackageAdvisoryDefinition::REMOVE_SPATIE_ONCE, 'high', [
+                'https://github.com/laravel/docs/blob/be9d43b96acd98dc32872b7498d158430c251f1c/upgrade.md',
+            ]),
 
-            self::singlePackageRule('rule-package-phpunit-11-12', 'phpunit/phpunit', $applies11To12, '^11.0', 'high', [$laravel12Upgrade]),
+            new BuiltinRuleDefinition('rule-high-signal-source-11-12', BuiltinRuleDefinition::HIGH_SIGNAL_SOURCE, [$applies11To12]),
+            self::singlePackageRule('rule-package-phpunit-11-12', 'phpunit/phpunit', $applies11To12, '^10.5.35|^11.0|^12.0.1', 'high', [
+                'https://github.com/laravel/docs/blob/5b8c610735c8af96a3bda4e37a820b27dc40aee9/upgrade.md',
+                $laravel12Framework,
+            ]),
             self::singlePackageRule('rule-package-pest-11-12', 'pestphp/pest', $applies11To12, '^3.0', 'high', [$laravel12Upgrade]),
             self::singlePackageRule('rule-package-carbon-11-12', 'nesbot/carbon', $applies11To12, '^3.0', 'medium', [$laravel12Upgrade]),
             self::singlePackageRule('rule-package-collision-11-12', 'nunomaduro/collision', $applies11To12, '^8.6', 'medium', ['https://github.com/laravel/laravel/blob/12.x/composer.json']),
 
             self::singlePackageRule('rule-package-boost-12-13', 'laravel/boost', $applies12To13, '^2.0', 'high', [$laravel13Upgrade]),
             self::singlePackageRule('rule-package-tinker-12-13', 'laravel/tinker', $applies12To13, '^3.0', 'high', [$laravel13Upgrade]),
-            self::singlePackageRule('rule-package-phpunit-12-13', 'phpunit/phpunit', $applies12To13, '^12.0', 'high', [$laravel13Upgrade, $laravel13Skeleton]),
+            self::singlePackageRule('rule-package-phpunit-12-13', 'phpunit/phpunit', $applies12To13, '^11.5.50|^12.0|^13.0.3', 'high', [$laravel13Upgrade, $laravel13Skeleton, $laravel13Framework]),
             self::singlePackageRule('rule-package-pest-12-13', 'pestphp/pest', $applies12To13, '^4.0', 'high', [$laravel13Upgrade]),
             self::singlePackageRule('rule-package-collision-12-13', 'nunomaduro/collision', $applies12To13, '^8.6', 'medium', [$laravel13Skeleton]),
             new PackageAdvisoryDefinition(

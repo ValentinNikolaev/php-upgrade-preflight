@@ -1,0 +1,25 @@
+{
+  "name": "fixture/laravel-exclusions-illuminate",
+  "repositories": [
+    {
+      "type": "path",
+      "url": "../../packages/*",
+      "options": {
+        "symlink": false
+      }
+    },
+    {
+      "packagist.org": false
+    }
+  ],
+  "require": {
+    "php": "^8.0",
+    "illuminate/console": "^12.0|^13.0",
+    "illuminate/support": "^12.0"
+  },
+  "config": {
+    "platform": {
+      "php": "8.3.0"
+    }
+  }
+}

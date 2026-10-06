@@ -76,22 +76,22 @@ final class LaterLaravelUpgradeFixtureTest extends TestCase
             'laravel-9-to-10',
             '^10.0',
             '8.1.0',
-            ['root laravel/framework constraint', 'Composer `2.1.14`', 'doctrine/dbal', 'laravel/sanctum', 'spatie/laravel-ignition', 'nunomaduro/collision', 'phpunit/phpunit', 'Replace 3 detected'],
-            [],
+            ['root laravel/framework constraint', 'Composer `2.1.14`', 'doctrine/dbal', 'laravel/sanctum', 'spatie/laravel-ignition', 'Replace 3 detected'],
+            ['nunomaduro/collision', 'phpunit/phpunit'],
         ];
         yield 'Laravel 10 to 11' => [
             'laravel-10-to-11',
             '^11.0',
             '8.2.0',
-            ['root laravel/framework constraint', 'curl is `absent`', 'laravel/cashier', 'laravel/passport', 'laravel/sanctum', 'laravel/spark-stripe', 'laravel/telescope', 'nunomaduro/collision', 'phpunit/phpunit', 'Publish the laravel/cashier migrations', 'Publish the laravel/passport migrations', 'Publish the laravel/sanctum migrations', 'Publish the laravel/spark-stripe migrations', 'Publish the laravel/telescope migrations', 'remove doctrine/dbal'],
-            ['skeleton-managed integration locations'],
+            ['root laravel/framework constraint', 'curl is `absent`', 'laravel/cashier', 'laravel/passport', 'laravel/sanctum', 'laravel/spark-stripe', 'laravel/telescope', 'nunomaduro/collision', 'Publish the laravel/cashier migrations', 'Publish the laravel/passport migrations', 'Publish the laravel/sanctum migrations', 'Publish the laravel/spark-stripe migrations', 'Publish the laravel/telescope migrations', 'remove doctrine/dbal'],
+            ['skeleton-managed integration locations', 'phpunit/phpunit'],
         ];
         yield 'Laravel 11 to 12' => [
             'laravel-11-to-12',
             '^12.0',
             '8.2.0',
-            ['root laravel/framework constraint', 'nesbot/carbon 2.72.6 is outside the encoded Laravel 12 review range `^3.0`', 'nunomaduro/collision', 'pestphp/pest', 'phpunit/phpunit'],
-            [],
+            ['root laravel/framework constraint', 'nesbot/carbon 2.72.6 is outside the encoded Laravel 12 review range `^3.0`', 'nunomaduro/collision', 'pestphp/pest'],
+            ['phpunit/phpunit'],
         ];
         yield 'Laravel 12 to 13' => [
             'laravel-12-to-13',
@@ -101,13 +101,12 @@ final class LaterLaravelUpgradeFixtureTest extends TestCase
                 'root laravel/framework constraint',
                 'laravel/boost',
                 'laravel/tinker',
-                'phpunit/phpunit',
                 'pestphp/pest',
                 'direct Symfony component constraints',
                 'laravel/helpers',
                 'PreventRequestForgery',
             ],
-            ['nunomaduro/collision'],
+            ['nunomaduro/collision', 'phpunit/phpunit'],
         ];
     }
 

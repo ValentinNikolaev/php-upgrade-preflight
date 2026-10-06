@@ -318,14 +318,14 @@ Unknown ownership is not permission to guess. Staged impact uses its own registr
 ```json
 {
   "framework": "laravel",
-  "severity": "high",
-  "summary": "Replace 1 detected direct reference to VerifyCsrfToken or ValidateCsrfToken with PreventRequestForgery before targeting Laravel 13.",
+  "severity": "medium",
+  "summary": "Review 1 detected direct reference to VerifyCsrfToken or ValidateCsrfToken for PreventRequestForgery when targeting Laravel 13; deprecated aliases remain available.",
   "applies_to_hops": [{"from_major": 12, "to_major": 13}],
   "evidence": ["laravel-request-forgery-guidance-1", "source-3"]
 }
 ```
 
-This is review guidance. The analyzer does not perform the replacement.
+This is review guidance, not a removed-symbol blocker: Laravel 13 retains the deprecated aliases. The analyzer does not perform the replacement or verify runtime request-forgery behavior.
 
 ## Step 11: turn summaries into work
 
