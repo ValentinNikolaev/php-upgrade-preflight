@@ -28,6 +28,233 @@
           "source_reference": "dc265189607a4e0ea0023ed26d837371e17eefd5",
           "source_url": "https://github.com/ValentinNikolaev/php-upgrade-preflight-laravel/tree/dc265189607a4e0ea0023ed26d837371e17eefd5"
         }
+      ],
+      "locked_runtime_dependency_inventory": [
+        {
+          "package": "carbonphp/carbon-doctrine-types",
+          "version": "3.2.1",
+          "source_reference": "5fa5eacafd9ef47c8c6ab9143fc901ba0194d3dc"
+        },
+        {
+          "package": "composer/semver",
+          "version": "3.5.1",
+          "source_reference": "528948210cc46f967a4b98e83b19e76f2b504993"
+        },
+        {
+          "package": "doctrine/inflector",
+          "version": "2.1.0",
+          "source_reference": "6d6c96277ea252fc1304627204c3d5e6e15faa3b"
+        },
+        {
+          "package": "illuminate/bus",
+          "version": "v13.35.0",
+          "source_reference": "c50d1537555b0c2d7cc1fe7c6aeae60366600b51"
+        },
+        {
+          "package": "illuminate/collections",
+          "version": "v13.35.0",
+          "source_reference": "6eebd20c5ec8958a782008aea1374e9600cf8135"
+        },
+        {
+          "package": "illuminate/conditionable",
+          "version": "v13.35.0",
+          "source_reference": "7f1ef52d9a346f829421b296adfb7644a951b216"
+        },
+        {
+          "package": "illuminate/console",
+          "version": "v13.35.0",
+          "source_reference": "1405ec1494905caf948ac0e94e24422783607388"
+        },
+        {
+          "package": "illuminate/container",
+          "version": "v13.35.0",
+          "source_reference": "3cd79c13d89ba8ef04a40c5cf45fd7c13e71f44d"
+        },
+        {
+          "package": "illuminate/contracts",
+          "version": "v13.35.0",
+          "source_reference": "0cabe75392aad93ac739bbb220a3f5d943b12b30"
+        },
+        {
+          "package": "illuminate/events",
+          "version": "v13.35.0",
+          "source_reference": "f1c94930eb75b7aa5206eda4e0c89a22166006a6"
+        },
+        {
+          "package": "illuminate/filesystem",
+          "version": "v13.35.0",
+          "source_reference": "5159a6780076d75b222ad8d7dd0fa42e5acb13f6"
+        },
+        {
+          "package": "illuminate/macroable",
+          "version": "v13.35.0",
+          "source_reference": "59b5b5f3cf290a91db8cf6cd3d35ff56978bc057"
+        },
+        {
+          "package": "illuminate/pipeline",
+          "version": "v13.35.0",
+          "source_reference": "9ee04593b932a6d7dca255e3217584b896621b99"
+        },
+        {
+          "package": "illuminate/reflection",
+          "version": "v13.35.0",
+          "source_reference": "2b6ba33970dd84849322a6a9857647ca96c1bb66"
+        },
+        {
+          "package": "illuminate/support",
+          "version": "v13.35.0",
+          "source_reference": "ca230c018111767a6dd7cab7b157ef346801454a"
+        },
+        {
+          "package": "illuminate/view",
+          "version": "v13.35.0",
+          "source_reference": "61948ef8c688eb48f1533db461ee0a9a76f536ac"
+        },
+        {
+          "package": "laravel/prompts",
+          "version": "v0.3.25",
+          "source_reference": "21b7b49d60fcb700016dd27b582ae739c75de816"
+        },
+        {
+          "package": "nesbot/carbon",
+          "version": "3.14.2",
+          "source_reference": "94cfc34887f07ab5c0efa07914c8f527544e3224"
+        },
+        {
+          "package": "nikic/php-parser",
+          "version": "v5.9.0",
+          "source_reference": "9e33da9553fe7786f0962b35f4e4ecf01be89def"
+        },
+        {
+          "package": "nunomaduro/termwind",
+          "version": "v2.4.0",
+          "source_reference": "712a31b768f5daea284c2169a7d227031001b9a8"
+        },
+        {
+          "package": "php-upgrade-preflight/cli",
+          "version": "v0.3.3",
+          "source_reference": "51d48991e3b9e29ddeb26ffd3913f5b24894b657"
+        },
+        {
+          "package": "php-upgrade-preflight/core",
+          "version": "v0.3.3",
+          "source_reference": "039cf51b5ab7cb4d7576a3830bad7243f95b74e6"
+        },
+        {
+          "package": "php-upgrade-preflight/laravel",
+          "version": "v0.3.3",
+          "source_reference": "dc265189607a4e0ea0023ed26d837371e17eefd5"
+        },
+        {
+          "package": "psr/clock",
+          "version": "1.0.0",
+          "source_reference": "e41a24703d4560fd0acb709162f73b8adfc3aa0d"
+        },
+        {
+          "package": "psr/container",
+          "version": "2.0.2",
+          "source_reference": "c71ecc56dfe541dbd90c5360474fbc405f8d5963"
+        },
+        {
+          "package": "psr/simple-cache",
+          "version": "3.0.0",
+          "source_reference": "764e0b3939f5ca87cb904f570ef9be2d78a07865"
+        },
+        {
+          "package": "symfony/clock",
+          "version": "v7.4.8",
+          "source_reference": "674fa3b98e21531dd040e613479f5f6fa8f32111"
+        },
+        {
+          "package": "symfony/console",
+          "version": "v7.4.20",
+          "source_reference": "d7bca2fe05241dc7732d0c8b6d551b879f5d0a7d"
+        },
+        {
+          "package": "symfony/deprecation-contracts",
+          "version": "v3.7.1",
+          "source_reference": "f3202fa1b5097b0af062dc978b32ecf63404e31d"
+        },
+        {
+          "package": "symfony/filesystem",
+          "version": "v7.4.18",
+          "source_reference": "90d412aa5277c6819db39e7605aa46b1019e3232"
+        },
+        {
+          "package": "symfony/finder",
+          "version": "v7.4.20",
+          "source_reference": "2dd31e5208db7a0fda7bfc998ad727b79c2e4d1e"
+        },
+        {
+          "package": "symfony/polyfill-ctype",
+          "version": "v1.37.0",
+          "source_reference": "141046a8f9477948ff284fa65be2095baafb94f2"
+        },
+        {
+          "package": "symfony/polyfill-intl-grapheme",
+          "version": "v1.43.0",
+          "source_reference": "5cac8f4db97208823aa353f59a01faad2da52c75"
+        },
+        {
+          "package": "symfony/polyfill-intl-normalizer",
+          "version": "v1.43.0",
+          "source_reference": "ebd57ccc7edb93d632e184efbe7693d2517bab3b"
+        },
+        {
+          "package": "symfony/polyfill-mbstring",
+          "version": "v1.43.0",
+          "source_reference": "4d5d331bf731e0aedbc6b2f5e61135b7b7996a72"
+        },
+        {
+          "package": "symfony/polyfill-php83",
+          "version": "v1.43.0",
+          "source_reference": "80ccff923a8d61f73ebe9da0aa94e25232f004ce"
+        },
+        {
+          "package": "symfony/polyfill-php84",
+          "version": "v1.43.0",
+          "source_reference": "22c6548499cbe5c5bb072fc0c42312dff062a015"
+        },
+        {
+          "package": "symfony/polyfill-php85",
+          "version": "v1.43.0",
+          "source_reference": "86a42cbcc07adc331481a5ab310a4024bfc227f6"
+        },
+        {
+          "package": "symfony/polyfill-php86",
+          "version": "v1.43.0",
+          "source_reference": "8840df45b24f33a49dc419fa18dc0057231ae1d8"
+        },
+        {
+          "package": "symfony/process",
+          "version": "v7.4.19",
+          "source_reference": "ed0ae095b86994d370d5791612e55984f15aa30e"
+        },
+        {
+          "package": "symfony/service-contracts",
+          "version": "v3.7.3",
+          "source_reference": "15e6a07ec2a2c75ceb1b21dd98105ee8456d2257"
+        },
+        {
+          "package": "symfony/string",
+          "version": "v7.4.19",
+          "source_reference": "02731ce2bd26514bec9efc0baef2cd0b0cf67f46"
+        },
+        {
+          "package": "symfony/translation",
+          "version": "v7.4.17",
+          "source_reference": "2ee1e4a3b32a528a642babe041ff7c440b213b4b"
+        },
+        {
+          "package": "symfony/translation-contracts",
+          "version": "v3.7.1",
+          "source_reference": "ccb206b98faccc511ebae8e5fad50f2dc0b30621"
+        },
+        {
+          "package": "voku/portable-ascii",
+          "version": "2.1.1",
+          "source_reference": "8e1051fe39379367aecf014f41744ce7539a856f"
+        }
       ]
     },
     "candidate": {
@@ -244,8 +471,46 @@
           "packages/laravel/src/UpgradePreflightServiceProvider.php": "1860f287f28ab6af8868bc33762d6ebf65baa47d5a578ed7ff7f7c6cd7873fed"
         },
         "limits": "Individual preliminary/final application runs did not capture analyzer source fingerprints before and after each run. This observed restored working tree and exact report hashes distinguish candidate evidence without claiming a published candidate commit."
-      }
-    }
+      },
+      "locked_analysis_dependencies": [
+        {
+          "package": "composer/semver",
+          "version": "3.4.4",
+          "source_reference": "198166618906cb2de69b95d7d47e5fa8aa1b2b95"
+        },
+        {
+          "package": "illuminate/console",
+          "version": "v8.83.27",
+          "source_reference": "4aaa93223eb3bd8119157c95f58c022967826035"
+        },
+        {
+          "package": "illuminate/support",
+          "version": "v8.83.27",
+          "source_reference": "1c79242468d3bbd9a0f7477df34f9647dde2a09b"
+        },
+        {
+          "package": "nikic/php-parser",
+          "version": "v5.8.0",
+          "source_reference": "044a6a392ff8ad0d61f14370a5fbbd0a0107152f"
+        },
+        {
+          "package": "symfony/console",
+          "version": "v5.4.47",
+          "source_reference": "c4ba980ca61a9eb18ee6bcc73f28e475852bb1ed"
+        },
+        {
+          "package": "symfony/filesystem",
+          "version": "v5.4.45",
+          "source_reference": "57c8294ed37d4a055b77057827c67f9558c95c54"
+        },
+        {
+          "package": "symfony/process",
+          "version": "v5.4.51",
+          "source_reference": "467bfc56f18f5ef6d5ccb09324d7e988c1c0a98f"
+        }
+      ]
+    },
+    "dependency_comparison_limit": "Published baseline tools and monorepo candidate use their separately locked dependency graphs. Report deltas alone are not a fully controlled dependency-version experiment; failing sanitized regression cases independently establish the named rule corrections. Timings are not causal performance comparisons."
   },
   "harness": {
     "analyzer_php": "8.3.33",
