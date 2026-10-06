@@ -1,0 +1,58 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "701b6b1059a58a90104d46ed3380fbd2",
+    "packages": [
+        {
+            "name": "illuminate/console",
+            "version": "12.0.0",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/illuminate-console-12.0.0",
+                "reference": "4528a578837a17eb30d4c30f851e8346eafef417"
+            },
+            "require": {
+                "php": "^8.0"
+            },
+            "type": "metapackage",
+            "transport-options": {
+                "symlink": false,
+                "relative": true
+            }
+        },
+        {
+            "name": "illuminate/support",
+            "version": "12.0.0",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/illuminate-support-12.0.0",
+                "reference": "2cbcc3ee3732e4ca390f90c62aa7f24cc94c1b1b"
+            },
+            "require": {
+                "php": "^8.0"
+            },
+            "type": "metapackage",
+            "transport-options": {
+                "symlink": false,
+                "relative": true
+            }
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": {},
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": {
+        "php": "^8.0"
+    },
+    "platform-dev": {},
+    "platform-overrides": {
+        "php": "8.3.0"
+    },
+    "plugin-api-version": "2.9.0"
+}

@@ -146,6 +146,7 @@ final class LaravelRuleCatalogValidator
             BuiltinRuleDefinition::COMPOSER_VERSION,
             BuiltinRuleDefinition::CURL_EXTENSION,
             BuiltinRuleDefinition::HIGH_SIGNAL_SOURCE,
+            BuiltinRuleDefinition::REMOVED_SOURCE_SYMBOLS,
         ], true)) {
             $errors[] = sprintf('Unsupported built-in rule type for %s: %s.', $rule->key(), $rule->rule());
         }

@@ -7,8 +7,8 @@
         "new_executable_lines_must_be_covered"
     ],
     "overall": {
-        "covered": 10414,
-        "executable": 10968
+        "covered": 12049,
+        "executable": 12531
     },
     "critical_modules": {
         "packages/core/src/Analysis/ScenarioSelector.php": {
@@ -32,8 +32,8 @@
             "executable": 14
         },
         "tools/ReleaseVerifier.php": {
-            "covered": 123,
-            "executable": 123
+            "covered": 264,
+            "executable": 264
         },
         "tools/CoverageVerifier.php": {
             "covered": 129,
@@ -84,8 +84,8 @@
             "executable": 230
         },
         "packages/core/src/Analysis/StageBlockerRegistry.php": {
-            "covered": 47,
-            "executable": 47
+            "covered": 43,
+            "executable": 43
         },
         "packages/core/src/Analysis/StageAttemptPlanner.php": {
             "covered": 41,
@@ -112,30 +112,19 @@
             "executable": 194
         },
         "packages/laravel/src/LaravelRuleFactory.php": {
-            "covered": 75,
-            "executable": 75
+            "covered": 80,
+            "executable": 80
         },
         "packages/laravel/src/LaravelFrameworkDetector.php": {
             "covered": 22,
             "executable": 22
         },
         "packages/laravel/src/Source/LaravelSourceUsageVisitor.php": {
-            "covered": 204,
-            "executable": 230
+            "covered": 210,
+            "executable": 233
         }
     },
     "known_uncovered_fingerprints": {
-        "packages/cli/src/AnalyzeCommand.php": {
-            "089fda954598e49013eb5471edc64ac2a9737a00a0a9a35b882470c9b860d1b3": 1,
-            "0c049cf1444bfb9b41131eea0a974d8ea4750a88dde275f3d9c18627e27dd09b": 1,
-            "34c69c193503669bc7ba33917da4de32e57a415b81c71c4d4e77f7fbe937e042": 1,
-            "381af2f9583cb0ce583078a8c949c381d60e6158b850fd40d5414dddb365631e": 1,
-            "5d06d87bbff164d36dcf9d9ffc3fa2ed750a64e19acdb2f8339bfba63ae25300": 1,
-            "60ba7af81eb55e2d263153f1dbed2b3f24685a556d1199d8807597979fc122fa": 1,
-            "7b8dc726e3f545d0356f43bf4777892615dc003ee3a70e789f039e2448383569": 1,
-            "ad94368e9e126eec1010883894c21797df69542c1d78a462c8ba5a30d326c020": 1,
-            "d168561937225877ce517bbba09ad919cb2a8fce9e759ee7b28041a1ca83554a": 1
-        },
         "packages/cli/src/CommandLineParser.php": {
             "3a52cc190dd7e14c93d807723a7a138e2e467b0c0c17e193f78a899b6ac21f1d": 1
         },
@@ -497,15 +486,11 @@
             "55c5ba7ed1264a9817b8a91a549a3dc499e9da21353260b36f694dd56fdada48": 1,
             "8beaabe25ab7e0a80d1e25bada55a2f5a227101c2210eadf0b368d3c2be4a83f": 1
         },
-        "packages/core/src/Support/OutputExcerpt.php": {
-            "d5e3297b5992bada2d8a755be5e52e2e197c166cf4335b3a67ad105add7a9ff2": 1
-        },
         "packages/core/src/Support/PathExposurePolicy.php": {
             "0563a0b08201707a19223a848b2db2ec5280e54a1eb49205b92c80454c173ade": 3,
             "0bf37874b7af9907cc21dc845f1daf71d4f9392a2ca7a5b474c14db2db91e879": 1,
             "41293580ff1131bcd66b6010e93d5585b00519b1d74fcec481e8fb83695f3034": 1,
             "4ad2292cb6c5c2d31325739acfa4452421493ab7819e55fbaef0c55ac99bab33": 1,
-            "67571cbd9c7bea2a67943f7ebb5b986eaa625a65fd78239ed66b5734c9f06fb7": 1,
             "68a93d84c7657f764799171be8e904d3a65083cb9552f453cebac6b1376aea9d": 1,
             "82eebe2c3ef0fdae3208c53094e13da0941d0b37cb99c1c4a59e44a0934ae473": 1,
             "87de34b67950e86c2b8b2cf8802d428d51392f7d2bb7f78948719c366bc70336": 1,
@@ -611,43 +596,6 @@
         "packages/laravel/src/Rules/LaravelCurlExtensionRule.php": {
             "0bf37874b7af9907cc21dc845f1daf71d4f9392a2ca7a5b474c14db2db91e879": 1
         },
-        "packages/laravel/src/Rules/LaravelHighSignalSourceRule.php": {
-            "09b8a4b4647c9e8cbafe5d75dff2a94d7368e380f6fdb21b9da61dc2ffe48689": 2,
-            "0b1d84afa8147c557f6421ec4023dfd1d02536df1830d0d710143625de44f182": 1,
-            "0ec652ceb8ee27b21560bd9a5c1368df26994cde6f559cf521c08985b8875597": 1,
-            "15d00073a2e454dd736e7db6c2fa0a93bec36d76d925007346b465b39e95a3ba": 2,
-            "1c128ec2b8325e60d256ba230a87d56815537713fcc7fb2eaeaab1e11b9d313a": 1,
-            "245843abef9e72e7efac30138a994bf6301e7e1d7d7042a33d42e863d2638811": 2,
-            "2bbbb07445778806a7c0e6aad2a8d70dfd495de4af6db91ab0398496575268b4": 3,
-            "2f3ba17bd8a62f304e49c5563a276b9efb0ca968610c1308559e2e899fb87f1b": 1,
-            "395a27a41cf1556a74cced4fbef6f6d51c5929ff92dc3b33d0be1d33f43dccf0": 1,
-            "39d4b54e0416be65f3fcb26963ff2c5c40153a3b4044179d7d7c8a6ca2f2bf87": 1,
-            "4c7fccd376647b22026504cf536f90b8dab7d40e0c01c8352f8cbee1636b4203": 2,
-            "4e5e0e12bc2dba670816bebe24ab5e01cb43ced37ac396033abdccee6bf2c808": 2,
-            "52bd7566e5857e63f5b40ada339ae766d4eb5e4e87d9275ae7073a240786e36a": 1,
-            "532256f4a2952450131ee6431b8b751008b0fd0b6fbfc402e3ae512028c23005": 1,
-            "566bad6ac201c4aec0e6d4836a7d643949f073cc6c2cf459aec368f60fb90706": 2,
-            "5983330cc721934e5ae1b53c8971b6221ea18e39cf4a4992f7fc67853cddb019": 1,
-            "670cd817766e401cca615252aa865e5e9d721d22f8a6228600eb5f2a95459137": 1,
-            "73980d436b00d09dc8ca0a6fe7e7a2bfead8d268393ca6c462060c8ebc35f3ec": 1,
-            "81a7095b786346d98c5e01fa137d89262dbdbfe2de13c9d06d7bb8f3f0cab0e9": 1,
-            "92eb4e3352467d4f98f511e7ae946b66e331bae6491f3f9b919ec3860410dda2": 2,
-            "930e65397bdb0675445f80722fe0d0de408b666030118cb37205f7ceafe625eb": 2,
-            "9d8b2b5670d18da8a99f6152f7ee75558019cd106d8032bf7c1117bd37273e37": 2,
-            "a046fe39b2a4441b7530e56bba63d9e8b811e33cce475bb2e6937be5c4aa1b5e": 1,
-            "a177a1f7904d89bd1d0e0857adbc09520322fb9985efce2a21515ca9c8641e11": 2,
-            "acf8181ea8b2062f32e4fa9f27c5cd3ef9b02220d45aa500ab15ac6a477570b1": 1,
-            "b7922c1949a97bedc3fdc93e234b59ef6ac95378e7e2863e531d5896d2847172": 1,
-            "bb01c44bd646ab29df9cea6459a3499be60c142a139c339492375eb110f5ea43": 2,
-            "be244b2d1ac766a25f6ad1d299fd3a6694637c29c4989a1322bb47eef85a5dbf": 1,
-            "c3220dcb855a514db39acecd960dc4eb8c35a33a6f762e2fb5ccc5eafe038ab8": 1,
-            "cfae0d4248f7142f7b17f826cd7a519280e312577690e957830d23dcf35a3fff": 2,
-            "e05ca6ede163775af443935f1d0b4999a1c2401e65dc455c1458baf4f3e098e5": 1,
-            "e9de0ba7be6ba10ce66587aec1132937da2a91c52ab9638d550242bf5ddd98e7": 2,
-            "eb23a60d3f28c76f869aa34d4d70121d1615fa78bf64569a60345348be69383b": 2,
-            "eb42b6b80636ce317a9c284f831cc26c274238994a434aeb61dffce7735aee04": 2,
-            "fa2fe3b820429604b9edd5c0a9cde93edb36597fa5375f04c97143e30b734eae": 2
-        },
         "packages/laravel/src/Rules/LaravelPhpConstraintRule.php": {
             "2352222084698991cc255cc6052f098d263289c7312d3a310a5e58bdff772102": 1,
             "4ad2292cb6c5c2d31325739acfa4452421493ab7819e55fbaef0c55ac99bab33": 1,
@@ -684,8 +632,6 @@
         },
         "packages/laravel/src/Rules/PackageVersionRule.php": {
             "226cb8c5aa754e02fe9435db8e23b6382aaf871837fcb0c7a7b875c8b6cbefbe": 1,
-            "c7221e1192cef51aa9d2ab86a2200fac852bd254ed01b295bd47b2923204ecc5": 1,
-            "ee3f01d0a9d8bc0ed59f8b65d5c6ebc36284487dc48f57507c6ac11d57f817d1": 1,
             "f6c9fa81e9065dcb42c1e8887749632451f59164b194dcc8aa68c38c94478ad1": 1
         },
         "packages/laravel/src/Rules/SymfonyComponentConstraintRule.php": {
@@ -703,10 +649,7 @@
             "38c49581e86aaa4c099b6218c9e81804b0b30347f6056b06dadbe42879e7b866": 1,
             "49478d5ac3f2aa07a17ce2e8023b615c2318a9484c8612386f5ecb59c5c6b6b1": 1,
             "4ac9343c714cfed05fabbd6d65f768440526275ab765a0316a0a62407ca9fafd": 1,
-            "4dcdc3eefa809ad0e9b54179427b498a12af7df92a65982ff7ce52ead66caa46": 1,
-            "6d8772c10d4cd9ca222ce591613410ce8d494e79019a4b86f229854d3f87b5d5": 1,
             "79a0bdfb3c0d9ba5f56755b7d04695b764ab5abe44ba4db98e5023de1d1f6006": 1,
-            "849b60c505073086c5f9d8e60885dd90597b3a3e58e891b686391b5c6c92a484": 1,
             "85378e5ebc8eecc8a1095182453adf9b15b691b8eed7d13d242fd1a9948a0fa4": 1,
             "8beaabe25ab7e0a80d1e25bada55a2f5a227101c2210eadf0b368d3c2be4a83f": 4,
             "95b9f3c8aa008e8f29ab01aa772d7cb9383e37a153ba41683a95563acd1756ed": 1,
@@ -716,9 +659,6 @@
             "feeefa2c9ff502edce7b0c74a13c09d42dc026e0603ec3cb8767faa09e029305": 1
         },
         "packages/laravel/src/UpgradePreflightServiceProvider.php": {
-            "29576b54e255e3c948eea5b5904fa38b81682fdd3cbd9ae841ff0e7bd80d394c": 1,
-            "5b30894c8b00c2b7099128c76b44a810d0deb28a621eb0ba7e7686c2bfd24211": 1,
-            "6253f384646708b2504a7f464ff51338e77f7d1c834b19005939fc7e2b4ffa8a": 1,
             "742c3122dd2c62dffa9397c8c82d753da2d60ddbb6845c8ca282e191131a7e24": 1,
             "9d50cbfb66e8d69b8050ba6723db4093fa7fdb78c78abfbd0f1de0a6f12e5c67": 1
         },

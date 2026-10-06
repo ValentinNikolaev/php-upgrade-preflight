@@ -1447,7 +1447,7 @@
                     {
                         "framework": "laravel",
                         "severity": "low",
-                        "summary": "laravel/ui v2.5.0 is outside the encoded Laravel 9 review range `^4.0`; review its upgrade or replacement.",
+                        "summary": "laravel/ui v2.5.0 is outside the encoded Laravel 9 review range `^3.4|^4.0`; review its upgrade or replacement.",
                         "applies_to_hops": [
                             {
                                 "from_major": 8,
@@ -1921,7 +1921,7 @@
         {
             "framework": "laravel",
             "severity": "low",
-            "summary": "laravel/ui v2.5.0 is outside the encoded Laravel 9 review range `^4.0`; review its upgrade or replacement.",
+            "summary": "laravel/ui v2.5.0 is outside the encoded Laravel 9 review range `^3.4|^4.0`; review its upgrade or replacement.",
             "applies_to_hops": [
                 {
                     "from_major": 8,
@@ -3495,14 +3495,16 @@
         {
             "id": "laravel-package-guidance-8",
             "class": "E4",
-            "summary": "The encoded Laravel 9 guidance maps laravel/ui to `^4.0`.",
+            "summary": "The encoded Laravel 9 guidance maps laravel/ui to `^3.4|^4.0`.",
             "confidence": "medium",
             "context": {
                 "package": "laravel/ui",
                 "target_laravel_major": 9,
-                "compatible_package_constraint": "^4.0",
+                "compatible_package_constraint": "^3.4|^4.0",
                 "sources": [
-                    "https://github.com/laravel/ui/blob/4.x/composer.json"
+                    "https://github.com/laravel/ui/blob/b3e804559bf3973ecca160a4ae1068e6c7c167c6/composer.json",
+                    "https://github.com/laravel/ui/blob/65ec5c03f7fee2c8ecae785795b829a15be48c2c/composer.json",
+                    "https://github.com/laravel/ui/blob/e6291e8083cb5255511eacd6da0ec078210beabd/composer.json"
                 ]
             }
         },

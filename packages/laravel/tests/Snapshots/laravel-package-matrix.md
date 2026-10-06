@@ -215,7 +215,7 @@ Resolution: **blocked** | Staged: **blocked** | Schema: `0.8` | Tool: `php-upgra
   - original-source finding (`medium`): Remove fideloper/proxy and review the trusted proxy middleware for the Laravel 9 target.
   - original-source finding (`medium`): Review removal of fruitcake/laravel-cors because Laravel 9 integrates CORS middleware through the framework.
   - original-source finding (`medium`): nunomaduro/collision v4.3.0 is outside the encoded Laravel 9 review range `^6.1`; review its upgrade or replacement.
-  - original-source finding (`low`): laravel/ui v2.5.0 is outside the encoded Laravel 9 review range `^4.0`; review its upgrade or replacement.
+  - original-source finding (`low`): laravel/ui v2.5.0 is outside the encoded Laravel 9 review range `^3.4|^4.0`; review its upgrade or replacement.
   - original-source finding (`medium`): orchestra/testbench v5.4.0 is outside the encoded Laravel 9 review range `^7.0`; review its upgrade or replacement.
   - blocker references: `none`
   - source-impact references: `none`
@@ -285,7 +285,7 @@ Resolution: **blocked** | Staged: **blocked** | Schema: `0.8` | Tool: `php-upgra
   - applies to hops: `8 -> 9`
 - `laravel` `medium`: nunomaduro/collision v4.3.0 is outside the encoded Laravel 9 review range `^6.1`; review its upgrade or replacement. (evidence: `laravel-package-nunomaduro_collision-1`, `laravel-package-guidance-7`)
   - applies to hops: `8 -> 9`
-- `laravel` `low`: laravel/ui v2.5.0 is outside the encoded Laravel 9 review range `^4.0`; review its upgrade or replacement. (evidence: `laravel-package-laravel_ui-1`, `laravel-package-guidance-8`)
+- `laravel` `low`: laravel/ui v2.5.0 is outside the encoded Laravel 9 review range `^3.4|^4.0`; review its upgrade or replacement. (evidence: `laravel-package-laravel_ui-1`, `laravel-package-guidance-8`)
   - applies to hops: `8 -> 9`
 - `laravel` `medium`: orchestra/testbench v5.4.0 is outside the encoded Laravel 9 review range `^7.0`; review its upgrade or replacement. (evidence: `laravel-package-orchestra_testbench-1`, `laravel-package-guidance-9`)
   - applies to hops: `8 -> 9`
@@ -388,7 +388,7 @@ Resolution: **blocked** | Staged: **blocked** | Schema: `0.8` | Tool: `php-upgra
 - `laravel-package-nunomaduro_collision-1` (`E2`, high confidence): nunomaduro/collision is present in Composer metadata. Context: `{"package":"nunomaduro/collision","locked_version":"v4.3.0","root_constraint":"^4.0","framework_requirements":[],"target_laravel_major":9}`
 - `laravel-package-guidance-7` (`E4`, medium confidence): The encoded Laravel 9 guidance maps nunomaduro/collision to `^6.1`. Context: `{"package":"nunomaduro/collision","target_laravel_major":9,"compatible_package_constraint":"^6.1","sources":["https://laravel.com/docs/9.x/upgrade"]}`
 - `laravel-package-laravel_ui-1` (`E2`, high confidence): laravel/ui is present in Composer metadata. Context: `{"package":"laravel/ui","locked_version":"v2.5.0","root_constraint":"^2.0","framework_requirements":[],"target_laravel_major":9}`
-- `laravel-package-guidance-8` (`E4`, medium confidence): The encoded Laravel 9 guidance maps laravel/ui to `^4.0`. Context: `{"package":"laravel/ui","target_laravel_major":9,"compatible_package_constraint":"^4.0","sources":["https://github.com/laravel/ui/blob/4.x/composer.json"]}`
+- `laravel-package-guidance-8` (`E4`, medium confidence): The encoded Laravel 9 guidance maps laravel/ui to `^3.4|^4.0`. Context: `{"package":"laravel/ui","target_laravel_major":9,"compatible_package_constraint":"^3.4|^4.0","sources":["https://github.com/laravel/ui/blob/b3e804559bf3973ecca160a4ae1068e6c7c167c6/composer.json","https://github.com/laravel/ui/blob/65ec5c03f7fee2c8ecae785795b829a15be48c2c/composer.json","https://github.com/laravel/ui/blob/e6291e8083cb5255511eacd6da0ec078210beabd/composer.json"]}`
 - `laravel-package-orchestra_testbench-1` (`E2`, high confidence): orchestra/testbench is present in Composer metadata. Context: `{"package":"orchestra/testbench","locked_version":"v5.4.0","root_constraint":"^5.0","framework_requirements":[],"target_laravel_major":9}`
 - `laravel-package-guidance-9` (`E4`, medium confidence): The encoded Laravel 9 guidance maps orchestra/testbench to `^7.0`. Context: `{"package":"orchestra/testbench","target_laravel_major":9,"compatible_package_constraint":"^7.0","sources":["https://github.com/orchestral/testbench/blob/7.x/composer.json"]}`
 - `root-constraint-1` (`E2`, high confidence): Compared the root requirement for laravel/framework with the requested target. Context: `{"package":"laravel/framework","from_constraint":"^7.0","to_constraint":"^9.0"}`

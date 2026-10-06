@@ -143,6 +143,11 @@ final class LaravelRuleFactory
             ): CompatibilityRule {
                 return new LaravelHighSignalSourceRule($definition);
             },
+            BuiltinRuleDefinition::REMOVED_SOURCE_SYMBOLS => static function (
+                BuiltinRuleDefinition $definition
+            ): CompatibilityRule {
+                return new LaravelHighSignalSourceRule($definition);
+            },
         ];
     }
 }

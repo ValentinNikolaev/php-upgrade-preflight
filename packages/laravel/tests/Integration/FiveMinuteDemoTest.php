@@ -131,13 +131,13 @@ final class FiveMinuteDemoTest extends TestCase
         self::assertCount(1, $report->actionableSourceImpact());
         $sourceImpact = $report->actionableSourceImpact()[0]->toArray();
         self::assertSame('framework_rule', $sourceImpact['relevance']);
-        self::assertSame('high', $sourceImpact['severity']);
+        self::assertSame('medium', $sourceImpact['severity']);
         self::assertSame('tests/Feature/LegacyCsrfTest.php', $sourceImpact['occurrences'][0]['file']);
         self::assertSame('Illuminate\\Foundation\\Http\\Middleware\\VerifyCsrfToken', $sourceImpact['occurrences'][0]['symbol']);
 
         $summaries = array_map(static fn ($finding): string => $finding->summary(), $report->frameworkFindings());
         self::assertContains(
-            'phpunit/phpunit 10.0.0 is outside the encoded Laravel 11 review range `^11.0.1`; review its upgrade or replacement.',
+            'phpunit/phpunit 10.0.0 is outside the encoded Laravel 11 review range `^10.5.35|^11.0.1|^12.0.1`; review its upgrade or replacement.',
             $summaries
         );
         self::assertContains(
@@ -149,7 +149,7 @@ final class FiveMinuteDemoTest extends TestCase
             $summaries
         );
         self::assertContains(
-            'Replace 1 detected direct reference to VerifyCsrfToken or ValidateCsrfToken with PreventRequestForgery before targeting Laravel 13.',
+            'Review 1 detected direct reference to VerifyCsrfToken or ValidateCsrfToken for PreventRequestForgery when targeting Laravel 13; deprecated aliases remain available.',
             $summaries
         );
 
