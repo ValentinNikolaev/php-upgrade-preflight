@@ -34,12 +34,12 @@ Unless a section says otherwise, a successful command exits with `0`, a detected
 **Safe use.** This is read-only and offline. It verifies repository files but does not clone or push a `.wiki.git` repository. A historical baseline records missing old evidence but cannot authorize a release. Run the command only after recording real candidate evidence and before creating a tag:
 
 ```bash
-php tools/verify-release.php 0.3.4
+php tools/verify-release.php 0.3.5
 # Equivalent Composer entry point:
-composer release:verify -- 0.3.4
+composer release:verify -- 0.3.5
 ```
 
-**Input and output.** The only input is a version without the `v` prefix. Success prints a confirmation; each inconsistency is printed as an `ERROR:` line. `v0.3.4`, `0.2.9`, and incomplete versions are rejected by the current release-series policy.
+**Input and output.** The only input is a version without the `v` prefix. Success prints a confirmation; each inconsistency is printed as an `ERROR:` line. `v0.3.5`, `0.2.9`, and incomplete versions are rejected by the current release-series policy.
 
 **CI/release role.** It is the first metadata gate in `.github/workflows/release.yml`. The PHP implementation is split between the entry point and `tools/ReleaseVerifier.php`.
 
@@ -57,7 +57,7 @@ The monorepo has five packages, but only three are published as end-user distrib
 
 ### `prepare-distribution.sh`
 
-**Purpose.** Clones the three distribution repositories, replaces their tracked content with the package subtree plus shared `LICENSE`, `README.md`, `CHANGELOG.md`, `SECURITY.md`, and `docs/`, stages the result, and verifies the copied tree.
+**Purpose.** Clones the three distribution repositories, replaces their tracked content with the package subtree plus shared `LICENSE`, `README.md`, `CHANGELOG.md`, `SECURITY.md`, and `docs/`, stages the result, and verifies the copied tree. Staged file modes come from the committed source tree, not host stat bits; copied blob bytes are retained. Review exact Git path/blob/mode parity before signing, including after any final `git add`. The filesystem payload verifier checks content and executable bits, not the Git index.
 
 **Safe use.** Use Bash, a clean monorepo working tree, network access, and Git credentials sufficient to clone the repositories. The script deletes and rebuilds the three package directories and three `expected-*` directories **inside the selected work directory**. Choose a dedicated directory; never point it at a directory containing work you want to keep.
 
@@ -81,10 +81,10 @@ bash tools/prepare-distribution.sh /tmp/php-upgrade-preflight-dist
 
 ```bash
 # Inspect commands without changing the clones or remotes
-bash tools/release-distribution.sh --tag v0.3.4 --dry-run
+bash tools/release-distribution.sh --tag v0.3.5 --dry-run
 
 # Use a non-default prepared directory, still with confirmations
-bash tools/release-distribution.sh --tag v0.3.4 --work /tmp/php-upgrade-preflight-dist
+bash tools/release-distribution.sh --tag v0.3.5 --work /tmp/php-upgrade-preflight-dist
 ```
 
 Options:
@@ -99,7 +99,7 @@ Options:
 
 If no tag is supplied, the tool proposes the newest dated version in `CHANGELOG.md`. Repositories where the tag already exists locally or remotely are skipped, which supports resuming a partial release. At the end it prints the separate commands for signing and pushing the monorepo tag; it does not run them.
 
-> Before any new release tag is created, the repository Wiki must be updated for that release. This is a maintainer and agent responsibility; `verify-release.php` currently verifies changelog and release-notes files, not Wiki freshness.
+> Before any new release tag is created, the repository Wiki must be updated for that release. This is a maintainer and agent responsibility. `verify-release.php` checks offline materialized Wiki freshness and recorded four-destination evidence as well as changelog and release notes; it neither contacts nor publishes remote Wiki repositories.
 
 ### `verify-distribution-payload.php`
 
@@ -129,16 +129,16 @@ All options use `--name=value` syntax.
 
 ```bash
 php tools/release-artifact-metadata.php generate \
-  --version=0.3.4 \
+  --version=0.3.5 \
   --dist=dist \
   --repository=https://github.com/ValentinNikolaev/php-upgrade-preflight \
   --commit=0123456789abcdef0123456789abcdef01234567 \
-  --ref=refs/tags/v0.3.4 \
+  --ref=refs/tags/v0.3.5 \
   --workflow=.github/workflows/release.yml \
   --run-uri=https://github.com/OWNER/REPO/actions/runs/RUN_ID
 
 php tools/release-artifact-metadata.php verify \
-  --version=0.3.4 \
+  --version=0.3.5 \
   --dist=dist
 ```
 
@@ -154,7 +154,7 @@ php tools/release-artifact-metadata.php verify \
 
 ```bash
 php tools/verify-installed-package-references.php \
-  0.3.4 \
+  0.3.5 \
   /tmp/consumer/composer.lock \
   CORE_TAG_COMMIT \
   CLI_TAG_COMMIT \
