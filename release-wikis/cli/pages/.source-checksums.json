@@ -30,14 +30,14 @@
         {
             "source": "wiki/Writing-a-Framework-Adapter.md",
             "destination": "Writing-a-Framework-Adapter.md",
-            "source_sha256": "30fce1eee1ac0ec19a96db9b9fd2e4a64248cabfcd4d6e445eb0dd7297f5e31b",
-            "materialized_sha256": "b9739deb2441bcb25535dce5d2e718d768311e66332d92ab4de3bbcc248d8c1e"
+            "source_sha256": "c8a39076149fc4cdc73fb9d04ddc0aa28d450c9c09964e268463852695f88cd5",
+            "materialized_sha256": "e90b11ccf0fa32901232c02768b824db19c7153d2a0809c9b28bcf5fed338358"
         },
         {
             "source": "wiki/Safety-and-Trust-Boundaries.md",
             "destination": "Safety-and-Trust-Boundaries.md",
-            "source_sha256": "35c92fd944f041d0b50e15c37982ff1e8eda71837634d35b0f0c5c5de7945c7e",
-            "materialized_sha256": "804259602cfcca18dc10380c171c50859b7927a41b4872d02e29dbeac8071b0f"
+            "source_sha256": "302997249ab78a61f10c0ed78fcc38c291f59aa4e6ffb8d9052bfdd98b86fbf9",
+            "materialized_sha256": "1239daac8eb3fe9c4ac790ac949ce125bd011eb1e2bef3109cbb3afa3e0d2f39"
         },
         {
             "source": "wiki/Troubleshooting-and-FAQ.md",

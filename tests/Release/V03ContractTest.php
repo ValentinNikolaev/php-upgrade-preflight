@@ -31,7 +31,7 @@ final class V03ContractTest extends TestCase
         $this->contract = $this->readJson($this->root . '/tests/fixtures/contracts/v0.3.json');
     }
 
-    public function testReportDimensionsStatusesAndStopConditionsAreExhaustive(): void
+    public function testReportDimensionsAndBuiltInStopReasonsAreExplicit(): void
     {
         $dimensions = $this->contract['report_dimensions'];
         self::assertSame([
@@ -47,19 +47,41 @@ final class V03ContractTest extends TestCase
         self::assertSame([StageAnalysis::EXECUTED, StageAnalysis::SKIPPED], $stage['execution_states']);
         self::assertSame(StagedResolution::statuses(), $stage['resolution_statuses']);
         self::assertSame([
-            'missing_target',
-            'ambiguous_transition',
-            'guidance_gap',
-            FrameworkStagePlan::REASON_ANALYSIS_PHP_UNAVAILABLE,
-            'solver_blocker',
-            'timeout',
-            'stage_timeout',
-            'aggregate_timeout',
-            'operational_failure',
-            'provider_conflict',
-            'hop_budget',
-            'process_budget',
-        ], array_keys($stage['stop_conditions']));
+            'built_in_v0_3_values_exhaustive' => true,
+            'consumers_tolerate_unknown_nonempty_values' => true,
+            'staged_resolution' => [
+                'skipped_unknown' => [
+                    'project_input_failure',
+                    'stage_target_provider_unavailable',
+                    'multiple_stage_target_providers',
+                    'invalid_stage_plan',
+                    'missing_target',
+                    'ambiguous_transition',
+                    'guidance_gap',
+                    'unsupported_transition',
+                    FrameworkStagePlan::REASON_ANALYSIS_PHP_UNAVAILABLE,
+                    'hop_budget_exceeded',
+                    'process_budget_exceeded',
+                ],
+                'evaluated_blocked' => ['blocking_registry_not_cleared'],
+                'evaluated_unknown' => [
+                    'timeout',
+                    'stage_timeout',
+                    'aggregate_timeout',
+                    'operational_failure',
+                ],
+            ],
+            'stage' => [
+                'evaluated_blocked' => ['blocking_registry_not_cleared'],
+                'evaluated_unknown' => [
+                    'timeout',
+                    'stage_timeout',
+                    'aggregate_timeout',
+                    'operational_failure',
+                ],
+                'skipped_null' => ['previous_stage_blocked', 'previous_stage_unknown'],
+            ],
+        ], $stage['serialized_stop_reasons']);
         self::assertSame('skipped', $stage['later_stages_after_stop']);
         self::assertSame('original_project', $stage['source_snapshot']);
         self::assertTrue($stage['source_change_application_forbidden']);
@@ -187,6 +209,32 @@ final class V03ContractTest extends TestCase
             'markdown_report_bytes' => StagedAnalysisPolicy::MARKDOWN_REPORT_BUDGET_BYTES,
         ], $this->contract['budgets']);
 
+        self::assertArrayHasKey('budget_enforcement', $this->contract);
+        $budgetEnforcement = $this->contract['budget_enforcement'];
+        self::assertSame([
+            'max_hops',
+            'max_attempts_per_stage',
+            'max_composer_processes',
+            'scenario_timeout_seconds',
+            'stage_timeout_seconds',
+            'aggregate_timeout_seconds',
+            'scenario_timeout_application',
+            'aggregate_start_gate',
+        ], $budgetEnforcement['runtime_enforced']);
+        self::assertSame(['max_scenarios'], $budgetEnforcement['derived_invariant']);
+        self::assertSame([
+            'memory_bytes',
+            'json_report_bytes',
+            'markdown_report_bytes',
+        ], $budgetEnforcement['advisory_ci_targets']);
+        $classifiedBudgetKeys = array_merge(
+            $budgetEnforcement['runtime_enforced'],
+            $budgetEnforcement['derived_invariant'],
+            $budgetEnforcement['advisory_ci_targets']
+        );
+        self::assertCount(count(array_unique($classifiedBudgetKeys)), $classifiedBudgetKeys);
+        self::assertEqualsCanonicalizing(array_keys($this->contract['budgets']), $classifiedBudgetKeys);
+
         $canonicalBudgets = [
             'max_hops' => StagedAnalysisPolicy::MAX_HOPS,
             'max_attempts_per_stage' => StagedAnalysisPolicy::MAX_ATTEMPTS_PER_STAGE,
@@ -218,6 +266,17 @@ final class V03ContractTest extends TestCase
         }
 
         self::assertCount(7, $this->contract['ordering']);
+    }
+
+    public function testStateFingerprintStabilityDoesNotPromiseIdenticalComposerResults(): void
+    {
+        self::assertSame([
+            'sanitized_manifest',
+            'sanitized_lock',
+            'effective_platform',
+            'execution_policy',
+        ], $this->contract['state_fingerprints']['cross_host_stability_requires']);
+        self::assertFalse($this->contract['state_fingerprints']['composer_result_chain_guaranteed_across_hosts']);
     }
 
     public function testComposerExecutionModesThreatModelAndDefaultsAreLocked(): void

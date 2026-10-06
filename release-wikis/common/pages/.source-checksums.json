@@ -48,8 +48,8 @@
         {
             "source": "wiki/Report-Schema.md",
             "destination": "Report-Schema.md",
-            "source_sha256": "6439e605e68870721d78dceedcdba9288c96563031922d4e93860599996ab79e",
-            "materialized_sha256": "162030e835a64aca16ddc8d450073873cbed8945000785af55c87cceff73e1dd"
+            "source_sha256": "65b7740a4bb499412939d4db9921c1c2ad55f5d12f6333f2ed3794507ea063d7",
+            "materialized_sha256": "a90ee52649d9c836b735e0c668d8ecaf3c57bbbf5f873ff0bfd00e8a48faadba"
         },
         {
             "source": "wiki/Determinism-and-Evidence.md",
@@ -60,8 +60,8 @@
         {
             "source": "wiki/Core-Package-Guide.md",
             "destination": "Core-Package-Guide.md",
-            "source_sha256": "20ff72ed3656488e4c243b0420e74abfe6d9450999bbfa4308dc7b2eb179e535",
-            "materialized_sha256": "20ff72ed3656488e4c243b0420e74abfe6d9450999bbfa4308dc7b2eb179e535"
+            "source_sha256": "d672603798ec5a35b50cd3429bb3a54c54d0fe38f5aac39c5c83c735091e267a",
+            "materialized_sha256": "d672603798ec5a35b50cd3429bb3a54c54d0fe38f5aac39c5c83c735091e267a"
         },
         {
             "source": "wiki/Core-Service-Reference.md",
@@ -72,8 +72,8 @@
         {
             "source": "wiki/Core-Analysis-Pipeline.md",
             "destination": "Core-Analysis-Pipeline.md",
-            "source_sha256": "81f900d613b1aa3b753c4e941c4ffc9cc4b64c232e878f9238fc8ff6d1ba041c",
-            "materialized_sha256": "81f900d613b1aa3b753c4e941c4ffc9cc4b64c232e878f9238fc8ff6d1ba041c"
+            "source_sha256": "f8229464a630f5fb5b25cb09ea852a3636fdce74bce326dc485370fab7f4d0d3",
+            "materialized_sha256": "f8229464a630f5fb5b25cb09ea852a3636fdce74bce326dc485370fab7f4d0d3"
         },
         {
             "source": "wiki/CLI-Reference.md",
@@ -108,8 +108,8 @@
         {
             "source": "wiki/Writing-a-Framework-Adapter.md",
             "destination": "Writing-a-Framework-Adapter.md",
-            "source_sha256": "30fce1eee1ac0ec19a96db9b9fd2e4a64248cabfcd4d6e445eb0dd7297f5e31b",
-            "materialized_sha256": "30fce1eee1ac0ec19a96db9b9fd2e4a64248cabfcd4d6e445eb0dd7297f5e31b"
+            "source_sha256": "c8a39076149fc4cdc73fb9d04ddc0aa28d450c9c09964e268463852695f88cd5",
+            "materialized_sha256": "c8a39076149fc4cdc73fb9d04ddc0aa28d450c9c09964e268463852695f88cd5"
         },
         {
             "source": "wiki/Test-Adapters.md",
@@ -120,8 +120,8 @@
         {
             "source": "wiki/Safety-and-Trust-Boundaries.md",
             "destination": "Safety-and-Trust-Boundaries.md",
-            "source_sha256": "35c92fd944f041d0b50e15c37982ff1e8eda71837634d35b0f0c5c5de7945c7e",
-            "materialized_sha256": "35c92fd944f041d0b50e15c37982ff1e8eda71837634d35b0f0c5c5de7945c7e"
+            "source_sha256": "302997249ab78a61f10c0ed78fcc38c291f59aa4e6ffb8d9052bfdd98b86fbf9",
+            "materialized_sha256": "302997249ab78a61f10c0ed78fcc38c291f59aa4e6ffb8d9052bfdd98b86fbf9"
         },
         {
             "source": "wiki/Tools-Reference.md",
@@ -132,8 +132,8 @@
         {
             "source": "wiki/Quality-and-Release-Tooling.md",
             "destination": "Quality-and-Release-Tooling.md",
-            "source_sha256": "ff43100dd4232c7b0ddb2f910c83750defbd0fcdebe7a77c7fbf3c181d09d72f",
-            "materialized_sha256": "ff43100dd4232c7b0ddb2f910c83750defbd0fcdebe7a77c7fbf3c181d09d72f"
+            "source_sha256": "a2a547aa4a9c3d6cc88c6d86e321a82ec37b6006ebb597950ba1b42a1dd10409",
+            "materialized_sha256": "a2a547aa4a9c3d6cc88c6d86e321a82ec37b6006ebb597950ba1b42a1dd10409"
         },
         {
             "source": "wiki/Release-Wiki-Strategy.md",
@@ -144,8 +144,8 @@
         {
             "source": "wiki/Contributing.md",
             "destination": "Contributing.md",
-            "source_sha256": "3a2c880a4f69367db36068266bba2488e631b8b2edc2677621e00957b23df3b2",
-            "materialized_sha256": "3a2c880a4f69367db36068266bba2488e631b8b2edc2677621e00957b23df3b2"
+            "source_sha256": "47c3efc3c54b78032c78c3c335b5f1f1eb3cd14185602165b996ae81ccc32c7a",
+            "materialized_sha256": "47c3efc3c54b78032c78c3c335b5f1f1eb3cd14185602165b996ae81ccc32c7a"
         },
         {
             "source": "wiki/Roadmap-and-Status.md",

@@ -416,11 +416,9 @@ Later stages use selected candidate project state from earlier successful stages
 
 `StagedAnalysisPolicy` aliases its constants for the analysis layer.
 
-Budgets cover hops, attempts, scenarios, Composer processes, time, memory, and report sizes.
+The hop, attempt, Composer-process, and time limits are enforced during staged analysis; the scenario maximum is derived from the hop and attempt limits. Memory and report-size values are advisory targets checked against test fixtures, not runtime caps for arbitrary projects.
 
-Some limits are enforced and some are advisory.
-
-Read `AnalysisBudget` before claiming that every serialized budget is a hard runtime cap.
+Schema 0.8 serializes both kinds of value in one `budgets` object without enforcement modes or observed measurements. Structured distinctions and measurements require a new schema version and an intentional minor-line migration.
 
 ## Risk and effort
 

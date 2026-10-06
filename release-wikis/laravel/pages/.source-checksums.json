@@ -36,8 +36,8 @@
         {
             "source": "wiki/Safety-and-Trust-Boundaries.md",
             "destination": "Safety-and-Trust-Boundaries.md",
-            "source_sha256": "35c92fd944f041d0b50e15c37982ff1e8eda71837634d35b0f0c5c5de7945c7e",
-            "materialized_sha256": "696594fe617f21b3b9f5919317c031d3f1b2255987e643877b996db7f099de22"
+            "source_sha256": "302997249ab78a61f10c0ed78fcc38c291f59aa4e6ffb8d9052bfdd98b86fbf9",
+            "materialized_sha256": "850558584be75308211b0b5da7df29d1f579eae781dfd308c6cd662fcf8eeae5"
         },
         {
             "source": "wiki/Troubleshooting-and-FAQ.md",

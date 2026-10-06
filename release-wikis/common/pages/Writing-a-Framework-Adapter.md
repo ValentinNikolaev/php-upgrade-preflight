@@ -124,6 +124,8 @@ Composer packages are discovered in lexical package-name order. Active integrati
 
 An unreadable adapter manifest skips only that package and produces a diagnostic. An accepted manifest that advertises a missing, invalid, duplicate, or colliding class fails analyzer construction. An explicitly requested unavailable adapter is invalid invocation exit `2`.
 
+Installed adapters are trusted PHP code and run in the analyzer process with its filesystem, network, environment, and credential privileges. Only install adapters you trust with those privileges. Exception containment preserves a report after a runtime defect; it is not process isolation and cannot prevent or reverse side effects.
+
 ## Add compatibility rules
 
 Each value from `rules()` implements `CompatibilityRule`:
@@ -164,6 +166,8 @@ return new CompatibilityFinding(
 ```
 
 Never copy credentials, repository URLs containing authentication, absolute local paths, or unnecessary source excerpts into evidence context. A throwing rule is contained as uncertainty so the report can finish, but this is degradation, not a supported operating mode.
+
+Core similarly contains runtime failures from automatic detection, default source paths, transition assessment, package-family classification, and source collectors. The affected contribution is omitted, other adapters continue, and evidence-backed uncertainty names the failure. Explicit selection bypasses `detect()`. Invalid registration and unavailable explicitly requested names remain fail-fast input errors.
 
 Implement `HopAwareCompatibilityRule` when the result belongs to a specific supported transition. Its `evaluateForHop()` is called per hop when transition guidance exists; otherwise Core falls back to ordinary `evaluate()`.
 

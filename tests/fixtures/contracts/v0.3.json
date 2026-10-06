@@ -46,19 +46,48 @@
             "blocked",
             "unknown"
         ],
-        "stop_conditions": {
-            "missing_target": "skipped:unknown",
-            "ambiguous_transition": "skipped:unknown",
-            "guidance_gap": "skipped:unknown",
-            "analysis_php_unavailable": "skipped:unknown",
-            "solver_blocker": "evaluated:blocked",
-            "timeout": "evaluated:unknown",
-            "stage_timeout": "evaluated:unknown",
-            "aggregate_timeout": "evaluated:unknown",
-            "operational_failure": "evaluated:unknown",
-            "provider_conflict": "skipped:unknown",
-            "hop_budget": "skipped:unknown",
-            "process_budget": "skipped:unknown"
+        "serialized_stop_reasons": {
+            "built_in_v0_3_values_exhaustive": true,
+            "consumers_tolerate_unknown_nonempty_values": true,
+            "staged_resolution": {
+                "skipped_unknown": [
+                    "project_input_failure",
+                    "stage_target_provider_unavailable",
+                    "multiple_stage_target_providers",
+                    "invalid_stage_plan",
+                    "missing_target",
+                    "ambiguous_transition",
+                    "guidance_gap",
+                    "unsupported_transition",
+                    "analysis_php_unavailable",
+                    "hop_budget_exceeded",
+                    "process_budget_exceeded"
+                ],
+                "evaluated_blocked": [
+                    "blocking_registry_not_cleared"
+                ],
+                "evaluated_unknown": [
+                    "timeout",
+                    "stage_timeout",
+                    "aggregate_timeout",
+                    "operational_failure"
+                ]
+            },
+            "stage": {
+                "evaluated_blocked": [
+                    "blocking_registry_not_cleared"
+                ],
+                "evaluated_unknown": [
+                    "timeout",
+                    "stage_timeout",
+                    "aggregate_timeout",
+                    "operational_failure"
+                ],
+                "skipped_null": [
+                    "previous_stage_blocked",
+                    "previous_stage_unknown"
+                ]
+            }
         },
         "later_stages_after_stop": "skipped",
         "source_snapshot": "original_project",
@@ -276,6 +305,35 @@
         "memory_bytes": 268435456,
         "json_report_bytes": 524288,
         "markdown_report_bytes": 262144
+    },
+    "budget_enforcement": {
+        "runtime_enforced": [
+            "max_hops",
+            "max_attempts_per_stage",
+            "max_composer_processes",
+            "scenario_timeout_seconds",
+            "stage_timeout_seconds",
+            "aggregate_timeout_seconds",
+            "scenario_timeout_application",
+            "aggregate_start_gate"
+        ],
+        "derived_invariant": [
+            "max_scenarios"
+        ],
+        "advisory_ci_targets": [
+            "memory_bytes",
+            "json_report_bytes",
+            "markdown_report_bytes"
+        ]
+    },
+    "state_fingerprints": {
+        "cross_host_stability_requires": [
+            "sanitized_manifest",
+            "sanitized_lock",
+            "effective_platform",
+            "execution_policy"
+        ],
+        "composer_result_chain_guaranteed_across_hosts": false
     },
     "ci_worst_chain": {
         "fixture": "laravel-7-to-13-budget",

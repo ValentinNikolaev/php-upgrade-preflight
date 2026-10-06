@@ -241,6 +241,8 @@ evidence
 
 Execution state is `evaluated` or `skipped`. Status uses the same four-value feasibility enum. Read execution state first: skipped/unknown is not a Composer blocker.
 
+The nullable top-level `stop_reason` currently uses these built-in values: `project_input_failure`, `stage_target_provider_unavailable`, `multiple_stage_target_providers`, `invalid_stage_plan`, `missing_target`, `ambiguous_transition`, `guidance_gap`, `unsupported_transition`, `analysis_php_unavailable`, `hop_budget_exceeded`, `process_budget_exceeded`, `blocking_registry_not_cleared`, `timeout`, `stage_timeout`, `aggregate_timeout`, and `operational_failure`. A stage's nullable `stop_reason` currently uses `blocking_registry_not_cleared`, `timeout`, `stage_timeout`, `aggregate_timeout`, `operational_failure`, `previous_stage_blocked`, and `previous_stage_unknown`. These are current producer values, not closed schema enums. Branch on execution state and status, and retain an unfamiliar nonempty reason for diagnostics instead of rejecting the report.
+
 ### Budgets
 
 Current canonical values reported by schema 0.8 include:
@@ -257,7 +259,9 @@ Current canonical values reported by schema 0.8 include:
 | `json_report_bytes` | 524288 |
 | `markdown_report_bytes` | 262144 |
 
-`scenario_timeout_seconds` reflects the request. Consumers should read the object, not hard-code this table.
+Hop, attempt, Composer-process, and timeout values are enforced during staged analysis; the scenario maximum is derived from the hop and attempt limits. The memory and report-size values are advisory targets checked against test fixtures, not runtime caps for arbitrary projects. Exceeding them does not itself stop analysis or truncate the report. Schema 0.8 does not identify enforcement mode or include observed measurements or omission counts. Those structured fields require a new schema version and an intentional minor-line migration.
+
+Consumers should read the object, not hard-code this table.
 
 ### Stage
 

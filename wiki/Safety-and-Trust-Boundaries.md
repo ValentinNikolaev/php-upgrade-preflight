@@ -227,6 +227,8 @@ Never call a profile complete unless the deployment owner has inventoried the re
 
 The scanner parses PHP syntax statically. It does not execute code, resolve service-container bindings, evaluate dynamic class names, or infer string-built symbols.
 
+The default scan retains at most 10,000 deterministically ordered PHP files, reads at most 2 MiB from one file and 64 MiB in aggregate, and retains at most 10,000 unique usages. Reaching a limit skips the remaining work in that dimension and adds `E3` evidence plus uncertainty with the threshold and omission count. Embedded Core users can inject `SourceScanLimits` to configure positive limits.
+
 It can miss or downgrade confidence for:
 
 - parse errors;
@@ -242,13 +244,15 @@ It can miss or downgrade confidence for:
 
 Staged findings are always projected from the original source snapshot. The analyzer does not simulate source edits between stages.
 
+Composer input and the selected source set are fingerprinted around long-running analysis phases. Concurrent additions, removals, or edits produce input-drift uncertainty. This detects a non-atomic run; it does not lock the checkout or reconstruct one historical snapshot. Analyze an immutable checkout when every report section must describe exactly the same state.
+
 ## Framework-guidance limits
 
 Laravel guidance coverage is independent of Composer feasibility. A rule pack can be `supported` while direct or staged resolution is blocked. Conversely, Composer may resolve a target for which safe migration guidance is partial or unsupported.
 
 Encoded package ranges, maintainer links, and skeleton patterns identify review work. They do not replace official upgrade guides. Skeleton findings are low-confidence comparison points, not confirmed incompatibilities.
 
-An adapter rule failure is contained and recorded as uncertainty so the report can still be produced. Therefore “no findings” must always be read alongside `uncertainties`.
+Installed adapters are trusted in-process PHP with the analyzer's filesystem, network, environment, and credential privileges. Runtime exceptions from detection, default paths, transition guidance, package-family classification, source collectors, or compatibility rules are contained and recorded as evidence-backed uncertainty so the report can still be produced. Containment is not a security boundary and cannot undo adapter side effects. Therefore “no findings” must always be read alongside `uncertainties`.
 
 ## Exit status boundary
 

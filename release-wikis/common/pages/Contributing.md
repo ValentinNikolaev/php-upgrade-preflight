@@ -79,7 +79,7 @@ Coverage is an exact ratchet: overall and critical-module ratios cannot decline,
 php tools/verify-coverage.php build/coverage/clover.xml --write-baseline
 ```
 
-Selective mutations must all be killed by their focused tests. The integration suite also enforces process, runtime, memory, privacy, report-size, and determinism budgets for representative and worst staged chains.
+Selective mutations must all be killed by their focused tests. The integration suite also checks process, runtime, memory, privacy, report-size, and determinism targets on representative and worst staged fixtures. Its memory and report-size assertions are fixture checks, not analyzer-enforced runtime caps for arbitrary projects.
 
 ## Fixture snapshots
 

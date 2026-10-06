@@ -148,6 +148,8 @@ Staged execution uses bounded timeouts from `StagedAnalysisPolicy`. The blocker 
 
 `SourceUsageScanner` parses PHP through `nikic/php-parser`. Framework adapters can provide extra AST visitors through `SourceUsageVisitorProvider`.
 
+`SourceScanLimits` bounds the deterministic file prefix, bytes per file, aggregate bytes, and retained unique usages. A reached limit is visible as `E3` evidence-backed uncertainty rather than silent truncation. The default limits are 10,000 files, 2 MiB per file, 64 MiB aggregate, and 10,000 usages.
+
 The scan produces an inventory first. `AutoloadOwnershipIndexBuilder` then maps relevant declarations and symbols to Composer packages using autoload metadata. `SourceImpactBuilder` correlates usages with framework findings or actual candidate package changes.
 
 Example:
@@ -162,6 +164,8 @@ Result: actionable source-impact finding
 Without ownership or transition relevance, a usage can remain inventory without becoming an impact claim.
 
 The original source snapshot is scanned even when staged Composer candidates exist. A staged candidate is dependency evidence, not a rewritten application tree.
+
+The analyzer compares Composer and selected-source fingerprints around long-running phases. Input drift adds uncertainty because dependency and source sections may otherwise describe different project states; the detector does not lock the project or create a full source snapshot.
 
 ## Framework capability interfaces
 

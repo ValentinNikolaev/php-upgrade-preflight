@@ -6,8 +6,8 @@
         {
             "source": "wiki/Core-Package-Guide.md",
             "destination": "Home.md",
-            "source_sha256": "20ff72ed3656488e4c243b0420e74abfe6d9450999bbfa4308dc7b2eb179e535",
-            "materialized_sha256": "44290c10018f13ce99ac8b53cfd5393cda608afae2c08289eb343043ae213695"
+            "source_sha256": "d672603798ec5a35b50cd3429bb3a54c54d0fe38f5aac39c5c83c735091e267a",
+            "materialized_sha256": "cd63dc6869d56e7f3b617c41976530a9970c5f85e48f7e36eef6b05a5d816f2b"
         },
         {
             "source": "wiki/Core-Service-Reference.md",
@@ -18,8 +18,8 @@
         {
             "source": "wiki/Core-Analysis-Pipeline.md",
             "destination": "Core-Analysis-Pipeline.md",
-            "source_sha256": "81f900d613b1aa3b753c4e941c4ffc9cc4b64c232e878f9238fc8ff6d1ba041c",
-            "materialized_sha256": "8a519ad6b4167f036c472b17605cd6bde18f7b35c21e6b7a8ff16cc2def16228"
+            "source_sha256": "f8229464a630f5fb5b25cb09ea852a3636fdce74bce326dc485370fab7f4d0d3",
+            "materialized_sha256": "7f0017e857403c3a9d2793ee6932bfe66146dd504569850b0d24cd1cfaee317e"
         },
         {
             "source": "wiki/Key-Concepts.md",
@@ -36,8 +36,8 @@
         {
             "source": "wiki/Writing-a-Framework-Adapter.md",
             "destination": "Writing-a-Framework-Adapter.md",
-            "source_sha256": "30fce1eee1ac0ec19a96db9b9fd2e4a64248cabfcd4d6e445eb0dd7297f5e31b",
-            "materialized_sha256": "8bb8562c09af65d3fab6cfc94b8051962a7bb26aaed251b1b14f7e0fe4baa349"
+            "source_sha256": "c8a39076149fc4cdc73fb9d04ddc0aa28d450c9c09964e268463852695f88cd5",
+            "materialized_sha256": "86052cfed0ceb76a8d4bb851c3caf474b59867062f1a1684971bf7b52fbc5c3f"
         },
         {
             "source": "wiki/Test-Adapters.md",
@@ -48,8 +48,8 @@
         {
             "source": "wiki/Safety-and-Trust-Boundaries.md",
             "destination": "Safety-and-Trust-Boundaries.md",
-            "source_sha256": "35c92fd944f041d0b50e15c37982ff1e8eda71837634d35b0f0c5c5de7945c7e",
-            "materialized_sha256": "7b5cf2440f63f4f9710b85de6e0a6f4db16715432d3494c26a0f20a72f9e2beb"
+            "source_sha256": "302997249ab78a61f10c0ed78fcc38c291f59aa4e6ffb8d9052bfdd98b86fbf9",
+            "materialized_sha256": "5feb264116634152455bb92d39c9f2cf8ac1f5304a157b1c5e1f813191087380"
         },
         {
             "source": "wiki/Troubleshooting-and-FAQ.md",
