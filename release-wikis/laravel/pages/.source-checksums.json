@@ -6,8 +6,8 @@
         {
             "source": "wiki/Laravel-Package-Internals.md",
             "destination": "Home.md",
-            "source_sha256": "df6057fc3092d183b18901e70e763370dddc3bc3ec9ba39b20a79a3656fd515f",
-            "materialized_sha256": "9dbcf8dcdac8a9190f50f9dcda5e40f6eae1f2065dde7e75cc737013f7a02c09"
+            "source_sha256": "236b144aa0103f418a732e97049724470875e4bbf7e273a91af24a61d0455793",
+            "materialized_sha256": "8af6598c60ca13c75e43c1c300dc7580f74ffcc4aae4db649b2e02e6f56ff246"
         },
         {
             "source": "wiki/Getting-Started.md",
@@ -24,8 +24,8 @@
         {
             "source": "wiki/Laravel-Adapter-Internals.md",
             "destination": "Laravel-Adapter-Internals.md",
-            "source_sha256": "73f7217ab922b426e95440c35d4bc1b829be620db454e0c1f0df3f7e3763aa3b",
-            "materialized_sha256": "fa32b8474b0a2b009f07a7c2338a39606617e85d4742c8ac9cc9f40c81f06b1c"
+            "source_sha256": "d32c7b3e30e002f047ccc07cee1136d670a8fa0c68c05968418bd94043116cc0",
+            "materialized_sha256": "56886b9e628a27ff8233b5d6b0f03d511f8d633440f9fb22c7dec3d5b6c5dd1e"
         },
         {
             "source": "wiki/Key-Concepts.md",

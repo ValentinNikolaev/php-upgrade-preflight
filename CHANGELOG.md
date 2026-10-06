@@ -4,6 +4,16 @@ This project follows [Semantic Versioning](https://semver.org/). Report schema v
 
 ## [Unreleased]
 
+### Fixed
+
+- Corrected optional PHPUnit and Collision upgrade advice, compatible Guzzle/Pusher ranges, and missing guide-mentioned package replacements and removals within the existing Laravel transition catalog.
+- Added exact source checks for removed Laravel helpers, serializable-closure classes, testing traits, and `HasVersion7Uuids`; excluded unrelated Bus facades from queue-dispatch advice.
+- Corrected Laravel 13 request-forgery advice: the previous CSRF middleware names remain deprecated aliases and receive review guidance rather than a removed-symbol blocker.
+
+### Added
+
+- Added complete pinned Laravel 8–13 upgrade-guide ledgers with explicit manual checks and contract exclusions, plus offline Composer and CLI/Artisan parity cases for Illuminate-only, mixed-target, and same-major requests. Schema `0.8` and the supported staging scope are unchanged.
+
 ## [0.3.3] - 2026-08-21
 
 ### Added

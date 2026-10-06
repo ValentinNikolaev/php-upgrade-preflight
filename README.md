@@ -75,7 +75,7 @@ The analyzer returns `0` after producing a valid report, including reports whose
 
 ### Five-minute offline demo
 
-The repository includes a deterministic [Laravel 10 to 13 demo](examples/five-minute-demo/README.md) that uses real offline Composer solves from local path repositories. Its schema `0.8` report keeps direct-final, framework-guidance, and staged resolution separate; retains two simultaneous 10→11 blockers and their different lifecycles; carries selected candidate-state fingerprints through a feasible middle hop; and stops 12→13 on a distinct extension blocker plus an original-source incompatibility. Recursive before/after digests prove that the target stayed unchanged.
+The repository includes a deterministic [Laravel 10 to 13 demo](examples/five-minute-demo/README.md) that uses real offline Composer solves from local path repositories. Its schema `0.8` report keeps direct-final, framework-guidance, and staged resolution separate; retains two simultaneous 10→11 blockers and their different lifecycles; carries selected candidate-state fingerprints through a feasible middle hop; and stops 12→13 on a distinct extension blocker alongside an original-source review finding. The deprecated CSRF aliases remain available; that advice is not a removed-symbol blocker. Recursive before/after digests prove that the target stayed unchanged.
 
 ![Laravel 10 to 13 terminal demo](examples/five-minute-demo/laravel-10-to-13.gif)
 
@@ -130,6 +130,7 @@ Third-party adapter packages register themselves through Composer metadata, so t
 - [v0.3.3 release notes](docs/releases/v0.3.3.md)
 - [v0.3.0 release notes](docs/releases/v0.3.0.md)
 - [Laravel v0.2 transition scope](docs/laravel-v0.2-transition-scope.md)
+- [Laravel coverage review and manual migration checks](docs/laravel-coverage/README.md)
 - [Limitations and trust boundaries](docs/limitations.md)
 - [Troubleshooting](docs/troubleshooting.md)
 - [Contributing](CONTRIBUTING.md)

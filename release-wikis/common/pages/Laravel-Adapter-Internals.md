@@ -230,6 +230,10 @@ Applicability prevents guidance from leaking into unrelated hops.
 
 Every catalog definition includes maintained source references.
 
+The [completion coverage ledgers](https://github.com/ValentinNikolaev/php-upgrade-preflight/blob/main/docs/laravel-coverage/README.md) account for every heading in the pinned Laravel 8–13 guides and explain concrete manual checks. They supplement, rather than rewrite, the historical transition contract. Guide recommendations, framework-supported test ranges, and fresh skeleton defaults are distinct evidence.
+
+Removed-symbol source rules match exact parser-derived identities and applicable usage types. Laravel 13 retains the deprecated CSRF aliases, so its request-forgery finding is medium-severity review advice. Neither that advice nor a low-confidence skeleton finding proves runtime incompatibility.
+
 ## Worked stage-planning example
 
 Assume the project locks Laravel 10 and directly requires `laravel/framework`.
