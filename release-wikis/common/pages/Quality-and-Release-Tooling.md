@@ -126,7 +126,7 @@ make analyze ARGS="--path=/app/example --target-php=8.3 --format=json"
 - **Coverage / PHP 8.3:** the coverage ratchet followed by selective mutations.
 - **Runtime matrix:** all suites on Linux PHP 8.0 through 8.5; unit/smoke plus partitioned integration suites on Windows PHP 8.3.
 - **Report privacy:** Linux runtime jobs and the main Windows unit/smoke job run the privacy verifier.
-- **Staged budgets:** Linux and Windows enforce worst-supported-chain process, runtime, memory, privacy, report-size, and determinism budgets.
+- **Staged budgets:** Linux and Windows check process, runtime, memory, privacy, report-size, and determinism targets on the worst staged test fixture. Memory and report-size targets are fixture checks, not analyzer-enforced runtime caps for arbitrary projects.
 
 The workflow masks synthetic canaries before relevant test commands. Windows JUnit timing artifacts are uploaded even when a shard fails so maintainers can rebalance the partitions.
 

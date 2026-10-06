@@ -22,6 +22,7 @@ PHP Upgrade Preflight is a public-beta planning tool that predicts dependency an
 - Composer PSR-4 and PSR-0 ownership uses deterministic longest-prefix matching for class-like symbols. Function and constant ownership requires an exact declaration from an available classmap or files entry. Root `autoload-dev` metadata is indexed, while dependency `autoload-dev` metadata remains root-only and is ignored.
 - Missing classmap/files paths, unsupported metadata shapes, `eval`, `class_alias`, and registered dynamic autoloaders are reported as ownership uncertainty. Exact classmap/files indexing is skipped when inventory is empty and stops at a deterministic 2,000-file safety limit; exceeding it also adds uncertainty. Custom installer paths and runtime-generated symbols may therefore remain unresolved.
 - Parse errors skip the malformed file and add evidence-linked uncertainty.
+- Source scanning is operationally bounded to 10,000 selected PHP files, 2 MiB per file, 64 MiB of source bytes, and 10,000 retained unique usages by default. Files and usages are selected in deterministic order. Reaching a limit adds `E3` evidence and uncertainty with the limit and omission count; library callers can inject `SourceScanLimits` to choose smaller or larger positive limits.
 - Default scans exclude dependencies and common generated, cache, and build directories. Explicit paths inside the project can opt into an excluded directory.
 - `source_inventory` is an observation list, not a change list. An item reaches `source_impact` only when it correlates with a selected final-target package change, an applicable framework rule, or both. Dynamic or unowned usages can therefore remain inventory-only, while a framework-correlated item may be actionable even when package ownership is unknown.
 - Direct `source_impact` remains tied to the selected successful final-target scenario. Schema 0.8 stages separately project applicable framework findings and source impact for executed hops, but always from the original project snapshot. The analyzer does not simulate or claim that source edits were applied between stages.
@@ -38,7 +39,7 @@ PHP Upgrade Preflight is a public-beta planning tool that predicts dependency an
 - Laravel 11's streamlined application skeleton is optional for upgraded Laravel 10 applications; the adapter does not report the retained Laravel 10 structure as required migration work.
 - The Laravel 11 curl rule can prove an explicitly absent `ext-curl` assumption. A present PHP extension version does not prove the linked libcurl runtime version, so deployment verification remains necessary.
 - Ambiguous framework target ranges produce less guidance instead of guessing a target major.
-- A framework adapter that fails is contained rather than fatal. A provider that throws while contributing source collectors, a collector or compatibility rule that throws mid-analysis, a rule returning a severity outside the `low`/`medium`/`high` vocabulary, and an installed package whose `extra.php-upgrade-preflight` manifest is malformed are all skipped and named as evidence-backed uncertainty. The report is still produced, so guidance can be incomplete for a reason recorded only in `uncertainties`; read them before treating an absence of findings as a clean result.
+- Installed framework adapters run as trusted code in the analyzer process with its filesystem, network, environment, and credential privileges. Exception containment does not isolate an adapter or prevent side effects. A runtime failure in detection, default source paths, transition guidance, package-family classification, source collection, or compatibility rules skips the affected contribution and adds evidence-backed uncertainty. A malformed installed-package adapter manifest is skipped with a diagnostic. The report can therefore be incomplete; read `uncertainties` before treating an absence of findings as a clean result. Defective advertised classes still fail registration before analysis.
 
 ## Report projection
 
@@ -49,6 +50,8 @@ PHP Upgrade Preflight is a public-beta planning tool that predicts dependency an
 ## Read-only boundary
 
 The analysis pipeline copies the target manifest and lockfile, then scans source files without writing them. A project-local `composer require` still changes the project during installation. Shell redirection can also write inside the project before the analyzer can validate the destination.
+
+The analyzer fingerprints Composer input and the deterministically selected source set before and after its long-running work. If those files are added, removed, or changed during one run, the report records input-drift uncertainty instead of implying that every section describes one atomic snapshot. It does not lock the project or copy the complete source tree, so callers that require a strict snapshot should analyze an immutable checkout.
 
 Exact project and source paths remain available only for internal filesystem access. Default canonical JSON and Markdown replace absolute roots with `[PROJECT_ROOT]`, `[REPORT_OUTPUT]`, `[LOCAL_REPOSITORY]`, and `[ANALYZER_WORKSPACE]`; source file locations remain project-relative.
 
