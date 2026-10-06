@@ -6,6 +6,8 @@
 
 PHP Upgrade Preflight is an Open Source **public beta**. The latest published release recorded by the repository is **v0.3.5**, producing tool version `0.3.5` reports with schema `0.8`. Development on `main` uses `0.3.x-dev` aliases and `^0.3` internal constraints.
 
+The bounded Laravel completion milestone is published in v0.3.5: all 299 reviewed guide headings are accounted for, with three primary and two supplemental pinned application snapshots evaluated. This closes the reviewed patch-compatible coverage, not every Laravel application or runtime-compatibility question. Next is v0.4 Milestone 0 to confirm the theme, freeze the v0.3 baseline and define the new contracts, followed by version identity in Milestone 1 and adapter/package ownership in Milestone 2 before Symfony work in Milestone 3.
+
 Public beta means the public PHP API, CLI and Artisan surfaces, adapter extension points, package boundaries, and report semantics are still being proven before `1.0`. It does **not** mean the analyzer guarantees a successful production upgrade.
 
 The analyzer provides decision-support evidence. It does not:

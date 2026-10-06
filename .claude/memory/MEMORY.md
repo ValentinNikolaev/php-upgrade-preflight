@@ -4,7 +4,7 @@ description: Durable architecture, constraints, and current-state context for PH
 type: project
 related:
   - ../DEVELOPMENT_PLAN.md
-last_updated: 2026-08-14
+last_updated: 2026-10-07
 ---
 
 # Project Memory
@@ -12,6 +12,7 @@ last_updated: 2026-08-14
 ## Focused Memories
 
 - [windows-git-signing.md](windows-git-signing.md) — project — Windows OpenSSH override required for agent-backed signed commits
+- [laravel-completion-baseline.md](laravel-completion-baseline.md) — project — Published Laravel completion baseline and the next v0.4 contract gate
 
 ## Audits
 

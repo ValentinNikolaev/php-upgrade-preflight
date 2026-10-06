@@ -2,6 +2,8 @@
 
 This review covers the existing Laravel 7–13 transition catalog without extending schema `0.8` or the v0.3 staging contract. It is a completion audit, not a claim that every Laravel application or ecosystem package is compatible.
 
+The bounded completion corrections are published in v0.3.5; see the [publication evidence](../releases/v0.3.5-publication-evidence.json) for the verified release and published-consumer checks. The recorded v0.3.3 baseline and application evaluation remain historical evidence, not reports regenerated under the new release identity.
+
 The [compatibility baseline](compatibility-baseline.json) records the verified published references, preserved contracts, gap dispositions, and bounded feedback review. The [real-application evaluation](application-evaluation.md) records pinned public inputs, measured outcomes, corrected findings, and maintainer follow-up.
 
 ## Guide accounting
