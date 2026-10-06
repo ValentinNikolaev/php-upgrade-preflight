@@ -74,14 +74,8 @@ final class SourceUsageScanner
         }
 
         foreach ($files as $file) {
-            $knownSize = @filesize($file);
-            if (is_int($knownSize) && $knownSize > $this->limits->maxFileBytes()) {
-                ++$omittedOversizedFiles;
-                continue;
-            }
-
             $remainingBytes = $this->limits->maxTotalBytes() - $totalBytes;
-            if ($remainingBytes < 1 || (is_int($knownSize) && $knownSize > $remainingBytes)) {
+            if ($remainingBytes < 1) {
                 ++$omittedAggregateFiles;
                 continue;
             }
@@ -97,6 +91,7 @@ final class SourceUsageScanner
                 continue;
             }
 
+            $totalBytes += strlen($contents);
             if (strlen($contents) > $readLimit) {
                 if ($readLimit === $remainingBytes && $remainingBytes < $this->limits->maxFileBytes()) {
                     ++$omittedAggregateFiles;
@@ -107,7 +102,6 @@ final class SourceUsageScanner
             }
 
             $relative = $this->relativePath($project->path(), $file);
-            $totalBytes += strlen($contents);
             $readDigests[$file] = hash('sha256', $contents);
             /** @var list<array{provider: string, reason: string}> $providerFailures */
             $providerFailures = [];

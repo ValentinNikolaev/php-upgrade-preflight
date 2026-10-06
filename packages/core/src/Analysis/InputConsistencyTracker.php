@@ -115,46 +115,39 @@ final class InputConsistencyTracker
         $totalBytes = 0;
 
         foreach ($files as $file) {
-            $size = @filesize($file);
             $remaining = $limits->maxTotalBytes() - $totalBytes;
-            if ($remaining < 1 || (is_int($size) && ($size > $limits->maxFileBytes() || $size > $remaining))) {
+            if ($remaining < 1) {
                 $digests[$file] = $this->metadataDigest($file);
                 continue;
             }
 
             $readLimit = min($limits->maxFileBytes(), $remaining);
+            $digests[$file] = null;
             $handle = @fopen($file, 'rb');
             $contents = $handle === false ? false : stream_get_contents($handle, $readLimit + 1);
             if (is_resource($handle)) {
                 fclose($handle);
             }
-            if ($contents === false) {
-                $digests[$file] = null;
-                continue;
+            if ($contents !== false) {
+                $totalBytes += strlen($contents);
+                $digests[$file] = strlen($contents) > $readLimit
+                    ? $this->metadataDigest($file)
+                    : hash('sha256', $contents);
             }
-            if (strlen($contents) > $readLimit) {
-                $digests[$file] = $this->metadataDigest($file);
-                continue;
-            }
-
-            $digests[$file] = hash('sha256', $contents);
-            $totalBytes += strlen($contents);
         }
 
         return $digests;
     }
 
-    private function metadataDigest(string $file): ?string
+    private function metadataDigest(string $file): string
     {
         $stat = @stat($file);
-        if ($stat === false) {
-            return null;
-        }
+        $metadata = $stat === false ? [] : $stat;
 
         return 'metadata:' . hash('sha256', implode(':', [
-            (string) $stat['size'],
-            (string) $stat['mtime'],
-            (string) $stat['ctime'],
+            (string) ($metadata['size'] ?? ''),
+            (string) ($metadata['mtime'] ?? ''),
+            (string) ($metadata['ctime'] ?? ''),
         ]));
     }
 

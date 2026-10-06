@@ -28,6 +28,32 @@ use Symfony\Component\Filesystem\Filesystem;
 
 final class SourceUsageScannerTest extends TestCase
 {
+    public function testSourceScanLimitsRejectNonPositiveValues(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('maxFiles');
+
+        new SourceScanLimits(0, 1, 1, 1);
+    }
+
+    public function testSelectedFilesReportTheLimitWithoutAnEvidenceLedger(): void
+    {
+        $projectPath = $this->createProject("<?php\nApp\\First::run();\n");
+        file_put_contents($projectPath . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'Second.php', "<?php\nApp\\Second::run();\n");
+        $uncertainties = [];
+
+        try {
+            $project = (new ProjectStateBuilder())->build($projectPath);
+            $files = (new SourceUsageScanner(null, new SourceScanLimits(1, 1024, 2048, 10)))
+                ->selectedPhpFiles($project, ['src'], $uncertainties);
+
+            self::assertCount(1, $files);
+            self::assertStringContainsString('1-file safety limit', $uncertainties[0]);
+        } finally {
+            (new Filesystem())->remove($projectPath);
+        }
+    }
+
     public function testFileCountLimitKeepsTheDeterministicPrefixAndReportsOmissions(): void
     {
         $projectPath = $this->createProject("<?php\nApp\\First::run();\n");
@@ -80,7 +106,51 @@ final class SourceUsageScannerTest extends TestCase
         }
     }
 
+    public function testOversizedProbeBytesCountTowardsTheAggregateLimit(): void
+    {
+        $projectPath = $this->createProject("<?php\nApp\\First::run();\n");
+        file_put_contents($projectPath . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'Second.php', "<?php\nApp\\Second::run();\n");
+        $evidence = new EvidenceLedger();
+        $uncertainties = [];
+
+        try {
+            $project = (new ProjectStateBuilder())->build($projectPath);
+            (new SourceUsageScanner(null, new SourceScanLimits(10, 8, 9, 10)))
+                ->scan($project, ['src'], $evidence, $uncertainties);
+
+            self::assertSame(
+                ['file_bytes', 'total_bytes'],
+                array_map(static fn (Evidence $item): string => $item->context()['limit_type'], $evidence->all())
+            );
+            self::assertSame(1, $evidence->all()[0]->context()['omitted_count']);
+            self::assertSame(1, $evidence->all()[1]->context()['omitted_count']);
+        } finally {
+            (new Filesystem())->remove($projectPath);
+        }
+    }
+
     public function testAggregateByteLimitSkipsFilesThatDoNotFitTheRemainingBudget(): void
+    {
+        $first = "<?php\nApp\\First::run();\n";
+        $projectPath = $this->createProject($first);
+        file_put_contents($projectPath . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'Second.php', "<?php\nApp\\Second::run();\n");
+        $evidence = new EvidenceLedger();
+        $uncertainties = [];
+
+        try {
+            $project = (new ProjectStateBuilder())->build($projectPath);
+            $usages = (new SourceUsageScanner(null, new SourceScanLimits(10, 1024, strlen($first) + 5, 10)))
+                ->scan($project, ['src'], $evidence, $uncertainties);
+
+            self::assertSame(['App\\First'], array_map(static fn (SourceUsage $usage): string => $usage->symbol(), $usages));
+            self::assertSame('total_bytes', $evidence->all()[1]->context()['limit_type']);
+            self::assertStringContainsString('aggregate byte limit', $uncertainties[0]);
+        } finally {
+            (new Filesystem())->remove($projectPath);
+        }
+    }
+
+    public function testExhaustedAggregateByteLimitSkipsRemainingFilesWithoutReadingThem(): void
     {
         $first = "<?php\nApp\\First::run();\n";
         $projectPath = $this->createProject($first);
@@ -95,7 +165,6 @@ final class SourceUsageScannerTest extends TestCase
 
             self::assertSame(['App\\First'], array_map(static fn (SourceUsage $usage): string => $usage->symbol(), $usages));
             self::assertSame('total_bytes', $evidence->all()[1]->context()['limit_type']);
-            self::assertStringContainsString('aggregate byte limit', $uncertainties[0]);
         } finally {
             (new Filesystem())->remove($projectPath);
         }
