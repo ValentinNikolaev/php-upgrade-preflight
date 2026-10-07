@@ -177,14 +177,14 @@ final class LaravelV02TransitionFixtureTest extends TestCase
     {
         $lock = [
             'packages' => [
-                ['name' => 'illuminate/console', 'version' => 'v13.17.0'],
-                ['name' => 'illuminate/support', 'version' => 'v13.17.0'],
+                ['name' => 'illuminate/console', 'version' => 'v13.35.0'],
+                ['name' => 'illuminate/support', 'version' => 'v13.35.0'],
             ],
             'packages-dev' => [],
         ];
 
         self::assertSame([
-            'Candidate lock selects illuminate/console v13.17.0, which does not satisfy root constraint `^11.0`.',
+            'Candidate lock selects illuminate/console v13.35.0, which does not satisfy root constraint `^11.0`.',
         ], LaravelTransitionFixtureRunner::candidateLockViolations([
             'require' => [
                 'illuminate/console' => '^11.0',

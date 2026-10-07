@@ -24,6 +24,8 @@ docker compose run --rm php composer check
 
 The development container uses PHP 8.3. Composer resolves dependencies against PHP 8.0.30 so new dependencies cannot silently raise the package floor.
 
+The real Laravel application fixture uses Laravel 13.35 or newer on PHP 8.3. The compatibility workflow checks both the original Laravel 13 minimum and the current Laravel and Illuminate release ranges. The root development constraint permits Illuminate 8–13; its PHP 8.0.30 platform selects the latest compatible Illuminate 8 patch. Historical upgrade fixtures, synthetic solver packages, and commit-pinned upstream evidence retain their original versions.
+
 ## Run focused checks
 
 ```bash
