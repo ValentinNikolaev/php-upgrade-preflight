@@ -466,7 +466,16 @@ final class ReleaseWorkflowTest extends TestCase
             'laravel/framework:^11.0' => '8.2',
             'laravel/framework:^12.0' => '8.2',
             'laravel/framework:^13.0' => '8.3',
+            'laravel/framework:^13.35' => '8.3',
         ], $laravelHosts);
+
+        $illuminateCases = array_values(array_filter(
+            $cases,
+            static fn (array $case): bool => ($case['smoke'] ?? null) === 'illuminate'
+        ));
+        self::assertCount(1, $illuminateCases);
+        self::assertSame('illuminate/console:^13.35', $illuminateCases[0]['framework']);
+        self::assertSame('8.3', $illuminateCases[0]['php']);
 
         $runs = implode("\n", array_values(array_filter(array_column($job['steps'], 'run'), 'is_string')));
         self::assertStringNotContainsString('class_exists(', $runs);

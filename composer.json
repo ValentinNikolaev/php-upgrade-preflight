@@ -73,7 +73,7 @@
   },
   "require-dev": {
     "friendsofphp/php-cs-fixer": "^3.64",
-    "illuminate/container": "^8.0",
+    "illuminate/container": "^8.0|^9.0|^10.0|^11.0|^12.0|^13.0",
     "opis/json-schema": "^2.6",
     "php-upgrade-preflight/legacy-test-adapter": "0.3.x-dev",
     "php-upgrade-preflight/test-adapter": "0.3.x-dev",
