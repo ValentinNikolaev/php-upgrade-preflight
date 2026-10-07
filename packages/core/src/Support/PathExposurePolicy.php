@@ -307,10 +307,10 @@ final class PathExposurePolicy
         if (!is_object($value)) {
             return $value;
         }
-        if ($seen->contains($value)) {
+        if ($seen->offsetExists($value)) {
             return SensitiveOutputRedactor::REDACTED;
         }
-        $seen->attach($value);
+        $seen->offsetSet($value);
 
         try {
             if ($value instanceof \JsonSerializable) {
@@ -321,7 +321,7 @@ final class PathExposurePolicy
         } catch (\Throwable) {
             return SensitiveOutputRedactor::REDACTED;
         } finally {
-            $seen->detach($value);
+            $seen->offsetUnset($value);
         }
     }
 

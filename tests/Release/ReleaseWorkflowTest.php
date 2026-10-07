@@ -456,26 +456,28 @@ final class ReleaseWorkflowTest extends TestCase
         foreach ($cases as $case) {
             self::assertIsArray($case);
             if (($case['smoke'] ?? null) === 'laravel') {
-                $laravelHosts[$case['framework']] = $case['php'];
+                $laravelHosts[$case['framework']][] = $case['php'];
             }
         }
         self::assertSame([
-            'laravel/framework:^8.0' => '8.0',
-            'laravel/framework:^9.0' => '8.0',
-            'laravel/framework:^10.0' => '8.1',
-            'laravel/framework:^11.0' => '8.2',
-            'laravel/framework:^12.0' => '8.2',
-            'laravel/framework:^13.0' => '8.3',
-            'laravel/framework:^13.35' => '8.3',
+            'laravel/framework:^8.0' => ['8.0'],
+            'laravel/framework:^9.0' => ['8.0'],
+            'laravel/framework:^10.0' => ['8.1'],
+            'laravel/framework:^11.0' => ['8.2'],
+            'laravel/framework:^12.0' => ['8.2'],
+            'laravel/framework:^13.0' => ['8.3'],
+            'laravel/framework:^13.35' => ['8.3', '8.5', '8.5'],
         ], $laravelHosts);
 
         $illuminateCases = array_values(array_filter(
             $cases,
             static fn (array $case): bool => ($case['smoke'] ?? null) === 'illuminate'
         ));
-        self::assertCount(1, $illuminateCases);
+        self::assertCount(2, $illuminateCases);
         self::assertSame('illuminate/console:^13.35', $illuminateCases[0]['framework']);
         self::assertSame('8.3', $illuminateCases[0]['php']);
+        self::assertSame('8.5', $illuminateCases[1]['php']);
+        self::assertStringContainsString('symfony/console:^8.1', $illuminateCases[1]['dependencies']);
 
         $runs = implode("\n", array_values(array_filter(array_column($job['steps'], 'run'), 'is_string')));
         self::assertStringNotContainsString('class_exists(', $runs);
@@ -629,6 +631,42 @@ final class ReleaseWorkflowTest extends TestCase
             count(array_unique($slugs)),
             'Compatibility cache keys must stay unique per matrix case.'
         );
+    }
+
+    public function testCurrentTestToolsExecuteAssertionsAndPreviewPhpStaysExperimental(): void
+    {
+        $workflow = $this->parseYamlFile('.github/workflows/compatibility.yml');
+        $job = $workflow['jobs']['installability'];
+        $tools = array_values(array_filter(
+            $job['strategy']['matrix']['case'],
+            static fn (array $case): bool => isset($case['test_tool'])
+        ));
+        self::assertSame(['phpunit', 'pest'], array_column($tools, 'test_tool'));
+        foreach ($tools as $case) {
+            self::assertSame('8.5', $case['php']);
+            self::assertSame('laravel', $case['smoke']);
+        }
+        $runs = implode("\n", array_column($job['steps'], 'run'));
+        self::assertStringContainsString('composer check-platform-reqs --no-dev', $runs);
+        self::assertStringContainsString('vendor/bin/phpunit --no-configuration', $runs);
+        self::assertStringContainsString('php -d zend.assertions=1 vendor/bin/pest --no-configuration', $runs);
+        self::assertStringNotContainsString('--ignore-platform-req', $runs);
+        self::assertStringNotContainsString('--list-tests', $runs);
+
+        $quality = $this->parseYamlFile('.github/workflows/quality.yml');
+        $diagnostics = array_values(array_filter(
+            $quality['jobs']['quality']['steps'],
+            static fn (array $step): bool => ($step['name'] ?? null) === 'Verify current PHP runtime diagnostics'
+        ));
+        self::assertCount(1, $diagnostics);
+        self::assertSame("matrix.php == '8.5'", $diagnostics[0]['if']);
+        self::assertStringContainsString('php -d error_reporting=E_ALL', $diagnostics[0]['run']);
+        self::assertStringContainsString('PrivacyPhpRuntimeCompatibilityTest', $diagnostics[0]['run']);
+        $preview = $quality['jobs']['php-preview'];
+        self::assertTrue($preview['continue-on-error']);
+        self::assertContains('composer test:unit-smoke', array_column($preview['steps'], 'run'));
+        $setup = array_values(array_filter($preview['steps'], static fn (array $step): bool => isset($step['with']['php-version'])));
+        self::assertSame('8.6', $setup[0]['with']['php-version']);
     }
 
     public function testDeveloperImageKeepsBuildArgumentsBelowTheExpensiveLayer(): void

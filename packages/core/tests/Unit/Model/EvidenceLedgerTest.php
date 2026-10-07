@@ -155,6 +155,7 @@ final class EvidenceLedgerTest extends TestCase
         self::assertSame('solver-2', $this->recordOnce($ledger, 'Second result.')->id());
     }
 
+    /** @phpstan-impure */
     private function recordOnce(EvidenceRecorder $recorder, string $summary): Evidence
     {
         return $recorder->addOnce('solver', Evidence::E1_SOLVER, $summary);

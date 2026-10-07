@@ -70,10 +70,14 @@ final class JsonFileReaderTest extends TestCase
 
     public function testMalformedJsonIsReportedWithComposersOwnDiagnostic(): void
     {
-        $path = $this->file('composer.json', '{"name": ');
+        $contents = '{"name": ';
+        $path = $this->file('composer.json', $contents);
+        json_decode($contents);
+        self::assertSame(JSON_ERROR_SYNTAX, json_last_error());
+        $diagnostic = json_last_error_msg();
 
         $this->expectException(InvalidJsonException::class);
-        $this->expectExceptionMessage('Invalid JSON in Composer file "composer.json": Syntax error.');
+        $this->expectExceptionMessage('Invalid JSON in Composer file "composer.json": ' . $diagnostic . '.');
 
         (new JsonFileReader())->read($path);
     }

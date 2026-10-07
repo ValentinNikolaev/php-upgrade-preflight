@@ -372,7 +372,9 @@ final class ComposerPackageMetadataLookupTest extends TestCase
         }
 
         $method = new \ReflectionMethod(ComposerPackageMetadataLookup::class, 'canonicalProjectPath');
-        $method->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $method->setAccessible(true);
+        }
 
         self::assertSame($path, $method->invoke(new ComposerPackageMetadataLookup(), $path));
     }

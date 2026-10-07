@@ -426,7 +426,9 @@ final class WizardCommandTest extends TestCase
     public function testEquivalentCommandQuotesWindowsShellArguments(): void
     {
         $method = new \ReflectionMethod(WizardCommand::class, 'shellArgument');
-        $method->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $method->setAccessible(true);
+        }
 
         self::assertSame(
             "'--path=C:\\Program Files\\O''Brien'",

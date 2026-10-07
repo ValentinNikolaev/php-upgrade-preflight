@@ -103,10 +103,10 @@ final class SensitiveOutputRedactor
         }
 
         if (is_object($value)) {
-            if ($seen->contains($value)) {
+            if ($seen->offsetExists($value)) {
                 return self::REDACTED;
             }
-            $seen->attach($value);
+            $seen->offsetSet($value);
 
             try {
                 if ($value instanceof \JsonSerializable) {
@@ -117,7 +117,7 @@ final class SensitiveOutputRedactor
             } catch (\Throwable) {
                 return self::REDACTED;
             } finally {
-                $seen->detach($value);
+                $seen->offsetUnset($value);
             }
         }
 

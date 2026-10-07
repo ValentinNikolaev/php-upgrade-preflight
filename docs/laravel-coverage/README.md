@@ -24,6 +24,8 @@ These ledgers supplement the [original transition decision](../laravel-v0.2-tran
 
 Package ranges are review evidence, not an independent solver. PHPUnit and Collision upgrades that are optional must not be presented as mandatory merely because a fresh application skeleton uses newer versions. The ledgers distinguish framework-supported ranges, guide recommendations, and skeleton defaults. Composer must still solve the actual project's combined constraints.
 
+The [2026-10-07 ecosystem review](../current-compatibility.md) extends Pest alternatives to 3/4 for Laravel 12 and 4/5 for Laravel 13, backed by pinned Laravel-plugin manifests and current consumer tests. The historical guide ledgers and application reports retain their original evidence.
+
 The completion corrections also cover guide-mentioned Guzzle and Socialite ranges, the Nexmo-to-Vonage and SwiftMailer-Postmark replacements, `spatie/once` removal, and supported Pusher ranges. Rooted package checks do not promise automatic ecosystem-wide migrations.
 
 Exact source rules identify the removed global `elixir` helper, Laravel's removed serializable-closure classes, the removed `MocksApplicationServices` trait, and `HasVersion7Uuids`. They use parser-derived symbol identities and usage types; unused imports and unrelated same-short-name classes do not establish those removals. Elixir calls within namespaces require an explicit global name or resolved global function import; unresolved namespaced fallback calls remain manual review. Queue dispatch advice matches Laravel's Bus facade rather than arbitrary facades named Bus.

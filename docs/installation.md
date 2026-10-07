@@ -17,6 +17,8 @@ The three analyzer packages have a PHP 8.0 runtime floor. Composer selects compa
 
 Laravel's own PHP requirement determines the effective floor when it is higher than the analyzer's PHP 8.0 floor. The adapter is host-installable on Laravel 8–13; analyze Laravel 7 from an external tools directory. Installability is checked independently from guidance coverage: the networked compatibility workflow creates a clean temporary application and boots package discovery plus the Artisan command on every Laravel 8–13 host line, at normal and lowest dependency resolution.
 
+Current PHP 8.5 consumer cases additionally cover Symfony 8.1, Laravel/Illuminate 13.35+, PHPUnit 13.4+, and Pest 5.3+ with `pestphp/pest-plugin-laravel` 5.x. The analyzer's own tests retain PHPUnit 9.6 to exercise the PHP 8.0 floor. PHP 8.6 has an experimental runtime check; it is not a stable support claim. See [Current compatibility coverage](current-compatibility.md) for exact reviewed releases and source-parsing limits.
+
 The transition catalog covers Laravel 7→8, the retained direct 7→9 path, and every adjacent transition from 8→9 through 12→13. Gapless adjacent packs can compose a multi-major guidance path within Laravel 7–13. Same-major requests, downgrades, ambiguous or unknown majors, targets outside that range, and requests whose first required hop is absent are unsupported. If a future or third-party catalog covers only a contiguous prefix, the report is `partially_supported` and guidance stops before the gap.
 
 ## Choose the published packages
@@ -76,7 +78,7 @@ Contributors can run the monorepo through Docker:
 ```bash
 git clone https://github.com/ValentinNikolaev/php-upgrade-preflight.git
 cd php-upgrade-preflight
-docker compose build php
+docker compose build --pull php
 docker compose run --rm php composer install
 docker compose run --rm php packages/cli/bin/upgrade-intel --help
 ```

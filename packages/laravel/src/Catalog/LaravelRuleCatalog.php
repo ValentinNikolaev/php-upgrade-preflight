@@ -227,14 +227,21 @@ final class LaravelRuleCatalog
                 'https://github.com/laravel/docs/blob/5b8c610735c8af96a3bda4e37a820b27dc40aee9/upgrade.md',
                 $laravel12Framework,
             ]),
-            self::singlePackageRule('rule-package-pest-11-12', 'pestphp/pest', $applies11To12, '^3.0', 'high', [$laravel12Upgrade]),
+            self::singlePackageRule('rule-package-pest-11-12', 'pestphp/pest', $applies11To12, '^3.0|^4.0', 'high', [
+                $laravel12Upgrade,
+                'https://github.com/pestphp/pest-plugin-laravel/blob/3057a36669ff11416cc0dc2b521b3aec58c488d0/composer.json',
+            ]),
             self::singlePackageRule('rule-package-carbon-11-12', 'nesbot/carbon', $applies11To12, '^3.0', 'medium', [$laravel12Upgrade]),
             self::singlePackageRule('rule-package-collision-11-12', 'nunomaduro/collision', $applies11To12, '^8.6', 'medium', ['https://github.com/laravel/laravel/blob/12.x/composer.json']),
 
             self::singlePackageRule('rule-package-boost-12-13', 'laravel/boost', $applies12To13, '^2.0', 'high', [$laravel13Upgrade]),
             self::singlePackageRule('rule-package-tinker-12-13', 'laravel/tinker', $applies12To13, '^3.0', 'high', [$laravel13Upgrade]),
             self::singlePackageRule('rule-package-phpunit-12-13', 'phpunit/phpunit', $applies12To13, '^11.5.50|^12.0|^13.0.3', 'high', [$laravel13Upgrade, $laravel13Skeleton, $laravel13Framework]),
-            self::singlePackageRule('rule-package-pest-12-13', 'pestphp/pest', $applies12To13, '^4.0', 'high', [$laravel13Upgrade]),
+            self::singlePackageRule('rule-package-pest-12-13', 'pestphp/pest', $applies12To13, '^4.0|^5.0', 'high', [
+                $laravel13Upgrade,
+                'https://github.com/pestphp/pest-plugin-laravel/blob/3057a36669ff11416cc0dc2b521b3aec58c488d0/composer.json',
+                'https://github.com/pestphp/pest-plugin-laravel/blob/d1564646e3198f1b607e64a36501d6edff7d104e/composer.json',
+            ]),
             self::singlePackageRule('rule-package-collision-12-13', 'nunomaduro/collision', $applies12To13, '^8.6', 'medium', [$laravel13Skeleton]),
             new PackageAdvisoryDefinition(
                 'advisory-laravel-helpers-12-13',
