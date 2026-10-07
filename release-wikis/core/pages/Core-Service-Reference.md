@@ -1,6 +1,6 @@
 # Core Service Reference
 
-This is a navigation reference for the main non-model classes in `php-upgrade-preflight/core`. Start with [[Core Analysis Pipeline|Core-Analysis-Pipeline]] if you want the end-to-end story; use this page when you know the problem area and need the owning service.
+Use this page to find the Core service responsible for a behavior. For the order in which those services run, start with [[Core Analysis Pipeline|Core-Analysis-Pipeline]].
 
 ## Analysis services
 
@@ -23,12 +23,12 @@ This is a navigation reference for the main non-model classes in `php-upgrade-pr
 
 ## Staged-analysis services
 
-Staged analysis is split into small services because planning, execution, assessment, and blocker lifecycle are different concerns.
+Staged analysis has separate services for choosing a plan, running attempts, assessing them, and tracking blockers across stages.
 
 | Service | Responsibility |
 | --- | --- |
 | `StagedUpgradeOrchestrator` | Carry candidate project state from one stage to the next and stop the chain safely |
-| `StagePlanResolver` | Select and validate a framework-provided plan; contain provider failures |
+| `StagePlanResolver` | Select and validate a framework-provided plan while containing provider failures |
 | `StageAttemptPlanner` | Define ordered attempts for a stage, including remediation candidates |
 | `StageExecutor` | Run attempts within stage and aggregate budgets, then select the stage outcome |
 | `StageOutcome` | Return the stage analysis plus optional selected next state |
@@ -59,11 +59,11 @@ Adapter returned an expected stage
 | `ScenarioWorkspacePreparer` | Seed and modify copied Composer files and construct restricted environment | Never writes target changes to the analyzed tree |
 | `ScenarioOutcomeClassifier` | Separate success, solver failure, and operational outcomes | Process failure does not always mean dependency blockage |
 | `CandidateLockFileReader` | Fingerprint LF-normalized candidate lockfile bytes and package them as `CandidateLockEvidence` | Unreadable lock evidence becomes uncertainty rather than guessed data |
-| `ComposerPackageMetadataLookup` | Read-only, bounded package/version discovery for interactive target selection | The caller must explicitly choose cache-only or project-repository lookup; operational failures remain unverified |
+| `ComposerPackageMetadataLookup` | Read-only, bounded package/version discovery for interactive target selection | The caller explicitly chooses cache-only or project-repository lookup. Operational failures remain unverified. |
 | `PackageMetadataLookupMode` | Closed vocabulary for `local_cache_only` and `project_repositories` | Network permission is explicit rather than hidden in a default API |
 | `PackageMetadataLookupResult` | Invalid/found/not-found/unverified result plus bounded version and diagnostic data | Offline, timeout, malformed output, and cache misses are not package nonexistence |
 
-`ComposerScenarioRunner` is intentionally broad because it owns one external-process boundary. Analysis interpretation remains in `Analysis` services.
+`ComposerScenarioRunner` owns the external Composer process and its workspace. Services under `Analysis` decide what the result means.
 
 `ComposerPackageMetadataLookup` is a separate pre-analysis discovery boundary. It invokes the selected Composer executable with `show --all --format=json`, plugins, scripts, interaction, and ANSI disabled, and uses the configured diagnostic timeout. Project-repository mode may use repository configuration, credentials, and network. Local-cache mode requests network disablement and never returns `not_found` for a cache miss. Restricted `ComposerExecutionConfiguration` currently returns an explicit unverified result without starting a process because isolated lookup state is not yet implemented.
 
@@ -76,7 +76,7 @@ Adapter returned an expected stage
 | `AnalysisPhase` | Stable phase identifiers for project loading, Composer feasibility, staged resolution, source scan, framework evaluation, and report assembly |
 | `NoOpAnalysisProgressReporter` | Default sink for embeddings that do not expose progress |
 
-`DefaultUpgradeAnalyzer` emits lifecycle events and contains every exception thrown by a reporter, including analysis-start and analysis-failure notifications. Reporter failures therefore cannot change ordering, evidence, report status, returned reports, or thrown analysis failures. CLI and Laravel own terminal-specific rendering; Core contains no TTY or console styling code.
+`DefaultUpgradeAnalyzer` emits lifecycle events and contains every exception thrown by a reporter, including analysis-start and analysis-failure notifications. Reporter failures therefore cannot change ordering, evidence, report status, returned reports, or thrown analysis failures. CLI and Laravel own terminal-specific rendering. Core contains no TTY or console styling code.
 
 ## Filesystem services
 
@@ -88,7 +88,7 @@ Adapter returned an expected stage
 | `TemporaryWorkspaceManager` | Create, retain in debug mode, and remove scenario workspaces |
 | `WorkspaceCleanupException` | Preserve cleanup failure details without hiding the original analysis evidence |
 
-Cleanup failures matter because a retained workspace can contain copied Composer metadata. Core therefore reports cleanup uncertainty rather than treating cleanup as invisible housekeeping.
+A failed cleanup can leave copied Composer metadata on disk. Core reports that uncertainty while keeping the workspace path out of the shareable report.
 
 ## Source services
 
@@ -102,9 +102,9 @@ Cleanup failures matter because a retained workspace can contain copied Composer
 | `AutoloadOwnershipIndexBuilder` | Resolve Composer PSR-0/PSR-4/classmap/files ownership evidence |
 | `SymbolOwnershipIndex` | Query which package owns a discovered symbol |
 
-Framework adapters can add collectors with `SourceUsageVisitorProvider`. They augment the framework-neutral scan; they do not replace Core's parser.
+Framework adapters can add collectors with `SourceUsageVisitorProvider`. They augment the framework-neutral scan without replacing Core's parser.
 
-Default source limits are 10,000 files, 2 MiB per file, 64 MiB aggregate input and 10,000 usages. Omission produces `E3` evidence and uncertainty; it is not a complete-source result. Embedded callers may pass an optional `SourceScanLimits` to `SourceUsageScanner`; existing calls retain these defaults. CLI and Artisan do not add new limit flags in this patch.
+Default source limits are 10,000 files, 2 MiB per file, 64 MiB aggregate input and 10,000 usages. Omission produces `E3` evidence and uncertainty, not a complete-source result. Embedded callers may pass an optional `SourceScanLimits` to `SourceUsageScanner`, while existing calls retain these defaults. CLI and Artisan do not add new limit flags in this patch.
 
 ## Reporting services
 
@@ -128,11 +128,11 @@ When adding a report field, changing only a writer is not enough. Update the mod
 | `PathExposurePolicy` | Absolute host paths leaking into shareable reports |
 | `OutputExcerpt` | Unbounded Composer output and invalid UTF-8 truncation |
 
-The services complement one another. A bounded excerpt can still contain a token; redaction is still required. A redacted error can still expose a host directory; path normalization is still required.
+Each service covers a different leak. Short output can still contain a token, and redacted output can still show a host path. Apply bounding, redaction, and path policy together.
 
 ## Important model families
 
-Core model classes are immutable data boundaries rather than services. The easiest way to navigate them is by family:
+Core model classes carry validated data between services. Look them up by family:
 
 | Family | Representative classes |
 | --- | --- |
@@ -159,20 +159,20 @@ Implement it in the adapter's rule catalog/rule classes. Core should see only `C
 
 ### Add a different output format
 
-Implement `ReportWriter`, register resolution in `ReportWriterResolver`, extend `ReportFormat`, and add tests. The new writer must consume `UpgradeReport`; it must not rerun Composer or reinterpret the project.
+Implement `ReportWriter`, register resolution in `ReportWriterResolver`, extend `ReportFormat`, and add tests. The new writer must consume `UpgradeReport` without rerunning Composer or reinterpreting the project.
 
 ### Diagnose a surprising source-impact row
 
 Check, in order:
 
-1. `SourceUsageScanner` inventory;
-2. adapter compatibility findings;
-3. selected candidate `LockDiff`;
-4. `SymbolOwnershipIndex` result;
-5. `SourceImpactBuilder` correlation;
+1. `SourceUsageScanner` inventory
+2. adapter compatibility findings
+3. selected candidate `LockDiff`
+4. `SymbolOwnershipIndex` result
+5. `SourceImpactBuilder` correlation
 6. `SourceImpactAccumulator` merge behavior.
 
-This order helps distinguish a parsing error from an ownership error or an over-broad impact rule.
+Follow the data in that order to see whether the problem began in parsing, ownership, or the impact correlation.
 
 ## Related pages
 

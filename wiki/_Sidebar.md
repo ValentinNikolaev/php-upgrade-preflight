@@ -1,6 +1,6 @@
 # PHP Upgrade Preflight Wiki
 
-## 1. Overview
+## Start here
 
 - [[Home]]
 - [[Key Concepts|Key-Concepts]]
@@ -10,7 +10,7 @@
 - [[Package Map|Package-Map]]
 - [[Class and Service Index|Class-and-Service-Index]]
 
-## 2. Using the tool
+## Use the tool
 
 - [[Getting Started|Getting-Started]]
 - [[CLI Reference|CLI-Reference]]
@@ -19,7 +19,7 @@
 - [[Safety and Trust Boundaries|Safety-and-Trust-Boundaries]]
 - [[Troubleshooting and FAQ|Troubleshooting-and-FAQ]]
 
-## 3. Architecture (for contributors)
+## Understand the code
 
 - [[Architecture Overview|Architecture-Overview]]
 
@@ -37,13 +37,13 @@
 - [[Laravel Package Internals|Laravel-Package-Internals]]
 - [[Test Adapters|Test-Adapters]]
 
-## 4. Extending
+## Extend and contribute
 
 - [[Writing a Framework Adapter|Writing-a-Framework-Adapter]]
 - [[Laravel Adapter Internals|Laravel-Adapter-Internals]]
 - [[Contributing]]
 
-## 5. Project
+## Project and releases
 
 - [[Roadmap and Status|Roadmap-and-Status]]
 
@@ -52,6 +52,6 @@
 - [[Tools Reference|Tools-Reference]]
 - [[Quality and Release Tooling|Quality-and-Release-Tooling]]
 
-### Release Wiki strategy
+### Wiki publication
 
 - [[Release Wiki Strategy|Release-Wiki-Strategy]]

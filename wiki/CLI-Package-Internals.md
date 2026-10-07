@@ -1,14 +1,14 @@
 # CLI Package Internals
 
-`php-upgrade-preflight/cli` provides the framework-neutral `upgrade-intel` executable. It owns command syntax, adapter discovery, request construction, and output delivery. Core owns analysis.
+`php-upgrade-preflight/cli` provides `upgrade-intel`. It reads the command line, finds installed adapters, builds a request, and delivers the report. Core does the analysis.
 
 ## Entry point and install layouts
 
 Composer exposes `bin/upgrade-intel`. The script looks for an autoloader in this order:
 
-1. Composer's `_composer_autoload_path` global, when supplied;
-2. the monorepo root `vendor/autoload.php` layout;
-3. a nearby `autoload.php` layout;
+1. Composer's `_composer_autoload_path` global, when supplied.
+2. The monorepo root `vendor/autoload.php` layout.
+3. A nearby `autoload.php` layout.
 4. the package-local `vendor/autoload.php` layout.
 
 If none exists, it prints `Unable to find Composer autoload.php.` to standard error and exits `1`.
@@ -21,7 +21,7 @@ vendor/bin/upgrade-intel analyze --target=vendor/package:^2.0 [options]
 vendor/bin/upgrade-intel analyze --target-platform-profile=platform.json [options]
 ```
 
-`Application` dispatches to `WizardCommand` only for the literal `wizard` subcommand and otherwise delegates to `AnalyzeCommand`. Both implement the small `CommandRunner` boundary. `-h` and `--help` are recognized before ordinary parsing.
+`Application` sends the literal `wizard` subcommand to `WizardCommand` and analysis to `AnalyzeCommand`. Both implement `CommandRunner`. Help is handled before the normal option parser.
 
 ## Complete option reference
 
@@ -30,7 +30,7 @@ vendor/bin/upgrade-intel analyze --target-platform-profile=platform.json [option
 | Option | Repeatable | Default | Meaning |
 | --- | --- | --- | --- |
 | `--path=PATH` | No | Current directory | Project root to analyze |
-| `--target=PACKAGE:VALUE` | Yes | Empty | Composer package target; `php:VERSION` is normalized specially |
+| `--target=PACKAGE:VALUE` | Yes | Empty | Composer package target, with special normalization for `php:VERSION` |
 | `--target-php=VERSION` | No | None | Exact simulated PHP value |
 | `--target-platform-profile=PATH` | No | None | JSON target platform profile |
 | `--from-php=VALUE` | No | None | Exact current PHP evidence for staged reasoning |
@@ -53,7 +53,7 @@ At least one package target, target PHP, or target-platform profile is required.
 
 ## Parser behavior
 
-The parser accepts long values only as `--name=value`; it does not consume a following token as the value.
+The parser accepts long values only as `--name=value`. It does not consume a following token as the value.
 
 Correct:
 
@@ -83,19 +83,19 @@ Unknown options produce the generic `Unknown option.` diagnostic. A flag with a 
 
 `AnalyzeCommand` converts parsed strings to:
 
-- `UpgradeTarget` values;
-- an optional `TargetPlatformProfile` loaded from JSON;
-- `ExtensionAssumption` values;
-- `ComposerExecutionConfiguration`;
+- `UpgradeTarget` values.
+- An optional `TargetPlatformProfile` loaded from JSON.
+- `ExtensionAssumption` values.
+- `ComposerExecutionConfiguration`.
 - one validated `UpgradeRequest`.
 
-The command validates an output destination before analysis starts. This avoids spending time on Composer scenarios only to discover that the requested report path is invalid.
+The command checks the output path before running Composer scenarios. An invalid destination fails early, while there is still no report to lose.
 
 `--output` is file-only delivery and preserves its established success acknowledgement. `--save-report` first validates the destination, then emits the canonical rendered report on stdout and writes the identical rendered value as a copy.
 
 ## Wizard orchestration and package validation
 
-`WizardCommand` is a human-facing request builder, not a second analyzer. It requires terminal-attached input and stderr, collects explicit choices, prints the equivalent `analyze` invocation, obtains confirmation, and delegates that argument vector through `CommandRunner`. Redirected or non-interactive sessions fail with code `2` and direct callers to `analyze`; prompt cancellation returns `130`.
+`WizardCommand` gathers a person's choices and passes an equivalent `analyze` command through `CommandRunner`. It needs terminal-attached input and stderr, shows the command, and asks for confirmation. Redirected sessions return `2` and point callers to `analyze`. Cancelling a prompt returns `130`.
 
 Package choices use injectable validation seams:
 
@@ -119,19 +119,20 @@ The project-repository lookup may use network, credentials, and configured repos
 | `2` | Invocation was invalid |
 | `130` | The wizard was cancelled before analysis |
 
-A valid report whose resolution is `blocked` or `unknown` still exits `0`. Consumers must inspect the JSON report status instead of translating the process exit code into upgrade readiness.
+A `blocked` or `unknown` report still exits `0`: the command succeeded in producing a report. Read its JSON status to decide what the result says about the upgrade.
 
 Example CI pattern:
 
 ```bash
+mkdir -p ../upgrade-reports
 vendor/bin/upgrade-intel analyze \
   --path=. \
   --target=laravel/framework:^12.0 \
   --target-php=8.3 \
   --format=json \
-  --output=build/upgrade-report.json
+  --output=../upgrade-reports/upgrade-report.json
 
-# Next, validate and inspect metadata.schema_version and resolution.status.
+# Next, inspect metadata.schema_version and resolution.status.
 ```
 
 ## Adapter discovery
@@ -154,17 +155,17 @@ An adapter package advertises classes like this:
 
 The advertised value must be a non-empty JSON list. Every item must be a non-empty, trimmed class name. The registry also requires each loaded class to:
 
-- exist and be instantiable;
-- have no required constructor parameters;
-- implement `FrameworkIntegration`;
-- return a non-empty, trimmed integration name;
+- exist and be instantiable.
+- have no required constructor parameters.
+- implement `FrameworkIntegration`.
+- return a non-empty, trimmed integration name.
 - avoid duplicate class and case-insensitive integration-name registrations.
 
 Healthy integrations are sorted case-insensitively by name, then by class name, giving stable discovery order.
 
 ## Broken optional adapter behavior
 
-Discovery is isolated per installed package. If one package has unreadable or invalid adapter metadata, the registry skips that package, keeps other integrations, and exposes a diagnostic on standard error.
+The registry checks each installed package separately. It skips unreadable or invalid adapter metadata, keeps usable integrations, and writes a diagnostic to stderr.
 
 This behavior differs for an explicit request:
 
@@ -180,7 +181,7 @@ With no `--framework`, Core may activate installed adapters through project dete
 
 ## Diagnostics and sensitive output
 
-All command exceptions are written to standard error after `SensitiveOutputRedactor::redact()`. Reports go to standard output unless `--output` is supplied. `--save-report` preserves stdout and adds an identical validated file copy. TTY-only progress also uses stderr; it is absent when stderr is redirected.
+All command exceptions are written to standard error after `SensitiveOutputRedactor::redact()`. Reports go to standard output unless `--output` is supplied. `--save-report` preserves stdout and adds an identical validated file copy. TTY-only progress also uses stderr. It is absent when stderr is redirected.
 
 Operational messages use path-exposure policy. For example, a successful file write prints a safe path marker when the real path should not be exposed.
 
@@ -225,7 +226,7 @@ vendor/bin/upgrade-intel analyze \
   --composer-diagnostic-timeout=30
 ```
 
-Restricted mode can prevent network-backed resolution when artifacts are not already available. Treat that as an environment/evidence limitation, not automatically as a package blocker.
+Restricted mode may have too little cached metadata to resolve a package. The report records that uncertainty without automatically blaming the dependency graph.
 
 ## Class reference
 

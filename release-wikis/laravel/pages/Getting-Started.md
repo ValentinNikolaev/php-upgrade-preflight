@@ -1,14 +1,14 @@
 # Getting Started
 
-This guide takes you from an empty tools directory to a report you can explain to a developer or a technical manager. PHP Upgrade Preflight analyzes an upgrade; it does not perform one.
+This guide takes you from installation to a report your team can use. PHP Upgrade Preflight examines an upgrade. It does not change the application for you.
 
 > **Current release line:** v0.3.x. The latest published release recorded by the repository is v0.3.5. It produces canonical JSON schema 0.8 and requires PHP `^8.0` on the machine that runs the analyzer.
 
 ## The result in one sentence
 
-You give the analyzer an existing Composer project, a desired package or PHP target, and optional target-platform facts. It copies the project metadata to temporary workspaces, asks Composer what can resolve, scans selected PHP source, and writes an evidence-backed report without changing the target tree.
+Give the analyzer a Composer project, a package or PHP target, and any platform facts you know. It copies project metadata to temporary workspaces, asks Composer what resolves, scans selected PHP source, and reports the evidence. The target tree stays unchanged.
 
-The report is planning input. It is not proof that the application boots, passes tests, is secure, or is ready to deploy.
+Use the report to plan the work. Analysis does not establish that the application will boot, pass tests, be secure, or be operationally ready. Install and test the upgraded application on its target runtime before deciding it is ready to deploy.
 
 ## Before you install
 
@@ -28,7 +28,7 @@ The analyzer host needs PHP 8.0 or newer and Composer 2. A target project may us
 
 ### Host installability is not target compatibility
 
-These are different questions:
+Keep these three questions separate:
 
 | Question | Example | Answered by |
 | --- | --- | --- |
@@ -78,7 +78,7 @@ composer require --dev php-upgrade-preflight/cli:^0.3 php-upgrade-preflight/lara
 vendor\bin\upgrade-intel.bat --help
 ```
 
-Project-local installation changes the project before analysis. The analyzer's read-only promise begins after installation; it cannot make the `composer require` step immutable.
+`composer require` changes `composer.json` and `composer.lock` when you install locally. The analyzer leaves the project unchanged once that installation is complete.
 
 The published packages are ordinary Composer packages. There is no supported PHAR or versioned runtime container image. The repository Docker files are development and verification tooling.
 
@@ -110,7 +110,7 @@ vendor/bin/upgrade-intel wizard
 vendor\bin\upgrade-intel.bat wizard
 ```
 
-It shows available project evidence, asks whether to model PHP, packages, or both, and requires an explicit Composer analysis mode. For package targets, the default reads only `composer.json`. You may instead request a local-cache-only metadata check or configured project repositories; the latter can use network access and credentials. A package that is explicitly absent or has no matching discovered version must be corrected. Offline, timeout, and metadata failures are shown as unverified rather than falsely labeled nonexistent.
+It shows available project evidence, asks whether to model PHP, packages, or both, and requires an explicit Composer analysis mode. For package targets, the default reads only `composer.json`. You may instead request a local-cache-only metadata check or configured project repositories. The latter can use network access and credentials. A package that is explicitly absent or has no matching discovered version must be corrected. Offline, timeout, and metadata failures are shown as unverified rather than falsely labeled nonexistent.
 
 The default report format is readable Markdown. The wizard always keeps the report on stdout and can also save the same bytes to a validated path outside the project. It shows the equivalent flag-based `analyze` command before confirmation. Use that explicit command in CI or any redirected/non-TTY session. Enter `cancel`, `quit`, or `q` to stop before analysis.
 
@@ -252,14 +252,14 @@ Remove-Item Env:COMPOSER_ROOT_VERSION
 
 Expected interpretation:
 
-- process exit code: `0`, because a valid report was written;
-- direct `resolution.status`: `blocked`;
-- aggregate `staged_resolution.status`: `blocked`;
-- 10→11 and 11→12 stages: `feasible_with_changes`;
-- 12→13 stage: `blocked` by the deliberately absent `ext-preflight-stage`;
+- process exit code: `0`, because a valid report was written.
+- direct `resolution.status`: `blocked`.
+- aggregate `staged_resolution.status`: `blocked`.
+- 10→11 and 11→12 stages: `feasible_with_changes`.
+- 12→13 stage: `blocked` by the deliberately absent `ext-preflight-stage`.
 - Laravel guidance: supported for all three hops.
 
-This is the clearest example of why an exit code is not an upgrade verdict.
+The command worked. The upgrade is still blocked. Read the report status before drawing a conclusion from exit code `0`.
 
 ## Choose JSON or Markdown
 

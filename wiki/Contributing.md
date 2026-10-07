@@ -1,16 +1,16 @@
 # Contributing
 
-PHP Upgrade Preflight welcomes focused fixes, tests, documentation, framework rules, fixtures, and reproducibility improvements. This Wiki guide reflects repository policy on **2026-08-19**; `CONTRIBUTING.md` remains the canonical in-repository source.
+Fixes, tests, documentation, framework rules, fixtures, and reproducibility work are welcome. This guide reflects repository policy checked on **2026-08-19**. Use `CONTRIBUTING.md` for the canonical contribution rules.
 
 ## Before you start
 
-For a large change, open an issue first to confirm direction. Report security vulnerabilities privately through `SECURITY.md`, never in a public issue or pull request.
+For a large change, open an issue to discuss the direction. Send vulnerabilities through the private process in `SECURITY.md`. Public issues and pull requests expose the details too early.
 
 Every contribution must preserve four product rules:
 
-- the analyzed project stays unchanged;
-- conclusions remain evidence-backed;
-- JSON is the canonical report and Markdown is a projection;
+- the analyzed project stays unchanged.
+- conclusions remain evidence-backed.
+- JSON is the canonical report and Markdown is a projection.
 - Core stays framework-neutral.
 
 ## Development setup
@@ -32,7 +32,7 @@ composer install
 composer check
 ```
 
-The project supports PHP 8.0 as its package floor. CI additionally exercises newer PHP versions and Windows.
+The packages require PHP 8.0 or newer. CI also checks newer PHP versions and Windows.
 
 ## Work from narrow to broad
 
@@ -56,7 +56,7 @@ Before opening a pull request, run:
 composer check
 ```
 
-`composer check` validates all manifests, runs unit/integration/smoke tests, both PHPStan configurations, and formatting in dry-run mode. It does not update dependencies or query live vulnerability data.
+`composer check` validates all manifests, checks the generated Wiki trees, runs unit, integration, and smoke tests, runs both PHPStan configurations, and checks formatting without rewriting files. It does not update dependencies or query live vulnerability data.
 
 If Docker stops the long integration suite near Composer's default 300-second process timeout, run:
 
@@ -73,7 +73,7 @@ composer test:coverage
 composer test:mutation
 ```
 
-Coverage is an exact ratchet: overall and critical-module ratios cannot decline, and new uncovered fingerprints fail. Do not lower the baseline to hide missing tests. Rewrite it only after reviewing a complete successful Clover run:
+Coverage uses an exact ratchet: overall and critical-module ratios cannot fall, and new uncovered fingerprints fail. Review the full Clover result before intentionally updating the baseline:
 
 ```bash
 php tools/verify-coverage.php build/coverage/clover.xml --write-baseline
@@ -105,18 +105,18 @@ Docker:
 docker compose run --rm -e PHP_UPGRADE_PREFLIGHT_UPDATE_SNAPSHOTS=1 php composer test:fixtures
 ```
 
-Review every JSON/Markdown pair. Snapshot normalization removes host paths, separators, and timing noise but preserves meaningful commands, outcomes, findings, evidence, and lock fingerprints.
+Review each JSON and Markdown pair. Normalization removes host paths, separators, and timing noise. Commands, outcomes, findings, evidence, and lock fingerprints must still make sense.
 
-Never regenerate archived `tests/fixtures/contracts/v0.1` or `v0.2.1` during ordinary work. They are released compatibility evidence; correction requires explicit compatibility review and provenance.
+Never regenerate archived `tests/fixtures/contracts/v0.1` or `v0.2.1` during ordinary work. They are released compatibility evidence. Correction requires explicit compatibility review and provenance.
 
 ## Schema changes
 
 Published schema files are immutable. Any additive or breaking serialized shape change requires:
 
-1. a new schema version and file;
-2. an updated canonical Core snapshot;
-3. consumer migration documentation;
-4. tests for JSON and Markdown projection;
+1. a new schema version and file.
+2. an updated canonical Core snapshot.
+3. consumer migration documentation.
+4. tests for JSON and Markdown projection.
 5. changelog and Wiki updates.
 
 A finding or guidance correction may retain the schema only when the serialized shape remains compatible.
@@ -125,7 +125,7 @@ A finding or guidance correction may retain the schema only when the serialized 
 
 - Keep one coherent change per pull request.
 - Add tests for every behavior change and failure boundary.
-- Preserve target-project immutability; compare before/after digests for integration fixtures.
+- Preserve target-project immutability. Compare before/after digests for integration fixtures.
 - Update affected `README.md`, `docs/`, `CHANGELOG.md`, and Wiki pages in the same change.
 - Check every changed command, link, supported-version claim, and example.
 - Run focused checks during development and `composer check` before review.
@@ -158,9 +158,9 @@ Only `core`, `cli`, and `laravel` are supported external distributions. The two 
 
 Every behavior change must update affected public documentation in its pull request. The requirement becomes a hard release condition before any `vMAJOR.MINOR.PATCH` tag:
 
-1. update `CHANGELOG.md` and `docs/releases/vVERSION.md`;
-2. update all affected Wiki pages, commands, examples, compatibility tables, service descriptions, schemas, and limitations;
-3. verify the text is understandable to a Junior developer and a technical manager;
+1. update `CHANGELOG.md` and `docs/releases/vVERSION.md`.
+2. update all affected Wiki pages, commands, examples, compatibility tables, service descriptions, schemas, and limitations.
+3. verify the text is understandable to a Junior developer and a technical manager.
 4. run `composer release:verify -- VERSION` and complete the release checklist.
 
 Codex, Claude, and all other coding agents are explicitly required to perform the Wiki update when their work creates or prepares a release tag. They must not defer it as optional cleanup. `verify-release.php` checks repository metadata, changelog, release notes, and the materialized Wiki trees. Human or agent review is still required for behavioral accuracy and for the published four-destination evidence that a local drift check cannot prove.
@@ -183,11 +183,7 @@ Use the package boundary to avoid coupling:
 | Current third-party adapter capability fixture | `packages/test-adapter` |
 | Backward-compatibility adapter fixture | `packages/legacy-test-adapter` |
 
-Do not solve a Laravel requirement by importing Laravel code into Core.
-
-Do not add analysis decisions to a command controller.
-
-Do not put fixture-only package names into production behavior.
+Keep Laravel requirements in the adapter, analysis decisions in the service that owns them rather than a command controller, and fixture package names out of production behavior.
 
 See [[Package Map|Package-Map]] and [[Class and Service Index|Class-and-Service-Index]] before introducing a new service.
 
@@ -205,9 +201,9 @@ See [[Package Map|Package-Map]] and [[Class and Service Index|Class-and-Service-
 | Redaction/path behavior | Synthetic canary tests on strings and structured values |
 | CLI option | Vocabulary, parser, help, command, and CLI documentation tests |
 
-A happy-path unit test is not sufficient for a trust boundary.
+A trust boundary needs a test for failure as well as success.
 
-Test the classification of failure, not only that an exception occurred.
+Check the reported failure category, not just whether an exception occurred.
 
 ## Example: changing a Core report field
 
@@ -226,7 +222,7 @@ The complete path normally includes:
 
 Do not calculate the field only in `MarkdownReportWriter`.
 
-That would create a second, non-canonical analysis path.
+The JSON report and Markdown would then disagree about where the fact came from.
 
 ## Example: changing a Laravel rule
 
@@ -250,13 +246,13 @@ Never rewrite archived released fixtures to make a new rule appear backward comp
 
 For every new evidence item, confirm:
 
-- the namespace is stable and valid;
-- creation order is deterministic;
-- the summary states an observation, not an unsupported conclusion;
-- context contains no secret or private absolute path;
-- evidence class matches the source;
-- confidence matches support strength;
-- a report claim references the ID;
+- the namespace is stable and valid.
+- creation order is deterministic.
+- the summary states an observation, not an unsupported conclusion.
+- context contains no secret or private absolute path.
+- evidence class matches the source.
+- confidence matches support strength.
+- a report claim references the ID.
 - no orphan evidence remains.
 
 `UpgradeReport` rejects missing and orphan evidence references.

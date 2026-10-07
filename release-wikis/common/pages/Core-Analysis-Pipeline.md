@@ -1,10 +1,10 @@
 # Core Analysis Pipeline
 
-This page explains the services in `php-upgrade-preflight/core` in the order a request uses them. It is useful when debugging a result, adding a framework adapter, or estimating the scope of a change.
+Follow a request through `php-upgrade-preflight/core` here. The sequence helps you find the service behind a surprising result and see where an adapter or other change belongs.
 
 ## The central contract
 
-`UpgradeAnalyzer` exposes one operation: analyze an `UpgradeRequest` and return an `UpgradeReport`. `DefaultUpgradeAnalyzer` is the production implementation.
+`UpgradeAnalyzer` takes an `UpgradeRequest` and returns an `UpgradeReport` through `analyzeUpgrade()`. Production uses `DefaultUpgradeAnalyzer`.
 
 Conceptually:
 
@@ -24,7 +24,7 @@ $request = new UpgradeRequest(
 $report = $analyzer->analyzeUpgrade($request);
 ```
 
-In normal application code, prefer the generic CLI or Laravel command; the example shows the object boundary, not a complete bootstrap.
+The example shows the object boundary. For a complete entry point, use the generic CLI or Laravel command.
 
 ## Pipeline overview
 
@@ -47,16 +47,16 @@ In normal application code, prefer the generic CLI or Laravel command; the examp
 
 `DefaultUpgradeAnalyzer` can receive an `AnalysisProgressReporter`. It emits analysis start/completion/failure, phase start/completion, and Composer scenario start/completion events around the same pipeline. The stable phases are project loading, Composer feasibility, staged resolution, source scan, framework evaluation, and report assembly.
 
-Progress is deliberately outside the report model. A reporter exception is caught and ignored; it cannot cancel, retry, reorder, or reinterpret work. The default reporter is `NoOpAnalysisProgressReporter`. The standalone CLI and Laravel package provide their own TTY-aware stderr renderers, while non-terminal and embedded consumers retain the original silent behavior.
+Progress stays outside the report. The analyzer catches reporter exceptions, so a broken progress display cannot cancel or change analysis. `NoOpAnalysisProgressReporter` is the default. CLI and Laravel render progress to terminal-attached stderr. Redirected and embedded runs stay quiet.
 
 ## Project input handling
 
-`ProjectStateBuilder` reads `composer.json` and `composer.lock` through `JsonFileReader`. Missing or invalid input does not have to crash the whole command. `DefaultUpgradeAnalyzer` can return an input-failure report with a `project-input` scenario.
+`ProjectStateBuilder` reads `composer.json` and `composer.lock` through `JsonFileReader`. When input is missing or invalid, `DefaultUpgradeAnalyzer` can still produce a report with a `project-input` scenario. That failure is about the project files, not Composer's solver.
 
 Examples of modeled outcomes include:
 
-- `invalid_json` for an invalid Composer JSON document;
-- `lockfile_missing` when `composer.lock` is missing;
+- `invalid_json` for an invalid Composer JSON document
+- `lockfile_missing` when `composer.lock` is missing
 - `workspace_failure` for other project-state loading failures.
 
 Paths in failure messages pass through `PathExposurePolicy` before entering a shareable report.
@@ -74,10 +74,10 @@ For a package target, `ScenarioSelector` starts with these scenarios:
 
 When both package targets and a target PHP are present, Core can also add:
 
-- `target-platform-only`, a diagnostic partial probe that does not determine the final target;
-- `staged-targets`, which tries package targets against the current PHP. This requires `--from-php` or `config.platform.php`; otherwise the report records an uncertainty.
+- `target-platform-only`, a diagnostic partial probe that does not determine the final target
+- `staged-targets`, which tries package targets against the current PHP. This requires `--from-php` or `config.platform.php`. Without either value, the report records an uncertainty.
 
-Equivalent executions are deduplicated. For example, a PHP-only request does not create several scenarios that would run the same Composer operation.
+Core removes scenarios that would run the same Composer operation. A PHP-only request therefore does not repeat an identical probe under several names.
 
 ## Temporary Composer workspaces
 
@@ -100,19 +100,19 @@ Example transformation inside the temporary copy:
 
 If a targeted package originally lives only in `require-dev`, its target constraint is updated there. Relative Composer `path` and `artifact` repository URLs are made absolute relative to the analyzed project so the copied manifest retains their meaning.
 
-The analyzer does not write this transformed manifest back to the project.
+The transformed manifest stays in the temporary workspace. The project copy does not change.
 
 ## Compatible and restricted Composer modes
 
 The default compatible mode inherits the normal Composer environment, apart from non-interactive/no-audit settings. Restricted mode creates isolated Composer home/cache/XDG directories inside the temporary workspace, clears proxy and prompt variables, sets empty auth, and requests Composer network disablement.
 
-Restricted mode reduces environmental reach; it does not turn Composer into a security sandbox. See the safety documentation before running against an untrusted project.
+Restricted mode gives Composer less access to host configuration and network state. It is still a process on your machine, so use the controls in [[Safety and Trust Boundaries|Safety-and-Trust-Boundaries]] for untrusted projects.
 
 ## Selecting candidate evidence
 
 Several scenarios may succeed with candidate locks. `DefaultUpgradeAnalyzer` selects the candidate with the fewest package changes. Ties prefer the exact-target strategy, then minimal-changes, then with-all-dependencies, with original scenario order as the final tie-breaker.
 
-This selected candidate drives the direct `LockDiff`. If no successful target-feasibility scenario yields a readable candidate lock, Core does not invent package versions and returns an empty candidate diff.
+That candidate supplies the direct `LockDiff`. If no successful target-feasibility scenario has a readable lock, the diff is empty. Core cannot infer candidate package versions from solver text.
 
 ## Blockers and diagnostics
 
@@ -128,7 +128,7 @@ Composer process failed
         +-- execution/evidence failed ----> unknown + uncertainty
 ```
 
-A timeout, unavailable Composer executable, or unreadable candidate lock is not automatically a dependency conflict.
+A timeout, missing Composer executable, or unreadable candidate lock leaves an evidence gap. None establishes a dependency conflict by itself.
 
 ## Staged analysis
 
@@ -140,7 +140,7 @@ For Laravel 10 to 13, an adapter may produce:
 laravel-10-to-11 -> laravel-11-to-12 -> laravel-12-to-13
 ```
 
-Each successful stage supplies the candidate `ProjectState` used by the next stage. A failed or unknown stage stops later execution; later planned stages are reported as skipped rather than silently omitted.
+Each successful stage supplies the candidate `ProjectState` used by the next stage. A failed or unknown stage stops later execution. The report marks later planned stages as skipped.
 
 Staged execution uses bounded timeouts from `StagedAnalysisPolicy`. The blocker registry tracks whether blockers are detected, persist, resolve, or are superseded across attempts.
 
@@ -161,11 +161,11 @@ Lock diff: vendor/package changes in the selected candidate
 Result: actionable source-impact finding
 ```
 
-Without ownership or transition relevance, a usage can remain inventory without becoming an impact claim.
+If ownership or transition relevance is missing, the usage stays in inventory. It does not become a claim that code must change.
 
 The original source snapshot is scanned even when staged Composer candidates exist. A staged candidate is dependency evidence, not a rewritten application tree.
 
-The analyzer compares Composer and selected-source fingerprints around long-running phases. Input drift adds uncertainty because dependency and source sections may otherwise describe different project states; the detector does not lock the project or create a full source snapshot.
+The analyzer compares Composer and selected-source fingerprints around long-running phases. Input drift adds uncertainty because dependency and source sections may otherwise describe different project states. The detector does not lock the project or create a full source snapshot.
 
 ## Framework capability interfaces
 
@@ -178,7 +178,7 @@ The analyzer compares Composer and selected-source fingerprints around long-runn
 | `SourceUsageVisitorProvider` | Framework-specific AST collectors |
 | `HopAwareCompatibilityRule` | A rule that can evaluate one specific transition hop |
 
-Core checks optional interfaces at runtime. An older adapter implementing only the original interfaces can still provide useful detection and guidance; it simply cannot provide newer capabilities such as staged targets.
+Core checks optional interfaces at runtime. An older adapter implementing only the original interfaces can still provide detection and guidance. It cannot provide newer capabilities such as staged targets.
 
 ## Reporting services
 
@@ -191,7 +191,7 @@ Core checks optional interfaces at runtime. An older adapter implementing only t
 | `ReportWriterResolver` | Chooses a writer from the requested format |
 | `ReportFileWriter` | Validates and writes an output destination |
 
-Report writers do not analyze the project and must not introduce independent conclusions.
+Writers render the assembled report. They do not run analysis or decide what a result means.
 
 ## Where to make a change
 

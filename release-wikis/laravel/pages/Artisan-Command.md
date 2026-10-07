@@ -1,34 +1,34 @@
 # Artisan Command
 
-Installing `php-upgrade-preflight/laravel` in a Laravel application registers a service provider through package discovery. When the application is running in console mode, the provider adds:
+Install `php-upgrade-preflight/laravel` in a Laravel application and package discovery registers its service provider. When the application runs in console mode, that provider adds:
 
 ```text
 php artisan upgrade:analyze [options]
 ```
 
-The command uses the same core analyzer and Laravel integration as the standalone CLI. It defaults `--path` to the application's base path and always enables Laravel.
+This command uses the same Core analyzer and Laravel adapter as the standalone CLI. It analyzes the application's base path unless you pass `--path`, and it always enables the Laravel adapter.
 
 ## When Artisan is a good fit
 
 Use Artisan when:
 
-- the application can boot on the current PHP interpreter;
-- the Laravel adapter can be installed without harming the dependency graph;
-- project-local installation is acceptable;
+- the application can boot on the current PHP interpreter.
+- the Laravel adapter can be installed without harming the dependency graph.
+- project-local installation is acceptable.
 - developers already use Artisan as the operational entry point.
 
 Use an external CLI tools directory when:
 
-- the target is Laravel 7 or PHP 7.x;
-- Laravel cannot boot because of a broken provider or configuration;
-- installing a dev dependency would disturb the project;
+- the target is Laravel 7 or PHP 7.x.
+- Laravel cannot boot because of a broken provider or configuration.
+- installing a dev dependency would disturb the project.
 - an immutable audit must include the state before package installation.
 
 ### Host installability versus target platform
 
-The Artisan command must first boot the current Laravel application. Therefore its host constraints are real installation constraints. The adapter is host-installable on Laravel 8–13, with Laravel's own PHP floor applying when higher than the package's PHP 8.0 floor.
+Artisan has to boot the current application before analysis can start. The adapter's Composer constraints allow Laravel 8–13 on PHP 8.0 or later, subject to each Laravel version's higher PHP minimum.
 
-`--target-php=8.3`, however, is Composer simulation input for the desired target. It does not switch the interpreter that runs `php artisan`. A Laravel 10 application that boots on PHP 8.1 may analyze a PHP 8.3 target; the report still does not prove that the upgraded application runs on PHP 8.3.
+`--target-php=8.3` tells Composer which target platform to simulate. It does not change the PHP interpreter running Artisan. A Laravel 10 application booting on PHP 8.1 can analyze a PHP 8.3 target, but the report cannot prove the upgraded application runs on PHP 8.3.
 
 ## Install
 
@@ -44,7 +44,7 @@ composer require --dev php-upgrade-preflight/laravel:^0.3
 php artisan list | Select-String upgrade
 ```
 
-The Laravel package includes the Artisan command. Install `php-upgrade-preflight/cli` too only if you also need `vendor/bin/upgrade-intel`.
+The Laravel package includes the Artisan command. Install `php-upgrade-preflight/cli` as well if you want `vendor/bin/upgrade-intel`.
 
 ## First report
 
@@ -81,7 +81,7 @@ Keep output outside the application. The parent directory must already exist and
 | `--path=PATH` | No | Laravel base path | Project directory to analyze |
 | `--target=PACKAGE:CONSTRAINT` | Yes | None | Requested package target |
 | `--target-php=VERSION` | No | None | Exact target PHP platform |
-| `--target-platform-profile=PATH` | Technically list-valued; exactly one allowed | None | Schema 1.0 JSON platform profile |
+| `--target-platform-profile=PATH` | Technically list-valued, with exactly one allowed | None | Schema 1.0 JSON platform profile |
 | `--from-php=VERSION` | No | None | Known current PHP for staging |
 | `--with-extension=EXT[:VERSION]` | Yes | None | Model an extension as present |
 | `--without-extension=EXT` | Yes | None | Model an extension as absent |
@@ -95,7 +95,7 @@ Keep output outside the application. The parent directory must already exist and
 | `--composer-diagnostic-timeout=SECONDS` | No | `60` | Diagnostic timeout, 1–900 |
 | `--debug` | No | Off | Preserve workspaces and expose exact paths |
 
-Unlike the standalone parser, Symfony Console also accepts the normal separated-value form for Artisan options, but the `--name=value` form keeps examples portable and unambiguous.
+Artisan also accepts values separated from their option names, such as `--path .`. The standalone CLI requires `--path=.`. That form works in both places.
 
 At least one package target, target PHP, or target-platform profile is required.
 
@@ -111,7 +111,7 @@ At least one package target, target PHP, or target-platform profile is required.
 
 Targets, platform profiles, extension assumptions, source validation, report writers, output safety, Composer execution modes, debug behavior, and exit policy otherwise use the same underlying model.
 
-The standalone CLI also provides `upgrade-intel wizard`; Artisan remains an explicit option-based command and does not add a second interactive prompt surface.
+The standalone CLI offers `upgrade-intel wizard`. Artisan takes explicit options.
 
 ## Choosing between Artisan and an external CLI
 
@@ -152,7 +152,7 @@ php artisan upgrade:analyze `
   --output=..\upgrade-reports\laravel-11.json
 ```
 
-Every source path must exist inside the analyzed project. The Laravel adapter also contributes its normal default paths, so `--source` is for additional or focused input, not permission to read outside the project.
+Every `--source` path must exist inside the project. The Laravel adapter supplies its default paths too. Adding a source cannot make the analyzer read outside the project.
 
 Duplicate identical targets collapse after normalization. Conflicting constraints for the same package are invalid. PHP targets must be exact values such as `8.2` or `8.2.12`, never ranges such as `^8.2`.
 
@@ -218,13 +218,13 @@ Suppose a report contains:
 }
 ```
 
-This is not contradictory:
+The three fields answer different questions:
 
-- the requested final target did not resolve in direct scenarios;
-- an adjacent-stage chain did find selectable candidate states;
+- the requested final target did not resolve in direct scenarios.
+- an adjacent-stage chain did find selectable candidate states.
 - the adapter has rule coverage for the requested framework route.
 
-The next action is to inspect the selected stage attempts and blockers, not to declare the application compatible. Later source and runtime work still has to be performed.
+Inspect the selected stage attempts and blockers before planning changes. A successful stage chain still leaves source changes and runtime testing to the project team.
 
 ## Exit codes are not upgrade statuses
 
@@ -253,7 +253,7 @@ $report.staged_resolution | Select-Object execution_state,status,stop_reason
 
 Compatible mode may inherit host Composer config, credentials, proxy variables, cache, Git/SSH setup, and network. Restricted mode creates fresh Composer state, scrubs controlled credential/proxy sources, and requests offline behavior.
 
-Restricted mode is not an OS sandbox. If its fresh cache cannot provide repository metadata, the report records `repository_metadata_unavailable` and resolution becomes unknown rather than blocked.
+Restricted mode does not provide an operating-system network sandbox. If its fresh cache lacks repository metadata, the report records `repository_metadata_unavailable` and leaves resolution `unknown` rather than calling it `blocked`.
 
 ### Slow or private-repository example
 
@@ -279,7 +279,7 @@ php artisan upgrade:analyze --target-php=8.2 --format=markdown
 
 For automation, prefer a validated output file. If you redirect stdout yourself, the shell can create a destination inside the application before the analyzer sees it, defeating the destination guard.
 
-Progress is observational and never changes the report. Terminal detection follows the command's attached error output rather than the host process: redirected, buffered, or captured invocations remain silent, so report stdout remains suitable for pipes. The renderer uses ordinary lines rather than a spinner or cursor-control sequences.
+Progress cannot change the report. It appears only when the command's error output is attached to a terminal. Redirected or captured runs stay quiet, and stdout remains usable in a pipe. The renderer prints ordinary lines, with no spinner or cursor control.
 
 ## Debugging a boot failure
 
@@ -299,7 +299,7 @@ When boot fails, use the external standalone CLI. It reads Composer metadata and
 
 ## Debug mode warning
 
-`--debug` preserves temporary workspaces and exposes exact temporary paths. Retained workspaces contain copied manifests; redaction of the report does not sanitize those files. Do not share debug reports or workspaces.
+`--debug` preserves temporary workspaces and exposes exact temporary paths. Retained workspaces contain copied manifests. Report redaction does not sanitize those files. Do not share debug reports or workspaces.
 
 ## Related pages
 

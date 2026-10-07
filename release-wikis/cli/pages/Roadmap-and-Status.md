@@ -1,6 +1,6 @@
 # Roadmap and Project Status
 
-> Point-in-time status: **2026-10-07**. This page reports repository-backed commitments and boundaries; it does not invent delivery dates or unapproved features.
+> Checked against the repository on **2026-10-07**. The release facts below describe that date. Future milestones have no promised delivery dates.
 
 ## Current status
 
@@ -8,14 +8,14 @@ PHP Upgrade Preflight is an Open Source **public beta**. The latest published re
 
 The bounded Laravel completion milestone is published in v0.3.5: all 299 reviewed guide headings are accounted for, with three primary and two supplemental pinned application snapshots evaluated. This closes the reviewed patch-compatible coverage, not every Laravel application or runtime-compatibility question. Next is v0.4 Milestone 0 to confirm the theme, freeze the v0.3 baseline and define the new contracts, followed by version identity in Milestone 1 and adapter/package ownership in Milestone 2 before Symfony work in Milestone 3.
 
-Public beta means the public PHP API, CLI and Artisan surfaces, adapter extension points, package boundaries, and report semantics are still being proven before `1.0`. It does **not** mean the analyzer guarantees a successful production upgrade.
+Public beta means the PHP API, CLI and Artisan commands, adapter extension points, package boundaries, and report semantics may still need refinement before `1.0`. A report gives you evidence for planning. It cannot guarantee a production upgrade.
 
 The analyzer provides decision-support evidence. It does not:
 
-- modify or perform the target upgrade;
-- boot or execute the analyzed application;
-- prove runtime compatibility;
-- guarantee tests, deployment, or production behavior;
+- modify or perform the target upgrade.
+- boot or execute the analyzed application.
+- prove runtime compatibility.
+- guarantee tests, deployment, or production behavior.
 - replace security and operational review.
 
 ## Release lines
@@ -23,10 +23,10 @@ The analyzer provides decision-support evidence. It does not:
 | Line | Status on 2026-10-07 | Report schema | Policy |
 |---|---|---|---|
 | `0.3.x` | Active published line from `main` | `0.8` | Patch compatibility commitment |
-| `0.2.x` | Archival | `0.7` | Signed artifacts retained; no features, routine fixes, or security fixes |
+| `0.2.x` | Archival | `0.7` | Signed artifacts retained. No features, routine fixes, or security fixes |
 | `0.1.x` | Archival | `0.6` | Immutable historical contract evidence |
 
-Users on archival lines should plan an upgrade to v0.3 rather than pin indefinitely.
+The `0.2.x` and `0.1.x` lines are archival. If you use one, plan a move to v0.3 for current support.
 
 Within v0.3.x, patch releases preserve documented public PHP operation, CLI/Artisan behavior, required adapter interfaces and discovery metadata, exit policy, schema `0.8` compatibility, and supported transition/staged-analysis claims. Individual findings, evidence, diagnostics, security behavior, and documentation may be corrected without changing those contracts.
 
@@ -49,10 +49,10 @@ Within v0.3.x, patch releases preserve documented public PHP operation, CLI/Arti
 
 The current catalog supports:
 
-- Laravel 7→8;
-- retained direct 7→9 guidance;
-- every adjacent hop from 8→9 through 12→13;
-- gapless multi-major guidance within Laravel 7–13;
+- Laravel 7→8.
+- retained direct 7→9 guidance.
+- every adjacent hop from 8→9 through 12→13.
+- gapless multi-major guidance within Laravel 7–13.
 - staged Composer solving for a single rooted `laravel/framework` target across contiguous adjacent paths.
 
 Same-major requests, downgrades, ambiguous or unknown majors, endpoints outside 7–13, and a missing first hop are unsupported. A later gap after a covered prefix is only partially supported. Illuminate-component-only projects and mixed Laravel-family target sets do not receive a fabricated staged solve.
@@ -61,23 +61,23 @@ Same-major requests, downgrades, ambiguous or unknown majors, endpoints outside 
 
 Repository contracts explicitly state that v0.3 does not add:
 
-- Symfony or CodeIgniter production adapters;
-- a PHAR distribution;
-- a supported runtime container image;
-- a higher PHP package floor;
-- source or project Composer-file modification;
-- target-application execution;
+- Symfony or CodeIgniter production adapters.
+- a PHAR distribution.
+- a supported runtime container image.
+- a higher PHP package floor.
+- source or project Composer-file modification.
+- target-application execution.
 - a runtime-compatibility guarantee.
 
 The repository's Docker files are development tooling, not a supported product runtime.
 
 ## Path toward 1.0
 
-There is no repository-backed calendar date for `1.0.0`. It is a stability decision, appropriate when the public PHP API, CLI behavior, package split, adapter surface, and schema policy are mature enough that future breaking changes can wait for a new major release.
+There is no announced date for `1.0.0`. The project can make that stability claim once its PHP API, CLI behavior, package split, adapter surface, and schema policy are settled enough to hold breaking changes for a new major release.
 
 The project remains in major version `0` while those contracts are being proven:
 
-- patch releases contain backward-compatible fixes, security work, documentation corrections, test maintenance, and release/build changes;
+- patch releases contain backward-compatible fixes, security work, documentation corrections, test maintenance, and release/build changes.
 - minor releases may include features and intentional breaking changes, which still require prominent changelog and migration documentation.
 
 A future PHP 9-only runtime could influence the decision because dropping PHP 8 is breaking, but PHP 9 does not automatically imply project version 1.0.
@@ -86,19 +86,19 @@ A future PHP 9-only runtime could influence the decision because dropping PHP 8 
 
 A credible move toward broader stability should preserve and extend the evidence already required by the repository:
 
-- cross-version Linux and Windows tests;
-- normal and lowest dependency-resolution consumers;
-- framework-host smoke tests;
-- exact coverage and selective-mutation ratchets;
-- immutable fixture and archived compatibility contracts;
-- privacy/redaction checks with synthetic canaries;
-- deterministic resource budgets;
-- signed distribution and monorepo tags;
-- archive checksums, dependency inventory, and provenance;
-- Packagist installation at exact signed-tag references;
+- cross-version Linux and Windows tests.
+- normal and lowest dependency-resolution consumers.
+- framework-host smoke tests.
+- exact coverage and selective-mutation ratchets.
+- immutable fixture and archived compatibility contracts.
+- privacy/redaction checks with synthetic canaries.
+- deterministic resource budgets.
+- signed distribution and monorepo tags.
+- archive checksums, dependency inventory, and provenance.
+- Packagist installation at exact signed-tag references.
 - accurate developer- and manager-readable documentation.
 
-These are release gates and maturity signals, not a promised delivery schedule.
+These checks support a stability decision. They do not imply a release date.
 
 ## Licensing status
 
@@ -144,7 +144,7 @@ This table distinguishes implemented capability from interpretation.
 | Target-platform profiles | Schema 1.0 partial and complete profiles | A deployment environment was inspected remotely |
 | JSON report | Canonical schema 0.8 contract | Future schemas cannot add or change fields under versioning policy |
 | Markdown report | Human-readable projection | Markdown is an independent analysis engine |
-| Restricted Composer mode | Isolates analyzer state and requests no network | Operating-system sandboxing is guaranteed |
+| Restricted Composer mode | Isolates analyzer state and requests best-effort offline behaviour | Operating-system sandboxing is guaranteed |
 | Interactive wizard | Builds and reviews an explicit analysis request in a TTY | Prompts are supported in CI or replace the `analyze` contract |
 | Package metadata choices | Distinguish found, no-match, not-found, and operationally unverified | A pre-analysis lookup proves final Composer feasibility |
 | Terminal progress | Shows durable phases and scenarios on TTY stderr | Progress changes report semantics or appears in redirected streams |
@@ -184,19 +184,17 @@ Only the first three belong in public distribution workflows.
 
 ## Stability dimensions
 
-Project maturity is not one number.
+The project can improve one part of its contract while another still needs work. Track these parts separately:
 
-The following dimensions can progress at different rates:
-
-- PHP API stability;
-- CLI and Artisan syntax stability;
-- report schema stability;
-- adapter interface stability;
-- framework guidance coverage;
-- source-impact precision;
-- Composer environment reproducibility;
-- privacy and redaction assurance;
-- release provenance and consumer verification;
+- PHP API stability.
+- CLI and Artisan syntax stability.
+- report schema stability.
+- adapter interface stability.
+- framework guidance coverage.
+- source-impact precision.
+- Composer environment reproducibility.
+- privacy and redaction assurance.
+- release provenance and consumer verification.
 - documentation quality.
 
 A new Laravel rule can improve guidance coverage without changing the schema.
@@ -205,7 +203,7 @@ A new report field can change schema work without changing Composer behavior.
 
 A redaction correction can improve safety while preserving public command syntax.
 
-Roadmap decisions should name the dimension being changed.
+Name the affected contract or capability in each roadmap proposal.
 
 ## Criteria for a broader stability claim
 
@@ -222,7 +220,7 @@ A future stability milestone should have evidence for:
 9. Junior-readable operating documentation and manager-readable limitations.
 10. A release process that updates Wiki and repository documentation together.
 
-These are evidence categories, not a hidden release date.
+Meeting these criteria would support a broader stability claim. The list sets no release date.
 
 ## How roadmap proposals should be written
 
@@ -240,9 +238,7 @@ Documentation and migration plan:
 Explicit non-goals:
 ```
 
-For example, “add Symfony adapter” is not enough.
-
-The proposal should identify detection packages, version boundary, maintained sources, rule vocabulary, staged support decision, and ownership of future updates.
+For example, a Symfony adapter proposal should identify detection packages, version boundaries, maintained sources, rule vocabulary, whether staged analysis is included, and who will keep the rules current.
 
 Until implemented and tested, it remains possible rather than current.
 
@@ -250,15 +246,15 @@ Until implemented and tested, it remains possible rather than current.
 
 The following statements are not roadmap commitments unless a future approved change says otherwise:
 
-- support for every PHP framework;
-- a hosted analysis service;
-- automatic source rewriting;
-- automated deployment approval;
-- a PHAR release;
-- a production container image;
-- PHP 9-only package requirements;
-- a specific 1.0 date;
-- unlimited staged hops or Composer processes;
+- support for every PHP framework.
+- a hosted analysis service.
+- automatic source rewriting.
+- automated deployment approval.
+- a PHAR release.
+- a production container image.
+- PHP 9-only package requirements.
+- a specific 1.0 date.
+- unlimited staged hops or Composer processes.
 - automatic security vulnerability scanning.
 
 Avoid turning repository experiments, development Docker files, or fixture adapters into product promises.
@@ -278,11 +274,7 @@ For a release candidate, compare all of these values:
 | `docs/releases/vVERSION.md` | Matching release notes and provenance |
 | Wiki status and examples | Describe tagged behavior |
 
-A mismatch blocks the release until explained and corrected.
-
-Do not fix only one version string.
-
-Behavior claims, compatibility tables, commands, and examples must be reviewed together.
+A mismatch needs an explanation and correction before release. Review behavior claims, compatibility tables, commands, and examples alongside the version strings.
 
 ## Decision examples
 
@@ -324,11 +316,7 @@ It can identify dependency blockers, candidate changes, source review locations,
 
 It cannot replace application tests, data migration review, deployment rehearsals, security review, or operational ownership.
 
-Public beta is therefore appropriate language for current capabilities.
-
-Use report evidence to define work packages and validation steps.
-
-Do not use the tool as an automated go-live gate without separate organizational controls.
+Public beta describes this scope honestly. Use the report to define work and validation steps, and keep the application's own release decision separate.
 
 ## Wiki publication status
 

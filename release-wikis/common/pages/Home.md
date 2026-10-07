@@ -1,6 +1,6 @@
 # PHP Upgrade Preflight
 
-PHP Upgrade Preflight explains a Composer-based PHP or Laravel upgrade before anybody changes the analyzed project.
+PHP Upgrade Preflight helps you investigate a PHP or Laravel upgrade before changing the project. It asks Composer to test possible dependency states, checks relevant source, and shows the evidence behind its conclusions.
 
 It answers practical questions such as:
 
@@ -12,15 +12,15 @@ It answers practical questions such as:
 - Can a multi-major Laravel path be solved one adjacent stage at a time?
 - Which conclusions are proven, which are inferred, and which remain unknown?
 
-It does this by treating the project as immutable input. The analyzer copies Composer manifests into disposable workspaces, runs Composer there with scripts and plugins disabled, parses PHP source, applies active adapter rules, and assembles evidence into a report.
+The project stays as input. The analyzer copies its Composer manifests into temporary workspaces, runs Composer there with scripts and plugins disabled, parses PHP source, applies active adapter rules, and writes an evidence-backed report.
 
 > **Public beta:** the current published line is v0.3.x. The latest release recorded in the repository is v0.3.5, and its canonical report schema is 0.8.
 
 ## What problem it solves
 
-A framework upgrade is not one question. Composer may reject the requested packages, accept them only after related dependencies move, or resolve a final target that still requires application code changes. A framework migration guide may cover a route that Composer cannot currently solve. A direct jump may fail while an adjacent staged path provides useful intermediate evidence.
+A framework upgrade raises several questions. Composer may reject the target, resolve it only after other packages move, or accept it while the application still needs code changes. A Laravel rule may cover a migration step even when Composer cannot solve its dependencies. A direct jump can also fail while adjacent stages reveal where the path stops.
 
-PHP Upgrade Preflight keeps those conclusions separate. It gives developers and technical managers a reviewable picture without editing `composer.json`, rewriting `composer.lock`, or changing source files.
+The report keeps those conclusions separate. You can inspect what Composer found, which code may need attention, and what remains uncertain. Analysis does not edit the target's `composer.json`, `composer.lock`, or source files.
 
 ### Example decision
 
@@ -43,19 +43,19 @@ A valid report can say that direct resolution is `blocked`, Laravel guidance is 
 
 ### Developers evaluating an upgrade
 
-Start with [[Getting Started|Getting-Started]], then use [[Reading the Report|Reading-the-Report]]. The fastest useful outcome is not “upgrade succeeded”; it is a concrete list of blockers, affected code, unknowns, and next checks.
+Start with [[Getting Started|Getting-Started]], then open [[Reading the Report|Reading-the-Report]] alongside your first JSON report. Look for blockers, affected code, unknowns, and the checks your team needs to run next.
 
 ### Contributors to the analyzer
 
-Start with [[Architecture Overview|Architecture-Overview]], continue with [[Core Package Guide|Core-Package-Guide]], and finish with [[Contributing|Contributing]]. The core is framework-neutral, and every reported claim must remain deterministic and evidence-backed.
+Start with [[Architecture Overview|Architecture-Overview]], then [[Core Package Guide|Core-Package-Guide]] and [[Contributing|Contributing]]. Keep framework rules in adapters and trace every report claim to evidence.
 
 ### Framework adapter authors
 
-Start with [[Writing a Framework Adapter|Writing-a-Framework-Adapter]], then compare the shipped implementation in [[Laravel Adapter Internals|Laravel-Adapter-Internals]]. Framework package families, source vocabulary, and migration guidance belong in the adapter, never in core.
+Start with [[Writing a Framework Adapter|Writing-a-Framework-Adapter]] and compare it with [[Laravel Adapter Internals|Laravel-Adapter-Internals]]. Your adapter owns its framework's package families, source vocabulary, and migration guidance.
 
 ### Technical managers
 
-Read this page, [[Key Concepts|Key-Concepts]], and [[Reading the Report|Reading-the-Report]]. Pay particular attention to risk drivers, effort ranges, confidence, uncertainty, and the separation between direct and staged results.
+Read [[Key Concepts|Key-Concepts]] and [[Reading the Report|Reading-the-Report]] for the terms behind a planning decision. Check risk drivers and effort assumptions, then ask which conclusions came from the direct solve and which came from staged analysis.
 
 ## What the project does
 
@@ -83,7 +83,7 @@ Read this page, [[Key Concepts|Key-Concepts]], and [[Reading the Report|Reading-
 - It does not use AI to invent advice or fill evidence gaps.
 - It is not an operating-system network sandbox.
 
-The correct interpretation is “decision-support evidence,” not “permission to deploy.”
+Treat the result as planning evidence. Deployment still depends on the application's own tests and operational checks.
 
 ## Current scope
 
@@ -95,7 +95,7 @@ The Composer monorepo publishes three packages in lockstep:
 | `php-upgrade-preflight/cli` | The explicit `upgrade-intel analyze` command and interactive `upgrade-intel wizard` |
 | `php-upgrade-preflight/laravel` | Laravel adapter and `upgrade:analyze` Artisan command |
 
-All shipped packages have a PHP `^8.0` language/runtime floor. The separate tools-directory workflow allows that PHP 8 analyzer to inspect an older target project without requiring the target application to boot.
+The three distributed packages require PHP `^8.0` on the analyzer host. Install them in a separate tools directory when the target uses older PHP. Analysis reads the project without booting it.
 
 Laravel guidance covers 7→8, the retained direct 7→9 rule pack, and adjacent hops from 8→9 through 12→13. A rooted `laravel/framework` project can receive staged Composer evidence for a contiguous adjacent path. The direct final-target result remains independent.
 
@@ -121,7 +121,7 @@ flowchart LR
     F --> H[Markdown projection]
 ```
 
-The JSON report is the source of truth. The Markdown writer renders that report and contains no independent analysis logic.
+JSON is the report contract. The Markdown writer renders the same report without deciding anything again.
 
 ## Typical workflow
 
@@ -168,7 +168,7 @@ The JSON report is the source of truth. The Markdown writer renders that report 
 
 ## First safety rule
 
-Never place `--output` or `--save-report` inside the analyzed project. The tool rejects that destination because producing a report inside the input tree would violate its byte-for-byte immutability guarantee.
+Put `--output` or `--save-report` outside the analyzed project. The command rejects an in-project destination because writing there would change the input tree.
 
 ## Canonical references
 
@@ -182,7 +182,7 @@ Never place `--output` or `--save-report` inside the analyzed project. The tool 
 
 ## Next step
 
-If you want to try the tool, continue to [[Getting Started|Getting-Started]]. If you need to explain a report to a team, continue to [[Reading the Report|Reading-the-Report]].
+To run it, open [[Getting Started|Getting-Started]]. To discuss a result with your team, use [[Reading the Report|Reading-the-Report]].
 
 ## Worked example: a feasible target
 
@@ -225,7 +225,7 @@ The report can contain:
 }
 ```
 
-The exact blocker shape is controlled by schema 0.8; the abbreviated example highlights the decision path.
+The exact blocker shape is controlled by schema 0.8. The abbreviated example highlights the decision path.
 
 A developer should follow the blocker's scenario and evidence references.
 
@@ -241,11 +241,11 @@ Unknown means evidence was insufficient for a reliable direct conclusion.
 
 Common causes include:
 
-- Composer executable unavailable;
-- process timeout;
-- restricted mode without required cached packages;
-- unreadable or invalid project input;
-- candidate lock evidence that could not be read;
+- Composer executable unavailable.
+- process timeout.
+- restricted mode without required cached packages.
+- unreadable or invalid project input.
+- candidate lock evidence that could not be read.
 - incomplete platform information.
 
 The right response is to repair the evidence path and rerun.
@@ -278,10 +278,10 @@ Then locate every evidence ID attached to the finding.
 
 Read the evidence class:
 
-- E1 is solver evidence;
-- E2 is package metadata;
-- E3 is project source;
-- E4 is maintainer documentation encoded by an adapter;
+- E1 is solver evidence.
+- E2 is package metadata.
+- E3 is project source.
+- E4 is maintainer documentation encoded by an adapter.
 - E5 is a heuristic.
 
 Check confidence separately from severity.
