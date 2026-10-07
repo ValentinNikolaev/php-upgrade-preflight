@@ -649,7 +649,7 @@ final class ReleaseWorkflowTest extends TestCase
         $runs = implode("\n", array_column($job['steps'], 'run'));
         self::assertStringContainsString('composer check-platform-reqs --no-dev', $runs);
         self::assertStringContainsString('vendor/bin/phpunit --no-configuration', $runs);
-        self::assertStringContainsString('vendor/bin/pest --no-configuration', $runs);
+        self::assertStringContainsString('php -d zend.assertions=1 vendor/bin/pest --no-configuration', $runs);
         self::assertStringNotContainsString('--ignore-platform-req', $runs);
         self::assertStringNotContainsString('--list-tests', $runs);
 

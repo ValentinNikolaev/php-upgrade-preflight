@@ -278,7 +278,7 @@ jobs:
             pest)
               cp "${GITHUB_WORKSPACE}/tests/fixtures/current-test-tools/ConsumerUpgrade.php" tests/ConsumerUpgrade.php
               cp "${GITHUB_WORKSPACE}/tests/fixtures/current-test-tools/PestSmokeTest.php" tests/PestSmokeTest.php
-              vendor/bin/pest --no-configuration --bootstrap vendor/autoload.php tests/PestSmokeTest.php
+              php -d zend.assertions=1 vendor/bin/pest --no-configuration --bootstrap vendor/autoload.php tests/PestSmokeTest.php
               ;;
           esac
 
