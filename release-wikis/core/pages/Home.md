@@ -1,26 +1,10 @@
 # Core Package Guide
 
-`php-upgrade-preflight/core` is the framework-neutral engine.
-
-This guide is for developers changing or embedding Core.
-
-It focuses on contracts and safe change paths rather than repeating every class description.
-
-See [[Core Service Reference|Core-Service-Reference]] for the detailed class index.
-
-See [[Architecture Overview|Architecture-Overview]] for system-wide flow.
+`php-upgrade-preflight/core` contains the framework-neutral analysis engine. Use this guide when embedding it or changing one of its contracts. [[Core Service Reference|Core-Service-Reference]] lists the classes. [[Architecture Overview|Architecture-Overview]] shows how the packages fit together.
 
 ## What Core promises
 
-Core accepts an `UpgradeRequest` through `UpgradeAnalyzer`.
-
-Core returns an `UpgradeReport`.
-
-Core performs analysis in temporary workspaces.
-
-Core treats Composer, project source, platform data, and adapter guidance as distinct evidence sources.
-
-Core does not know about a specific framework unless an adapter supplies that knowledge.
+`UpgradeAnalyzer` accepts an `UpgradeRequest` and returns an `UpgradeReport`. Core runs Composer probes in temporary workspaces and keeps Composer, source, platform, and adapter evidence separate. Framework knowledge arrives through adapters.
 
 ## Installation boundary
 
@@ -38,10 +22,10 @@ PhpUpgradePreflight\Core\
 
 Its production dependencies are:
 
-- PHP `^8.0`;
-- `composer/semver` `^3.4`;
-- `nikic/php-parser` `^4.19|^5.0`;
-- Symfony Filesystem `^5.4|^6.0|^7.0|^8.0`;
+- PHP `^8.0`
+- `composer/semver` `^3.4`
+- `nikic/php-parser` `^4.19|^5.0`
+- Symfony Filesystem `^5.4|^6.0|^7.0|^8.0`
 - Symfony Process `^5.4|^6.0|^7.0|^8.0`.
 
 Core has no dependency on the CLI or Laravel package.
@@ -74,59 +58,39 @@ $request = new UpgradeRequest(
 $report = (new DefaultUpgradeAnalyzer())->analyzeUpgrade($request);
 ```
 
-The CLI packages remain the easier entry point for most users.
+For command-line use, the CLI handles request construction and report delivery.
 
 Embedders may inject an `AnalysisProgressReporter` into `DefaultUpgradeAnalyzer`. Core emits validated lifecycle events for analysis, phases, and Composer scenarios. `NoOpAnalysisProgressReporter` is the default. Reporter failures are contained, so progress remains observational and cannot change the returned report.
 
 ## Constructing a valid request
 
-`UpgradeRequest` validates its inputs immediately.
-
-The project path must exist.
-
-At least one package target, target PHP, or target-platform profile must exist after normalization.
-
-Package targets use `UpgradeTarget`.
+`UpgradeRequest` validates inputs when you construct it. The project path must exist, and normalization must leave at least one package target, target PHP value, or target-platform profile. Represent package targets with `UpgradeTarget`.
 
 ```php
 $target = new UpgradeTarget('symfony/console', '^7.0');
 ```
 
-The package must be a resolvable Composer package name.
-
-The constraint must parse through Composer Semver.
-
-Use exact values for `fromPhp` and `targetPhp`.
+Use a valid Composer package name and a constraint that Composer Semver can parse. `fromPhp` and `targetPhp` need exact PHP versions because Core models a concrete platform value.
 
 ```php
 targetPhp: '8.3'
 ```
 
-Do not use a broad PHP constraint where the model requires a simulated platform value.
+A range such as `^8.3` cannot stand in for that exact platform value.
 
 ## Target normalization
 
-`UpgradeTargetSet` sorts and validates targets.
-
-It merges `php:VERSION` package-style input with the dedicated target PHP value.
-
-Equivalent normalized PHP values can coexist.
-
-Contradictory PHP values fail early.
-
-Contradictory duplicate package targets also fail.
-
-Stable normalized targets support stable scenario selection and report output.
+`UpgradeTargetSet` validates and sorts targets. It merges package-style `php:VERSION` input with the dedicated PHP target. Equivalent values collapse to one target. Conflicting PHP values or duplicate package constraints fail before scenario selection. This stable input order carries through to the report.
 
 ## Composer execution configuration
 
 `ComposerExecutionConfiguration` owns:
 
-- executable command;
-- expected Composer version range;
-- scenario timeout;
-- diagnostic timeout;
-- compatible or restricted mode;
+- executable command
+- expected Composer version range
+- scenario timeout
+- diagnostic timeout
+- compatible or restricted mode
 - derived environment and network policy.
 
 Defaults are:
@@ -139,119 +103,65 @@ Defaults are:
 | Diagnostic timeout | 60 seconds |
 | Mode | `compatible` |
 
-Scenario timeout must be from 1 through 3600 seconds.
-
-Diagnostic timeout must be from 1 through 900 seconds.
+Scenario timeouts accept 1–3600 seconds, and diagnostic timeouts accept 1–900 seconds.
 
 ## Package metadata discovery
 
 `ComposerPackageMetadataLookup` is the bounded read-only discovery service used by interactive clients before analysis. Its public `lookup()` operation requires the project path, package, constraint, `ComposerExecutionConfiguration`, and an explicit `PackageMetadataLookupMode`.
 
-The result is a `PackageMetadataLookupResult` with one of four statuses: `invalid`, `found`, `not_found`, or `unverified`. A found result includes bounded discovered and constraint-matching version lists and their full counts. Local-cache misses, timeout, offline, malformed output, and process failures are unverified rather than guessed nonexistence. Project-repository mode may use configured repositories, credentials, and network; only its explicit package-not-found response becomes `not_found`.
+The result is a `PackageMetadataLookupResult` with one of four statuses: `invalid`, `found`, `not_found`, or `unverified`. A found result includes bounded discovered and constraint-matching version lists and their full counts. Local-cache misses, timeout, offline, malformed output, and process failures are unverified rather than guessed nonexistence. Project-repository mode may use configured repositories, credentials, and network. Only its explicit package-not-found response becomes `not_found`.
 
 Restricted execution currently returns `restricted_execution_unavailable` without starting a process. This preserves the restricted contract until lookup can create isolated Composer home/cache state. Lookup diagnostics are bounded and redacted, and the service never writes analysis results into the target project.
 
 ## Loading project state
 
-Use `ProjectStateBuilder` rather than manually decoding Composer files.
-
-Its `load()` method returns `ProjectStateLoadResult`.
-
-Call `succeeded()` before using the state as reliable input.
-
-`build()` is the fail-fast convenience path.
-
-`ComposerJson` exposes normalized manifest facts.
-
-`ComposerLock` exposes locked packages and root-development knowledge.
-
-Both retain raw data needed for temporary scenario copies and report context.
+`ProjectStateBuilder::load()` returns `ProjectStateLoadResult`. Check `succeeded()` before using the state. Use `build()` when the caller should fail immediately. `ComposerJson` and `ComposerLock` expose normalized facts while retaining the raw data needed for temporary copies and report context.
 
 ## JSON failure types
 
 Core distinguishes:
 
-- `MissingJsonFileException`;
-- `UnreadableJsonFileException`;
+- `MissingJsonFileException`
+- `UnreadableJsonFileException`
 - `InvalidJsonException`.
 
-Do not collapse them into a generic solver failure.
-
-The project may be impossible to load before Composer executes.
+Keep these failures separate from solver results. Composer may never have started.
 
 ## Building the target platform
 
 Use `TargetPlatform::fromRequest($request, $project)`.
 
-This combines explicit target data with project metadata.
-
-`TargetPlatformProfile` can supply a deterministic platform description.
-
-Profiles validate supported classes, package values, and duplicate JSON object keys.
-
-The request checks that profile values do not contradict direct targets or extension assumptions.
+This combines explicit target data with project metadata. A `TargetPlatformProfile` supplies platform values under a declared completeness mode. Its reader and models validate supported package classes, values, and duplicate JSON keys. The request rejects contradictions with direct targets or extension assumptions.
 
 ## Selecting scenarios
 
-`ScenarioSelector::select()` returns an ordered list.
-
-Never assume a fixed count.
-
-The selector deduplicates execution-equivalent candidates.
+`ScenarioSelector::select()` returns scenarios in a deliberate order and removes executions that would be equivalent. The count depends on the target set and available current PHP evidence.
 
 A scenario contains:
 
-- name;
-- target set;
-- with-all-dependencies flag;
-- minimal-changes flag;
-- baseline flag;
+- name
+- target set
+- with-all-dependencies flag
+- minimal-changes flag
+- baseline flag
 - target-feasibility flag.
 
-The last flag is critical.
-
-A diagnostic partial probe must not determine final resolution status.
+Check `target-feasibility` before using a result to decide final resolution. A partial diagnostic probe does not settle that question.
 
 ## Running a scenario
 
 `ComposerScenarioRunner::run()` accepts:
 
-- current `ProjectState`;
-- `UpgradeRequest`;
-- one `Scenario`;
+- current `ProjectState`
+- `UpgradeRequest`
+- one `Scenario`
 - `TargetPlatform`.
 
-Before a full analysis, `DefaultUpgradeAnalyzer` resets runner caches.
-
-The runner may probe Composer version and platform packages.
-
-It creates an isolated workspace.
-
-It seeds copied Composer files.
-
-It applies temporary target and platform changes.
-
-It executes Composer through Symfony Process.
-
-It reads candidate lock evidence when available.
-
-It cleans the workspace unless debug retention applies.
+Before analysis, `DefaultUpgradeAnalyzer` resets the runner's caches. The runner can probe Composer's version and platform packages, prepares copied Composer files in a temporary workspace, applies the scenario, runs Composer through Symfony Process, and reads a candidate lock when one exists. It cleans the workspace unless debug mode retains it.
 
 ## Workspace preparation
 
-`ScenarioWorkspacePreparer` is the only service that applies scenario changes to Composer data.
-
-It keeps a package in `require-dev` when that package exists only there.
-
-Otherwise it writes the target into `require`.
-
-It adds simulated platform values to `config.platform` in the copy.
-
-It preserves existing case variants for platform-package keys.
-
-It makes relative `path` and `artifact` repository URLs absolute.
-
-This retains their meaning from the temporary directory.
+`ScenarioWorkspacePreparer` changes only copied Composer data. It updates a package in `require-dev` if that is where the project declared it. Otherwise, it writes the target to `require`. It adds simulated values to copied `config.platform`, preserves existing platform-key casing, and resolves relative `path` and `artifact` repository URLs against the original project so they still point to the same place.
 
 ## Scenario result interpretation
 
@@ -259,32 +169,20 @@ Check `ScenarioResult` fields rather than exit code alone.
 
 Important dimensions include:
 
-- `succeeded()`;
-- failure type;
-- outcome;
-- candidate lock;
-- diagnostics;
-- Composer version;
-- duration;
+- `succeeded()`
+- failure type
+- outcome
+- candidate lock
+- diagnostics
+- Composer version
+- duration
 - evidence references.
 
-`ScenarioOutcomeClassifier` separates solver failure from operational outcomes.
-
-A timeout or missing executable is not a dependency conflict.
+`ScenarioOutcomeClassifier` separates a solver conflict from an execution problem. A timeout or missing executable provides no proof of a dependency conflict.
 
 ## Lock changes
 
-`LockDiffBuilder` compares two `ComposerLock` values.
-
-It returns `LockDiff` containing `PackageChange` values.
-
-Changes can include additions, removals, upgrades, and downgrades.
-
-Adapter package-family classifiers can annotate changes.
-
-No readable candidate lock means no honest candidate diff.
-
-Do not infer an installed version from a requested constraint.
+`LockDiffBuilder` compares baseline and candidate `ComposerLock` values. The resulting `LockDiff` contains added, removed, upgraded, and downgraded `PackageChange` entries, which adapter classifiers may label by family. Without a readable candidate lock, Core leaves the candidate diff empty. A requested constraint does not identify an installed version.
 
 ## Blockers
 
@@ -296,19 +194,17 @@ It also has access to lock data, requested constraints, and target platform.
 
 A `Blocker` can include:
 
-- type;
-- subject;
-- blocking package;
-- requested and blocking constraints;
-- dependency path;
-- attribution;
-- confidence;
-- scenario references;
+- type
+- subject
+- blocking package
+- requested and blocking constraints
+- dependency path
+- attribution
+- confidence
+- scenario references
 - evidence references.
 
-Preserve this structure when adding new blocker knowledge.
-
-Do not hide it in a longer prose message.
+When adding blocker knowledge, carry it in these fields. A longer message cannot give report consumers the same structured data.
 
 ## Framework integrations
 
@@ -316,9 +212,9 @@ Every adapter implements `FrameworkIntegration`.
 
 That base contract supplies:
 
-- stable name;
-- detection;
-- compatibility rules;
+- stable name
+- detection
+- compatibility rules
 - default source paths.
 
 Optional interfaces add capabilities.
@@ -331,150 +227,58 @@ Optional interfaces add capabilities.
 | Extra AST visitors | `SourceUsageVisitorProvider` |
 | Per-hop rule evaluation | `HopAwareCompatibilityRule` |
 
-Use runtime capability checks.
-
-Do not require an old adapter to implement a new optional interface.
+Check optional interfaces at runtime. An older adapter can still provide its existing capabilities.
 
 ## Rule execution containment
 
-`FrameworkRuleEngine` catches failures from third-party rules.
-
-The failed rule is skipped.
-
-The failure becomes evidence-backed uncertainty.
-
-Remaining rules and integrations continue.
-
-This protects report availability without pretending the failed rule succeeded.
-
-Invalid findings are contained by the same boundary.
+`FrameworkRuleEngine` catches third-party rule failures and invalid findings. It records evidence-backed uncertainty for the affected rule and continues with the others. The report can finish while still showing that one check did not.
 
 ## Source scanning
 
-`SourceUsageScanner` works from project-contained paths.
-
-It parses PHP with PHP Parser.
-
-Parse problems are recorded as uncertainties.
-
-The scanner returns ordered `SourceUsage` inventory.
-
-Inventory contains facts such as file, line, symbol, and usage type.
-
-It does not itself decide that a usage blocks an upgrade.
+`SourceUsageScanner` parses PHP under paths contained in the project and returns ordered `SourceUsage` records: file, line, symbol, and usage type. Parse failures become uncertainties. A usage is an observation, not yet an upgrade finding.
 
 ## Ownership indexing
 
-`AutoloadOwnershipIndexBuilder` reads root and locked-package autoload metadata.
-
-It indexes relevant PSR mappings and exact declarations.
-
-It has a bounded exact-file budget.
-
-When limits or unreadable paths reduce confidence, it appends uncertainty.
-
-`SymbolOwnershipIndex` answers ownership queries.
-
-Ownership can be root, package, ambiguous, or otherwise modeled by the index.
+`AutoloadOwnershipIndexBuilder` reads root and locked-package autoload metadata, including relevant PSR mappings and exact declarations. Its exact-file scan has a limit. When that limit or an unreadable path weakens the result, it records uncertainty. `SymbolOwnershipIndex` then answers whether a symbol belongs to the root project, a package, or an ambiguous set of owners.
 
 ## Source impact
 
 `SourceImpactBuilder` correlates four inputs:
 
-1. source inventory;
-2. framework findings;
-3. selected candidate package changes;
+1. source inventory
+2. framework findings
+3. selected candidate package changes
 4. symbol ownership.
 
-`SourceImpactAccumulator` merges equivalent conclusions while preserving occurrences and evidence.
-
-`SourceImpactReasonWriter` centralizes stable explanation text.
-
-This separation makes source impact testable without rerunning Composer.
+`SourceImpactAccumulator` merges equivalent conclusions without losing occurrences or evidence. `SourceImpactReasonWriter` supplies stable explanation text. You can test this correlation with fixed inputs instead of rerunning Composer.
 
 ## Staged analysis
 
-`StagedUpgradeOrchestrator` works only with active stage providers.
-
-A provider returns `FrameworkStagePlan`.
-
-A plan contains ordered `FrameworkStageTarget` values or an explicit unavailable reason.
-
-`StagePlanResolver` validates provider output and enforces selection rules.
-
-`StageAttemptPlanner` creates attempts.
-
-`StageExecutor` enforces stage and aggregate limits.
-
-`StageBlockerRegistry` records blocker lifecycle.
-
-Later stages use selected candidate project state from earlier successful stages.
+`StagedUpgradeOrchestrator` runs when an active adapter supplies `FrameworkStageTargetProvider`. Its `FrameworkStagePlan` contains ordered targets or a reason staging is unavailable. `StagePlanResolver` validates the plan, `StageAttemptPlanner` prepares attempts, `StageExecutor` applies stage and aggregate limits, and `StageBlockerRegistry` follows blockers across attempts. Each successful stage passes its selected candidate project state to the next.
 
 ## Analysis budgets
 
-`AnalysisBudget` is serialized into the report.
+The report serializes the values from `AnalysisBudget`. `StagedAnalysisPolicy` exposes those same constants to the analysis layer. Core enforces hop and Composer-process limits and checks scenario, stage, and aggregate time while running staged Composer work. Before an attempt, it reserves time for the scenario and its possible `composer prohibits` diagnostics. `MAX_ATTEMPTS_PER_STAGE` caps the attempt list, but the time left may prevent every planned attempt from running. `MAX_SCENARIOS` is the product of the hop and attempt limits.
 
-`StagedAnalysisPolicy` aliases its constants for the analysis layer.
-
-The hop, attempt, Composer-process, and time limits are enforced during staged analysis; the scenario maximum is derived from the hop and attempt limits. Memory and report-size values are advisory targets checked against test fixtures, not runtime caps for arbitrary projects.
-
-Schema 0.8 serializes both kinds of value in one `budgets` object without enforcement modes or observed measurements. Structured distinctions and measurements require a new schema version and an intentional minor-line migration.
+Memory and JSON/Markdown report-size values are advisory targets. The analyzer does not measure arbitrary projects against them, though committed fixtures check report size. Schema 0.8 puts enforced and advisory values together in `budgets` without enforcement labels or observed measurements. Adding those fields would require a new schema version and an intentional minor-line migration.
 
 ## Risk and effort
 
-`RiskAndEffortEstimator` has aggregate and stage methods.
-
-It consumes structured findings.
-
-Risk output contains a level and reasons.
-
-Effort output contains a range, confidence, components, and assumptions.
-
-Never convert confidence to an undocumented percentage.
-
-Never present effort as a contractual estimate.
+`RiskAndEffortEstimator` uses structured findings for aggregate and stage assessments. Risk has a level and reasons. Effort has a range, confidence, components, and assumptions. The confidence label is not a probability, and the effort range is planning input rather than a delivery commitment.
 
 ## Evidence ledger
 
-Pass the same `EvidenceLedger` through collaborators participating in one analysis.
-
-`add()` creates a new sequential ID within a namespace.
-
-`addOnce()` reuses content-identical evidence within that namespace.
-
-`register()` accepts externally constructed evidence while rejecting duplicate IDs.
-
-At report construction, all referenced IDs must exist.
-
-All registered evidence must be referenced.
+Pass one `EvidenceLedger` through an analysis. `add()` gives a new namespace-local sequence ID, `addOnce()` reuses identical content in that namespace, and `register()` accepts an externally created item only if its ID is free. At report construction, every referenced ID must exist and every registered item must support a claim.
 
 See [Determinism and Evidence](https://github.com/ValentinNikolaev/php-upgrade-preflight/wiki/Determinism-and-Evidence).
 
 ## Report construction
 
-Use `ReportAssembler` for the normal complete report.
-
-It delegates derived sections to `ReportSectionBuilder`.
-
-It then creates `UpgradeReport` with direct, staged, framework, source, risk, effort, uncertainty, and evidence data.
-
-Use `ReportAssembler::inputFailure()` only for terminal project-input failure.
-
-Do not construct a weaker parallel report path for ordinary analysis.
+`ReportAssembler` builds the normal `UpgradeReport`, using `ReportSectionBuilder` for derived sections. It joins direct, staged, framework, source, risk, effort, uncertainty, and evidence data. `inputFailure()` handles terminal project-input failure. Ordinary analysis should use the complete path.
 
 ## Rendering
 
-`JsonReportWriter` is the canonical machine format.
-
-`MarkdownReportWriter` is the human projection.
-
-`ReportWriterResolver` maps normalized format to writer.
-
-`ReportFileWriter` validates and writes destinations.
-
-Rendering must be free of analysis decisions.
-
-Given one report object, writers should describe the same conclusions.
+`JsonReportWriter` writes the canonical machine format. `MarkdownReportWriter` presents the same conclusions for readers. `ReportWriterResolver` chooses the writer, and `ReportFileWriter` checks and writes a destination. Rendering should make no new analysis decision.
 
 ## Safe contribution workflow
 
@@ -496,12 +300,12 @@ When changing Core:
 
 A report field normally touches:
 
-- a model or section value;
-- `UpgradeReport::toArray()` or nested serialization;
-- `ReportAssembler` or `ReportSectionBuilder`;
-- JSON schema;
-- JSON snapshot tests;
-- Markdown writer and snapshots when human-visible;
+- a model or section value
+- `UpgradeReport::toArray()` or nested serialization
+- `ReportAssembler` or `ReportSectionBuilder`
+- JSON schema
+- JSON snapshot tests
+- Markdown writer and snapshots when human-visible
 - documentation.
 
 Do not patch only a snapshot.
@@ -577,17 +381,11 @@ See [[Test Adapters|Test-Adapters]].
 | Redaction and path policy | `packages/core/tests/Unit/Support` |
 | Real Composer behavior | `packages/core/tests/Integration` |
 
-Snapshot tests protect serialized contracts.
-
-Integration tests cover behavior that mocks cannot prove.
+Snapshots catch changes to serialized contracts. Integration tests exercise real Composer and filesystem behavior that a stubbed unit test cannot establish.
 
 ## Release changes
 
-If Core changes are part of a release tag, Wiki updates are mandatory.
-
-Check tool version, schema version, package constraints, branch aliases, changelog, release notes, and examples together.
-
-The release is not complete while tagged behavior and Wiki behavior claims disagree.
+For release-tag work, update the Wiki with the code. Compare tool and schema versions, package constraints, branch aliases, changelog, release notes, and examples before calling the release complete.
 
 ## Related pages
 

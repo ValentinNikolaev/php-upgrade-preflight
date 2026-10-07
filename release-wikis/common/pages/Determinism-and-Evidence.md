@@ -1,24 +1,10 @@
 # Determinism and Evidence
 
-PHP Upgrade Preflight is designed to produce traceable, stable planning output from the evidence available to one analysis run.
-
-Deterministic does not mean omniscient.
-
-It does not mean that Packagist, private repositories, Composer caches, executable versions, or network state are controlled automatically.
-
-It means the tool normalizes the inputs and outputs it owns and records uncertainty for important limits it cannot remove.
+PHP Upgrade Preflight tries to give the same modeled result when it sees the same inputs and observations. It sorts and normalizes the data it owns, then links report claims to evidence. Packagist, private repositories, caches, Composer versions, and the network can change between runs. The report records relevant uncertainty around those inputs.
 
 ## Why this matters
 
-Developers need to reproduce a surprising finding.
-
-Technical managers need to know whether two reports are comparable.
-
-Automation needs stable fields, ordering, identifiers, and schemas.
-
-Reviewers need to trace a conclusion back to evidence.
-
-These needs are related but not identical.
+Stable fields and ordering help automation compare reports. Evidence links let a reviewer inspect a finding. Recorded Composer and platform provenance helps a developer explain why two otherwise similar runs differ.
 
 ## Four different ideas
 
@@ -29,11 +15,7 @@ These needs are related but not identical.
 | Evidence | A structured record supporting a report claim |
 | Confidence | How directly the available evidence supports that claim |
 
-A deterministic heuristic remains a heuristic.
-
-A high-confidence solver result can still depend on repository state.
-
-A reproducible report can correctly contain `unknown`.
+A heuristic can be applied consistently and still be tentative. A clear solver result can change when repository metadata changes. Reproducing an `unknown` result is possible too.
 
 ## Evidence classes
 
@@ -47,13 +29,7 @@ A reproducible report can correctly contain `unknown`.
 | E4 | `E4_MAINTAINER_DOCUMENTATION` | Maintained adapter knowledge with sources | Laravel upgrade-guide requirement |
 | E5 | `E5_HEURISTIC` | Deterministic inference | Risk or planning hint based on modeled signals |
 
-The class is not a ranking that automatically decides severity.
-
-Severity describes impact.
-
-Confidence describes support.
-
-Evidence class describes source type.
+These labels answer different questions: class names the source, confidence describes how well it supports the claim, and severity describes the possible impact. E1 is not automatically more severe than E5.
 
 ## Evidence object
 
@@ -72,19 +48,11 @@ Every evidence item contains:
 }
 ```
 
-The example shape matches `Evidence::toArray()`.
-
-Evidence summaries and contexts are redacted during construction.
-
-This prevents a later consumer from accidentally serializing the unredacted original.
+This is the shape from `Evidence::toArray()`. Construction redacts summaries and context before another service can serialize them.
 
 ## Evidence ledger
 
-`EvidenceLedger` owns evidence registration for one analysis.
-
-`add()` creates a new item.
-
-Its namespace must match:
+One `EvidenceLedger` registers evidence for an analysis. `add()` creates an item in a namespace matching:
 
 ```text
 ^[a-z][a-z0-9_-]*$
@@ -98,9 +66,7 @@ composer-blocker-2
 laravel-stage-target-1
 ```
 
-Sequence is maintained separately per namespace.
-
-Existing IDs are skipped when finding the next available sequence.
+Each namespace has its own sequence. The ledger skips an ID if it is already registered.
 
 ## `add()` versus `addOnce()`
 
@@ -110,60 +76,44 @@ Use `addOnce()` when content-identical evidence in one namespace should be reuse
 
 `addOnce()` compares:
 
-- evidence class;
-- summary;
-- confidence;
-- context;
+- evidence class
+- summary
+- confidence
+- context
 - namespace prefix.
 
-It builds a SHA-256 content bucket from serialized values for efficiency.
-
-It still applies strict equality to candidates in that bucket.
-
-If a value cannot be serialized, it falls back to an exhaustive scan.
-
-The fallback preserves behavior rather than changing deduplication semantics.
+It uses a SHA-256 bucket to narrow the search, then checks candidate values with strict equality. If serialization fails, it scans the namespace instead. The choice changes search cost, not what counts as equal.
 
 ## Evidence ID stability
 
-Evidence IDs are stable only when evidence creation order and content remain stable.
-
-Adding a new earlier item in the same namespace can shift later sequence numbers.
+Evidence IDs depend on creation order within their namespace. Inserting an earlier item can renumber later ones.
 
 Therefore:
 
-- iterate inputs in deterministic order;
-- use focused namespaces;
-- avoid creating unused evidence;
+- iterate inputs in deterministic order
+- use focused namespaces
+- avoid creating unused evidence
 - do not treat an evidence ID as a permanent database identity across schema changes.
 
-Within one canonical report, IDs are precise foreign keys.
+Within one report, an ID is an exact link from a claim to its evidence.
 
 ## Reference integrity
 
-The report enforces both directions of evidence integrity.
-
-First, every referenced ID must exist.
-
-Second, every registered evidence item must be referenced.
-
-`EvidenceLedger::validateReferences()` rejects missing references.
-
-It also rejects orphan evidence.
+`EvidenceLedger::validateReferences()` checks both directions: every cited ID exists, and every registered item is cited. An item with no claim to support is an orphan and fails report construction.
 
 `UpgradeReport` gathers references from:
 
-- blockers;
-- source inventory;
-- actionable source impact;
-- framework findings;
-- framework guidance and hops;
-- root constraint changes;
-- staged resolution;
-- plan stages;
+- blockers
+- source inventory
+- actionable source impact
+- framework findings
+- framework guidance and hops
+- root constraint changes
+- staged resolution
+- plan stages
 - uncertainties that contain explicit evidence references.
 
-This makes the ledger a support graph, not an appendix of unused observations.
+The ledger therefore shows which observation supports which claim.
 
 ## Example evidence graph
 
@@ -178,58 +128,42 @@ flowchart LR
     E3 --> F
 ```
 
-One item may support several claims.
-
-One claim may cite several evidence items.
-
-No evidence item may remain disconnected.
+An item may support several claims, and a claim may cite several items. Every registered item needs at least one connection.
 
 ## Ordering as part of determinism
 
-PHP arrays preserve insertion order.
-
-That makes traversal order visible in JSON.
-
-The code sorts at ownership boundaries where unordered input is possible.
+PHP arrays preserve insertion order, so traversal order can appear in JSON. Services sort map-like inputs where they take ownership of them.
 
 Examples include:
 
-- package names in `LockDiffBuilder`;
-- package families attached to changes;
-- installed integration names;
-- framework guidance;
-- source files in `SourceUsageScanner`;
-- symbol declarations;
-- autoload paths and files;
-- ownership names and mapping types;
-- relevant source-impact package maps;
-- provider names in stage-plan conflict handling;
+- package names in `LockDiffBuilder`
+- package families attached to changes
+- installed integration names
+- framework guidance
+- source files in `SourceUsageScanner`
+- symbol declarations
+- autoload paths and files
+- ownership names and mapping types
+- relevant source-impact package maps
+- provider names in stage-plan conflict handling
 - platform decisions in fingerprints.
 
-Do not rely on filesystem enumeration order.
-
-Do not rely on Composer metadata object order when semantics are map-like.
+Filesystem enumeration and map-like Composer metadata need explicit ordering before they shape report lists.
 
 ## Lists versus maps
 
-Not every array should be sorted.
-
-A map has key-based semantics and can be canonicalized by key.
-
-A list may encode meaningful priority or execution order.
+A map can be sorted by key. A list may carry priority or execution order, so sorting it could change the result.
 
 Examples of meaningful list order:
 
-- scenario order;
-- stage order;
-- attempt order;
-- package dependency path;
-- source occurrence order;
+- scenario order
+- stage order
+- attempt order
+- package dependency path
+- source occurrence order
 - report section order.
 
-Sorting a meaningful list can change behavior.
-
-Canonicalization must know the difference.
+Preserve those list orders when canonicalizing data.
 
 ## Scenario determinism
 
@@ -237,27 +171,25 @@ Canonicalization must know the difference.
 
 It then deduplicates by an execution key containing:
 
-- normalized targets;
-- effective with-all-dependencies flag;
+- normalized targets
+- effective with-all-dependencies flag
 - minimal-changes flag.
 
 Baseline validation has its own fixed key.
 
-The selector does not run redundant scenarios merely because they have different display names.
+Two display names do not justify two identical Composer runs.
 
 ## Candidate selection determinism
 
 Successful target-feasibility candidates are ranked by:
 
-1. package-change count;
-2. strategy rank;
+1. package-change count
+2. strategy rank
 3. scenario index.
 
 Strategy rank is exact target, then minimal changes, then with all dependencies.
 
-This makes selection stable when multiple Composer strategies succeed.
-
-The selected candidate determines the direct lock diff.
+The same successful candidates therefore select the same lock diff.
 
 ## Stable source scanning
 
@@ -271,11 +203,11 @@ Visitors retain AST-derived line numbers and symbols.
 
 `SymbolOwnershipIndex` sorts owner names and mapping types.
 
-These choices prevent operating-system directory iteration from changing report order.
+Those sorts prevent directory iteration order from deciding report order.
 
 ## Cross-platform paths
 
-Shareable reports should not depend on an absolute checkout location.
+The absolute checkout location should not appear in a shareable report.
 
 `PathExposurePolicy` replaces relevant roots with markers:
 
@@ -290,7 +222,7 @@ It recognizes path separator variants, escaped forms, and encoded forms.
 
 Longer matching paths are processed before shorter ones.
 
-This avoids a parent path hiding only part of a more specific path.
+That order lets a specific path receive its own marker before its parent path is replaced.
 
 ## Canonical report sanitization
 
@@ -300,16 +232,12 @@ It then calls `PathExposurePolicy::sanitizeCanonicalReport()`.
 
 Sanitization:
 
-1. identifies project, output, and local-repository paths;
-2. recursively replaces path occurrences;
-3. forces known project and output fields to markers;
+1. identifies project, output, and local-repository paths
+2. recursively replaces path occurrences
+3. forces known project and output fields to markers
 4. applies structured sensitive-output redaction.
 
-Both keys and values can be redacted.
-
-JSON-serializable objects are traversed safely.
-
-Recursive object cycles produce a redacted marker instead of infinite recursion.
+Redaction covers keys and values, including safely traversed JSON-serializable objects. A recursive object cycle gets a marker instead of an endless walk.
 
 ## Sensitive-value determinism
 
@@ -317,44 +245,30 @@ Recursive object cycles produce a redacted marker instead of infinite recursion.
 
 Examples are:
 
-- `[REDACTED]`;
-- `[REDACTED_TOKEN]`;
-- `[REDACTED_URL]`;
+- `[REDACTED]`
+- `[REDACTED_TOKEN]`
+- `[REDACTED_URL]`
 - `[REDACTION_FAILED]`.
 
 It recognizes Composer auth assignments, authorization headers, credential-bearing URLs, named credential fields, bearer/basic tokens, and common token formats.
 
-Structured keys known to be sensitive cause their values to be withheld.
-
-A regex failure returns a failure marker rather than leaking the original value.
+Known sensitive keys cause their values to be withheld. If a redaction pattern fails, the redactor returns a failure marker instead of the original text.
 
 ## Bounded external output
 
-Composer stdout and stderr are external and potentially large.
-
-`OutputExcerpt::bounded()` truncates by byte budget while preserving valid UTF-8 boundaries.
-
-Bounded output supports stable report sizes.
-
-It also reduces accidental exposure surface.
-
-Bounding does not replace redaction.
+Composer stdout and stderr can be large and may contain secrets. `OutputExcerpt::bounded()` keeps excerpts within a byte budget without splitting UTF-8 characters. The shorter excerpt still needs redaction.
 
 ## Candidate lock evidence
 
-`CandidateLockFileReader` fingerprints the bytes Composer wrote.
-
-It normalizes CRLF and CR line endings to LF before SHA-256.
-
-This avoids a candidate lock fingerprint changing only because of line-ending convention.
+`CandidateLockFileReader` hashes Composer's candidate lock bytes after normalizing CRLF and CR to LF. A line-ending convention alone then does not change the SHA-256 fingerprint.
 
 `CandidateLockEvidence` records:
 
-- lowercase SHA-256;
-- Composer `content-hash` when present;
+- lowercase SHA-256
+- Composer `content-hash` when present
 - package count.
 
-The byte fingerprint and semantic package data answer different questions.
+The byte fingerprint identifies the written lock content. Parsed package data describes what changed.
 
 ## Project-state fingerprints
 
@@ -362,47 +276,29 @@ The byte fingerprint and semantic package data answer different questions.
 
 It records SHA-256 values for:
 
-- manifest;
-- lock;
-- effective platform;
-- execution policy;
+- manifest
+- lock
+- effective platform
+- execution policy
 - combined state.
 
-Before hashing, it sanitizes private paths.
-
-It canonicalizes map keys recursively.
-
-It preserves list order.
-
-It normalizes separators after exposure markers.
-
-It excludes lock `content-hash` from the semantic lock digest.
+Before hashing, it hides private paths, sorts map keys recursively, keeps meaningful list order, normalizes separators after path markers, and excludes the lock's `content-hash` from the semantic lock digest.
 
 ## Why lock `content-hash` is excluded there
 
-Temporary workspaces rewrite relative local repositories to absolute paths.
-
-Composer can therefore write a location-dependent `content-hash`.
-
-The manifest already has its own semantic fingerprint.
-
-Keeping the derived lock field in the staged state fingerprint would make the same project state differ by temporary directory.
-
-Candidate lock evidence still records the value Composer actually wrote.
+Core resolves relative local repositories to absolute paths inside a temporary manifest. Composer's derived lock `content-hash` can then depend on that workspace location. The manifest has its own semantic fingerprint, so including the derived hash in staged state identity would make equivalent states look different. Candidate lock evidence still records the value Composer wrote.
 
 ## Platform fingerprinting
 
 The platform digest includes:
 
-- exact analysis PHP;
-- whether the profile is closed-world;
+- exact analysis PHP
+- whether the profile is closed-world
 - explicit semantic platform decisions.
 
 Platform package decisions are sorted by package name.
 
-In a complete profile, absent packages that are not toolchain-bound can be omitted from the digest because closed-world state already expresses their absence.
-
-This prevents redundant representation from changing identity.
+For a complete profile, closed-world state already expresses absence for supported packages. The digest can omit those repeated absent entries without changing the modeled platform.
 
 ## Report serialization
 
@@ -410,26 +306,16 @@ This prevents redundant representation from changing identity.
 
 It encodes with:
 
-- pretty printing;
-- unescaped slashes;
-- exceptions on encoding failure;
+- pretty printing
+- unescaped slashes
+- exceptions on encoding failure
 - one trailing newline.
 
-The top-level field order is controlled by `UpgradeReport`.
-
-Schema version is controlled by `ReportMetadata::SCHEMA_VERSION`.
-
-Consumers should validate the schema version before interpreting fields.
+`UpgradeReport` controls top-level field order, and `ReportMetadata::SCHEMA_VERSION` identifies the schema. Consumers should check that version before interpreting fields.
 
 ## Markdown projection
 
-`MarkdownReportWriter` consumes canonical report data.
-
-It does not run Composer or adapter rules.
-
-Markdown formatting can differ while conclusions must remain equivalent to JSON.
-
-If the formats disagree semantically, JSON and the schema remain canonical and the writer difference is a bug.
+`MarkdownReportWriter` presents the canonical report for readers. It runs no Composer or adapter rules. If Markdown and JSON reach different conclusions, the writer has a bug. JSON and its schema define the contract.
 
 ## Controlled and uncontrolled variables
 
@@ -439,103 +325,65 @@ If the formats disagree semantically, JSON and the schema remain canonical and t
 | Scenario order | Controlled by selector |
 | Source file order | Controlled by scanner sorting |
 | Composer executable/version | Configured and version evidence recorded when available |
-| Repository metadata at a point in time | External; can change |
-| Network availability | External; restricted mode can intentionally remove it |
+| Repository metadata at a point in time | External and subject to change |
+| Network availability | External, with restricted mode able to remove it intentionally |
 | Private repository credentials | External and redacted |
 | Host extension set | Not accepted as target truth unless represented by request/profile evidence |
 | Temporary path | Normalized in shareable output |
 | External process duration | Recorded but inherently variable |
 
-Two reports can differ legitimately when an uncontrolled variable changes.
+Even identical requests can produce different reports when an external input changes.
 
 ## Reading a changed report
 
 When two runs differ, compare in this order:
 
-1. `metadata.schema_version` and tool version;
-2. normalized request summary;
-3. Composer execution provenance;
-4. platform provenance;
-5. scenario outcomes and Composer version;
-6. candidate lock fingerprint and package count;
-7. project-state fingerprints for stages;
-8. uncertainties;
-9. evidence contexts;
+1. `metadata.schema_version` and tool version
+2. normalized request summary
+3. Composer execution provenance
+4. platform provenance
+5. scenario outcomes and Composer version
+6. candidate lock fingerprint and package count
+7. project-state fingerprints for stages
+8. uncertainties
+9. evidence contexts
 10. final findings and assessments.
 
-This identifies cause before debating the final risk label.
+Start with inputs and observations. A changed risk label may be the last effect in a longer chain.
 
 ## Example: repository changed
 
-Run A resolves `vendor/package` to `2.1.0`.
-
-Run B resolves it to `2.1.1`.
-
-The request can be identical.
-
-The tool can still be deterministic relative to each observed repository state.
-
-The candidate lock fingerprints reveal different external evidence.
-
-Pinning repository content is a reproducibility responsibility outside the analyzer.
+Run A resolves `vendor/package` to `2.1.0`. Run B resolves it to `2.1.1` under the same request. The repository may have changed between runs. Candidate lock fingerprints show that the observed result changed. Reproducing either run requires control of repository content outside the analyzer.
 
 ## Example: same project in another directory
 
-One developer analyzes `/home/alex/shop`.
-
-Another analyzes `D:\work\shop`.
-
-Canonical reports use `[PROJECT_ROOT]`.
-
-Portable staged fingerprints normalize path separators after markers.
-
-Location alone should not manufacture a different semantic project state.
-
-Debug paths can still differ when debug mode intentionally exposes them.
+One developer analyzes `/home/alex/shop`, and another analyzes `D:\work\shop`. Shareable reports use `[PROJECT_ROOT]`, and staged fingerprints normalize separators after path markers. The checkout location alone should not change semantic state. Debug mode intentionally exposes exact paths, so debug reports can differ.
 
 ## Example: restricted mode
 
-A compatible-mode run succeeds using cached credentials and network access.
-
-A restricted-mode run cannot fetch a package.
-
-Those runs have different execution policies.
-
-The difference is real and should affect provenance or fingerprints.
-
-Do not label the restricted operational failure as a dependency blocker.
+Compatible mode may resolve a package using cached credentials and network access while restricted mode cannot fetch it. Those are different execution policies, and provenance or fingerprints should show the difference. Missing repository access is an operational gap, not a dependency conflict.
 
 ## Confidence guidance
 
-High confidence means evidence directly supports the modeled statement.
-
-Medium confidence means useful support exists with material limits.
-
-Low confidence means the conclusion is tentative.
-
-Read the actual context and uncertainty.
-
-Do not translate confidence labels to percentages.
-
-Do not use confidence to erase contradictory evidence.
+`high` means direct support for the modeled statement. `medium` means useful support with material limits. `low` marks a tentative conclusion. Read the evidence context and uncertainties with the label. None is a percentage or a reason to ignore contradictory evidence.
 
 ## Uncertainty as evidence discipline
 
-Uncertainty is a required output when the system lacks reliable support.
+Core records uncertainty when it cannot support a stronger conclusion.
 
 Examples include:
 
-- Composer executable unavailable;
-- scenario timeout;
-- source parse failure;
-- unreadable candidate lock;
-- incomplete platform evidence;
-- current PHP unknown for a diagnostic scenario;
-- adapter rule exception;
-- stage guidance gap;
+- Composer executable unavailable
+- scenario timeout
+- source parse failure
+- unreadable candidate lock
+- incomplete platform evidence
+- current PHP unknown for a diagnostic scenario
+- adapter rule exception
+- stage guidance gap
 - workspace cleanup failure.
 
-Recording uncertainty is more deterministic than guessing.
+That explicit gap is more useful than a guessed answer that appears precise.
 
 ## Contributor rules
 

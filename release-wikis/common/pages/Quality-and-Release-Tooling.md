@@ -1,6 +1,6 @@
 # Quality and Release Tooling
 
-This page explains how a change moves from a developer's machine to a verified release. For command-level details, see [Repository Tools Reference](Tools-Reference).
+This page follows a change from local checks through release verification. For each tool's arguments and outputs, see [Repository Tools Reference](Tools-Reference).
 
 ## The short version
 
@@ -22,7 +22,7 @@ composer audit --locked --no-interaction --no-ansi
 composer release:verify -- 0.3.5
 ```
 
-This local sequence is useful, but GitHub Actions remains authoritative because it also tests multiple PHP versions, Windows, fresh consumer installations, dependency-resolution variants, distribution tags, and release archives.
+GitHub Actions adds PHP-version and Windows coverage, fresh consumer installs, dependency-resolution variants, distribution-tag checks, and archive verification. Read its results before calling a release ready.
 
 ## Composer command reference
 
@@ -35,7 +35,7 @@ Run commands from the repository root.
 | `composer validate:all` | Strictly validates the root manifest and all five package manifests | After changing any `composer.json` |
 | `composer check` | Runs `validate:all`, the offline release-Wiki tree check, all tests, both PHPStan configurations, and style checking | Main pre-push check |
 | `composer analyse` | Runs PHPStan with development and production configurations, each with a 512 MB limit | After changing PHP types or package boundaries |
-| `composer lint` | Runs PHP-CS-Fixer in dry-run/diff mode; it does not rewrite files | Check formatting |
+| `composer lint` | Runs PHP-CS-Fixer in dry-run/diff mode. It does not rewrite files | Check formatting |
 
 `validate:all` covers `core`, `cli`, `laravel`, `test-adapter`, and `legacy-test-adapter`. The last two are development packages even though all five manifests must remain valid.
 
@@ -55,14 +55,14 @@ composer analyse
 | `composer test:unit` | PHPUnit `unit` suite |
 | `composer test:integration` | PHPUnit `integration` suite |
 | `composer test:smoke` | PHPUnit `smoke` suite |
-| `composer test:unit-smoke` | Unit then smoke; used by the main Windows matrix entry |
+| `composer test:unit-smoke` | Unit then smoke. Used by the main Windows matrix entry |
 | `composer test:core` | PHPUnit `core` suite |
 | `composer test:cli` | PHPUnit `cli` suite |
 | `composer test:laravel` | PHPUnit `laravel` suite |
 | `composer test:fixtures` | Tests matching `LaravelFixtureAnalysisTest` |
 | `composer test:integration:staged-budget` | Tests matching `WorstCaseStagedBudgetTest` |
 
-Choose the narrowest command while developing, then run `composer check` before handoff. Examples:
+Run the suite related to your change while developing. Before handoff, run `composer check`. For example:
 
 ```bash
 # A CLI-only change during development
@@ -76,7 +76,7 @@ composer test:fixtures
 composer check
 ```
 
-The `test:integration:windows-*` commands partition integration tests into Windows CI shards and write JUnit files under `build/`. They are CI-oriented; use `composer test:integration` for the normal local integration run.
+The `test:integration:windows-*` commands partition integration tests into Windows CI shards and write JUnit files under `build/`. They are CI-oriented. Use `composer test:integration` for the normal local integration run.
 
 The exact shard commands are:
 
@@ -114,7 +114,7 @@ Available targets include `build`, `shell`, `install`, `update`, `validate`, `te
 make analyze ARGS="--path=/app/example --target-php=8.3 --format=json"
 ```
 
-`make update` changes `composer.lock`; use it only when a dependency update is intended. `make check` is similar to `composer check`, but the Makefile's `validate` target currently validates the root plus `core`, `cli`, and `laravel`, while `composer validate:all` also validates both adapter packages. For the complete manifest gate, prefer `composer check` or run `composer validate:all` in the container.
+`make update` changes `composer.lock`. Use it only when a dependency update is intended. `make check` is similar to `composer check`, but the Makefile's `validate` target currently validates the root plus `core`, `cli`, and `laravel`, while `composer validate:all` also validates both adapter packages. For the complete manifest gate, prefer `composer check` or run `composer validate:all` in the container.
 
 ## What GitHub Actions checks
 
@@ -124,7 +124,7 @@ make analyze ARGS="--path=/app/example --target-php=8.3 --format=json"
 
 - **Static analysis / PHP 8.0:** actionlint, all six Composer manifest validations, development and production PHPStan, and PHP-CS-Fixer dry-run.
 - **Coverage / PHP 8.3:** the coverage ratchet followed by selective mutations.
-- **Runtime matrix:** all suites on Linux PHP 8.0 through 8.5; unit/smoke plus partitioned integration suites on Windows PHP 8.3.
+- **Runtime matrix:** all suites on Linux PHP 8.0 through 8.5. Unit/smoke plus partitioned integration suites on Windows PHP 8.3.
 - **Report privacy:** Linux runtime jobs and the main Windows unit/smoke job run the privacy verifier.
 - **Staged budgets:** Linux and Windows check process, runtime, memory, privacy, report-size, and determinism targets on the worst staged test fixture. Memory and report-size targets are fixture checks, not analyzer-enforced runtime caps for arbitrary projects.
 
@@ -134,7 +134,7 @@ The workflow masks synthetic canaries before relevant test commands. Windows JUn
 
 `.github/workflows/compatibility.yml` installs packages in fresh consumer projects. It exercises dependency resolution variants and supported combinations of the standalone packages and Laravel versions, then runs `composer check-platform-reqs` and a package-specific smoke check.
 
-This answers a different question from the monorepo tests:
+These consumer checks answer a different question from the monorepo tests:
 
 - monorepo tests ask, “does our source behave correctly with the locked development environment?”
 - compatibility tests ask, “can a real consumer resolve and run the package under supported constraints?”
@@ -153,7 +153,7 @@ It blocks a release when the committed dependency lock contains a known Composer
 
 `.github/workflows/release.yml` supports two modes:
 
-- pushing a tag matching `vX.Y.Z` verifies and publishes a release;
+- pushing a tag matching `vX.Y.Z` verifies and publishes a release.
 - manual dispatch verifies and packages an exact version without publishing.
 
 ### 1. Prepare the release documentation and version
@@ -161,7 +161,7 @@ It blocks a release when the committed dependency lock contains a known Composer
 Before creating a release tag:
 
 1. Update `CHANGELOG.md` with a dated `[X.Y.Z]` heading.
-2. Create or update `docs/releases/vX.Y.Z.md`; its first line must identify the version.
+2. Create or update `docs/releases/vX.Y.Z.md`. Its first line must identify the version.
 3. Update the GitHub Wiki so all changed commands, services, configuration, schemas, examples, compatibility information, and release notes are accurate for `vX.Y.Z`. Regenerate and check all four allowlisted release-Wiki sets, then use `--check-published SET WIKI_CHECKOUT` for each cloned destination so retired remote pages cannot remain silently.
 4. Create `docs/releases/vX.Y.Z-wiki-evidence.json` from the repository schema. List the common, Core, CLI, and Laravel destinations and link that file from the release notes. For each destination, record either the published Wiki commit SHA or an unchanged-after-review remote SHA plus the passed exact-inventory check.
 5. If an agent such as Codex or Claude prepares the release, the agent must treat the Wiki update as part of the release work, not as an optional follow-up.
@@ -179,7 +179,7 @@ bash tools/release-distribution.sh --tag v0.3.5 --dry-run
 bash tools/release-distribution.sh --tag v0.3.5
 ```
 
-Inspect staged changes and the dry run before accepting pushes. Compare exact staged and committed Git paths, blobs and modes with the source commit after package-path flattening; a filesystem byte check alone cannot detect executable-bit drift. Preparation stages authoritative source modes even when a Docker/Windows bind mount reports different permissions. Only `core`, `cli`, and `laravel` have distribution repositories; the two adapter packages are development fixtures.
+Inspect the staged changes and dry run before accepting pushes. The preparation script stages file modes from the committed source, even when a Docker or Windows bind mount reports different permissions. Before signing, compare each distribution's staged and committed Git paths, blobs, and modes with the source commit after package-path flattening. Repeat the comparison after any final `git add`, since a filesystem byte check cannot detect Git index mode drift. Only `core`, `cli`, and `laravel` have distribution repositories. The two adapter packages are development fixtures.
 
 ### 3. Create the monorepo tag
 
@@ -196,10 +196,10 @@ Pushing this tag starts the publishing workflow. A tag is an external, consequen
 
 The workflow then verifies:
 
-1. the monorepo tag is annotated, signed, and on the approved release line;
-2. repository release metadata is consistent;
-3. the full Quality, Compatibility, and dependency-security workflows pass;
-4. all three distribution tags are signed and contain byte-for-byte expected payloads;
+1. the monorepo tag is annotated, signed, and on the approved release line.
+2. repository release metadata is consistent.
+3. the full Quality, Compatibility, and dependency-security workflows pass.
+4. all three distribution tags are signed and contain byte-for-byte expected payloads.
 5. fresh Linux and Windows clones install cleanly, analyze without modifying the target, and render Markdown from canonical JSON.
 
 ### 5. Archives are built and tested
@@ -208,10 +208,10 @@ The package job creates exactly three ZIP archives from staged package payloads.
 
 Artifact-consumer jobs on Linux and Windows:
 
-- verify the archive set and checksums;
-- verify provenance again;
-- install `core`, `cli`, and `laravel` into clean consumers;
-- run CLI and Laravel smoke checks;
+- verify the archive set and checksums.
+- verify provenance again.
+- install `core`, `cli`, and `laravel` into clean consumers.
+- run CLI and Laravel smoke checks.
 - run a JSON analysis, scan its log/report, verify metadata, and prove target immutability.
 
 ### 6. Published packages and GitHub Release are verified
@@ -259,7 +259,7 @@ The command intentionally withholds sensitive details. Reproduce with the focuse
 - [ ] Privacy verification passes when reports, diagnostics, paths, or Composer output change.
 - [ ] Compatibility expectations are reflected in package constraints and documentation.
 - [ ] Changelog and `docs/releases/vX.Y.Z.md` identify the exact release.
-- [ ] Wiki pages and examples describe the released behavior; all four materialized sets pass `--check`, each destination passes `--check-published`, and agents are explicitly required to include this update.
+- [ ] Wiki pages and examples describe the released behavior. All four materialized sets pass `--check`, each destination passes `--check-published`, and agents are explicitly required to include this update.
 - [ ] `verify-release.php` passes for the exact version.
 - [ ] Three distribution payloads were prepared from the intended clean commit and reviewed.
 - [ ] Signed distribution tags exist before the signed monorepo tag is pushed.

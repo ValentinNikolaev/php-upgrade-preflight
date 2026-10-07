@@ -1,6 +1,6 @@
 # Laravel Adapter Internals
 
-This is a code-oriented map of `packages/laravel`, verified against the repository on **2026-08-19**. It helps a Junior developer find the right class and helps a technical manager understand which claims are independently tested.
+This page follows a Laravel request through `packages/laravel`. It shows where detection, guidance, source inspection, and staged solving live, so you can check or change one behavior without guessing which class owns it.
 
 ## Architecture
 
@@ -17,7 +17,7 @@ This is a code-oriented map of `packages/laravel`, verified against the reposito
 | Framework-shaped PHP inspection | `LaravelSourceUsageVisitor` |
 | Artisan registration | `UpgradePreflightServiceProvider` and `AnalyzeUpgradeCommand` |
 
-This split is intentional: changing detection should not silently change rule construction or stage planning.
+Each collaborator answers a different question. For example, changing detection alone does not change the catalog's rule definitions or the stage planner's requirements.
 
 ## Two registration paths
 
@@ -37,7 +37,7 @@ The standalone CLI discovers the adapter through `packages/laravel/composer.json
 
 Laravel package discovery separately registers `UpgradePreflightServiceProvider`. Its `register()` binds one singleton `UpgradeAnalyzer` as `DefaultUpgradeAnalyzer([new LaravelFrameworkIntegration()])`. Its `boot()` registers `AnalyzeUpgradeCommand` only when the application is running in console mode.
 
-Therefore the standalone command and Artisan use the same Core analyzer and adapter behavior, even though registration differs:
+Both commands reach the same Core analyzer and Laravel adapter through different registration paths:
 
 ```bash
 vendor/bin/upgrade-intel analyze --path=/work/app --framework=laravel ...
@@ -64,7 +64,7 @@ Example outcomes:
 | `illuminate/support:^11.0` and `illuminate/console:^12.0` | detected, version unknown |
 | only `symfony/console` | not detected |
 
-Detection does not boot Laravel and does not prove runtime compatibility.
+Detection reads metadata. It never boots the application or tests its runtime behavior.
 
 ## Default source scope
 
@@ -78,20 +78,20 @@ The analyzer scans a source snapshot. It does not execute the application or app
 
 ## Catalog and rule factory
 
-`LaravelRuleCatalog::v0_2()` is the current catalog constructor despite the product's v0.3 release line. The catalog reports its own version as `0.2` and contains target, transition, rule, and skeleton-pattern definitions.
+`LaravelRuleCatalog::v0_2()` remains the catalog constructor in the v0.3 release line. Its catalog version is `0.2`, and it contains targets, transitions, rules, and skeleton patterns.
 
 The modeled major range is Laravel 7 through 13. Target metadata exists for majors 8–13, including documented PHP and Composer constraints. Transition definitions are:
 
-- adjacent 7→8, 8→9, 9→10, 10→11, 11→12, and 12→13;
+- adjacent 7→8, 8→9, 9→10, 10→11, 11→12, and 12→13.
 - retained direct 7→9 guidance.
 
 `LaravelRuleFactory` yields executable rules in catalog order. It maps three definition families:
 
-- package constraint rules;
-- package advisory rules;
+- package constraint rules.
+- package advisory rules.
 - built-in rules such as framework/PHP/Symfony constraints, Illuminate support, skeleton checks, Composer version, cURL extension, and high-signal source checks.
 
-An unknown definition or built-in kind throws instead of being silently skipped. Core contains individual rule failures as evidence-backed uncertainty and continues other rules.
+An unknown definition or built-in kind throws during construction. If an individual rule fails during analysis, Core records the uncertainty and continues with other rules.
 
 ## Three independent conclusions
 
@@ -101,7 +101,7 @@ A Laravel report contains separate answers:
 2. **Framework guidance** — does the catalog document the requested transition path?
 3. **Staged resolution** — can the analyzer execute a sequence of adjacent Composer states?
 
-Do not infer one from another. A direct solve may fail while guidance exists; a stage plan may be skipped because exact PHP evidence is absent; Composer success never proves source or runtime compatibility.
+Read each answer on its own terms. Composer may fail to solve the final target even when the catalog covers the transition. Staging may be skipped for lack of an exact PHP value. A successful solve still leaves source changes and runtime tests open.
 
 ## Transition assessment
 
@@ -118,7 +118,7 @@ Rules that implement `HopAwareCompatibilityRule` receive each supported hop, so 
 
 ## Stage planning
 
-`LaravelStagePlanner` is stricter than guidance. It supports only a project rooted on `laravel/framework` with exactly one requested Laravel framework constraint. Illuminate-only projects and mixed Laravel-family target sets receive an unavailable plan.
+`LaravelStagePlanner` needs more than catalog coverage. It requires a project rooted on `laravel/framework` and exactly one requested Laravel framework target. Illuminate-only projects and mixed Laravel-family target sets get an unavailable plan with a reason.
 
 For a valid ascending path it creates one stage per adjacent hop. A Laravel 10→13 request becomes:
 
@@ -128,9 +128,9 @@ laravel-11-to-12  target laravel/framework:^12.0
 laravel-12-to-13  target laravel/framework:^13.0
 ```
 
-The analysis PHP is selected from exact request evidence: exact final target PHP first, then exact current PHP, and only when the value satisfies the catalog minimum for that hop. A minimum constraint alone is not converted into an invented exact version.
+For each hop, the planner tries the exact target PHP first, then the exact current PHP. It uses a value only if it satisfies that hop's catalog constraint. A minimum constraint does not tell the planner which exact PHP version to simulate.
 
-Package-rule metadata may add analyzer-only root-remediation candidates when the project directly requires a package that does not already match the hop's compatible constraint. Targets and evidence references are package-sorted. These candidates affect temporary analysis workspaces only.
+If the project directly requires a package outside a hop's compatible range, package rules may suggest candidate root constraints. The analyzer sorts those targets and evidence references by package and tries them only in temporary workspaces.
 
 Plans are unavailable for missing target, ambiguous transition, unsupported direction/range, guidance gap, or unavailable exact PHP. Core then records staged execution as skipped/unknown rather than pretending Composer evaluated it.
 
@@ -145,7 +145,7 @@ Classification is case-insensitive and prefix-based:
 | `symfony/` | `symfony` |
 | anything else | no Laravel-owned family |
 
-These families organize package changes; they do not change Composer results.
+These families organize package changes. They do not change Composer results.
 
 ## Laravel-shaped source usage
 
@@ -160,9 +160,9 @@ For each scanned file, `sourceUsageVisitors()` yields a fresh `LaravelSourceUsag
 - `deprecated_queue_dispatch`
 - `deprecated_asset_helper`
 
-Examples include provider and alias arrays in `config/app.php`, middleware and command registration, configuration keys, Laravel facade test doubles, legacy `dispatchNow` calls, and explicitly resolved global `elixir` calls. The visitor emits symbol, usage type, and exact line. Unresolved namespaced function fallbacks remain manual review. Laravel skeleton and high-signal rules consume this vocabulary; Core does not give it generic meaning.
+Examples include provider and alias arrays in `config/app.php`, middleware and command registration, configuration keys, Laravel facade test doubles, legacy `dispatchNow` calls, and calls resolved to the global `elixir` function. The visitor records the symbol, usage type, and exact line. An unresolved namespaced function fallback still needs manual review. Laravel skeleton and high-signal rules use these observations. Core does not assign the Laravel-specific usage types a generic meaning.
 
-There is a documented seam: generic PHPUnit, Mockery, and Prophecy `test_double` detection is intentionally limited to Laravel's active source collector rather than Core.
+Laravel's source collector also recognizes selected PHPUnit, Mockery, and Prophecy `test_double` calls. Core does not assign those calls a generic meaning.
 
 ## Adding or changing a Laravel rule
 
@@ -172,7 +172,7 @@ There is a documented seam: generic PHPUnit, Mockery, and Prophecy `test_double`
 4. Add focused unit coverage for positive and negative cases.
 5. Add fixture coverage when canonical findings, evidence, transitions, or staged output change.
 6. Review JSON and Markdown snapshot pairs and target immutability.
-7. Run at least `composer test:laravel`, `composer test:fixtures`, `composer analyse`, and `composer lint`; finish with `composer check`.
+7. Run at least `composer test:laravel`, `composer test:fixtures`, `composer analyse`, and `composer lint`. Finish with `composer check`.
 8. Update affected Wiki pages, docs, changelog, and schema/migration documentation when applicable.
 
 Do not broaden a rule to unsupported hops, convert a minimum into an exact PHP value, or make a catalog correction by rewriting archived schema/contract fixtures.
@@ -189,7 +189,7 @@ Do not broaden a rule to unsupported hops, convert a minimum into an exact PHP v
 
 ## Release documentation policy
 
-Before any release tag is created, all affected Laravel Wiki documentation and examples must be updated. This applies equally to human maintainers, Codex, Claude, and other agents. On 2026-08-19 the policy is mandatory but review-enforced; the release verifier does not automatically compare Wiki content with code.
+Before creating a release tag, update affected Laravel Wiki pages and examples. `verify-release.php` checks the materialized Wiki trees and release evidence, while maintainers still have to compare behavioral claims with source. See [Release Wiki Strategy](https://github.com/ValentinNikolaev/php-upgrade-preflight/wiki/Release-Wiki-Strategy).
 
 ## Target metadata reference
 
@@ -204,11 +204,7 @@ The current catalog describes these target-major requirements:
 | 12 | `^8.2` | `^7.2.0` |
 | 13 | `^8.3` | `^7.4.0|^8.0.0` |
 
-These are adapter checks backed by catalog sources.
-
-Composer still decides whether the complete dependency graph can resolve.
-
-The application test suite still decides whether project behavior remains correct.
+These are the constraints the adapter checks. Composer decides whether the complete dependency graph resolves. The application's tests decide whether its behavior still works.
 
 ## Package-rule examples
 
@@ -223,13 +219,7 @@ The catalog is not limited to `laravel/framework`.
 | 11→12 | PHPUnit, Pest, Carbon, Collision |
 | 12→13 | Boost, Tinker, PHPUnit, Pest, Collision, legacy helpers advisory |
 
-Package constraint rules check compatible ranges.
-
-Package advisory rules can recommend replace, remove, publish migrations, or review actions.
-
-Applicability prevents guidance from leaking into unrelated hops.
-
-Every catalog definition includes maintained source references.
+Constraint rules compare package ranges. Advisories suggest actions such as replacing or removing a package, publishing migrations, or reviewing a change. Each definition has applicability and source references, so advice stays with the hops it describes.
 
 The [completion coverage ledgers](https://github.com/ValentinNikolaev/php-upgrade-preflight/blob/main/docs/laravel-coverage/README.md) account for every heading in the pinned Laravel 8–13 guides and explain concrete manual checks. They supplement, rather than rewrite, the historical transition contract. Guide recommendations, framework-supported test ranges, and fresh skeleton defaults are distinct evidence.
 
@@ -250,13 +240,7 @@ vendor/bin/upgrade-intel analyze \
   --framework=laravel
 ```
 
-`LaravelSource` resolves source major 10.
-
-`LaravelTarget` resolves target major 13.
-
-`LaravelStagePlanner` verifies all three adjacent transition definitions.
-
-It selects exact PHP `8.3` because final target PHP has priority and satisfies each target-stage requirement.
+`LaravelSource` finds major 10 and `LaravelTarget` finds major 13. The planner checks all three adjacent transitions. It selects PHP `8.3` for each stage because the exact target PHP takes priority and satisfies each stage's constraint.
 
 It constructs these exact temporary targets:
 
@@ -266,9 +250,7 @@ laravel-11-to-12: laravel/framework:^12.0, php 8.3
 laravel-12-to-13: laravel/framework:^13.0, php 8.3
 ```
 
-Core executes the plan.
-
-The planner itself does not run Composer.
+The planner supplies targets. Core runs Composer against them.
 
 If stage 11→12 cannot produce a selected candidate state, 12→13 is reported as skipped.
 
@@ -284,13 +266,11 @@ vendor/bin/upgrade-intel analyze \
   --framework=laravel
 ```
 
-The catalog knows Laravel 13 requires a PHP range.
-
-That range does not authorize the adapter to invent one exact simulated version.
+The catalog gives a PHP range for Laravel 13, but the analyzer needs one exact version to simulate.
 
 If neither target PHP nor current PHP supplies a safe exact value, the plan is unavailable with `analysis_php_unavailable`.
 
-Direct scenarios and framework guidance can still produce useful independent results.
+Direct scenarios and framework guidance can still return their own results.
 
 ## Rule execution path
 
@@ -322,21 +302,17 @@ The visitor recognizes Laravel-shaped syntax after PHP Parser name resolution.
 
 Examples include:
 
-- a service provider entry in `config/app.php`;
-- a facade alias entry;
-- middleware registration in an HTTP kernel;
-- console command registration;
-- selected configuration references;
-- Laravel facade testing helpers;
+- a service provider entry in `config/app.php`.
+- a facade alias entry.
+- middleware registration in an HTTP kernel.
+- console command registration.
+- selected configuration references.
+- Laravel facade testing helpers.
 - legacy queue dispatch calls.
 
 A usage contains project-relative file, exact line, symbol, and adapter-owned usage type.
 
-The visitor records inventory.
-
-Skeleton and high-signal rules decide whether inventory is relevant to a modeled transition.
-
-Core ownership correlation decides whether a package change makes a usage actionable.
+The visitor records usage. Skeleton and high-signal rules decide whether it matters for a modeled transition. Core then correlates package ownership to decide whether a package change makes the usage actionable.
 
 ## Debugging guide
 
@@ -356,16 +332,6 @@ If CLI and Artisan differ, run the entry-point parity tests and compare normaliz
 
 ## Manager interpretation
 
-Laravel catalog coverage is a maintained product capability.
-
-It should be reported as a version-and-hop matrix, not as universal Laravel compatibility.
-
-Stage results provide intermediate dependency evidence and possible remediation scope.
-
-They do not apply Laravel upgrade-guide steps.
-
-Source findings identify review locations.
-
-They do not prove that unreported code is safe.
+Catalog coverage names the versions and hops the adapter knows how to assess. Stage results show intermediate dependency attempts and possible changes. They do not perform the upgrade-guide work. Source findings point to code worth reviewing, without clearing code the scanner did not flag.
 
 For the larger package boundary, see [[Laravel Package Internals|Home]].

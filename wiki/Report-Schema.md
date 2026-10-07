@@ -1,8 +1,8 @@
 # Report Schema
 
-PHP Upgrade Preflight v0.3.x writes canonical JSON schema 0.8. The normative file is [`upgrade-report-v0.8.schema.json`](../packages/core/resources/schema/upgrade-report-v0.8.schema.json), a strict JSON Schema Draft 2020-12 document.
+PHP Upgrade Preflight v0.3.x writes JSON reports using schema 0.8. The [schema file](../packages/core/resources/schema/upgrade-report-v0.8.schema.json) is a strict JSON Schema Draft 2020-12 document.
 
-This page is a consumer guide. The schema file is authoritative for exact types, required properties, patterns, enums, and conditional rules.
+This page explains how to read the report. Use the schema file for exact types, required fields, patterns, enums, and conditional rules.
 
 ## Select by schema version
 
@@ -18,7 +18,7 @@ This page is a consumer guide. The schema file is authoritative for exact types,
 }
 ```
 
-Select the parser by `metadata.schema_version`, not `metadata.tool.version`. Tool and schema versions move independently. Patch releases can change findings or wording while keeping valid schema 0.8 shape.
+Choose a parser from `metadata.schema_version`. The tool version may change while the report still follows schema 0.8. A patch can also correct findings or wording without changing the schema.
 
 ## Strict top-level shape
 
@@ -130,20 +130,20 @@ This separates analyzer-host PHP, source-project PHP, and exact target PHP. Host
 
 `extensions.completeness` is `none`, `partial`, or `complete`.
 
-- `none`: no explicit assumptions; values come from analyzer runtime.
-- `partial`: decisions exist; unlisted values remain analyzer-runtime dependent.
-- `complete`: closed world for supported safely simulated classes; unmodeled provenance is null.
+- `none`: no explicit assumptions. Values come from analyzer runtime.
+- `partial`: decisions exist. Unlisted values remain analyzer-runtime dependent.
+- `complete`: closed world for supported safely simulated classes. Unmodeled provenance is null.
 
-Assumptions record name, state, nullable version, and provenance. Presence-only requests report null version; the internal sentinel is never published as an exact target version.
+Assumptions record name, state, nullable version, and provenance. Presence-only requests report null version. The internal sentinel is never published as an exact target version.
 
 ### Profile
 
 `platform.profile` is null or adds:
 
-- profile schema and completeness;
-- canonical SHA-256 and safe `php_api`/`file` provenance;
-- supported classes and `closed_world`;
-- sorted toolchain-bound names;
+- profile schema and completeness.
+- canonical SHA-256 and safe `php_api`/`file` provenance.
+- supported classes and `closed_world`.
+- sorted toolchain-bound names.
 - sorted effective decisions.
 
 Decision fields are `name`, `class`, `state`, nullable `version`, `provenance`, and `simulation`. Executable-bound Composer packages remain `toolchain_bound`.
@@ -176,7 +176,7 @@ progress_enabled
 process_os_isolation
 ```
 
-Exact executable paths and environment values are not serialized. `process_os_isolation: false` makes clear that restricted mode is not an OS sandbox.
+The report does not serialize exact executable paths or environment values. `process_os_isolation: false` records that restricted mode has no OS sandbox.
 
 ## Direct resolution
 
@@ -195,12 +195,12 @@ It is not `ok`. It describes direct final-target Composer scenarios only.
 
 Each scenario records:
 
-- name and nullable Composer version;
-- command array and duration;
-- nullable process exit code;
-- `succeeded` and structured `outcome`;
-- nullable failure type and bounded excerpts;
-- nullable candidate lock;
+- name and nullable Composer version.
+- command array and duration.
+- nullable process exit code.
+- `succeeded` and structured `outcome`.
+- nullable failure type and bounded excerpts.
+- nullable candidate lock.
 - diagnostics and nullable debug path.
 
 Outcome enum:
@@ -219,7 +219,7 @@ cleanup_failure
 workspace_failure
 ```
 
-Do not derive outcome from an exit code. A diagnostic probe can execute successfully and return non-zero because it found the relation it was asked to detect.
+Read `outcome` rather than deriving it from the exit code. A diagnostic probe can run correctly and return non-zero when it detects the relationship it was checking.
 
 Candidate-lock hashes/counts describe the lock Composer produced. Raw hashes may vary with Composer/workspace details.
 
@@ -259,7 +259,7 @@ Current canonical values reported by schema 0.8 include:
 | `json_report_bytes` | 524288 |
 | `markdown_report_bytes` | 262144 |
 
-Hop, attempt, Composer-process, and timeout values are enforced during staged analysis; the scenario maximum is derived from the hop and attempt limits. The memory and report-size values are advisory targets checked against test fixtures, not runtime caps for arbitrary projects. Exceeding them does not itself stop analysis or truncate the report. Schema 0.8 does not identify enforcement mode or include observed measurements or omission counts. Those structured fields require a new schema version and an intentional minor-line migration.
+Hop, attempt, Composer-process, and timeout values are enforced during staged analysis. The scenario maximum is derived from the hop and attempt limits. The memory and report-size values are advisory targets checked against test fixtures, not runtime caps for arbitrary projects. Exceeding them does not itself stop analysis or truncate the report. Schema 0.8 does not identify enforcement mode or include observed measurements or omission counts. Those structured fields require a new schema version and an intentional minor-line migration.
 
 Consumers should read the object, not hard-code this table.
 
@@ -296,7 +296,7 @@ execution_policy_sha256
 state_sha256
 ```
 
-One selected stage output must match the next stage input. Fingerprints sanitize path-bearing content so identity is content-based, not directory-based.
+The selected output of one stage must match the next stage's input. Fingerprints remove path differences so they identify content rather than temporary directories.
 
 ### Blocker registry
 
@@ -311,17 +311,17 @@ resolved
 superseded
 ```
 
-Do not merge blockers across stages only because summaries look similar.
+Keep blockers from different stages separate even when their summaries sound alike.
 
 ## Transition
 
 `transition` contains:
 
-- direct selected `package_changes`;
-- requested `root_constraint_changes`;
+- direct selected `package_changes`.
+- requested `root_constraint_changes`.
 - adapter `framework_guidance`.
 
-Direct changes must not be overwritten with staged changes. Framework status is `supported`, `partially_supported`, or `unsupported`; it is independent of direct feasibility.
+Direct changes must not be overwritten with staged changes. Framework status is `supported`, `partially_supported`, or `unsupported`. It is independent of direct feasibility.
 
 ## Direct blockers
 
@@ -343,19 +343,19 @@ Real demo excerpt:
 }
 ```
 
-Consumers must not invent missing attribution.
+If attribution is absent, leave it unknown in the consumer too.
 
 ## Source inventory
 
-Each raw usage has file, symbol, usage type, line, and evidence. Source paths are project-relative. Inventory is observation, not an action list.
+Each raw usage has file, symbol, usage type, line, and evidence. Source paths are relative to the project. Inventory records what the scanner saw. It is not a task list.
 
 ## Source impact
 
 Each actionable direct finding requires stable ID, stage IDs, nullable affected package, ownership, relevance, reason, severity, occurrences, and evidence.
 
-Ownership can be `exact`, `ambiguous`, or `unknown`. Null affected package is deliberate uncertainty.
+Ownership can be `exact`, `ambiguous`, or `unknown`. An affected package of `null` means ownership was not established.
 
-Staged impact is separately de-duplicated under `staged_resolution.source_impact`; stages refer to IDs from that registry. Never overwrite direct impact with staged impact.
+Staged impact is separately de-duplicated under `staged_resolution.source_impact`. Stages refer to IDs from that registry. Never overwrite direct impact with staged impact.
 
 ## Framework findings
 
@@ -380,7 +380,7 @@ components: component -> [minimum, maximum]
 assumptions
 ```
 
-Hour bounds are non-negative integers. This is planning support, not a probability or quote.
+Hour bounds are non-negative integers. Use the range and its assumptions for planning, not as a quote.
 
 ## Tests
 
@@ -388,7 +388,7 @@ Every test has name, purpose, nullable command, and priority (`required` or `rec
 
 ## Uncertainties
 
-`uncertainties` is a unique array of nonempty strings. Preserve it. An empty finding array plus a nonempty uncertainty array is not a clean result.
+`uncertainties` is a unique array of nonempty strings. Keep it when storing or showing the report. If parsing or an adapter was uncertain, an empty findings array cannot establish that the source is clear.
 
 ## Evidence ledger
 
@@ -415,16 +415,16 @@ Default reports use:
 | `[LOCAL_REPOSITORY]` | Local repository |
 | `[ANALYZER_WORKSPACE]` | Temporary workspace |
 
-Debug may expose exact temporary paths and is non-shareable. Redaction does not sanitize retained debug files or prevent credentials from being used during Composer execution.
+Debug reports and retained workspaces are private diagnostic material. Do not share them. Debug output may contain exact temporary paths, and report redaction does not sanitize retained files or stop Composer from using configured credentials.
 
 ## Migrating from 0.7
 
 Schema 0.8 adds required:
 
-- top-level `composer_execution`;
-- top-level `staged_resolution`;
-- request Composer policy;
-- nullable request/platform profile fields;
+- top-level `composer_execution`.
+- top-level `staged_resolution`.
+- request Composer policy.
+- nullable request/platform profile fields.
 - diagnostic `outcome`.
 
 It preserves meanings of direct resolution, direct package changes, framework guidance, source inventory, and direct source impact.
@@ -445,7 +445,7 @@ Field absence in 0.7 is not equivalent to 0.8 null.
 
 Schema 0.7 moved raw observations from `source_impact` to `source_inventory` and redefined `source_impact` as grouped actionable findings. It added platform provenance and framework guidance.
 
-A multi-version consumer needs distinct 0.6, 0.7, and 0.8 paths. Historical reports are not rewritten.
+If your consumer reads historical reports, keep separate 0.6, 0.7, and 0.8 handling. The analyzer does not rewrite old reports.
 
 ## Validation
 

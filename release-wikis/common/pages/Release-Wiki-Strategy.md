@@ -1,15 +1,15 @@
 # Release Wiki Strategy
 
-PHP Upgrade Preflight has four documentation destinations, not one combined Wiki:
+PHP Upgrade Preflight publishes four separate Wikis:
 
-1. the common product/monorepo Wiki;
-2. the Core package Wiki;
-3. the CLI package Wiki;
+1. the common product/monorepo Wiki.
+2. the Core package Wiki.
+3. the CLI package Wiki.
 4. the Laravel package Wiki.
 
-Canonical authoring pages live in `wiki/`. Physical destination copies live under
-`release-wikis/{common,core,cli,laravel}/pages`, beside the manifest that defines
-each set. This strategy was verified against release code on **2026-08-19**.
+Edit the canonical pages in `wiki/`. The release process builds each destination
+from its manifest into `release-wikis/{common,core,cli,laravel}/pages`.
+The release code and manifests were checked on **2026-08-19**.
 
 ## Why four sets exist
 
@@ -27,22 +27,20 @@ publication, or their own Wiki publication set.
 
 Each `wiki-manifest.json` contains:
 
-- the exact destination repository;
-- an ordered `source` → `destination` page map;
-- destination-specific sidebar order;
+- the exact destination repository.
+- an ordered `source` → `destination` page map.
+- destination-specific sidebar order.
 - destination-specific footer text.
 
-A page may appear in several manifests intentionally. For example, safety and
-troubleshooting belong in each package Wiki because a reader should not need to
-discover the monorepo first. The manifests are the separation boundary: never
-combine their page lists into one Wiki checkout.
+A page can appear in several manifests. Safety and troubleshooting, for example,
+belong in each package Wiki so package users can find them there. Follow each
+manifest's page list when preparing its checkout.
 
-The copies are generated, reviewable repository files rather than runtime-only
-artifacts. `pages/.source-checksums.json` records the canonical source, destination,
-source SHA-256, and materialized SHA-256. The materializer rewrites a link to a local
-renamed home page when possible and makes an absent cross-set page an explicit link
-to the common Wiki. It also converts `../docs/...`-style repository links to full
-monorepo GitHub URLs.
+The generated copies are repository files you can review before publication.
+`pages/.source-checksums.json` records each source and destination with their
+SHA-256 hashes. The materializer points links to a local renamed home page when
+possible, sends links for absent pages to the common Wiki, and expands relative
+repository links such as `../docs/...` into monorepo GitHub URLs.
 
 ```bash
 php tools/materialize-release-wikis.php
@@ -65,28 +63,27 @@ The package home pages are mapped deliberately:
 
 ## What current release automation actually does
 
-The existing distribution scripts are package-release tools, not Wiki tools:
+The distribution scripts handle package releases:
 
 - `prepare-distribution.sh` loops over exactly `core cli laravel`, clones their
-  normal Git repositories, replaces package payloads, and stages changes;
+  normal Git repositories, replaces package payloads, and stages changes.
 - `release-distribution.sh` loops over the same three clones, commits, creates
-  signed annotated tags, verifies signatures, and optionally pushes;
+  signed annotated tags, verifies signatures, and optionally pushes.
 - `ReleaseArtifactMetadata` requires exactly three release ZIPs and five checksum
-  assets (three ZIPs plus two JSON metadata files);
+  assets (three ZIPs plus two JSON metadata files).
 - `verify-installed-package-references.php` expects Core, CLI, and Laravel signed-tag
-  commits in a consumer lock;
+  commits in a consumer lock.
 - the Release workflow verifies the same three distribution tags and publishes a
   monorepo GitHub Release only after package, consumer, and Packagist gates.
 
-Package distribution still does not clone or push a GitHub `.wiki.git` repository.
-The release metadata gate now runs the offline `--check` mode and verifies the
-release-specific four-destination evidence before package jobs can authorize a
-tag. The workflow's default permission remains `contents: read`, so deterministic
-validation never depends on Wiki credentials and cannot be mistaken for publication.
+Package distribution does not clone or push a GitHub `.wiki.git` repository.
+The release metadata gate runs the offline `--check` mode and verifies the
+release's four-destination evidence before package jobs can authorize a tag.
+The workflow's default permission is `contents: read`. Its checks do not publish
+Wiki pages or need Wiki credentials.
 
-Therefore Wiki publication is **not** inserted into the package loop. Doing so would
-mix two different Git repositories, rollback models, and retry rules. It could also
-let `--yes` push Wiki changes without a destination-specific review.
+Wiki publication is a separate step. Each Wiki is its own Git repository and needs
+its own review and recorded commit. The package loop handles distribution payloads.
 
 ## Required pre-tag process today
 
@@ -96,7 +93,7 @@ Before creating any distribution or monorepo release tag:
 2. Review all four manifests. Add, remove, or remap pages when package scope changed.
 3. Run `php tools/materialize-release-wikis.php` to regenerate all four physical
    source trees.
-4. Generate that destination's `_Sidebar.md` and `_Footer.md`; do not reuse the
+4. Generate that destination's `_Sidebar.md` and `_Footer.md`. Do not reuse the
    common Wiki navigation in a package Wiki.
 5. Run `php tools/materialize-release-wikis.php --check` to validate sources,
    destinations, checksums, local links, and exact inventories.
@@ -114,7 +111,7 @@ Before creating any distribution or monorepo release tag:
    in `docs/releases/vVERSION.md`.
 10. Only then run `composer release:verify -- VERSION` and create release tags.
 
-`composer release:wiki:check` is the standalone offline page-tree check.
+`composer release:wiki:check` checks the generated page trees offline.
 `composer release:verify -- VERSION` always runs the same materializer check first,
 then verifies release series, package metadata, report metadata, changelog, release
 notes, their evidence link, and all four evidence records. The release workflow uses
@@ -124,14 +121,14 @@ steps.
 
 The v0.3.1 Wiki repositories were not found during the 2026-08-19 review, so
 `docs/releases/v0.3.1-wiki-baseline.json` records a historical baseline under a
-separate schema. It deliberately does not satisfy `release:verify`; it prevents a
+separate schema. It deliberately does not satisfy `release:verify`. It prevents a
 missing publication from being rewritten as a successful result. That baseline stays
 as written: it is evidence about v0.3.1 and is not amended by any later publication.
 
 All four Wiki repositories were created and populated for v0.3.2, whose
 per-destination commits are recorded in `docs/releases/v0.3.2-wiki-evidence.json`.
 A release remains blocked until real per-destination evidence exists for that
-release; evidence from an earlier release never satisfies a later one.
+release. Evidence from an earlier release never satisfies a later one.
 
 ## Manual publication commands
 
@@ -190,7 +187,7 @@ come directly from the package manifests, not from an inferred naming convention
 | Laravel | `ValentinNikolaev/php-upgrade-preflight-laravel` | `https://github.com/ValentinNikolaev/php-upgrade-preflight-laravel.wiki.git` |
 
 For Bash, select one row at a time and copy this template. The example selects
-Core; change both values to `cli` / `php-upgrade-preflight-cli` or `laravel` /
+Core. Change both values to `cli` / `php-upgrade-preflight-cli` or `laravel` /
 `php-upgrade-preflight-laravel` for the other destinations:
 
 ```bash
@@ -248,7 +245,7 @@ validate canonical Wiki pages
 
 The publisher should have a dry-run mode by default, explicit destination allowlist,
 one confirmation per Wiki, commit pinning, and no `--yes` path that silently crosses
-all four destinations. CI should validate and compare; remote writes should remain a
+all four destinations. CI should validate and compare. Remote writes should remain a
 separate, explicitly authorized maintainer action unless a later security design
 adds scoped credentials and protected-environment approval.
 

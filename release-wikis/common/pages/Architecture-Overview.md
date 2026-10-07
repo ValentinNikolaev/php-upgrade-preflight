@@ -1,24 +1,10 @@
 # Architecture Overview
 
-PHP Upgrade Preflight is a read-only analysis system.
-
-It answers planning questions about a requested PHP or Composer upgrade.
-
-It does not edit the analyzed project.
-
-It does not run the application.
-
-It does not prove runtime compatibility.
+PHP Upgrade Preflight helps plan a PHP or Composer upgrade. It reads the project's Composer files and selected PHP source, runs bounded Composer probes in temporary workspaces, and reports what the evidence supports. It leaves the analyzed project alone. A successful probe still says nothing conclusive about whether the application runs correctly after the upgrade.
 
 ## Audience
 
-Junior developers can use this page to find where a behavior lives.
-
-Technical managers can use it to understand system boundaries, evidence quality, and operational risk.
-
-For a package-by-package index, see [[Package Map|Package-Map]].
-
-For a class lookup, see [[Core Service Reference|Core-Service-Reference]].
+Use this page to see how the parts fit together. For package ownership, see [[Package Map|Package-Map]]. For a class lookup, see [[Core Service Reference|Core-Service-Reference]].
 
 ## System context
 
@@ -32,11 +18,7 @@ The repository contains three production packages and two fixture packages.
 | `php-upgrade-preflight/test-adapter` | Current third-party adapter contract fixture |
 | `php-upgrade-preflight/legacy-test-adapter` | Older adapter capability fixture |
 
-Dependency flow points toward Core.
-
-Core never imports Laravel classes.
-
-Adapters import Core interfaces and models.
+Dependencies point toward Core. Core exposes interfaces and models. Laravel and other adapters implement them without bringing framework code into Core.
 
 ## End-to-end pipeline
 
@@ -91,21 +73,15 @@ flowchart TD
     Markdown --> Output
 ```
 
-The diagram is a dependency flow, not a promise that every optional branch runs.
-
-For example, no active stage provider means staged analysis is skipped.
+The diagram shows possible work. Optional branches run only when their inputs and adapter capabilities are available. With no active stage provider, for example, Core skips staged analysis.
 
 ## Layer 1: delivery boundaries
 
 There are three user-facing command flows over two executables.
 
-The generic executable offers automation-safe `upgrade-intel analyze` and terminal-only `upgrade-intel wizard` flows. `Cli\Application` dispatches them. `Cli\AnalyzeCommand` owns explicit option parsing and delivery; `Cli\WizardCommand` collects choices, validates optional package metadata, prints the equivalent explicit command, and delegates back to the same analyzer command.
+The generic executable offers automation-safe `upgrade-intel analyze` and terminal-only `upgrade-intel wizard` flows. `Cli\Application` dispatches them. `Cli\AnalyzeCommand` owns explicit option parsing and delivery. `Cli\WizardCommand` collects choices, validates optional package metadata, prints the equivalent explicit command, and delegates back to the same analyzer command.
 
-Its controller is `Cli\AnalyzeCommand`.
-
-The Laravel command is `php artisan upgrade:analyze`.
-
-Its controller is `Laravel\Commands\AnalyzeUpgradeCommand`.
+`Cli\AnalyzeCommand` handles the generic analysis flow. Laravel exposes `php artisan upgrade:analyze` through `Laravel\Commands\AnalyzeUpgradeCommand`.
 
 The standalone analysis and Artisan controllers perform the same broad work:
 
@@ -115,67 +91,37 @@ The standalone analysis and Artisan controllers perform the same broad work:
 4. Select a report writer.
 5. Print or write the rendered report.
 
-They do not parse Composer conflicts.
+They leave conflict parsing and risk assessment to Core, and Laravel transition rules to the adapter. A command's job is to turn input into a request and deliver the resulting report.
 
-They do not calculate risk.
-
-They do not contain Laravel transition rules.
-
-This keeps presentation concerns outside the analysis engine.
-
-Terminal progress follows the same boundary. Core emits validated observational events through `AnalysisProgressReporter`; CLI and Laravel render them to terminal-attached stderr. Non-TTY execution stays silent, and progress reporter failures cannot affect the canonical report.
+Terminal progress follows the same boundary. Core emits validated observational events through `AnalysisProgressReporter`. CLI and Laravel render them to terminal-attached stderr. Non-TTY execution stays silent, and progress reporter failures cannot affect the canonical report.
 
 ## Layer 2: request model
 
-`UpgradeRequest` is the validated boundary between delivery and analysis.
+`UpgradeRequest` checks the inputs before analysis starts.
 
 It contains:
 
-- project path;
-- package targets;
-- current PHP evidence;
-- target PHP;
-- source paths;
-- requested frameworks;
-- report format and output path;
-- debug mode;
-- extension assumptions;
-- optional target-platform profile;
+- project path
+- package targets
+- current PHP evidence
+- target PHP
+- source paths
+- requested frameworks
+- report format and output path
+- debug mode
+- extension assumptions
+- optional target-platform profile
 - Composer execution configuration.
 
-`UpgradeTargetSet` normalizes package and PHP targets.
-
-Duplicate package names must not contradict one another.
-
-Target PHP from different inputs must agree exactly after normalization.
-
-Source paths must resolve inside the analyzed project.
+`UpgradeTargetSet` normalizes package and PHP targets. Repeated package targets cannot conflict, PHP values from different inputs must agree after normalization, and source paths must stay inside the analyzed project.
 
 ## Layer 3: project state
 
-`ProjectStateBuilder` loads `composer.json` and `composer.lock`.
-
-`JsonFileReader` provides strict JSON-object validation.
-
-The result is a `ProjectStateLoadResult`.
-
-Success contains a `ProjectState`.
-
-Failure contains a typed exception and enough partial state to build a terminal report.
-
-Input failure is modeled rather than confused with a solver conflict.
+`ProjectStateBuilder` loads `composer.json` and `composer.lock` through `JsonFileReader`, which requires JSON objects. It returns a `ProjectStateLoadResult`: either a `ProjectState` or a typed failure with enough partial state for a terminal report. Bad input is reported as bad input, not as a Composer conflict.
 
 ## Layer 4: target platform
 
-`TargetPlatform::fromRequest()` combines request evidence and project Composer metadata.
-
-It can represent PHP, extensions, target profile packages, and provenance.
-
-Platform provenance matters because host state and explicit target state are not interchangeable.
-
-An explicit extension assumption is evidence supplied by the caller.
-
-It is not proof obtained by booting the target environment.
+`TargetPlatform::fromRequest()` combines the request with project Composer metadata. It records PHP, extensions, profile packages, and where each value came from. A caller's extension assumption describes the intended target. The analyzer has not booted that environment to confirm it.
 
 ## Layer 5: adapter activation
 
@@ -193,15 +139,7 @@ The generic CLI discovers adapter classes from installed Composer manifests.
 }
 ```
 
-`FrameworkIntegrationRegistry` instantiates valid no-required-argument integrations.
-
-It rejects duplicate classes and duplicate case-insensitive integration names.
-
-`FrameworkRuleEngine` chooses active integrations.
-
-An explicit `--framework=name` activates only requested available names.
-
-Without explicit names, project detection decides activation.
+`FrameworkIntegrationRegistry` constructs integrations that need no required arguments and rejects duplicate classes or names that differ only by case. `FrameworkRuleEngine` activates explicitly requested, available `--framework=name` integrations. Without that option, each integration's project detection decides whether it applies.
 
 ## Layer 6: direct Composer scenarios
 
@@ -209,9 +147,9 @@ Without explicit names, project detection decides activation.
 
 The usual scenarios are:
 
-- baseline validation;
-- exact target;
-- target with all dependencies;
+- baseline validation
+- exact target
+- target with all dependencies
 - minimal changes.
 
 PHP plus package requests may add platform-only and staged-target diagnostic scenarios.
@@ -220,20 +158,20 @@ PHP plus package requests may add platform-only and staged-target diagnostic sce
 
 It uses `TemporaryWorkspaceManager` and `ScenarioWorkspacePreparer`.
 
-The analyzed tree remains untouched.
+Only the temporary workspace receives the changed Composer files.
 
 Each scenario returns a `ScenarioResult`.
 
 A result can contain:
 
-- exit code;
-- bounded stdout and stderr;
-- duration;
-- Composer version;
-- failure classification;
-- diagnostics;
-- candidate lock state;
-- candidate lock evidence;
+- exit code
+- bounded stdout and stderr
+- duration
+- Composer version
+- failure classification
+- diagnostics
+- candidate lock state
+- candidate lock evidence
 - debug workspace path.
 
 ## External-process boundary
@@ -248,7 +186,7 @@ Compatible mode uses normal Composer access with non-interactive/no-audit settin
 
 Restricted mode creates analyzer-owned Composer state and disables normal credential, proxy, prompt, and network paths where supported.
 
-Restricted mode is not an operating-system sandbox.
+Restricted mode does not isolate the process at the operating-system level.
 
 ## Layer 7: direct interpretation
 
@@ -262,14 +200,12 @@ Restricted mode is not an operating-system sandbox.
 
 The direct resolution can be:
 
-- `feasible`;
-- `feasible_with_changes`;
-- `blocked`;
+- `feasible`
+- `feasible_with_changes`
+- `blocked`
 - `unknown`.
 
-Unknown is not a softer spelling of blocked.
-
-It means reliable solver evidence was not available.
+`unknown` means Core lacks reliable solver evidence. It does not mean Composer found a conflict.
 
 ## Candidate selection
 
@@ -279,8 +215,8 @@ It first prefers fewer package changes.
 
 For equal change counts, strategy rank is:
 
-1. exact target;
-2. minimal changes;
+1. exact target
+2. minimal changes
 3. with all dependencies.
 
 Original scenario order is the final tie-breaker.
@@ -303,7 +239,7 @@ Staged analysis is separate from direct resolution.
 
 The selected candidate state of one successful stage becomes input to the next stage.
 
-The application source tree is still not rewritten.
+Staged dependency candidates do not rewrite application source.
 
 ## Layer 9: source analysis
 
@@ -313,9 +249,7 @@ Core visitors collect common declarations and usages.
 
 Adapters may add visitors through `SourceUsageVisitorProvider`.
 
-The first product is source inventory.
-
-Inventory is not automatically actionable impact.
+The scanner first records what it sees. A source usage becomes actionable impact only after correlation with ownership, package changes, or framework findings.
 
 `AutoloadOwnershipIndexBuilder` uses root and locked-package autoload metadata.
 
@@ -329,11 +263,11 @@ Adapters supply maintained framework knowledge.
 
 The Laravel adapter separates that knowledge into:
 
-- `LaravelFrameworkDetector`;
-- `LaravelRuleCatalog`;
-- `LaravelRuleFactory`;
-- `LaravelTransitionAssessor`;
-- `LaravelStagePlanner`;
+- `LaravelFrameworkDetector`
+- `LaravelRuleCatalog`
+- `LaravelRuleFactory`
+- `LaravelTransitionAssessor`
+- `LaravelStagePlanner`
 - `LaravelSourceUsageVisitor`.
 
 Core sees interfaces and model values, not Laravel implementation details.
@@ -344,13 +278,7 @@ See [[Laravel Package Internals|Laravel-Package-Internals]].
 
 `RiskAndEffortEstimator` consumes structured evidence.
 
-Risk is a deterministic planning summary.
-
-It is not a probability.
-
-Effort is a range with confidence, components, and assumptions.
-
-It is not a quotation or deadline.
+Risk is a deterministic planning summary, not a probability. Effort is a range with confidence, components, and assumptions, not a delivery promise.
 
 `StageAssessmentBuilder` adds stage-level source impact, risk, effort, tests, and actions.
 
@@ -362,11 +290,7 @@ It is not a quotation or deadline.
 
 The report constructor validates evidence references and other invariants.
 
-JSON is canonical.
-
-Markdown is a projection of the same report object.
-
-Writers do not rerun analysis.
+JSON carries the canonical report. Markdown renders the same report for people. Neither writer reruns analysis.
 
 ## Trust boundaries
 
@@ -419,19 +343,7 @@ vendor/bin/upgrade-intel analyze \
   --format=json
 ```
 
-The CLI constructs the request.
-
-The registry supplies the Laravel integration.
-
-Core loads Composer state and builds the target platform.
-
-Direct scenarios test final-target feasibility.
-
-The Laravel adapter can provide adjacent stage targets.
-
-Core scans the original source snapshot.
-
-The report combines direct, staged, source, and guidance evidence without conflating them.
+The CLI constructs the request and discovers Laravel. Core loads Composer state, models the target platform, and tests the direct target. Laravel may provide adjacent stage targets. Core scans the original source and keeps direct resolution, staged attempts, source impact, and framework guidance distinct in the report.
 
 ## Where to read next
 

@@ -1,8 +1,8 @@
 # Reading the Report
 
-This page gives a practical reading order for schema 0.8 reports. It serves the developer who must act on details and the technical manager who must understand scope, confidence, and stop conditions.
+Read a schema 0.8 report in this order when you need to turn it into work. The same fields help a technical manager see what is known, what is blocked, and what still needs checking.
 
-JSON is canonical. Markdown is a human-readable projection of the same `UpgradeReport`; it does not run a second analysis.
+JSON is canonical. Markdown is a human-readable projection of the same `UpgradeReport`. It does not run a second analysis.
 
 ## The five-minute reading order
 
@@ -13,7 +13,7 @@ JSON is canonical. Markdown is a human-readable projection of the same `UpgradeR
 5. Review blockers, actionable source impact, risk, effort, tests, and uncertainties.
 6. Trace decision-critical claims through evidence IDs.
 
-Do not begin with the process exit code. Exit code 0 says a report was produced; it does not say the upgrade is feasible.
+Do not begin with the process exit code. Exit code 0 says a report was produced. It does not say the upgrade is feasible.
 
 ## Running example
 
@@ -44,7 +44,7 @@ Its command exits 0 because it writes a valid report. The report itself says:
 }
 ```
 
-That is successful analysis of an upgrade that is not currently feasible.
+The analysis completed. Its direct and staged Composer results say this upgrade is blocked.
 
 ## Step 1: identify the contract
 
@@ -68,13 +68,13 @@ Patch releases can correct findings, evidence, scenario selection, or wording wh
 
 `request_summary` records normalized input, not facts discovered later. Check:
 
-- `project_path` uses `[PROJECT_ROOT]` in a shareable report;
-- `targets` contains every intended package and PHP target;
-- `from_php` represents current PHP evidence;
-- `target_php` is the desired exact simulation value;
-- `source_paths` and `frameworks` are expected;
-- `format` and `output_path` are expected;
-- `target_platform_profile` has the intended digest/completeness or is null;
+- `project_path` uses `[PROJECT_ROOT]` in a shareable report.
+- `targets` contains every intended package and PHP target.
+- `from_php` represents current PHP evidence.
+- `target_php` is the desired exact simulation value.
+- `source_paths` and `frameworks` are expected.
+- `format` and `output_path` are expected.
+- `target_platform_profile` has the intended digest/completeness or is null.
 - request-level `composer_execution` reflects the chosen policy.
 
 Real demo excerpt:
@@ -94,7 +94,7 @@ Real demo excerpt:
 }
 ```
 
-If the request is wrong, stop. A precise report for the wrong target is not useful evidence.
+If the request is wrong, correct it and rerun. The rest of the report answers the request that was actually made.
 
 ## Step 3: separate host, current, and target PHP
 
@@ -110,26 +110,26 @@ The analyzer host may run PHP 8.3 while current evidence says 8.1 and target evi
 
 Review `platform.extensions`:
 
-- `completeness: none` means no explicit extension modeling;
-- `partial` means named decisions exist and unlisted values remain host-dependent;
-- `complete` means supported safely simulated unlisted classes are modeled absent;
-- `unmodeled_provenance` says where remaining values came from;
+- `completeness: none` means no explicit extension modeling.
+- `partial` means named decisions exist and unlisted values remain host-dependent.
+- `complete` means supported safely simulated unlisted classes are modeled absent.
+- `unmodeled_provenance` says where remaining values came from.
 - `assumptions[]` identifies each effective decision and provenance.
 
-A non-null `platform.profile` adds canonical digest, `closed_world`, supported classes, toolchain-bound names, and normalized `effective[]` decisions. A complete profile narrows platform dependence; it does not pin repositories, credentials, network, or Composer executable behavior.
+A non-null `platform.profile` adds canonical digest, `closed_world`, supported classes, toolchain-bound names, and normalized `effective[]` decisions. A complete profile narrows platform dependence. It does not pin repositories, credentials, network, or Composer executable behavior.
 
 ## Step 4: inspect Composer execution provenance
 
 Top-level `composer_execution` reports what governed scenarios:
 
-- `mode`: compatible or restricted;
-- detected Composer version and expectation match;
-- scenario and diagnostic timeouts;
-- environment and network policy;
-- repository source and Composer home policy;
-- global configuration and possible credential inheritance;
-- requested offline behavior;
-- disabled scripts, plugins, installation, audit, interaction, and progress;
+- `mode`: compatible or restricted.
+- detected Composer version and expectation match.
+- scenario and diagnostic timeouts.
+- environment and network policy.
+- repository source and Composer home policy.
+- global configuration and possible credential inheritance.
+- requested offline behavior.
+- disabled scripts, plugins, installation, audit, interaction, and progress.
 - `process_os_isolation`, false because the tool supplies no OS sandbox.
 
 Real demo excerpt:
@@ -148,7 +148,7 @@ Real demo excerpt:
 }
 ```
 
-Restricted mode is not a firewall. `repository_metadata_unavailable` is operational uncertainty, not a dependency conflict.
+Restricted mode requests best-effort offline behavior from Composer. It does not isolate the process or enforce a network boundary at the operating-system level. `repository_metadata_unavailable` means Composer lacked repository evidence, so treat it as uncertainty rather than a dependency conflict.
 
 ## Step 5: read direct resolution
 
@@ -161,7 +161,7 @@ Restricted mode is not a firewall. `repository_metadata_unavailable` is operatio
 | `blocked` | Reproducible blockers prevent the requested target | Read blockers and scenario evidence |
 | `unknown` | No reliable conclusion was possible | Fix evidence/operational gaps and rerun |
 
-The direct status is never `ok` in schema 0.8.
+Schema 0.8 does not use `ok` for direct status.
 
 ### Read scenarios, not only the summary
 
@@ -183,7 +183,7 @@ cleanup_failure
 workspace_failure
 ```
 
-A diagnostic probe can have a non-zero Composer exit code and `outcome: success`: it ran successfully and its non-zero result can be the relationship evidence it was meant to capture. Prefer `outcome` over raw numeric interpretation.
+A diagnostic probe can exit non-zero and still record `outcome: success`: the probe ran and got the relationship evidence it requested. Read `outcome` before interpreting the numeric code.
 
 ## Step 6: read framework guidance separately
 
@@ -206,27 +206,27 @@ Real demo excerpt, with evidence arrays omitted only for readability:
 }
 ```
 
-`supported`, `partially_supported`, and `unsupported` describe coverage. They cannot upgrade a blocked Composer result or downgrade a feasible one.
+`supported`, `partially_supported`, and `unsupported` describe rule coverage. Read the Composer result separately to see whether the dependency state resolves.
 
 ## Step 7: read staged resolution
 
 First read `staged_resolution.execution_state`:
 
-- `evaluated`: staged execution occurred;
-- `skipped`: no staged Composer conclusion was executed; read `stop_reason`.
+- `evaluated`: staged execution occurred.
+- `skipped`: no staged Composer conclusion was executed. Read `stop_reason`.
 
 Then read aggregate `status`: `feasible`, `feasible_with_changes`, `blocked`, or `unknown`.
 
 Each stage includes:
 
-- stable ID and framework majors;
-- execution state and nullable resolution status;
-- exact targets and analysis PHP;
-- platform and Composer execution digests;
-- duration and evidence;
-- input state, attempts, and optional selected output;
-- package changes and blocker references;
-- original-snapshot source findings and staged impact IDs;
+- stable ID and framework majors.
+- execution state and nullable resolution status.
+- exact targets and analysis PHP.
+- platform and Composer execution digests.
+- duration and evidence.
+- input state, attempts, and optional selected output.
+- package changes and blocker references.
+- original-snapshot source findings and staged impact IDs.
 - stage risk, effort, actions, and tests.
 
 Faithful selected fields from the demo chain:
@@ -239,19 +239,19 @@ Faithful selected fields from the demo chain:
 ]
 ```
 
-Only a stage with selected attempt and output state can feed the next stage. Stop at the first blocked, unknown, skipped, or missing stage.
+Advance only when a stage has both a selected attempt and an output state. Stop at the first blocked, unknown, skipped, or missing stage.
 
 ### Candidate-state continuity
 
 Verify that the selected output fingerprint of one stage equals the next stage's input fingerprint. A state fingerprint covers sanitized manifest, lock, platform, and execution policy identity. It identifies content, not analysis directory.
 
-Raw `candidate_lock.sha256` and Composer `content_hash` are workspace-local Composer output; do not confuse them with path-normalized stage fingerprints.
+Raw `candidate_lock.sha256` and Composer `content_hash` are workspace-local Composer output. Do not confuse them with path-normalized stage fingerprints.
 
 ## Step 8: inspect blockers and lifecycle
 
 Top-level `blockers[]` belongs to direct final-target analysis. A blocker records type, subject, requested constraint, blocking package/version or conflict, dependency path, options, summary, confidence, and evidence.
 
-Real shortened demo blocker; every shown value is exact:
+This shortened demo blocker uses exact values:
 
 ```json
 {
@@ -309,7 +309,7 @@ Real actionable impact:
 }
 ```
 
-Unknown ownership is not permission to guess. Staged impact uses its own registry under `staged_resolution.source_impact`; stages reference those IDs. Every stage reads the original source snapshot, not simulated earlier edits.
+Leave ownership unknown when the report does. Staged impact has a separate registry at `staged_resolution.source_impact`, and stages reference its IDs. Every stage reads the original source snapshot. The analyzer does not simulate earlier source edits.
 
 ## Step 10: read framework findings in hop scope
 
@@ -331,7 +331,7 @@ This is review guidance, not a removed-symbol blocker: Laravel 13 retains the de
 
 `plan.stages[]` supplies ordered actions and evidence. The demo's first two summaries say to apply only selected candidates and validate before advancing. The final stage says to stop because its transition is not proved.
 
-`risk` contains a level and drivers; it is not a probability. Real demo excerpt:
+`risk` contains a level and drivers. It is not a probability. Real demo excerpt:
 
 ```json
 {
@@ -351,7 +351,7 @@ This is review guidance, not a removed-symbol blocker: Laravel 13 retains the de
 }
 ```
 
-The full effort object has component ranges and assumptions. It is planning support, not a quote.
+The full effort object also lists component ranges and assumptions. Check those before using the estimate in a plan.
 
 `tests[]` names purpose, nullable command, and required/recommended priority. Null command means validation is needed but the project command was not identified.
 
@@ -359,12 +359,12 @@ The full effort object has component ranges and assumptions. It is planning supp
 
 Uncertainty is a first-class result. The demo says:
 
-- dependency resolution does not prove runtime compatibility;
-- no Composer test script was found;
-- unlisted extensions came from analyzer runtime;
+- dependency resolution does not prove runtime compatibility.
+- no Composer test script was found.
+- unlisted extensions came from analyzer runtime.
 - restricted Composer mode is not process or OS isolation.
 
-An empty findings array alongside a contained adapter or parse uncertainty is not a clean bill of health.
+If an adapter failed or source parsing was incomplete, an empty findings array says only that no finding was recorded from the available evidence.
 
 ## Step 13: trace evidence
 

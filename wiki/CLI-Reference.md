@@ -1,6 +1,6 @@
 # CLI Reference
 
-The standalone executable is installed by `php-upgrade-preflight/cli`.
+Install `php-upgrade-preflight/cli` to get the standalone `upgrade-intel` command. It reads the project you point it at and returns a report. It does not upgrade that project.
 
 ```text
 upgrade-intel wizard
@@ -18,12 +18,12 @@ vendor/bin/upgrade-intel --help
 vendor\bin\upgrade-intel.bat --help
 ```
 
-## Parsing rules that prevent surprises
+## How the command reads options
 
-- Choose `wizard` for an interactive terminal session or `analyze` for explicit, automation-safe options.
+- Use `wizard` at a terminal when you want guided choices. Use `analyze` when you already know the options or are writing a script.
 - `wizard` accepts no options. It requires terminal-attached stdin and stderr.
 - Value options use one token: `--name=value`.
-- `--path /work/app` is invalid; use `--path=/work/app`.
+- `--path /work/app` is invalid. Use `--path=/work/app`.
 - `--debug` is a flag and must not have a value.
 - Scalar options may be supplied once.
 - Repeatable options are `--target`, `--with-extension`, `--without-extension`, `--source`, and `--framework`.
@@ -54,7 +54,7 @@ vendor\bin\upgrade-intel.bat --help
 | `--debug` | No | Off | Preserve workspaces and expose exact temporary paths |
 | `-h`, `--help` | No | — | Print help and return 0 |
 
-`--output` and `--save-report` are mutually exclusive. Use `--output` for legacy file-only delivery and `--save-report` when a human or pipeline needs both the canonical stdout stream and a validated file copy.
+Choose one file option. `--output` writes the report to a file and prints a short confirmation. `--save-report` keeps the report on stdout and writes the same bytes to a file.
 
 ## Interactive wizard
 
@@ -64,19 +64,19 @@ Run the guided flow in a real terminal:
 vendor/bin/upgrade-intel wizard
 ```
 
-The wizard reads `composer.json`, shows the analyzer runtime and available project PHP evidence, then asks for the Composer analysis policy, PHP and/or package targets, report format, and an optional saved copy. It never silently treats the analyzer's PHP runtime as the desired target. Before running, it prints the equivalent quoted `upgrade-intel analyze` command so the choice can be reviewed or reused in automation.
+The wizard reads `composer.json` and shows what it knows about the project's PHP version alongside the PHP version running the analyzer. It asks you to choose the Composer mode, targets, report format, and optional saved copy. The running PHP version is never silently used as your target. Before analysis, the wizard prints the equivalent quoted `upgrade-intel analyze` command for review or reuse.
 
 Package-target selection has three explicit metadata sources:
 
 | Source | Network and trust behavior | Result handling |
 | --- | --- | --- |
-| `composer.json` only | Default; no Composer metadata process | Root requirements are offered, but external existence is not claimed |
+| `composer.json` only | Default, with no Composer metadata process | Root requirements are offered, but external existence is not claimed |
 | Local Composer cache | Requests no network | Cache misses and operational failures are `unverified`, never “package does not exist” |
 | Configured project repositories | May use the lookup's configured Composer executable, repository configuration, network, and credentials | Explicit not-found, found, matching-version, and operationally unverified results are kept distinct |
 
-When repository metadata is found, the wizard offers a bounded set of compatible release-line and exact-version candidates plus a custom-constraint choice. Invalid syntax, an explicit repository not-found result, or a constraint with no discovered matching version must be corrected. A timeout, offline failure, malformed metadata, or unavailable lookup remains `unverified`; the wizard warns and allows the actual analysis to decide.
+When a lookup finds package versions, the wizard offers a short list of release-line and exact-version choices, plus a custom constraint. It asks you to correct invalid syntax, a confirmed missing package, or a constraint with no matching discovered version. A timeout, offline failure, or unusable metadata leaves the lookup `unverified`. The wizard warns you and lets analysis make its own attempt.
 
-Enter `cancel`, `quit`, or `q` at a prompt to stop before analysis with exit code `130`. End-of-input is invalid input (`2`). The wizard rejects redirected/non-TTY input or diagnostics instead of guessing defaults; use `analyze` in scripts.
+Enter `cancel`, `quit`, or `q` at a prompt to stop before analysis with exit code `130`. End-of-input is invalid input (`2`). The wizard rejects redirected or non-TTY input and diagnostics instead of guessing defaults. Use `analyze` in scripts.
 
 ## Project and source paths
 
@@ -110,7 +110,7 @@ vendor\bin\upgrade-intel.bat analyze `
   --source=tests\Feature
 ```
 
-A source path outside the project is rejected even if it exists.
+An existing path outside the project still fails validation.
 
 ## Package and PHP targets
 
@@ -121,7 +121,7 @@ A source path outside the project is rejected even if it exists.
 --target=laravel/passport:^12.0
 ```
 
-Repeat an identical package target if necessary; it collapses. Conflicting constraints for the same package are invalid.
+You may repeat an identical package target. The duplicates collapse. Conflicting constraints for the same package are invalid.
 
 `--target-php` accepts an exact major, major.minor, or major.minor.patch value. Values normalize to three components in the target set.
 
@@ -130,9 +130,9 @@ Repeat an identical package target if necessary; it collapses. Conflicting const
 --target=php:8.3
 ```
 
-These two PHP forms are equivalent. If both are supplied, they must normalize to the same exact value. A range such as `--target-php=^8.3` is invalid because simulation needs a concrete platform value.
+Both PHP forms mean the same thing. If you use both, their normalized exact versions must agree. A range such as `--target-php=^8.3` cannot describe one platform for Composer to test.
 
-`--from-php` also accepts an exact major, major.minor, or major.minor.patch. It describes the current project for staging; it does not change the PHP interpreter running the analyzer.
+`--from-php` also accepts an exact major, major.minor, or major.minor.patch. It describes the current project for staging. It does not change the PHP interpreter running the analyzer.
 
 ## Extension assumptions
 
@@ -158,13 +158,13 @@ vendor\bin\upgrade-intel.bat analyze `
 
 Rules:
 
-- exact versions and absences are written only to analyzer-owned temporary manifests;
-- matching repeats collapse;
-- different versions for one extension are contradictory;
-- present and absent for one extension are contradictory;
-- absence simulation requires Composer 2.2+;
-- presence without a version uses a conservative sentinel and cannot prove a versioned constraint;
-- a sentinel-related constraint failure becomes a non-blocking `extension-version-unknown` advisory;
+- exact versions and absences are written only to analyzer-owned temporary manifests.
+- matching repeats collapse.
+- different versions for one extension are contradictory.
+- present and absent for one extension are contradictory.
+- absence simulation requires Composer 2.2+.
+- presence without a version uses a conservative sentinel and cannot prove a versioned constraint.
+- a sentinel-related constraint failure becomes a non-blocking `extension-version-unknown` advisory.
 - unlisted extensions may still come from the analyzer host and are reported as host-dependent.
 
 ## Target-platform profiles
@@ -202,13 +202,13 @@ vendor\bin\upgrade-intel.bat analyze `
 
 Supported names include `php`, `ext-*`, `lib-*`, PHP subtypes such as `php-64bit`, and Composer platform packages. Values are exact versions or `false` for verified absence.
 
-Use `partial` when inventory is incomplete. Unlisted platform packages then remain host-dependent. Use `complete` only when every supported safely simulated class was considered and every unlisted value should be absent.
+Use `partial` if the inventory is incomplete. Composer may still take unlisted platform packages from the host. A `complete` profile treats every unlisted safely simulated platform package as absent. Use it only after you have verified that the inventory covers the deployment platform completely.
 
-Complete profiles require Composer 2.2+. Composer 2.0 or 2.1 produces an operationally unknown result before workspace creation; the request is not silently weakened to partial.
+Complete profiles require Composer 2.2+. Composer 2.0 or 2.1 produces an operationally unknown result before workspace creation. The request is not silently weakened to partial.
 
 Request values take precedence over the profile, which takes precedence over original `config.platform`. Equal request/profile values are accepted. Contradictions are rejected. A complete profile cannot be combined with a presence-only extension assumption.
 
-Executable-bound values such as `composer`, `composer-plugin-api`, and `composer-runtime-api` are recorded as `toolchain_bound`; the analyzer does not claim that `config.platform` safely simulates them.
+Executable-bound values such as `composer`, `composer-plugin-api`, and `composer-runtime-api` are recorded as `toolchain_bound`. The analyzer does not claim that `config.platform` safely simulates them.
 
 ## Framework adapters
 
@@ -221,31 +221,31 @@ vendor/bin/upgrade-intel analyze \
   --framework=laravel
 ```
 
-Explicit names are case-insensitive and deduplicated. An unavailable explicit adapter is invalid input and returns exit code 2. A malformed unrelated installed adapter manifest is skipped with a stderr diagnostic; adapter class or name collisions fail analysis rather than selecting an arbitrary winner.
+Explicit names are case-insensitive and deduplicated. An unavailable explicit adapter is invalid input and returns exit code 2. A malformed unrelated installed adapter manifest is skipped with a stderr diagnostic. Adapter class or name collisions fail analysis rather than selecting an arbitrary winner.
 
-The Artisan entry point does not accept `--framework`; it always enables Laravel.
+The Artisan entry point does not accept `--framework`. It always enables Laravel.
 
 ## Composer execution modes
 
 ### Compatible mode
 
-`compatible` is the default. Composer may inherit global config, authentication, proxy settings, cache, Git/SSH setup, and network access. Use it when private repositories need the normal host environment.
+`compatible` is the default. Composer may use the host's global config, credentials, proxy, cache, Git/SSH setup, and network. Choose it when private repositories require that environment.
 
 ```bash
 --composer-mode=compatible
 ```
 
-Evidence from compatible mode depends on host state and is not cross-host reproducibility proof.
+The result can depend on that host state, so the same request may behave differently on another machine.
 
 ### Restricted mode
 
-`restricted` uses fresh analyzer-owned Composer home, cache, and XDG roots; writes empty Composer config/auth files; scrubs controlled credential, proxy, and askpass variables; and requests best-effort offline behavior.
+`restricted` uses fresh analyzer-owned Composer home, cache, and XDG roots. It writes empty Composer config and auth files, scrubs controlled credential, proxy, and askpass variables, and requests best-effort offline behavior.
 
 ```bash
 --composer-mode=restricted
 ```
 
-It is not an operating-system network sandbox. The selected executable, helper processes, system trust, and credentials embedded in project input remain boundaries. A fresh offline cache miss is `repository_metadata_unavailable`, an operational uncertainty, not a dependency blocker.
+This mode does not block network access at the operating-system level. The selected executable, its helpers, system trust, and credentials in project input are still in scope. If a fresh offline cache lacks repository metadata, the report records `repository_metadata_unavailable`. It has too little evidence to call that a dependency blocker.
 
 Scripts, plugins, installation, audit, interaction, and progress are disabled in both modes.
 
@@ -267,7 +267,7 @@ The default expected range is Composer 2. A detected executable outside `--compo
 --composer-timeout=600 --composer-diagnostic-timeout=90
 ```
 
-The parser first requires digits; the configuration then enforces 1–3600 and 1–900. Note that the literal `0` contains digits but fails the allowed range.
+Both values must contain only digits. The allowed ranges are 1–3600 and 1–900 seconds, so `0` is invalid.
 
 ## Output and streams
 
@@ -289,7 +289,7 @@ The saved file contains the same rendered bytes emitted to stdout. The destinati
 
 If the additional copy fails after stdout was written, the report remains available on stdout, a redacted diagnostic explains the copy failure on stderr, and the process returns `1`.
 
-Prefer `--output`, which validates that the destination is outside the project, is not a directory, and has an existing writable parent:
+If you only need a file, `--output` checks that it sits outside the project, is not a directory, and has an existing writable parent:
 
 ```bash
 mkdir -p /work/reports
@@ -307,11 +307,11 @@ On success with `--output`, stdout contains a short “Wrote report” message r
 
 When stderr is attached to a terminal, both the standalone CLI and Laravel Artisan entry point print durable phase and Composer-scenario lines such as `[working]`, `[done]`, `[blocked]`, `[timed-out]`, and `[unverified]`. The phases cover project metadata loading, Composer feasibility, staged paths, source scanning, framework rules, and report assembly.
 
-Progress is observational: reporter failures are ignored and cannot alter analysis or report status. No spinner or cursor-control sequence is used. When stderr is redirected or is not a TTY, progress is suppressed; stdout remains a clean report stream suitable for a pipe. Errors remain redacted stderr diagnostics.
+Progress is observational: reporter failures are ignored and cannot alter analysis or report status. No spinner or cursor-control sequence is used. When stderr is redirected or is not a TTY, progress is suppressed. Stdout remains a clean report stream suitable for a pipe. Errors remain redacted stderr diagnostics.
 
 ## Exit code versus report status
 
-Never use `$?`, `$LASTEXITCODE`, or a CI step's green/red state as the upgrade verdict.
+A successful process means you have a report. Read the report to learn whether the target resolved. `$?`, `$LASTEXITCODE`, and a green CI step cannot tell you that.
 
 | Process code | Contract |
 | --- | --- |
@@ -327,7 +327,7 @@ Never use `$?`, `$LASTEXITCODE`, or a CI step's green/red state as the upgrade v
 | `blocked` | Composer blockers prevent final-target resolution |
 | `unknown` | No reliable feasibility conclusion was reached |
 
-The five-minute demo returns process code 0 while `resolution.status` is `blocked`.
+For example, the five-minute demo exits `0` even though its report says `resolution.status` is `blocked`.
 
 For framework work, read three independent dimensions:
 

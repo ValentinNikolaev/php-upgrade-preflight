@@ -1,6 +1,6 @@
 # Writing a Framework Adapter
 
-Framework adapters add framework-specific detection, rules, source paths, and optional advanced capabilities without changing the CLI. This guide describes the v0.3 contract as verified on **2026-08-19**.
+An adapter supplies framework knowledge to Core: detection, rules, default source paths, and any optional capabilities it can support. The generic CLI discovers it from Composer metadata, so an adapter package does not need a CLI source change. This guide covers the repository's v0.3 adapter contract.
 
 ## What you are building
 
@@ -16,7 +16,7 @@ interface FrameworkIntegration
 }
 ```
 
-The four methods answer four simple questions:
+The four methods give Core the minimum it needs:
 
 | Method | Question |
 |---|---|
@@ -25,7 +25,7 @@ The four methods answer four simple questions:
 | `rules()` | Which compatibility checks should run? |
 | `defaultSourcePaths()` | Which project-relative directories should be scanned when the user supplies no `--source`? |
 
-Core remains framework-neutral. Do not put framework rules into Core merely to avoid creating an adapter.
+Keep framework rules in the adapter so Core can use the same contracts for any framework.
 
 ## Minimal package
 
@@ -100,7 +100,7 @@ final class ExampleFrameworkIntegration implements FrameworkIntegration
 }
 ```
 
-Detection should inspect metadata, not boot or execute the target application. Source paths must be project-relative and bounded.
+Detection reads Composer metadata without booting the target application. Return project-relative source paths that the analyzer can scan within its bounds.
 
 ## Discovery and activation
 
@@ -111,7 +111,7 @@ composer require php-upgrade-preflight/cli acme/example-adapter
 vendor/bin/upgrade-intel analyze --path=/work/app --target-php=8.3
 ```
 
-Without `--framework`, every discovered integration may detect the project; only positive detections become active. Explicit selection is case-insensitive, bypasses detection, and may be repeated:
+Without `--framework`, Core asks discovered integrations to detect the project and activates positive matches. Explicit names are case-insensitive, can be repeated, and activate available integrations without a positive detection:
 
 ```bash
 vendor/bin/upgrade-intel analyze \
@@ -120,11 +120,11 @@ vendor/bin/upgrade-intel analyze \
   --target=acme/framework:^3.0
 ```
 
-Composer packages are discovered in lexical package-name order. Active integrations are then ordered case-insensitively by adapter name, with class name as the tie-breaker. Do not rely on manifest declaration order.
+Discovery visits Composer packages in lexical package-name order. Active integrations are sorted by name without regard to case, then by class name. Manifest order is not an execution order.
 
-An unreadable adapter manifest skips only that package and produces a diagnostic. An accepted manifest that advertises a missing, invalid, duplicate, or colliding class fails analyzer construction. An explicitly requested unavailable adapter is invalid invocation exit `2`.
+An unreadable manifest skips that package and produces a diagnostic. Once a manifest is accepted, a missing or invalid class, duplicate class, or colliding name fails analyzer construction. Requesting an unavailable adapter explicitly is an invalid invocation with exit code `2`.
 
-Installed adapters are trusted PHP code and run in the analyzer process with its filesystem, network, environment, and credential privileges. Only install adapters you trust with those privileges. Exception containment preserves a report after a runtime defect; it is not process isolation and cannot prevent or reverse side effects.
+Installed adapters run as PHP code in the analyzer process. They have its filesystem, network, environment, and credential privileges, so install only adapters you trust with that access. Catching an exception can preserve the report, but it cannot isolate an adapter or undo side effects.
 
 ## Add compatibility rules
 
@@ -139,7 +139,7 @@ public function evaluate(
 ): ?CompatibilityFinding;
 ```
 
-Return `null` when the rule has no relevant result. A finding must be backed by evidence IDs. Severity and evidence confidence accept exactly `low`, `medium`, or `high`.
+Return `null` when the rule has no relevant result. A finding cites registered evidence IDs. Severity and evidence confidence each use `low`, `medium`, or `high`, but answer different questions.
 
 A good rule is deterministic and narrow:
 
@@ -165,19 +165,19 @@ return new CompatibilityFinding(
 );
 ```
 
-Never copy credentials, repository URLs containing authentication, absolute local paths, or unnecessary source excerpts into evidence context. A throwing rule is contained as uncertainty so the report can finish, but this is degradation, not a supported operating mode.
+Keep credentials, authenticated repository URLs, absolute local paths, and unnecessary source excerpts out of evidence context. Core contains a throwing rule as uncertainty and continues, but its check has not succeeded.
 
-Core similarly contains runtime failures from automatic detection, default source paths, transition assessment, package-family classification, and source collectors. The affected contribution is omitted, other adapters continue, and evidence-backed uncertainty names the failure. Explicit selection bypasses `detect()`. Invalid registration and unavailable explicitly requested names remain fail-fast input errors.
+Core contains runtime failures from automatic detection, default source paths, transition assessment, package-family classification, and source collectors. It omits the affected contribution, records evidence-backed uncertainty, and continues with other adapters. Explicit selection bypasses `detect()`. Invalid registration and unavailable explicitly requested names still fail immediately as input errors.
 
-Implement `HopAwareCompatibilityRule` when the result belongs to a specific supported transition. Its `evaluateForHop()` is called per hop when transition guidance exists; otherwise Core falls back to ordinary `evaluate()`.
+Use `HopAwareCompatibilityRule` when a finding belongs to a particular transition. Core calls `evaluateForHop()` for each hop with guidance and falls back to `evaluate()` when that guidance is absent.
 
 ## Optional capabilities
 
 ### Transition guidance
 
-Implement `FrameworkTransitionProvider` to return an evidence-backed `FrameworkGuidance` from `assessTransition()`. Guidance says whether documented framework migration rules cover a route. It is independent of Composer feasibility.
+`FrameworkTransitionProvider::assessTransition()` returns evidence-backed `FrameworkGuidance` about the route covered by the adapter's migration rules. Composer feasibility is a separate result.
 
-Model gaps honestly. A covered prefix followed by a missing hop is partial support; do not silently jump across the gap.
+If guidance covers the first hops but misses a later one, report partial support at the gap. A jump across it would overstate coverage.
 
 ### Package families
 
@@ -192,7 +192,7 @@ public function packageFamilies(string $packageName): array
 }
 ```
 
-Return stable names and deterministic order.
+Keep family names and their order stable so repeated reports remain comparable.
 
 ### Framework-shaped source usage
 
@@ -202,39 +202,39 @@ Implement `SourceUsageVisitorProvider` and return fresh `SourceUsageCollector` i
 ['symbol' => 'Acme\\Example\\Provider', 'usage_type' => 'service_provider', 'line' => 12]
 ```
 
-The adapter owns the `usage_type` vocabulary; Core does not interpret it. Use lowercase underscore-separated values, report an exact line, omit guesses, and never share a stateful collector across files. Collectors see names after `NameResolver` and must not rewrite the shared AST.
+The adapter defines `usage_type`. Core stores it without interpreting its framework meaning. Use lowercase underscore-separated values and exact source lines. Give each file a fresh collector, omit guessed usages, and leave the shared AST unchanged after `NameResolver` has processed names.
 
 ### Staged Composer targets
 
 Implement `FrameworkStageTargetProvider` only when the adapter can produce a complete, evidence-backed adjacent-hop plan. Every stage needs a stable lowercase ID, matching provider/framework identity, exact canonical package constraints, an exact analysis PHP value supported by request evidence, and referenced evidence for all decisions.
 
-Broad minimum constraints are not exact platform evidence. If neither exact target PHP nor exact current PHP satisfies a hop, return an unavailable plan. Never edit the original project or run an independent unbounded solver. Core owns temporary workspaces and staged execution.
+A minimum such as `^8.2` does not identify the exact PHP value to simulate. If neither exact target nor current PHP supports a hop, return an unavailable plan. Core owns the temporary workspaces and bounded staged execution.
 
-Only one active stage-target provider may run in v0.3. Multiple providers cause staged solving to be skipped while ordinary detection, rules, and guidance continue.
+The v0.3 staging path accepts one active stage-target provider. With more than one, Core skips staged solving but still runs detection, rules, and guidance.
 
 ## Testing checklist
 
 Use committed offline fixtures and prove:
 
-- metadata-only discovery with no CLI source edit;
-- automatic detection and explicit `--framework` selection;
-- deterministic adapter, rule, evidence, and source-usage order;
-- malformed metadata and class/name collisions fail as documented;
-- every rule has positive, negative, and throwing-path coverage;
-- transition gaps and ambiguous versions are explicit;
-- stage IDs, exact constraints, PHP provenance, adjacency, and evidence validate;
-- two active stage providers produce the documented collision result;
-- source collectors are isolated and contained on failure;
-- target files are byte-for-byte unchanged;
+- metadata-only discovery with no CLI source edit
+- automatic detection and explicit `--framework` selection
+- deterministic adapter, rule, evidence, and source-usage order
+- malformed metadata and class/name collisions fail as documented
+- every rule has positive, negative, and throwing-path coverage
+- transition gaps and ambiguous versions are explicit
+- stage IDs, exact constraints, PHP provenance, adjacency, and evidence validate
+- two active stage providers produce the documented collision result
+- source collectors are isolated and contained on failure
+- target files are byte-for-byte unchanged
 - canonical JSON and Markdown contain no synthetic secrets or absolute paths.
 
 The repository's `packages/test-adapter` is the full v0.3 reference fixture. `packages/legacy-test-adapter` proves that the older required interfaces remain usable with Core `^0.3`, while staged resolution is unavailable.
 
 ## Documentation and release policy
 
-Document the adapter name, package metadata, detected packages, default paths, rule vocabulary, supported transitions, staged limitations, privacy boundaries, and verified examples.
+Document the adapter name, Composer metadata, detected packages, default paths, rule vocabulary, covered transitions, staging limits, privacy boundaries, and examples you have tested.
 
-**Mandatory:** before creating any release tag, update every affected Wiki page in the same release change. Codex, Claude, and any other coding agent must treat Wiki updates as a required release deliverable. A changelog or `docs/releases/` update alone is not sufficient. As of 2026-08-19 this is a review policy; `verify-release.php` does not automatically prove Wiki freshness.
+Before creating a release tag, update the affected Wiki pages and follow [Release Wiki Strategy](https://github.com/ValentinNikolaev/php-upgrade-preflight/wiki/Release-Wiki-Strategy). The release process needs published or reviewed Wiki evidence alongside the code and release notes. A changelog entry alone does not establish that the Wiki matches the release.
 
 ## Common mistakes
 
@@ -264,7 +264,7 @@ Do not add staged solving until exact adjacent targets and PHP requirements are 
 
 Do not add custom source vocabulary until it supports a real rule.
 
-This incremental approach keeps unsupported capabilities visibly unavailable.
+That way, the report can show which capabilities the adapter actually supplies.
 
 ### Expected activation behavior
 
@@ -291,7 +291,7 @@ Automatic detection must never require booting the target framework.
 
 ## Evidence design checklist
 
-Create evidence where the fact is observed.
+Create evidence at the point where you observe the fact.
 
 Use E2 for Composer package metadata.
 
@@ -307,7 +307,7 @@ Use structured context fields for package, constraint, file, line, transition, a
 
 Reference every evidence ID from a finding, guidance item, hop, stage, plan item, or explicit uncertainty.
 
-Core rejects missing references and orphan evidence when the final report is built.
+The final report rejects references to missing IDs and evidence with no report claim.
 
 ## Compatibility evolution
 
@@ -319,11 +319,11 @@ The repository proves this with two fixture packages.
 
 `legacy-test-adapter` implements only the older base and transition contracts.
 
-When adding a capability, verify both fixtures:
+When adding a capability, test both fixtures:
 
-- the current fixture exercises the new path;
-- the legacy fixture still loads;
-- unavailable capability is reported as skipped or absent, not as a broken adapter;
+- the current fixture exercises the new path
+- the legacy fixture still loads
+- unavailable capability is reported as skipped or absent, not as a broken adapter
 - existing detection and guidance remain useful.
 
 See [[Test Adapters|Test-Adapters]] for the exact comparison.
@@ -332,20 +332,16 @@ See [[Test Adapters|Test-Adapters]] for the exact comparison.
 
 An adapter support statement should name:
 
-- detected framework package families;
-- covered source and target versions;
-- direct versus adjacent guidance coverage;
-- whether staged targets are available;
-- source paths and custom usage vocabulary;
-- important unsupported transitions;
-- source documents and their review date;
+- detected framework package families
+- covered source and target versions
+- direct versus adjacent guidance coverage
+- whether staged targets are available
+- source paths and custom usage vocabulary
+- important unsupported transitions
+- source documents and their review date
 - tests and fixtures proving the claims.
 
-“Adapter installed” is not the same as “all upgrades supported.”
-
-“Guidance supported” is not the same as “Composer resolution feasible.”
-
-“Composer feasible” is not the same as “application runtime compatible.”
+An installed adapter may cover only some transitions. Its guidance describes maintained migration knowledge. Composer scenarios test dependency resolution. Application tests establish runtime behavior. State which of these a support claim covers.
 
 ## Publication checklist
 

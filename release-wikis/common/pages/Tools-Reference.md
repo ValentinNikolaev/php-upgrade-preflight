@@ -1,6 +1,6 @@
 # Repository Tools Reference
 
-The `tools/` directory contains utilities that this repository uses to test and release itself. These files are **not installed with PHP Upgrade Preflight**. Product users normally run `vendor/bin/upgrade-intel`; maintainers run the commands on this page.
+The `tools/` directory supports this repository's checks and releases. Distribution packages do not install these scripts. If you are analyzing an application, use `vendor/bin/upgrade-intel`. Use this page when maintaining the repository.
 
 > Run every example from the monorepo root. Install development dependencies first with `composer install` when a tool loads product classes or PHPUnit.
 
@@ -29,9 +29,9 @@ Unless a section says otherwise, a successful command exits with `0`, a detected
 
 ### `verify-release.php`
 
-**Purpose.** Confirms that a requested `0.3.PATCH` version is represented consistently across the repository. Before metadata validation, it runs `materialize-release-wikis.php --check`. It then checks the active release series and report/schema versions, root path-repository versions, package branch aliases, internal package constraints, forbidden manifest `version` fields, the dated changelog heading, `docs/releases/vVERSION.md`, its Wiki-evidence link, and the exact common/Core/CLI/Laravel records in `docs/releases/vVERSION-wiki-evidence.json`. A destination passes only with `published` plus a full Wiki commit SHA, or `unchanged-after-review` plus the reviewed remote SHA and a passed inventory check.
+`verify-release.php` checks that a requested `0.3.PATCH` version agrees across the repository. It first runs `materialize-release-wikis.php --check`, then checks release and schema versions, path-repository versions, branch aliases, internal constraints, forbidden manifest `version` fields, the dated changelog heading, release notes, and their Wiki-evidence link. The evidence file must cover Common, Core, CLI, and Laravel. Each destination needs either a published Wiki commit SHA or a reviewed remote SHA with a passed inventory check.
 
-**Safe use.** This is read-only and offline. It verifies repository files but does not clone or push a `.wiki.git` repository. A historical baseline records missing old evidence but cannot authorize a release. Run the command only after recording real candidate evidence and before creating a tag:
+The check reads local files and works offline. It does not clone or push a Wiki repository, so record real remote evidence before using it as a pre-tag gate:
 
 ```bash
 php tools/verify-release.php 0.3.5
@@ -39,7 +39,7 @@ php tools/verify-release.php 0.3.5
 composer release:verify -- 0.3.5
 ```
 
-**Input and output.** The only input is a version without the `v` prefix. Success prints a confirmation; each inconsistency is printed as an `ERROR:` line. `v0.3.5`, `0.2.9`, and incomplete versions are rejected by the current release-series policy.
+**Input and output.** Pass a version without the `v` prefix. Success prints a confirmation, and each inconsistency appears as an `ERROR:` line. The current release-series policy rejects `v0.3.5`, `0.2.9`, and incomplete versions.
 
 **CI/release role.** It is the first metadata gate in `.github/workflows/release.yml`. The PHP implementation is split between the entry point and `tools/ReleaseVerifier.php`.
 
@@ -57,9 +57,9 @@ The monorepo has five packages, but only three are published as end-user distrib
 
 ### `prepare-distribution.sh`
 
-**Purpose.** Clones the three distribution repositories, replaces their tracked content with the package subtree plus shared `LICENSE`, `README.md`, `CHANGELOG.md`, `SECURITY.md`, and `docs/`, stages the result, and verifies the copied tree. Staged file modes come from the committed source tree, not host stat bits; copied blob bytes are retained. Review exact Git path/blob/mode parity before signing, including after any final `git add`. The filesystem payload verifier checks content and executable bits, not the Git index.
+`prepare-distribution.sh` clones the three distribution repositories and copies each package subtree with shared `LICENSE`, `README.md`, `CHANGELOG.md`, `SECURITY.md`, and `docs/`. It stages and checks the result. Staged file modes come from the committed source tree rather than host filesystem permissions, while copied blob bytes are retained. Before signing, compare exact Git paths, blobs, and modes with the source commit, including after any final `git add`. The filesystem payload verifier checks content and executable bits, but cannot check the Git index.
 
-**Safe use.** Use Bash, a clean monorepo working tree, network access, and Git credentials sufficient to clone the repositories. The script deletes and rebuilds the three package directories and three `expected-*` directories **inside the selected work directory**. Choose a dedicated directory; never point it at a directory containing work you want to keep.
+Run it with Bash from a clean monorepo, with network access and clone credentials. It rebuilds the three package directories and three `expected-*` directories inside the selected work directory. Give it a dedicated directory whose contents you can replace.
 
 ```bash
 # Default: build/dist
@@ -75,9 +75,9 @@ bash tools/prepare-distribution.sh /tmp/php-upgrade-preflight-dist
 
 ### `release-distribution.sh`
 
-**Purpose.** Processes the prepared `core`, `cli`, and `laravel` clones. It commits staged payload changes, creates a signed annotated tag, verifies the signature locally, and offers to push the branch and tag for each repository.
+`release-distribution.sh` processes the prepared `core`, `cli`, and `laravel` clones. It commits staged payload changes, creates signed annotated tags, checks their signatures, and offers to push each repository's branch and tag.
 
-**Prerequisites and safety.** Run `prepare-distribution.sh` first. The recorded source commit must still equal monorepo `HEAD`, and `git config user.signingkey` must exist. Start with `--dry-run`; omitting `--yes` preserves a separate push confirmation for each repository. `--yes` also approves pushes, so it is intended only for deliberate non-interactive execution.
+**Prerequisites and safety.** Run `prepare-distribution.sh` first. The recorded source commit must still equal monorepo `HEAD`, and `git config user.signingkey` must exist. Start with `--dry-run`. Without `--yes`, the script asks for a separate push confirmation for each repository. `--yes` also approves pushes, so use it only for deliberate non-interactive execution.
 
 ```bash
 # Inspect commands without changing the clones or remotes
@@ -91,19 +91,19 @@ Options:
 
 | Option | Meaning |
 |---|---|
-| `--tag vX.Y.Z` or `--version vX.Y.Z` | Release tag; the `v` is added when omitted |
+| `--tag vX.Y.Z` or `--version vX.Y.Z` | Release tag. The `v` is added when omitted |
 | `--work DIR` | Directory previously populated by `prepare-distribution.sh` |
 | `--dry-run` | Print commit, tag, verification, and push commands instead of executing them |
 | `--yes` | Accept the detected tag and all push prompts |
 | `--help` | Show the embedded help text |
 
-If no tag is supplied, the tool proposes the newest dated version in `CHANGELOG.md`. Repositories where the tag already exists locally or remotely are skipped, which supports resuming a partial release. At the end it prints the separate commands for signing and pushing the monorepo tag; it does not run them.
+If no tag is supplied, the tool proposes the newest dated version in `CHANGELOG.md`. Repositories where the tag already exists locally or remotely are skipped, which supports resuming a partial release. At the end it prints the separate commands for signing and pushing the monorepo tag. It does not run them.
 
-> Before any new release tag is created, the repository Wiki must be updated for that release. This is a maintainer and agent responsibility. `verify-release.php` checks offline materialized Wiki freshness and recorded four-destination evidence as well as changelog and release notes; it neither contacts nor publishes remote Wiki repositories.
+> Before creating a release tag, update and publish the matching Wiki content. `verify-release.php` checks local materialization, four-destination evidence, the changelog, and release notes. It does not contact or publish remote Wiki repositories, so review source-to-prose accuracy and remote publication separately. See [Release Wiki Strategy](Release-Wiki-Strategy).
 
 ### `verify-distribution-payload.php`
 
-**Purpose.** Compares an expected tree with an actual tree by relative filename, SHA-256 content hash, and executable bit.
+`verify-distribution-payload.php` compares two trees by relative path, SHA-256 content hash, and executable bit.
 
 **Safe use.** It is read-only:
 
@@ -119,10 +119,10 @@ Both inputs must be existing directories. Success prints `Distribution payloads 
 
 ### `release-artifact-metadata.php`
 
-**Purpose.** `generate` writes release archive metadata; `verify` checks it. The files are:
+**Purpose.** `generate` writes release archive metadata, and `verify` checks it. The files are:
 
-- `DEPENDENCY-INVENTORY.json`: package runtime requirements and locked dependencies;
-- `ARTIFACT-PROVENANCE.json`: version, archives, hashes, and source/build coordinates;
+- `DEPENDENCY-INVENTORY.json`: package runtime requirements and locked dependencies.
+- `ARTIFACT-PROVENANCE.json`: version, archives, hashes, and source/build coordinates.
 - `SHA256SUMS`: checksums for the three ZIP archives plus the two JSON metadata files.
 
 All options use `--name=value` syntax.
@@ -144,13 +144,13 @@ php tools/release-artifact-metadata.php verify \
 
 `generate` requires all five provenance values shown above and the expected archives in `dist`. `verify` may check only the recorded metadata, as in the short example, or receive all five provenance options to compare against expected build coordinates. Supplying only some provenance options is an error.
 
-**Safe use.** Generation writes or replaces the three metadata files in `--dist`; use only the intended archive directory. Verification is read-only.
+**Safe use.** Generation writes or replaces the three metadata files in `--dist`. Use only the intended archive directory. Verification is read-only.
 
 **CI/release role.** The package job generates and immediately verifies metadata. Linux and Windows artifact-consumer jobs verify it again before installing archives. The implementation lives in `tools/ReleaseArtifactMetadata.php`.
 
 ### `verify-installed-package-references.php`
 
-**Purpose.** Reads a clean consumer's `composer.lock` and checks that `core`, `cli`, and `laravel` have the requested version and that both their `source.reference` and `dist.reference` equal the signed-tag commit for that distribution repository.
+`verify-installed-package-references.php` checks a clean consumer's `composer.lock`. Core, CLI, and Laravel must have the requested version, and each package's `source.reference` and `dist.reference` must match its distribution repository's signed-tag commit.
 
 ```bash
 php tools/verify-installed-package-references.php \
@@ -169,7 +169,7 @@ Inputs are positional and must appear in that exact order. This tool is read-onl
 
 ### `verify-coverage.php`
 
-**Purpose.** Reads a Clover XML coverage report and compares it with `tests/fixtures/quality/coverage-baseline.json`. Overall coverage and every configured critical-module ratio must not decrease, and new or changed executable lines may not introduce new uncovered-line fingerprints.
+`verify-coverage.php` compares a Clover report with `tests/fixtures/quality/coverage-baseline.json`. Overall and critical-module coverage must not fall, and new or changed executable lines must not add uncovered-line fingerprints.
 
 ```bash
 # Recommended: PHPUnit creates Clover, then the verifier checks it
@@ -188,7 +188,7 @@ The Clover path defaults to `build/coverage/clover.xml`. `--write-baseline` modi
 
 ### `run-selective-mutations.php`
 
-**Purpose.** Applies each mutation declared in `mutation.json` to exactly one source occurrence, runs the configured focused unit-test filter, and requires the test to fail. A passing test means the mutation survived and the gate fails.
+`run-selective-mutations.php` changes one configured source occurrence at a time and runs its focused test. The test must fail for each mutation. A passing test has not shown it can catch the change.
 
 ```bash
 composer test:mutation
@@ -204,23 +204,23 @@ php tools/run-selective-mutations.php
 
 ## Privacy and synthetic-secret gates
 
-These tools use synthetic values from `tests/fixtures/security/composer-output-with-secrets.json`. They do not search for every possible real credential format; they prove that the repository's known redaction paths contain the seeded canaries.
+These tools use synthetic values from `tests/fixtures/security/composer-output-with-secrets.json`. They do not search for every possible real credential format. They check that the repository's known redaction paths contain the seeded canaries.
 
 ### `mask-secret-canaries.php`
 
-**Purpose.** Prints one GitHub Actions `::add-mask::VALUE` command per synthetic canary so later log output is redacted by the runner.
+`mask-secret-canaries.php` prints one GitHub Actions `::add-mask::VALUE` command per synthetic canary, so the runner can hide it in later logs.
 
 ```bash
 php tools/mask-secret-canaries.php
 ```
 
-There are no inputs. Run it only in a GitHub Actions log-command context; local output intentionally contains the synthetic fixture values. It does not scan anything.
+There are no inputs. Run it only in a GitHub Actions log-command context. Local output intentionally contains the synthetic fixture values. It does not scan anything.
 
 **CI/release role.** Quality, privacy, staged-budget, and fresh-clone jobs invoke it before tests or analysis that could echo a canary.
 
 ### `verify-secret-leaks.php`
 
-**Purpose.** Recursively scans one or more files or directories for synthetic canaries. ZIP archives are opened and scanned entry by entry; the PHP ZIP extension is required for that case.
+`verify-secret-leaks.php` searches files and directories for synthetic canaries. It also scans ZIP entries. The PHP ZIP extension is required for ZIP inputs, and the command reports an error if that extension is missing.
 
 ```bash
 php tools/verify-secret-leaks.php dist
@@ -233,7 +233,7 @@ Inputs must be readable paths. The tool is read-only and reports the affected su
 
 ### `verify-report-privacy.php`
 
-**Purpose.** Runs an in-process analyzer scenario against a temporary fixture containing synthetic credentials and absolute paths. It checks canonical JSON, Markdown rendering, evidence, diagnostics, and error output for correct redaction and `[PROJECT_ROOT]`-style path replacement.
+`verify-report-privacy.php` runs an analyzer scenario with synthetic credentials and absolute paths. It checks JSON, Markdown, evidence, diagnostics, and errors for redaction and `[PROJECT_ROOT]` path replacement.
 
 ```bash
 php tools/verify-report-privacy.php
@@ -247,11 +247,10 @@ There are no arguments. It needs `vendor/autoload.php`. The tool creates a uniqu
 
 ### `materialize-release-wikis.php`
 
-**Purpose.** Reads the four `release-wikis/*/wiki-manifest.json` files and
-materializes real, independent GitHub Wiki trees under each set's `pages/`
-directory. It copies canonical content, rewrites renamed-home and cross-Wiki links,
-generates a set-specific `_Sidebar.md` and `_Footer.md`, and records source/output
-SHA-256 values in `.source-checksums.json`.
+`materialize-release-wikis.php` reads the four `release-wikis/*/wiki-manifest.json`
+files and builds separate Wiki trees under their `pages/` directories. It copies
+canonical pages, rewrites renamed-home and cross-Wiki links, builds each sidebar
+and footer, and records source and output SHA-256 values.
 
 ```bash
 # Regenerate physical copies after changing wiki/ or a manifest
@@ -265,7 +264,7 @@ php tools/materialize-release-wikis.php --check-published common php-upgrade-pre
 ```
 
 The tool accepts exactly `common`, `core`, `cli`, and `laravel`, with fixed repository
-and purpose values. Sources must resolve to regular Markdown files below `wiki/`;
+and purpose values. Sources must resolve to regular Markdown files below `wiki/`.
 destinations are case-insensitively unique and cannot claim generated filenames.
 Generation validates all four sets before writing, stages a complete known tree, and
 atomically replaces each validated `pages/` directory. It refuses unlisted files and
@@ -275,7 +274,7 @@ symlinked output instead of deleting or following them.
 navigation file, footer, or checksum record has drifted. `--check-published` also
 writes nothing. Run it against one cloned Wiki after copying the selected set. For a
 surplus remote page, review the page, remove only that path with `git rm`, and rerun
-the comparison; never bulk-delete the checkout.
+the comparison. Never bulk-delete the checkout.
 
 **CI/release role.** The release workflow runs `composer release:verify`, whose
 verifier invokes this tool in `--check` mode. Distribution scripts do not publish
@@ -287,7 +286,7 @@ remain mandatory pre-tag work described in [Release Wiki Strategy](Release-Wiki-
 
 ### `render-markdown-report.php`
 
-**Purpose.** Converts an existing canonical JSON report to Markdown with the product's own renderer, without rerunning analysis.
+`render-markdown-report.php` turns an existing canonical JSON report into Markdown with the product's renderer. It does not rerun analysis.
 
 ```bash
 php tools/render-markdown-report.php \

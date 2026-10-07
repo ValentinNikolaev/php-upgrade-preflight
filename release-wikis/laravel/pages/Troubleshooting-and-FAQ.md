@@ -1,10 +1,10 @@
 # Troubleshooting and FAQ
 
-Start by separating command failure from analysis outcome:
+First check whether the command produced a report. Then read what the report says about the upgrade:
 
-- Exit code `1` or `2`: no valid report was produced; fix the invocation or environment.
-- Exit code `0`: a valid report exists; inspect `resolution.status` and the other report dimensions.
-- `resolution.status: blocked`: Composer evidence found a target conflict; the command still correctly returns 0.
+- Exit code `1` or `2`: no valid report was produced. Fix the invocation or environment.
+- Exit code `0`: a valid report exists. Inspect `resolution.status` and the other report dimensions.
+- `resolution.status: blocked`: Composer evidence found a target conflict. The command still correctly returns 0.
 - `resolution.status: unknown`: evidence was insufficient or an operational problem prevented a reliable solver conclusion.
 
 ## `Unable to find Composer autoload.php`
@@ -19,11 +19,11 @@ vendor/bin/upgrade-intel --help
 vendor\bin\upgrade-intel.bat --help
 ```
 
-For a source checkout, run `composer install` at the repository root first. Do not copy the PHP executable by itself; it depends on Composer autoloading.
+In a source checkout, run `composer install` at the repository root first. The executable needs the Composer autoloader, so copying it alone will not work.
 
 ## The shell says `upgrade-intel` is not recognized
 
-Use the project-relative launcher instead of expecting a global command.
+Run the launcher from the Composer project where you installed the CLI:
 
 ```bash
 ./vendor/bin/upgrade-intel --help
@@ -49,7 +49,7 @@ composer --version
 Get-Command composer
 ```
 
-External analysis needs Composer in the tools environment, not inside the target application.
+For external analysis, install Composer in the tools environment. The target application does not need its own Composer executable.
 
 ## The target runs PHP 7.4
 
@@ -78,13 +78,13 @@ vendor\bin\upgrade-intel.bat analyze `
   --framework=laravel
 ```
 
-The PHP 8 analyzer can model PHP 7.4 as the source state. It does not boot the target.
+The analyzer runs on PHP 8 and can record PHP 7.4 as the project's current state. It reads the target. It does not boot it.
 
 ## Why can the CLI analyze Laravel 7 but the adapter cannot be installed there?
 
-Host installability and analyzed target scope are separate. Project-local adapter installation requires Laravel 8–13 and the applicable host PHP floor. External CLI analysis installs the adapter in its own PHP 8 tools project, then reads Laravel 7 metadata and source without booting Laravel 7.
+The adapter requires Laravel 8–13 when installed in an application. To analyze Laravel 7, install the CLI and adapter together in a separate PHP 8 tools project. They can then read the Laravel 7 project's metadata and source without starting it.
 
-## `Unknown command`; expected `analyze` or `wizard`
+## Unknown command: use `analyze` or `wizard`
 
 Use explicit options for automation:
 
@@ -108,13 +108,13 @@ php artisan upgrade:analyze --target-php=8.2
 
 The wizard requires both terminal-attached stdin and a visible terminal on stderr. It intentionally rejects pipes, redirected prompt streams, CI sessions, and other non-TTY contexts instead of silently accepting defaults. Use the equivalent `upgrade-intel analyze --name=value` command in automation.
 
-End-of-input returns code `2`. Entering `cancel`, `quit`, or `q` returns `130`; no analysis starts in either case.
+End-of-input returns code `2`. Entering `cancel`, `quit`, or `q` returns `130`. No analysis starts in either case.
 
 ## Wizard package validation is unverified
 
 `unverified` means the package lookup could not prove the answer. Common causes are an empty local cache, disabled or unavailable network, authentication failure, timeout, malformed Composer metadata, or restricted execution without an isolated lookup state. It is not evidence that the package does not exist.
 
-Choose `composer.json` only to avoid an external lookup, retry with the configured project repositories if their network and credential boundary is acceptable, or continue and let the actual analysis scenarios produce report evidence. An explicit `not_found` is reserved for a clear response from the configured repository universe; `no_matching_version` means the package was found but the chosen constraint matched none of its discovered versions.
+Choose `composer.json` only to avoid an external lookup, retry with the configured project repositories if their network and credential boundary is acceptable, or continue and let the actual analysis scenarios produce report evidence. An explicit `not_found` is reserved for a clear response from the configured repository universe. `no_matching_version` means the package was found but the chosen constraint matched none of its discovered versions.
 
 ## No progress appears
 
@@ -223,7 +223,7 @@ Read `transition.framework_guidance[].uncertainties`.
 - `partially_supported`: a covered prefix exists, then guidance stops at a gap.
 - `unsupported`: no safe first hop/path can be selected.
 
-Common causes are an ambiguous source/target major, same-major request, downgrade, target outside Laravel 7–13, or missing required hop. Do not use `resolution.status` to override guidance coverage; Composer feasibility and rule coverage answer different questions.
+Common causes are an ambiguous source/target major, same-major request, downgrade, target outside Laravel 7–13, or missing required hop. Do not use `resolution.status` to override guidance coverage. Composer feasibility and rule coverage answer different questions.
 
 ## Staged analysis was skipped
 
@@ -238,11 +238,11 @@ staged_resolution.evidence
 
 Staging may skip because no adapter supplies targets, providers conflict, endpoints are ambiguous, an adjacent hop is missing, the request exceeds a budget, or no exact request-backed PHP value satisfies adapter metadata.
 
-A skipped stage is not a Composer blocker. Direct resolution and framework guidance remain independently useful.
+If staging was skipped, read `stop_reason` before calling the upgrade blocked. The direct solve and adapter guidance may still provide useful evidence.
 
 ## The command returns 0 for a blocked upgrade
 
-This is expected.
+The command reports whether analysis completed, while the JSON reports what Composer found. A blocked upgrade can produce a valid report.
 
 ```text
 process exit code 0 = report production succeeded
@@ -253,7 +253,8 @@ CI should first require exit code 0, then parse JSON:
 
 ```bash
 vendor/bin/upgrade-intel analyze --path=/work/app --target-php=8.2 --output=/work/reports/app.json
-test "$?" -eq 0 || exit $?
+command_code=$?
+if [ "$command_code" -ne 0 ]; then exit "$command_code"; fi
 status="$(jq -r '.resolution.status' /work/reports/app.json)"
 test "$status" = feasible -o "$status" = feasible_with_changes
 ```
@@ -269,19 +270,19 @@ Exit 10 in the wrapper is your policy, not an analyzer exit code.
 
 ## `resolution.status` is `unknown`
 
-Unknown is an honest evidence limit. Inspect scenario `outcome`, diagnostics, Composer execution provenance, and `uncertainties`.
+`unknown` means the analyzer could not support a direct feasibility conclusion. Inspect scenario `outcome`, diagnostics, Composer execution provenance, and `uncertainties` to find out why.
 
 Typical causes:
 
-- Composer executable missing or outside the expected range;
-- timeout;
-- restricted cache lacks repository metadata;
-- complete profile used with Composer 2.0/2.1;
-- baseline validation failure;
-- operational workspace problem;
+- Composer executable missing or outside the expected range.
+- timeout.
+- restricted cache lacks repository metadata.
+- complete profile used with Composer 2.0/2.1.
+- baseline validation failure.
+- operational workspace problem.
 - redaction or parsing prevented confident classification.
 
-Fix the cause and rerun. Do not translate unknown into feasible or blocked.
+Fix the cause and rerun. Until then, the direct target remains unresolved by this analysis.
 
 ## A complete platform profile gives unknown
 
@@ -289,10 +290,10 @@ Check `composer --version`. Complete closed-world simulation needs Composer 2.2+
 
 Also check for:
 
-- contradictory target PHP between request and profile;
-- contradictory extension values;
-- presence-only extension assumptions combined with completeness;
-- unsupported names or non-exact versions;
+- contradictory target PHP between request and profile.
+- contradictory extension values.
+- presence-only extension assumptions combined with completeness.
+- unsupported names or non-exact versions.
 - malformed JSON or unsupported schema/completeness.
 
 The analyzer does not silently downgrade complete to partial.
@@ -301,16 +302,16 @@ The analyzer does not silently downgrade complete to partial.
 
 Compare these inputs first:
 
-- Composer version and expected range;
-- compatible versus restricted mode;
-- repository metadata and credentials;
-- target profile digest and completeness;
-- explicit extension assumptions;
-- unlisted host platform packages;
-- original `config.platform`;
+- Composer version and expected range.
+- compatible versus restricted mode.
+- repository metadata and credentials.
+- target profile digest and completeness.
+- explicit extension assumptions.
+- unlisted host platform packages.
+- original `config.platform`.
 - path repository content.
 
-Stable markers normalize common absolute roots, but Composer-produced lock metadata, durations, and raw lock hashes can vary. A partial platform request is deliberately host-dependent.
+Stable path markers hide common absolute roots. Composer lock metadata, durations, and raw lock hashes can still differ. With a partial platform request, unlisted platform packages may depend on the analyzer host.
 
 ## The output path is rejected
 
@@ -336,7 +337,7 @@ Every `--source` must exist and resolve inside `--path`. Relative values are pro
 --path=/work/app --source=app --source=tests/Feature
 ```
 
-Do not pass a sibling shared library as `--source`; analyze it as its own Composer project or include it through the project's supported layout.
+Do not pass a sibling shared library as `--source`. Analyze it as its own Composer project or include it through the project's supported layout.
 
 ## Relative Composer path repositories fail
 
@@ -348,13 +349,13 @@ Shareable reports replace the resolved root with `[LOCAL_REPOSITORY]`.
 
 Compatible mode can use the analyzer host's normal authentication and network. Configure scoped credentials in the tools environment.
 
-Restricted mode intentionally starts with empty Composer state and requests offline behavior. A metadata miss becomes `repository_metadata_unavailable`; it is not a package incompatibility.
+Restricted mode intentionally starts with empty Composer state and requests offline behavior. A metadata miss becomes `repository_metadata_unavailable`. It is not a package incompatibility.
 
 If a credential appears unredacted, stop sharing, rotate it, and report only a synthetic reproduction through the private security channel.
 
 ## A Composer scenario times out
 
-Default scenario timeout is 300 seconds; diagnostic timeout is 60 seconds.
+Default scenario timeout is 300 seconds. Diagnostic timeout is 60 seconds.
 
 ```bash
 --composer-timeout=600 --composer-diagnostic-timeout=90
@@ -374,13 +375,13 @@ Do not share the debug report or retained workspace. Remove it manually after it
 
 ## Why does a successful Composer candidate not mean “ready”?
 
-Composer success proves one dependency solution was found under the recorded inputs. It does not prove:
+Composer success shows that one dependency solution exists under the recorded inputs. You still need to check whether:
 
-- the application boots;
-- framework migrations were applied;
-- tests pass;
-- extensions behave as expected;
-- database or external service compatibility;
+- the application boots.
+- framework migrations have been applied.
+- tests pass.
+- extensions behave as expected.
+- the database and external services work with the change.
 - deployment configuration matches the model.
 
 Use `tests`, `framework_findings`, `source_impact`, and `uncertainties` to plan the real validation.
@@ -405,7 +406,7 @@ No. It says Composer found a candidate dependency state with package changes. En
 
 ### Can we compare reports from two machines?
 
-Yes, but compare recorded Composer execution and platform provenance first. A complete verified profile narrows platform differences; it does not pin repositories, credentials, network, or Composer behavior.
+Yes, but compare recorded Composer execution and platform provenance first. A complete verified profile narrows platform differences. It does not pin repositories, credentials, network, or Composer behavior.
 
 ### Can the tool estimate effort?
 
@@ -421,14 +422,14 @@ Share Markdown for human review and retain JSON as canonical evidence. Review ei
 
 ## Information to include in a bug report
 
-- package version and `metadata.tool_version` if a report exists;
-- `metadata.schema_version`;
-- operating system and PHP version;
-- Composer version and selected execution mode;
-- sanitized command with secrets and private paths removed;
-- process exit code;
-- relevant scenario `outcome`, not only its numeric Composer exit code;
-- expected versus actual behavior;
+- package version and `metadata.tool.version` if a report exists.
+- `metadata.schema_version`.
+- operating system and PHP version.
+- Composer version and selected execution mode.
+- sanitized command with secrets and private paths removed.
+- process exit code.
+- relevant scenario `outcome`, not only its numeric Composer exit code.
+- expected versus actual behavior.
 - a synthetic reproducer when possible.
 
 Never attach a retained debug workspace from a private project.

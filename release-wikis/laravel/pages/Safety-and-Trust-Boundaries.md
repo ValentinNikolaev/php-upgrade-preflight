@@ -1,37 +1,35 @@
 # Safety and Trust Boundaries
 
-PHP Upgrade Preflight is a read-only planning analyzer, not an upgrade executor or a security sandbox. This page defines what it protects, what it deliberately does not promise, and how to run it safely.
+PHP Upgrade Preflight reads a project and runs Composer probes in temporary workspaces. It helps plan an upgrade without carrying one out or isolating Composer as a security sandbox. This page explains the boundaries you need to account for when running it and sharing a report.
 
 ## Trust statement for a technical manager
 
-The tool can provide reviewable evidence about Composer resolution, candidate dependency changes, selected static source references, Laravel migration guidance, uncertainty, risk, and effort. It cannot certify runtime behavior or production readiness.
-
-Treat its report as input to an upgrade plan. Approval still requires a real branch, dependency installation, application tests, security review, and deployment validation on the target environment.
+The report can show Composer resolution, candidate dependency changes, selected source references, Laravel guidance, uncertainties, risk, and effort. Use that evidence to plan work. A release decision still needs a real upgrade branch, installation, application tests, security review, and validation in the target environment.
 
 ## What read-only means
 
 The analysis pipeline:
 
-- resolves the project path;
-- reads `composer.json`, `composer.lock`, and selected source;
-- copies manifests into analyzer-owned temporary workspaces;
-- runs Composer only in those workspaces;
-- disables Composer scripts and plugins;
-- writes a report only to stdout or a validated path outside the project;
+- resolves the project path
+- reads `composer.json`, `composer.lock`, and selected source
+- copies manifests into analyzer-owned temporary workspaces
+- runs Composer only in those workspaces
+- disables Composer scripts and plugins
+- writes a report only to stdout or a validated path outside the project
 - cleans temporary workspaces unless debug mode preserves them.
 
-It does not edit the target manifest, lock file, source, or installed dependencies.
+The analysis leaves the target manifest, lock file, source, and installed dependencies unchanged.
 
 ### Actions outside that promise
 
-These actions can change the project before or outside analysis:
+Some surrounding commands can still change the project:
 
-- `composer require --dev ...` installs the analyzer locally and changes manifest/lock state;
-- shell redirection opens its destination before the analyzer can validate it;
-- your own wrapper scripts may create logs or temporary files;
+- `composer require --dev ...` installs the analyzer locally and changes manifest/lock state
+- shell redirection opens its destination before the analyzer can validate it
+- your own wrapper scripts may create logs or temporary files
 - `--debug` intentionally preserves analyzer workspaces.
 
-For byte-for-byte audits, install the analyzer in a separate tools directory and use `--output` outside the target.
+If you need to compare project bytes before and after, install the analyzer in a separate tools directory and put `--output` outside the target.
 
 ## Safe output handling
 
@@ -59,7 +57,7 @@ Avoid this:
 vendor/bin/upgrade-intel analyze --path=/work/app --target-php=8.2 > /work/app/report.json
 ```
 
-The shell can create `/work/app/report.json` before PHP starts. Prefer:
+The shell can create `/work/app/report.json` before the analyzer can reject that location. Use an external output path:
 
 ```bash
 mkdir -p /work/reports
@@ -68,22 +66,22 @@ vendor/bin/upgrade-intel analyze --path=/work/app --target-php=8.2 --output=/wor
 
 Use `--save-report=/work/reports/app.json` when the canonical report must also remain on stdout. It performs the same pre-analysis destination validation and writes the identical rendered bytes. It cannot be combined with `--output`.
 
-Stdout is reserved for the report except for the established file-only `--output` acknowledgement. Diagnostics and terminal progress use stderr. Progress is emitted only for a terminal-attached stderr and is suppressed when redirected, so it cannot corrupt a report pipe. Progress reporters are observational and their failures are contained.
+Stdout carries the report, apart from the file-only `--output` acknowledgement. Diagnostics and terminal progress use stderr. Progress appears only when stderr is attached to a terminal. Redirecting it keeps the report pipe clean. A failed progress reporter cannot change analysis.
 
 ## Temporary workspaces and debug mode
 
 Default mode cleans analyzer-owned workspaces. Canonical reports replace exact temporary roots with `[ANALYZER_WORKSPACE]`.
 
-If cleanup fails, the report records `cleanup_failure` without revealing the real path. Use `--debug` only when an authorized developer needs that exact path for diagnosis.
+If cleanup fails, the report records `cleanup_failure` while hiding the exact path. `--debug` retains and exposes the workspace path for an authorized investigation.
 
 Debug mode:
 
-- preserves workspaces by design;
-- exposes exact `temp_path` values;
-- leaves copied Composer manifests on disk;
+- preserves workspaces by design
+- exposes exact `temp_path` values
+- leaves copied Composer manifests on disk
 - makes the report and workspace non-shareable.
 
-Credential redaction still applies to output in debug mode, but it does not rewrite files retained in the workspace.
+The report still redacts known credentials in debug mode. Files kept in the workspace are copied inputs and are not rewritten by report redaction.
 
 ## Path privacy
 
@@ -98,20 +96,20 @@ Default JSON and Markdown replace absolute roots with stable markers:
 
 Reported source paths remain project-relative. Exact paths are still used internally for filesystem access.
 
-This makes Windows and Unix reports more comparable, but measured durations, Composer-produced lock metadata, and candidate lock hashes can still differ between runs or Composer versions.
+Path markers make reports easier to compare across machines. Durations, Composer lock metadata, and candidate lock hashes can still differ.
 
 ## Compatible Composer mode
 
 `--composer-mode=compatible` is the default. It preserves the environment needed by many real projects:
 
-- global Composer config and auth;
-- Composer cache;
-- proxy variables;
-- Git and SSH configuration;
-- network access;
+- global Composer config and auth
+- Composer cache
+- proxy variables
+- Git and SSH configuration
+- network access
 - repository credentials available to the analyzer process.
 
-This mode is operationally convenient but host-dependent. A successful result is not proof that another machine with different credentials, cache, repositories, or Composer version will obtain the same dependency solution.
+This mode can use the same repository access as a normal Composer run, but its result depends on the host. Another machine with different credentials, cache, repositories, or Composer version may resolve a different candidate.
 
 Use short-lived, read-only credentials where possible.
 
@@ -121,45 +119,43 @@ Use short-lived, read-only credentials where possible.
 
 It does **not** provide:
 
-- an OS firewall;
-- process isolation;
-- a guarantee that helper executables cannot access the network;
-- removal of repository URLs or credentials embedded in project `composer.json`;
-- isolation from system trust stores;
+- an OS firewall
+- process isolation
+- a guarantee that helper executables cannot access the network
+- removal of repository URLs or credentials embedded in project `composer.json`
+- isolation from system trust stores
 - a guarantee that a user-selected executable is benign.
 
-If a restricted fresh cache lacks repository metadata, the correct outcome is operational uncertainty: `repository_metadata_unavailable`. That is not evidence that packages conflict.
+If the fresh restricted cache lacks repository metadata, Core reports `repository_metadata_unavailable`. It cannot infer a package conflict from missing repository data.
 
 For untrusted projects, run the analyzer inside a disposable container or restricted account with independently enforced network and filesystem controls.
 
 ## Composer side effects
 
-Both modes disable scripts, plugins, package installation, audit, interaction, and progress output. This reduces side effects but can also change resolution compared with a project's normal Composer workflow.
-
-A project that relies on plugin behavior may therefore receive incomplete or different evidence. The report must be read with that limitation.
+Both modes disable scripts, plugins, package installation, audit, interaction, and Composer progress output. This limits side effects. A project that depends on a Composer plugin may also resolve differently, so check that limitation when reading its report.
 
 ## Wizard package-metadata lookup boundary
 
 The wizard's optional package lookup is a pre-analysis convenience, not Composer feasibility evidence and not a replacement for `--composer-mode`. The user chooses the lookup source explicitly:
 
-- `composer.json` only starts no Composer process;
-- local-cache-only lookup requests no network and treats missing metadata as unverified;
+- `composer.json` only starts no Composer process
+- local-cache-only lookup requests no network and treats missing metadata as unverified
 - configured project repositories may use network, global Composer state, repository credentials, proxy, Git, and SSH configuration.
 
 Composer metadata lookup disables plugins, scripts, interaction, and ANSI and has a bounded timeout and redacted, bounded diagnostics. Only an explicit package-not-found response from the configured repository universe becomes `not_found`. DNS, offline, authentication, timeout, malformed-output, and other operational failures remain `unverified`. Restricted Composer execution is also unverified without starting a lookup process until an isolated lookup home/cache is available.
 
-Candidate versions are advisory prompt choices. The actual analyzer still runs its bounded scenarios in analyzer-owned workspaces under the separately selected Composer analysis mode.
+Candidate versions help the wizard offer choices. Analysis later runs its own bounded scenarios in temporary workspaces under the chosen Composer analysis mode.
 
 ## Credentials and redaction
 
 Report fields, bounded Composer stdout/stderr excerpts, diagnostics, and command failure messages pass through deterministic redaction. Known credential-bearing URLs, authorization values, common tokens, and named credential fields are replaced with markers.
 
-Redaction is a publication boundary, not prevention:
+Redaction runs on output after Composer has done its work:
 
-- Composer may already have read credentials before output is redacted;
-- network requests may already have occurred;
-- a retained debug workspace may contain sensitive input;
-- pattern matching cannot recognize every future secret format;
+- Composer may already have read credentials before output is redacted
+- network requests may already have occurred
+- a retained debug workspace may contain sensitive input
+- pattern matching cannot recognize every future secret format
 - deliberate bounding may remove context needed for diagnosis.
 
 Before sharing a report:
@@ -186,16 +182,16 @@ If redaction itself fails, the value is withheld under `[REDACTION_FAILED]`. Exc
 
 ### Host installability
 
-Host installability asks whether the analyzer and adapter can execute in the current Composer project. The packages require PHP `^8.0`; a project-local Laravel adapter also has to satisfy the installed Laravel/Illuminate constraints.
+Host installability asks whether the analyzer and adapter can execute in the current Composer project. The packages require PHP `^8.0`. A project-local Laravel adapter also has to satisfy the installed Laravel/Illuminate constraints.
 
 ### Target platform
 
 Target modeling asks Composer to reason about a desired exact PHP and platform package set in temporary manifests. It is controlled by:
 
-- `--target-php`;
-- `--with-extension` and `--without-extension`;
-- `--target-platform-profile`;
-- lower-priority original `config.platform`;
+- `--target-php`
+- `--with-extension` and `--without-extension`
+- `--target-platform-profile`
+- lower-priority original `config.platform`
 - host values for anything still unmodeled.
 
 These inputs do not alter the analyzer interpreter and do not prove the real deployment environment matches the model.
@@ -204,24 +200,24 @@ These inputs do not alter the analyzer interpreter and do not prove the real dep
 
 Runtime compatibility asks whether the changed application actually works. The analyzer does not boot the target, execute its tests, call external services, validate data migrations, or exercise production traffic.
 
-The three layers must not be collapsed into one “compatible” label.
+Keep host installability, modeled target resolution, and runtime behavior separate when describing a result.
 
 ## Partial and complete platform profiles
 
-A partial profile makes only listed decisions deterministic. Unlisted supported values may come from the analyzer host and are labeled accordingly.
+In a partial profile, listed decisions are explicit. Unlisted supported values may still come from the analyzer host, with that provenance recorded.
 
 A complete profile is closed-world only for supported safely simulated platform-package classes. Unlisted values in those classes are modeled absent. It still does not pin:
 
-- repository metadata;
-- downloads or network behavior;
-- credentials;
-- Composer executable behavior;
-- toolchain-bound platform packages;
+- repository metadata
+- downloads or network behavior
+- credentials
+- Composer executable behavior
+- toolchain-bound platform packages
 - application runtime behavior.
 
 Complete profiles and explicit absences require Composer 2.2+. On Composer 2.0 or 2.1, affected analysis stops as unknown before workspace creation rather than weakening the request.
 
-Never call a profile complete unless the deployment owner has inventoried the real platform. `composer show --platform` is useful inventory input, but its output is not directly the profile schema.
+Call a profile complete only after someone has inventoried the deployment platform. `composer show --platform` can help collect that information, though its output is not the profile schema.
 
 ## Source-analysis limits
 
@@ -231,20 +227,20 @@ The default scan retains at most 10,000 deterministically ordered PHP files, rea
 
 It can miss or downgrade confidence for:
 
-- parse errors;
-- `eval` and runtime-generated declarations;
-- `class_alias` and dynamic autoloaders;
-- missing or unsupported autoload metadata;
-- custom installer paths;
-- classmap/files inventories beyond the deterministic safety limit;
-- dependencies' `autoload-dev` data;
+- parse errors
+- `eval` and runtime-generated declarations
+- `class_alias` and dynamic autoloaders
+- missing or unsupported autoload metadata
+- custom installer paths
+- classmap/files inventories beyond the deterministic safety limit
+- dependencies' `autoload-dev` data
 - symbols whose ownership is ambiguous.
 
-`source_inventory` is observation, not a change list. Only correlated items enter actionable `source_impact`. Absence of a finding is not proof that no source change is needed.
+`source_inventory` says what the scanner observed. `source_impact` contains only items Core could correlate with relevant change evidence. An empty impact list cannot prove the application needs no source edits.
 
 Staged findings are always projected from the original source snapshot. The analyzer does not simulate source edits between stages.
 
-Composer input and the selected source set are fingerprinted around long-running analysis phases. Concurrent additions, removals, or edits produce input-drift uncertainty. This detects a non-atomic run; it does not lock the checkout or reconstruct one historical snapshot. Analyze an immutable checkout when every report section must describe exactly the same state.
+Composer input and the selected source set are fingerprinted around long-running analysis phases. Concurrent additions, removals, or edits produce input-drift uncertainty. This detects a non-atomic run. It does not lock the checkout or reconstruct one historical snapshot. Analyze an immutable checkout when every report section must describe exactly the same state.
 
 ## Framework-guidance limits
 
@@ -252,20 +248,20 @@ Laravel guidance coverage is independent of Composer feasibility. A rule pack ca
 
 Encoded package ranges, maintainer links, and skeleton patterns identify review work. They do not replace official upgrade guides. Skeleton findings are low-confidence comparison points, not confirmed incompatibilities.
 
-Installed adapters are trusted in-process PHP with the analyzer's filesystem, network, environment, and credential privileges. Runtime exceptions from detection, default paths, transition guidance, package-family classification, source collectors, or compatibility rules are contained and recorded as evidence-backed uncertainty so the report can still be produced. Containment is not a security boundary and cannot undo adapter side effects. Therefore “no findings” must always be read alongside `uncertainties`.
+Installed adapters run as PHP code inside the analyzer. They have the analyzer's filesystem, network, environment, and credential privileges. If detection, default paths, transition guidance, package-family classification, source collection, or a compatibility rule throws at runtime, Core records evidence-backed uncertainty and continues where it can. Catching that failure cannot undo adapter side effects or isolate an untrusted adapter. Read an empty finding list alongside `uncertainties` before treating it as a clean result.
 
 ## Exit status boundary
 
-Process exit code 0 means the command produced a valid report. It includes reports whose direct resolution is `blocked` or `unknown`.
+Exit code 0 means the command produced a valid report. That report can still say `blocked` or `unknown` for direct resolution.
 
 Process codes 1 and 2 mean no valid analysis report was produced. Wizard cancellation before analysis uses conventional code 130. They are operational/interface results, not Composer solver results.
 
 Within a valid report, read independently:
 
-- `resolution.status` for direct final-target Composer feasibility;
-- `transition.framework_guidance[].status` for adapter coverage;
-- `staged_resolution.execution_state` and `.status` for adjacent-stage evidence;
-- `uncertainties` for evidence gaps;
+- `resolution.status` for direct final-target Composer feasibility
+- `transition.framework_guidance[].status` for adapter coverage
+- `staged_resolution.execution_state` and `.status` for adjacent-stage evidence
+- `uncertainties` for evidence gaps
 - `tests` for required validation outside the analyzer.
 
 ## Untrusted-project checklist
@@ -282,13 +278,13 @@ Within a valid report, read independently:
 
 ## What the analyzer never proves
 
-- that an upgrade has been performed;
-- that a candidate lock should be committed unchanged;
-- that application tests pass;
-- that production data migrations are safe;
-- that private integrations still work;
-- that the deployment image matches the modeled platform;
-- that a `feasible` result is ready to release;
+- that an upgrade has been performed
+- that a candidate lock should be committed unchanged
+- that application tests pass
+- that production data migrations are safe
+- that private integrations still work
+- that the deployment image matches the modeled platform
+- that a `feasible` result is ready to release
 - that an empty finding list means no work exists.
 
 ## Suggested review gates
@@ -305,11 +301,11 @@ Use separate gates instead of one overloaded “pass/fail” check:
 | Operational uncertainty | `uncertainties`, timeouts, repository metadata, contained failures | Technical lead |
 | Runtime acceptance | Real install, application tests, smoke tests, deployment checks | Delivery team |
 
-A green command-integrity gate says only that a usable report exists. A green dependency gate says only that Composer produced a candidate under recorded inputs. Production approval belongs to the runtime acceptance gate.
+A usable report establishes command integrity. A successful dependency probe establishes a Composer candidate under recorded inputs. Runtime acceptance still depends on installation, tests, and deployment checks.
 
 ### Retention guidance
 
-Canonical non-debug JSON is the best audit artifact because it preserves evidence IDs and machine-readable provenance. Store it according to the project's confidentiality policy. Markdown is convenient for review, but it is a projection and should not replace canonical JSON in an automated evidence trail.
+Keep canonical non-debug JSON when you need an audit trail: it preserves evidence IDs and machine-readable provenance. Store it under the project's confidentiality rules. Markdown is easier to read, but automated consumers should use JSON.
 
 Do not retain debug workspaces by default. When one is needed for an incident, record who authorized retention, where it is stored, and when it must be removed. A copied manifest can reveal private repository definitions even when the rendered report redacts output.
 

@@ -1,11 +1,11 @@
 # Test Adapters
 
-The repository contains two installable Composer packages that are fixtures, not user-facing framework integrations:
+Two installable Composer packages exercise adapter contracts in tests:
 
 - `php-upgrade-preflight/test-adapter` demonstrates current adapter capabilities.
 - `php-upgrade-preflight/legacy-test-adapter` demonstrates backward compatibility with an older capability set.
 
-Their small size makes them useful examples for contributors, but their names, packages, findings, and version transitions are deliberately synthetic.
+They make discovery and capabilities easy to inspect. Their package names, findings, and transitions are synthetic test data, not support for a real framework.
 
 ## Why they are separate Composer packages
 
@@ -23,7 +23,7 @@ The generic CLI discovers adapters from installed-package Composer metadata. Kee
 }
 ```
 
-This validates manifest discovery, autoloading, no-argument construction, interface checks, naming, and capability detection without hard-coding fixture classes into CLI.
+Tests exercise manifest discovery, autoloading, construction without required arguments, interface checks, names, and optional capabilities through the same path as a third-party adapter.
 
 ## Capability comparison
 
@@ -53,13 +53,13 @@ Its default source path is `modules`. `TestFrameworkSourceRule` runs only when t
 modules/Plugin.php
 ```
 
-The rule records E3 project-source evidence containing the file and symbol. This demonstrates the important adapter pattern: request relevance and observed source evidence must both be present before a finding is emitted.
+The rule records E3 project-source evidence with the file and symbol. The file alone is insufficient: the request must also target the synthetic framework before the rule emits a finding.
 
 ### Transition guidance
 
 When the synthetic framework is targeted, the adapter returns supported guidance for major 1→2 and records E2 package-metadata evidence.
 
-This guidance is intentionally simple:
+The fixture returns this fixed guidance:
 
 ```text
 framework: test-framework
@@ -73,8 +73,8 @@ rule pack: test-framework-1-to-2
 
 The adapter can create one stage only when:
 
-- the detected source major is `1`;
-- the exact requested constraint is `^2.0`;
+- the detected source major is `1`
+- the exact requested constraint is `^2.0`
 - the request contains an exact PHP 8.x value in `--target-php` or `--from-php`.
 
 The final target PHP is considered before current PHP. The planned stage is:
@@ -90,24 +90,24 @@ If any condition is missing, it returns an explicit empty `FrameworkStagePlan` w
 
 ### Package family
 
-Any case-insensitive package name beginning with `test-vendor/` is classified into `test-framework`. This lets Core tests prove that adapter package-family labels flow into lock changes.
+The adapter classifies any package name beginning with `test-vendor/`, ignoring case, as `test-framework`. Core tests use that label to check how package families appear in lock changes.
 
 ## Legacy test adapter
 
 `LegacyTestFrameworkIntegration` deliberately implements only interfaces that existed before Core v0.3:
 
-- `FrameworkIntegration`;
+- `FrameworkIntegration`
 - `FrameworkTransitionProvider`.
 
 It detects `legacy-vendor/framework`, returns no compatibility rules, proposes `legacy-modules` as a source path, and supplies supported 1→2 guidance when the package is targeted.
 
-It cannot supply staged targets because it does not implement `FrameworkStageTargetProvider`. Core must treat staged analysis as unavailable/skipped for that adapter while preserving the useful detection and transition guidance it does provide.
+It has no `FrameworkStageTargetProvider`, so Core skips staged analysis for it. Detection and transition guidance still work.
 
-That is the compatibility contract under test: adding optional capability interfaces must not make an otherwise valid older adapter unloadable.
+This proves a useful compatibility rule: an older adapter still loads when Core gains an optional interface.
 
 ## Example third-party adapter skeleton
 
-The fixtures suggest a minimal production shape:
+The shared minimum looks like this:
 
 ```php
 final class AcmeFrameworkIntegration implements FrameworkIntegration
@@ -143,13 +143,13 @@ final class AcmeFrameworkIntegration implements FrameworkIntegration
 
 Then advertise the class in the adapter package's `composer.json`. The class must be instantiable without required constructor arguments because CLI discovery constructs it through reflection.
 
-Add optional interfaces only for real capabilities. Do not implement a stage provider that guesses exact versions or PHP values merely to make staged analysis appear available.
+Add an optional interface when the adapter can supply its evidence. A stage provider needs exact version and PHP inputs. Guessed values would make a staged result look stronger than it is.
 
 ## What not to copy into production
 
 - Do not use fixture package names such as `test-vendor/framework`.
 - Do not claim a transition is supported without maintained, attributable evidence.
-- Do not infer source compatibility from a filename alone; the fixture rule is intentionally narrow test behavior.
+- Do not infer source compatibility from a filename alone. The fixture rule is intentionally narrow test behavior.
 - Do not parse framework versions with the fixture's simple regular expression when Composer Semver evidence is needed.
 - Do not install either fixture as end-user framework support.
 

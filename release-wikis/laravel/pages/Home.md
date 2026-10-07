@@ -1,6 +1,6 @@
 # Laravel Package Internals
 
-`php-upgrade-preflight/laravel` adds Laravel-specific evidence and two entry paths: automatic adapter discovery for `upgrade-intel`, and the `php artisan upgrade:analyze` command.
+`php-upgrade-preflight/laravel` supplies Laravel guidance to the generic CLI and registers `php artisan upgrade:analyze` inside a Laravel application. Both paths use the same adapter.
 
 ## Integration facade
 
@@ -14,11 +14,11 @@
 | `PackageFamilyClassifier` | `LaravelPackageFamilyClassifier` | `laravel`, `illuminate`, or `symfony` family labels |
 | `SourceUsageVisitorProvider` | `LaravelSourceUsageVisitor` | Laravel-aware AST observations |
 
-The facade owns no compatibility logic. This separation lets detection, catalog rules, source collection, and stage planning change independently.
+The facade delegates those jobs. Detection, catalog rules, source collection, and stage planning each have their own class, so you can trace a finding to the code that produced it.
 
 ## How Laravel is detected
 
-`LaravelFrameworkDetector` reads Composer metadata; it never boots the Laravel application.
+`LaravelFrameworkDetector` reads Composer metadata without booting the application.
 
 | Project evidence | Detected? | Version evidence |
 | --- | --- | --- |
@@ -61,7 +61,7 @@ Only existing project-contained paths are scanned. Extra `--source` values are h
 
 The catalog includes adjacent rule packs for 7→8, 8→9, 9→10, 10→11, 11→12, and 12→13, plus a direct 7→9 guidance definition. Staged solving still requires a contiguous adjacent chain.
 
-These values describe what the adapter checks. They do not supersede Composer's solver and do not promise runtime compatibility.
+These are adapter checks. Composer still decides whether the full dependency graph resolves, and the project's tests still have to check runtime behavior.
 
 ## Rule definition types
 
@@ -80,7 +80,7 @@ These values describe what the adapter checks. They do not supersede Composer's 
 | cURL extension built-in | `LaravelCurlExtensionRule` | Is cURL availability known for the modeled hop? |
 | High-signal source built-in | `LaravelHighSignalSourceRule` | Is a transition-relevant Laravel symbol present in source? |
 
-An unknown definition subtype or built-in kind fails loudly during construction; it is not silently ignored.
+An unknown definition subtype or built-in kind throws during construction, so a new rule cannot disappear silently.
 
 ## Examples of modeled package guidance
 
@@ -99,16 +99,16 @@ Each catalog entry carries applicability and source URLs. A package rule applies
 
 The [Laravel completion review](https://github.com/ValentinNikolaev/php-upgrade-preflight/blob/main/docs/laravel-coverage/README.md) accounts for every heading in the pinned Laravel 8–13 upgrade guides. Its ledgers distinguish automated checks from database, deployment, dynamic-source, and custom-contract work requiring manual verification. Fresh skeleton test-tool versions are not automatically mandatory upgrades.
 
-Exact removed-symbol checks cover Laravel's legacy asset helper, serializable-closure classes, testing trait, and UUIDv7 trait. Laravel 13's previous CSRF middleware names remain deprecated aliases; direct references receive medium-severity review guidance, not a removal blocker. Unused imports and unrelated classes do not establish those source changes.
+Exact removed-symbol checks cover Laravel's legacy asset helper, serializable-closure classes, testing trait, and UUIDv7 trait. Laravel 13's previous CSRF middleware names remain deprecated aliases. Direct references receive medium-severity review guidance, not a removal blocker. Unused imports and unrelated classes do not establish those source changes.
 
 ## Transition guidance versus staged solving
 
-These are separate outputs:
+The report keeps two questions separate:
 
 - `LaravelTransitionAssessor` explains which rule packs cover the requested transition.
 - `LaravelStagePlanner` supplies exact adjacent package/PHP targets that Core can ask Composer to solve.
 
-Guidance can be supported while a Composer stage is blocked. Conversely, Composer may solve a target whose adapter guidance is incomplete.
+Catalog guidance can cover a hop whose Composer stage is blocked. Composer can also solve a target for which the adapter has incomplete guidance.
 
 ## Staged Laravel requirements
 
@@ -132,9 +132,9 @@ vendor/bin/upgrade-intel analyze \
   --framework=laravel
 ```
 
-For a detected Laravel 10 project, the planner can propose 10→11, 11→12, and 12→13. The final target PHP `8.3` is tested first for every stage; if it satisfies the stage's minimum, it becomes that stage's analysis PHP. Exact request evidence is required—the planner does not guess a PHP version from a broad constraint.
+For a detected Laravel 10 project, the planner can propose 10→11, 11→12, and 12→13. It tests the final target PHP `8.3` first for every stage. If that value satisfies the stage's minimum, it becomes the stage's analysis PHP. Exact request evidence is required because the planner does not guess a PHP version from a broad constraint.
 
-If planning cannot proceed, it returns an empty plan with a reason such as missing target, ambiguous transition, guidance gap, unsupported transition, or analysis PHP unavailable. That explicit skipped result is preferable to pretending staged analysis ran.
+If planning fails a prerequisite, it returns an empty plan and a reason: missing target, ambiguous or unsupported transition, guidance gap, or unavailable exact PHP. Core reports staging as skipped.
 
 ## Analyzer-only remediation targets
 
@@ -148,7 +148,7 @@ Detected root package: laravel/passport at an incompatible range
 Remediation attempt: also try laravel/passport:^12.0 in the temporary manifest
 ```
 
-These are candidate constraints in analyzer-owned workspaces. They are not edits applied to the application.
+The analyzer tries those constraints in its temporary workspaces. It does not edit the application.
 
 ## Package-family classification
 
@@ -161,7 +161,7 @@ The classifier is intentionally simple and case-insensitive:
 | `symfony/` | `symfony` |
 | Anything else | No Laravel-provided family |
 
-Core can attach these families to package changes, making a large lock diff easier to group.
+Core adds these labels to package changes so readers can group a large lock diff.
 
 ## Generic CLI discovery
 
@@ -188,11 +188,11 @@ vendor/bin/upgrade-intel analyze \
   --framework=laravel
 ```
 
-Without `--framework=laravel`, detection can activate the installed integration when Composer metadata identifies a Laravel-family project.
+Without `--framework=laravel`, the installed adapter can activate itself when it detects Laravel-family Composer requirements.
 
 ## Laravel service provider and Artisan command
 
-Laravel package metadata also advertises `UpgradePreflightServiceProvider`. Its `register()` method binds `ArtisanAnalysisProgressReporter` and `UpgradeAnalyzer` as singletons; the analyzer contains one `LaravelFrameworkIntegration` and receives the reporter. Its `boot()` method registers `AnalyzeUpgradeCommand` only while the application is running in console mode.
+Laravel package metadata also advertises `UpgradePreflightServiceProvider`. Its `register()` method binds `ArtisanAnalysisProgressReporter` and `UpgradeAnalyzer` as singletons. The analyzer contains one `LaravelFrameworkIntegration` and receives the reporter. Its `boot()` method registers `AnalyzeUpgradeCommand` only while the application is running in console mode.
 
 ```bash
 php artisan upgrade:analyze \
@@ -201,9 +201,9 @@ php artisan upgrade:analyze \
   --format=json
 ```
 
-The Artisan command defaults `--path` to the Laravel application base path and always requests the `laravel` integration. Its main options mirror the generic CLI, except it does not expose a repeatable `--framework` selector because the command is already Laravel-specific.
+Artisan analyzes the application base path by default and always requests the Laravel adapter. Most options match the CLI. A Laravel-specific command has no `--framework` selector.
 
-`AnalyzeUpgradeCommand` attaches `ArtisanAnalysisProgressReporter` to Symfony Console's error style only for the command run and detaches it afterward. The reporter renders Core phase/scenario events only when stderr is a TTY, catches its own failures, and never modifies canonical report stdout or analysis semantics.
+`AnalyzeUpgradeCommand` attaches `ArtisanAnalysisProgressReporter` to Symfony Console's error output for one run, then detaches it. The reporter prints phase and scenario events only for a terminal. Its own failures cannot change analysis or report stdout.
 
 ## Class reference
 

@@ -1,6 +1,6 @@
 # Package Map
 
-PHP Upgrade Preflight is a monorepo containing five Composer packages. They are not five editions of the same tool: each package has a different responsibility and dependency boundary.
+This repository contains five Composer packages. Three ship the analyzer and its entry points. Two exercise adapter compatibility in tests. The split tells you where to make a change.
 
 ## At a glance
 
@@ -9,8 +9,8 @@ PHP Upgrade Preflight is a monorepo containing five Composer packages. They are 
 | `packages/core` | `php-upgrade-preflight/core` | Framework-neutral analysis, Composer scenarios, source scanning, evidence, risk, effort, and report writing | CLI packages, framework adapters, and PHP applications embedding the analyzer | Yes |
 | `packages/cli` | `php-upgrade-preflight/cli` | The `upgrade-intel` executable, argument parsing, adapter discovery, and report delivery | Developers and CI systems | Yes |
 | `packages/laravel` | `php-upgrade-preflight/laravel` | Laravel detection, transition catalog, compatibility rules, staged targets, source visitors, and Artisan integration | Laravel projects and the generic CLI | Yes |
-| `packages/test-adapter` | `php-upgrade-preflight/test-adapter` | A complete third-party adapter fixture used to exercise current extension interfaces | Repository tests and adapter authors reading a compact example | No; its Composer description says test-only |
-| `packages/legacy-test-adapter` | `php-upgrade-preflight/legacy-test-adapter` | An old-style adapter fixture proving that pre-v0.3 adapter capabilities still load | Repository compatibility tests | No; its Composer description says test-only |
+| `packages/test-adapter` | `php-upgrade-preflight/test-adapter` | A complete third-party adapter fixture used to exercise current extension interfaces | Repository tests and adapter authors reading a compact example | No. Its Composer description says test-only |
+| `packages/legacy-test-adapter` | `php-upgrade-preflight/legacy-test-adapter` | An old-style adapter fixture proving that pre-v0.3 adapter capabilities still load | Repository compatibility tests | No. Its Composer description says test-only |
 
 All five require PHP `^8.0`. Core uses Composer Semver, PHP Parser, Symfony Filesystem, and Symfony Process. CLI depends on Core and the Composer runtime API. Laravel depends on Core plus Illuminate Console/Support, PHP Parser, Composer Semver, and Symfony Console.
 
@@ -26,13 +26,13 @@ php-upgrade-preflight/cli ---- discovers ----> installed adapter packages
 php-upgrade-preflight/core <--------------- laravel  test   legacy-test
 ```
 
-Core does not depend on Laravel. Instead, it defines small capability interfaces under `Core\Framework`. An adapter implements only the capabilities it can provide. This keeps generic Composer/PHP analysis usable for a non-Laravel project.
+Core defines adapter interfaces under `Core\Framework` and has no Laravel dependency. An adapter implements the capabilities it supports, so the same Composer and PHP analysis works for other projects.
 
 ## What each package owns
 
 ### Core
 
-Core owns the analysis pipeline, not a user-facing executable. Its main contract is `UpgradeAnalyzer`; the default implementation is `DefaultUpgradeAnalyzer`.
+Core runs analysis and builds the report. Its main contract is `UpgradeAnalyzer`, implemented by `DefaultUpgradeAnalyzer`. Core has no user-facing executable.
 
 Important service groups:
 
@@ -51,7 +51,7 @@ See [[Core Analysis Pipeline|Core-Analysis-Pipeline]] for the execution order an
 
 ### CLI
 
-CLI is deliberately thin. It converts shell strings to model objects, discovers installed adapters, delegates to Core, and renders the returned report. It does not contain solver rules.
+CLI turns command-line values into a request, finds installed adapters, calls Core, and renders the report. Composer solving and framework rules live elsewhere.
 
 ```bash
 vendor/bin/upgrade-intel analyze \
@@ -66,9 +66,9 @@ See [[CLI Package Internals|CLI-Package-Internals]].
 
 ### Laravel
 
-Laravel is both an adapter for the generic CLI and a Laravel service-provider package. Composer advertises `LaravelFrameworkIntegration` through `extra.php-upgrade-preflight.framework-adapters`; Laravel package discovery advertises `UpgradePreflightServiceProvider` separately.
+Laravel is both an adapter for the generic CLI and a Laravel service-provider package. Composer advertises `LaravelFrameworkIntegration` through `extra.php-upgrade-preflight.framework-adapters`. Laravel package discovery advertises `UpgradePreflightServiceProvider` separately.
 
-The adapter currently models Laravel majors 7 through 13. Its catalog contains target PHP and Symfony constraints, adjacent transitions, package rules, package advisories, source rules, and skeleton patterns. Catalog coverage is guidance coverage, not proof that an application works on the target version.
+The adapter has guidance for Laravel majors 7 through 13: target PHP and Symfony constraints, transitions, package rules and advisories, source rules, and skeleton patterns. That coverage tells you what the adapter checks. Only the project's own tests can establish whether the upgraded application works.
 
 See [[Laravel Package Internals|Laravel-Package-Internals]].
 
@@ -99,11 +99,11 @@ See [[Test Adapters|Test-Adapters]].
 
 ## Boundary rules for contributors
 
-- Generic behavior belongs in Core. Do not teach Core about a Laravel class or Laravel package name.
-- Command-line syntax and adapter discovery belong in CLI. Do not put analysis decisions in `AnalyzeCommand`.
-- Maintainer-sourced Laravel knowledge belongs in the Laravel catalog and rule implementations.
-- Fixture behavior belongs only in the test adapter packages; users should not install those packages as real framework support.
-- JSON is the canonical report contract. Markdown is a human-readable projection of the same `UpgradeReport`.
+- Put generic behavior in Core so it can serve any framework.
+- Put command syntax and adapter discovery in CLI. Keep analysis decisions out of `AnalyzeCommand`.
+- Keep maintained Laravel knowledge in its catalog and rule implementations.
+- Use the test adapters as fixtures, not as framework packages for users.
+- Treat JSON as the report contract. Markdown renders the same `UpgradeReport` for readers.
 
 ## Example: following one request across packages
 
@@ -115,7 +115,7 @@ vendor/bin/upgrade-intel analyze \
   --target=laravel/framework:^13.0 \
   --target-php=8.3 \
   --framework=laravel \
-  --output=build/upgrade-report.json
+  --format=json
 ```
 
 1. CLI parses and validates the options.
@@ -124,6 +124,6 @@ vendor/bin/upgrade-intel analyze \
 4. Laravel detects the project, supplies rules, source visitors, package-family labels, transition guidance, and adjacent stage targets.
 5. Core runs isolated Composer scenarios and scans the original source tree.
 6. Core assembles one `UpgradeReport`.
-7. CLI selects the JSON writer and writes the destination after validating it.
+7. CLI selects the JSON writer and prints the report on stdout.
 
-The target project is analyzed, not upgraded. Composer manifest edits and candidate lock files exist only in analyzer-owned temporary workspaces.
+The analyzer leaves `./shop` alone. It makes candidate manifest edits and lock files in its own temporary workspaces, then reports what those attempts showed.

@@ -1,6 +1,6 @@
 # Key Concepts
 
-This glossary gives the shortest accurate model of the terms used by PHP Upgrade Preflight. Examples are illustrative but use current report vocabulary.
+Use this glossary when a report term needs a plain explanation. The examples use current report names. They do not replace the schema.
 
 ## Upgrade target
 
@@ -26,22 +26,22 @@ At least one package target, target PHP, or target-platform profile is required.
 
 ## Composer scenario
 
-A Composer scenario is one isolated command run against copied manifests in an analyzer-owned temporary workspace. Examples include baseline validation, an exact target solve, and a target solve with all dependencies.
+A Composer scenario runs one command against copied manifests in a temporary workspace owned by the analyzer. The analyzer uses scenarios to check the baseline, try the exact target, and try it with related dependencies allowed to move.
 
 Each scenario records its name, safe command array, duration, exit code, outcome, bounded and redacted output excerpts, diagnostics, optional candidate-lock evidence, and optional debug path.
 
-A scenario is evidence, not a change to the project.
+The scenario describes what happened in that workspace. It does not change the analyzed project.
 
 ## Direct resolution
 
 `resolution` summarizes the Composer scenarios that ask about the requested final target directly. Its status is:
 
-- `feasible`: a determining direct Composer scenario succeeded without package changes;
-- `feasible_with_changes`: a determining direct Composer scenario succeeded with candidate package changes;
-- `blocked`: Composer produced reproducible solver blockers;
+- `feasible`: a determining direct Composer scenario succeeded without package changes.
+- `feasible_with_changes`: a determining direct Composer scenario succeeded with candidate package changes.
+- `blocked`: Composer produced reproducible solver blockers.
 - `unknown`: the analyzer could not reach a reliable solver conclusion.
 
-This direct result is independent of framework rule coverage and staged resolution.
+Read this result on its own. Laravel guidance and adjacent-stage results answer different questions.
 
 ## Staged analysis
 
@@ -53,13 +53,13 @@ Each evaluated stage starts from the selected candidate state of the previous su
 
 A hop is a framework-major transition such as Laravel 10→11. Adapter guidance describes whether a rule pack exists for that hop. Composer stage execution separately describes whether candidate dependencies could be solved for the hop.
 
-“Supported guidance” never means “Composer resolution succeeded.”
+`supported` tells you the adapter has guidance for the hop. Check the stage result to see whether Composer resolved it.
 
 ## Stage
 
 A stage is the executable unit of staged analysis. It has an ID such as `laravel-10-to-11`, exact package targets, an exact analysis PHP value supported by request evidence, attempts, input/output fingerprints, changes, blockers, source impact, tests, risk, effort, and actions.
 
-A stage is `evaluated` or `skipped`. Evaluated stage statuses use `feasible`, `feasible_with_changes`, `blocked`, or `unknown`; the aggregate staged result is reported separately.
+A stage is `evaluated` or `skipped`. Evaluated stage statuses use `feasible`, `feasible_with_changes`, `blocked`, or `unknown`. The aggregate staged result is reported separately.
 
 ## Blocker
 
@@ -71,15 +71,15 @@ Example question a blocker answers: “Which locked package conflicts with Larav
 
 Blocker attribution explains the relationship between a parsed conflict and the request. It distinguishes a root requirement, a locked dependency, a platform requirement, and other modeled causes instead of treating every line of Composer output as the same kind of failure.
 
-Attribution allows remediation planning to focus on causes rather than raw text.
+Use the attributed cause to plan a fix. A line of Composer output alone may not tell you which requirement to change.
 
 ## Blocker lifecycle
 
 The staged blocker registry tracks a blocker across attempts within a stage. Its lifecycle vocabulary is:
 
-- `detected`: first observed;
-- `persists`: still observed after another attempt;
-- `resolved`: absent after a successful remediation;
+- `detected`: first observed.
+- `persists`: still observed after another attempt.
+- `resolved`: absent after a successful remediation.
 - `superseded`: replaced by a different effective blocker.
 
 Similar messages do not merge if their stage, constraint, dependency path, platform, or identity differs.
@@ -106,17 +106,17 @@ The scanner uses `nikic/php-parser`, not regular expressions, so syntax structur
 
 A source impact finding correlates a source usage with a relevant package change or framework rule. It names the file, line, symbol/type, reason, severity or confidence where modeled, and evidence references.
 
-Inventory does not automatically become impact. Ownership and transition relevance are required to avoid blaming unrelated symbols.
+An observed use becomes impact only when package ownership or a relevant framework rule connects it to the upgrade.
 
 ## Symbol ownership index
 
 `SymbolOwnershipIndex` maps Composer-autoloaded symbols to owning packages. It helps distinguish application use of a changing dependency from a same-named symbol owned elsewhere.
 
-This seam makes source impact more precise than a plain text search.
+That ownership check helps the report avoid treating every matching name as affected code.
 
 ## Framework detection
 
-Framework detection is adapter-provided recognition of a project and optional version. The Laravel detector reads root requirements and the lock file; it does not boot Laravel.
+Framework detection is adapter-provided recognition of a project and optional version. The Laravel detector reads root requirements and the lock file. It does not boot Laravel.
 
 Without explicit `--framework`, installed adapters may activate through detection. With `--framework=laravel`, the named integration is explicitly requested and must be installed.
 
@@ -146,13 +146,13 @@ Orphan evidence would be an evidence record that supports no report claim. The r
 
 An uncertainty is an explicit statement that the analyzer lacks sufficient evidence for a confident claim. Examples include host-dependent extensions, a PHP parse failure, a contained adapter exception, an unavailable Composer executable, or a staging guidance gap.
 
-Unknown is a valid, intentional result. The tool records uncertainty rather than guessing.
+`unknown` is a useful result when evidence is missing. Read the uncertainty, fix what you can, and rerun.
 
 ## Risk summary
 
 The risk summary combines deterministic drivers into a level and a list of reasons. Drivers can include blockers, package changes, source impact, framework findings, and uncertainty.
 
-Risk is planning support, not a probability of failure and not a deployment verdict.
+Use risk drivers to decide what to investigate. The level is neither a failure probability nor a deployment decision.
 
 ## Effort estimate
 
@@ -169,7 +169,7 @@ Example:
 }
 ```
 
-Always read the assumptions and confidence. The number is not a quote or commitment.
+Read the assumptions and confidence with the range. It is an estimate for planning, not a quote.
 
 ## Confidence
 
@@ -198,15 +198,15 @@ Automation must consume JSON, validate `metadata.schema_version`, and preserve u
 
 Markdown is a human-readable rendering of an `UpgradeReport`. `MarkdownReportWriter` does not re-run analysis and has no independent decision logic.
 
-If JSON and Markdown appear to disagree, preserve the JSON, check the schema and writer, and treat the mismatch as a bug.
+If the two disagree, keep the JSON and check the Markdown writer against the schema. The mismatch is a bug.
 
 ## Path marker
 
 Shareable reports replace absolute roots with stable markers:
 
-- `[PROJECT_ROOT]` for the analyzed project;
-- `[REPORT_OUTPUT]` for the chosen destination;
-- `[LOCAL_REPOSITORY]` for local Composer repositories;
+- `[PROJECT_ROOT]` for the analyzed project.
+- `[REPORT_OUTPUT]` for the chosen destination.
+- `[LOCAL_REPOSITORY]` for local Composer repositories.
 - `[ANALYZER_WORKSPACE]` for temporary analyzer roots.
 
 Source files remain project-relative. Debug mode can expose exact temporary paths.
@@ -219,7 +219,7 @@ See [[Safety and Trust Boundaries|Safety-and-Trust-Boundaries]] for the full bou
 
 ## Deterministic
 
-Deterministic means the implementation normalizes ordering, paths, excerpts, IDs, and report assembly so equivalent evidence produces stable output. It does not mean uncontrolled repository metadata, network state, or different Composer executables are magically identical.
+The analyzer normalizes ordering, paths, excerpts, IDs, and report assembly so equivalent evidence produces stable output. Repository metadata, network state, and Composer versions can still change what evidence it receives.
 
 See [[Determinism and Evidence|Determinism-and-Evidence]].
 
@@ -262,7 +262,7 @@ These conclusions can differ:
 
 | Direct result | Staged result | Meaning |
 | --- | --- | --- |
-| `feasible_with_changes` | `feasible_with_changes` | Final and adjacent candidate states were found; application verification remains |
+| `feasible_with_changes` | `feasible_with_changes` | Final and adjacent candidate states were found. The application still needs verification |
 | `blocked` | `feasible_with_changes` | Direct solve is blocked under its scenario evidence, while adjacent candidates provide planning evidence |
 | `feasible` | `unknown` or skipped | Direct Composer evidence succeeded, but staged evidence was unavailable or unnecessary |
 | `unknown` | `blocked` | Direct execution lacked a reliable conclusion, while a stage produced a reproducible conflict |

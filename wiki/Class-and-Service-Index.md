@@ -1,10 +1,6 @@
 # Class and Service Index
 
-This index covers every class and interface declared under `packages/*/src`.
-
-It excludes test classes under `packages/*/tests` and the executable script in `packages/cli/bin`.
-
-Use it to find the package boundary and the deeper Wiki page for a symbol. “Value model” means an immutable or validation-focused data object, not a service that performs analysis.
+Use this index to find a PHP symbol under `packages/*/src`, see what it does, and follow the link to a deeper page. It covers production and fixture-adapter declarations, but not test classes under `packages/*/tests` or the CLI script under `packages/cli/bin`. “Value model” means an immutable or validation-focused data object rather than an analysis service.
 
 ## CLI package
 
@@ -258,8 +254,8 @@ packages/test-adapter/src
 packages/legacy-test-adapter/src
 ```
 
-At the time this page was generated, those directories contained 166 class or interface declarations.
+Those directories currently contain 184 class or interface declarations. Keep this count in step with the source when changing the index.
 
-When adding or removing a production symbol, update this index and its deeper package page in the same change.
+When you add or remove a production symbol, update this index and its deeper package page in the same change.
 
 When the symbol change is part of a release tag, the Wiki update is mandatory under `wiki/AGENTS.md`.
