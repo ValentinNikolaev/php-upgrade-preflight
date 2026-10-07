@@ -140,10 +140,10 @@ Third-party adapter packages register themselves through Composer metadata, so t
 
 ## Development
 
-The Docker environment uses PHP 8.3 while Composer resolves development dependencies against PHP 8.0.30, the runtime floor.
+The Docker environment uses PHP 8.5 while Composer resolves development dependencies against PHP 8.0.30, the runtime floor. Current PHP and ecosystem versions, consumer checks, and PHP 8.6 preview limits are recorded in [Current compatibility coverage](docs/current-compatibility.md).
 
 ```bash
-docker compose build php
+docker compose build --pull php
 docker compose run --rm php composer install
 docker compose run --rm php composer check
 ```

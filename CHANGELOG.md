@@ -4,6 +4,24 @@ This project follows [Semantic Versioning](https://semver.org/). Report schema v
 
 ## [Unreleased]
 
+### Changed
+
+- Use PHP 8.5 for the default development container and refresh compatible Composer Semver, PHP-Parser, PHP-CS-Fixer, PHPStan, and PHPUnit 9.6 dependencies while retaining the PHP 8.0 runtime floor.
+- Require PHP-Parser 5.9 on the modern parser branch to scan PHP 8.6 partial function applications; retain the legacy 4.19 branch and explicit parse uncertainty for unsupported syntax.
+- Accept reviewed Pest 4 alternatives for Laravel 12 and Pest 5 alternatives for Laravel 13, retaining existing recommendations and pinned package evidence.
+
+### Added
+
+- Current PHP 8.5 consumer installation and boot cases for Symfony 8.1, Laravel/Illuminate 13, PHPUnit 13, and Pest 5 with its Laravel plugin, at normal and lowest dependency resolution.
+- An experimental PHP 8.6 unit/smoke runtime job and source-scanning regressions for PHP 8.4 property hooks, PHP 8.5 pipes, and PHP 8.6 partial function applications.
+- A dated [current compatibility inventory](docs/current-compatibility.md) with upstream sources and precise support boundaries.
+
+### Fixed
+
+- Replace PHP 8.5-deprecated object-storage calls in privacy sanitization while preserving cyclic-object redaction. Direct ordinary development-container diagnostics to stderr with standard deprecation exclusions; explicit `E_ALL` runtime regressions keep diagnostic checks for current and preview PHP.
+- Install mbstring when a PHP preview container omits it, enable CLI argument registration explicitly for PHPStan on current PHP, and declare the test evidence recorder's side effects for PHPStan 2.3.
+- Preserve argument positions around PHP 8.6 placeholders so Laravel config and test-double inspection cannot misclassify later fixed arguments; verify malformed JSON against PHP's native diagnostic, including preview location details.
+
 ## [0.3.5] - 2026-10-07
 
 ### Fixed

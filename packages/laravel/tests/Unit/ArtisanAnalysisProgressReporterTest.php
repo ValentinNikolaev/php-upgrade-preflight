@@ -287,7 +287,9 @@ final class ArtisanAnalysisProgressReporterTest extends TestCase
         $constructor = $reflection->getConstructor();
         self::assertNotNull($constructor);
         $event = $reflection->newInstanceWithoutConstructor();
-        $constructor->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $constructor->setAccessible(true);
+        }
         $constructor->invoke($event, $type, $phase);
 
         return $event;

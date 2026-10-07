@@ -21,6 +21,38 @@ use Symfony\Component\Filesystem\Filesystem;
  */
 final class LaravelSourceUsageVisitorTest extends TestCase
 {
+    public function testPhp86PlaceholdersDoNotShiftContextualArgumentPositions(): void
+    {
+        $projectPath = $this->createProject(<<<'PHP'
+<?php
+config(?, 'cache.default');
+config('app.timezone', ?);
+mock(?, \App\Services\Mailer::class);
+mock(\App\Contracts\Gateway::class, ?);
+PHP);
+        $evidence = new EvidenceLedger();
+        $uncertainties = [];
+
+        try {
+            $project = (new ProjectStateBuilder())->build($projectPath);
+            $usages = $this->scan($project, $evidence, $uncertainties);
+            if (version_compare(\Composer\InstalledVersions::getVersion('nikic/php-parser') ?? '0', '5.0.0', '<')) {
+                self::assertSame([], $usages);
+                self::assertCount(1, $uncertainties);
+
+                return;
+            }
+
+            self::assertSame([], $uncertainties);
+            $config = array_values(array_filter($usages, static fn (SourceUsage $usage): bool => $usage->usageType() === 'config_reference'));
+            $doubles = array_values(array_filter($usages, static fn (SourceUsage $usage): bool => $usage->usageType() === 'test_double'));
+            self::assertSame(['app.timezone'], array_map(static fn (SourceUsage $usage): string => $usage->symbol(), $config));
+            self::assertSame(['App\\Contracts\\Gateway'], array_map(static fn (SourceUsage $usage): string => $usage->symbol(), $doubles));
+        } finally {
+            (new Filesystem())->remove($projectPath);
+        }
+    }
+
     public function testContextualInspectionClassifiesUpgradeSensitiveSourceUsages(): void
     {
         $projectPath = $this->createProject(<<<'PHP'

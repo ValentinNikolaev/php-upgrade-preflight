@@ -28,6 +28,42 @@ use Symfony\Component\Filesystem\Filesystem;
 
 final class SourceUsageScannerTest extends TestCase
 {
+    /** @dataProvider modernSyntaxProvider */
+    public function testModernPhpSyntaxPreservesSourceReferences(string $source): void
+    {
+        $projectPath = $this->createProject($source);
+        $evidence = new EvidenceLedger();
+        $uncertainties = [];
+
+        try {
+            $project = (new ProjectStateBuilder())->build($projectPath);
+            $usages = (new SourceUsageScanner())->scan($project, ['src'], $evidence, $uncertainties);
+
+            if (version_compare(\Composer\InstalledVersions::getVersion('nikic/php-parser') ?? '0', '5.0.0', '<')) {
+                self::assertSame([], $usages);
+                self::assertCount(1, $uncertainties);
+                self::assertSame('parse_error', $evidence->all()[0]->context()['failure_type']);
+
+                return;
+            }
+
+            self::assertSame([], $uncertainties);
+            self::assertSame(['Vendor\\Package\\Client'], array_map(static fn (SourceUsage $usage): string => $usage->symbol(), $usages));
+            self::assertSame('static_call', $usages[0]->usageType());
+            self::assertSame('src/Example.php', $usages[0]->file());
+        } finally {
+            (new Filesystem())->remove($projectPath);
+        }
+    }
+
+    /** @return iterable<string, array{string}> */
+    public function modernSyntaxProvider(): iterable
+    {
+        yield 'PHP8.4 property hooks' => ['<?php class Example { public string $name { get => \\Vendor\\Package\\Client::send(); } }'];
+        yield 'PHP8.5 pipe operator' => ['<?php $result = "input" |> \\Vendor\\Package\\Client::send(...);'];
+        yield 'PHP8.6 partial application' => ['<?php $callback = \\Vendor\\Package\\Client::send(?, "fixed");'];
+    }
+
     public function testSourceScanLimitsRejectNonPositiveValues(): void
     {
         $this->expectException(\InvalidArgumentException::class);

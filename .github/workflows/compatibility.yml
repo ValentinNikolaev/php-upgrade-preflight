@@ -82,6 +82,42 @@ jobs:
             package: php-upgrade-preflight/laravel:@dev
             framework: illuminate/console:^13.35
             smoke: illuminate
+          - name: core current dependencies / PHP 8.5
+            slug: core-current-php85
+            php: '8.5'
+            package: php-upgrade-preflight/core:@dev
+            framework: ''
+            dependencies: composer/semver:^3.5 nikic/php-parser:^5.9 symfony/filesystem:^8.1 symfony/process:^8.1
+            smoke: core
+          - name: CLI current / PHP 8.5
+            slug: cli-current-php85
+            php: '8.5'
+            package: php-upgrade-preflight/cli:@dev
+            framework: ''
+            smoke: cli
+          - name: Laravel 13 / PHPUnit 13 / PHP 8.5
+            slug: laravel13-phpunit13-php85
+            php: '8.5'
+            package: php-upgrade-preflight/laravel:@dev
+            framework: laravel/framework:^13.35
+            dependencies: phpunit/phpunit:^13.4
+            test_tool: phpunit
+            smoke: laravel
+          - name: Laravel 13 / Pest 5 / PHP 8.5
+            slug: laravel13-pest5-php85
+            php: '8.5'
+            package: php-upgrade-preflight/laravel:@dev
+            framework: laravel/framework:^13.35
+            dependencies: pestphp/pest:^5.3 pestphp/pest-plugin-laravel:^5.0
+            test_tool: pest
+            smoke: laravel
+          - name: Illuminate 13 / Symfony 8.1 / PHP 8.5
+            slug: illuminate13-symfony81-php85
+            php: '8.5'
+            package: php-upgrade-preflight/laravel:@dev
+            framework: illuminate/console:^13.35
+            dependencies: symfony/console:^8.1 symfony/process:^8.1
+            smoke: illuminate
     steps:
       - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -91,6 +127,7 @@ jobs:
         with:
           php-version: ${{ matrix.case.php }}
           coverage: none
+          tools: composer:v2
 
       # Cache only Composer's downloaded archives, never its Packagist metadata cache.
       # Resolution still runs against live metadata on every job, so this smoke test
@@ -113,6 +150,8 @@ jobs:
           FRAMEWORK: ${{ matrix.case.framework }}
           RESOLUTION: ${{ matrix.resolution }}
           SMOKE: ${{ matrix.case.smoke }}
+          DEPENDENCIES: ${{ matrix.case.dependencies }}
+          TEST_TOOL: ${{ matrix.case.test_tool }}
         run: |
           set -euo pipefail
           install_dir="${RUNNER_TEMP}/consumer install"
@@ -127,6 +166,9 @@ jobs:
             --license=proprietary
           composer config minimum-stability dev
           composer config prefer-stable true
+          if [[ "${TEST_TOOL}" == 'pest' ]]; then
+            composer config allow-plugins.pestphp/pest-plugin true
+          fi
           composer config repositories.core \
             "{\"type\":\"path\",\"url\":\"${GITHUB_WORKSPACE}/packages/core\",\"options\":{\"versions\":{\"php-upgrade-preflight/core\":\"0.3.x-dev\"}}}"
           composer config repositories.cli \
@@ -170,6 +212,10 @@ jobs:
           fi
           if [[ "${SMOKE}" == 'illuminate' ]]; then
             requirements+=('illuminate/container:^13.35' 'illuminate/support:^13.35')
+          fi
+          if [[ -n "${DEPENDENCIES}" ]]; then
+            read -r -a extra_requirements <<< "${DEPENDENCIES}"
+            requirements+=("${extra_requirements[@]}")
           fi
 
           composer require \
@@ -215,3 +261,28 @@ jobs:
               '
               ;;
           esac
+
+      - name: Exercise current test tools with the installed analyzer
+        if: matrix.case.test_tool != ''
+        shell: bash
+        env:
+          TEST_TOOL: ${{ matrix.case.test_tool }}
+        run: |
+          set -euo pipefail
+          cd "${RUNNER_TEMP}/consumer install"
+          case "${TEST_TOOL}" in
+            phpunit)
+              vendor/bin/phpunit --no-configuration --bootstrap vendor/autoload.php \
+                "${GITHUB_WORKSPACE}/tests/fixtures/current-test-tools/PhpunitSmokeTest.php"
+              ;;
+            pest)
+              cp "${GITHUB_WORKSPACE}/tests/fixtures/current-test-tools/ConsumerUpgrade.php" tests/ConsumerUpgrade.php
+              cp "${GITHUB_WORKSPACE}/tests/fixtures/current-test-tools/PestSmokeTest.php" tests/PestSmokeTest.php
+              vendor/bin/pest --no-configuration --bootstrap vendor/autoload.php tests/PestSmokeTest.php
+              ;;
+          esac
+
+      - name: Remove temporary consumer
+        if: always()
+        shell: bash
+        run: rm -rf -- "${RUNNER_TEMP}/consumer install"

@@ -340,7 +340,7 @@ final class LaravelSourceUsageVisitor extends NodeVisitorAbstract implements Sou
             && in_array(strtolower((string) $receiver->name), ['app', 'application', 'getapplication'], true);
     }
 
-    /** @param list<Arg> $arguments */
+    /** @param array<int, Arg> $arguments */
     private function addArgumentClassReferences(array $arguments, string $usageType): void
     {
         foreach ($arguments as $argument) {
@@ -349,15 +349,15 @@ final class LaravelSourceUsageVisitor extends NodeVisitorAbstract implements Sou
     }
 
     /**
-     * @param array<Arg|Node\VariadicPlaceholder> $arguments
-     * @return list<Arg>
+     * @param array<int, Node> $arguments
+     * @return array<int, Arg>
      */
     private function arguments(array $arguments): array
     {
-        return array_values(array_filter(
+        return array_filter(
             $arguments,
             static fn (Node $argument): bool => $argument instanceof Arg
-        ));
+        );
     }
 
     private function addClassReferences(Node $node, string $usageType): void
@@ -447,7 +447,7 @@ final class LaravelSourceUsageVisitor extends NodeVisitorAbstract implements Sou
         }
     }
 
-    /** @param list<Arg> $arguments */
+    /** @param array<int, Arg> $arguments */
     private function addTestDoubleTarget(array $arguments): void
     {
         if (!isset($arguments[0])) {

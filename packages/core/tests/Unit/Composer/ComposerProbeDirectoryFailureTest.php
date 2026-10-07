@@ -40,7 +40,9 @@ namespace PhpUpgradePreflight\Core\Tests\Unit\Composer {
             self::assertIsString($collisionPath);
             self::assertIsString($collisionBytes);
             $method = new \ReflectionMethod(ComposerScenarioRunner::class, 'createComposerProbeDirectory');
-            $method->setAccessible(true);
+            if (PHP_VERSION_ID < 80100) {
+                $method->setAccessible(true);
+            }
             $GLOBALS['php_upgrade_preflight_forced_probe_bytes'] = $collisionBytes;
 
             try {

@@ -5,10 +5,10 @@ services:
     build:
       context: .
       args:
-        PHP_VERSION: ${PHP_VERSION:-8.3}
+        PHP_VERSION: ${PHP_VERSION:-8.5}
         USER_ID: ${USER_ID:-1000}
         GROUP_ID: ${GROUP_ID:-1000}
-    image: php-upgrade-preflight-dev:${PHP_VERSION:-8.3}
+    image: php-upgrade-preflight-dev:${PHP_VERSION:-8.5}
     init: true
     working_dir: /app
     environment:
