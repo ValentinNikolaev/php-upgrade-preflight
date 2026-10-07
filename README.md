@@ -1,25 +1,29 @@
 # PHP Upgrade Preflight
 
 > [!IMPORTANT]
-> **Project status: Public beta.** PHP Upgrade Preflight is Open Source software under the [MIT License](LICENSE), free for commercial and noncommercial use.
+> **Project status: Public beta.** PHP Upgrade Preflight is open source under the [MIT License](LICENSE), free for commercial and noncommercial use.
 
-PHP Upgrade Preflight analyzes Composer-based PHP upgrades before you change the target project. It copies `composer.json` and `composer.lock` into temporary workspaces, runs isolated Composer scenarios, scans source files, and produces a canonical JSON report or a Markdown projection.
+PHP Upgrade Preflight checks a planned PHP upgrade before you change your project. It works with Composer-based projects, copies `composer.json` and `composer.lock` into temporary workspaces, and runs Composer checks there. It also scans your source files. You get a JSON report, or a Markdown version of that report.
 
-v0.3 runs on PHP `^8.0` (PHP 8.0 through PHP 8.x). Its Laravel adapter retains Laravel 7 to 8 and direct 7 to 9 guidance plus adjacent Laravel 8 to 9 through 12 to 13 rule packs. Rooted `laravel/framework` projects can run sequential Composer evidence across every contiguous adjacent path from Laravel 7 through 13, while the direct final-target result remains independent.
+v0.3 runs on PHP `^8.0`, from PHP 8.0 through PHP 8.x. The Laravel adapter gives upgrade guidance for Laravel 7 to 8, direct 7 to 9, and every upgrade from one major version to the next, from 8 to 9 through 12 to 13.
 
-The Laravel adapter can be installed alongside Laravel 8 on PHP 8.0, Laravel 9 on PHP 8.0.2, Laravel 10 on PHP 8.1, Laravel 11/12 on PHP 8.2, and Laravel 13 on PHP 8.3. Host installability and analyzed target requirements remain separate: an external analyzer may model a newer target through Composer platform simulation.
+If your project's root `composer.json` requires `laravel/framework`, the analyzer can also check dependencies one major version at a time along any path within Laravel 7–13 that skips no versions. It reports each step separately from the direct check for your final target.
+
+You can install the Laravel adapter alongside Laravel 8 on PHP 8.0, Laravel 9 on PHP 8.0.2, Laravel 10 on PHP 8.1, Laravel 11/12 on PHP 8.2, and Laravel 13 on PHP 8.3. The analyzer's PHP requirements are separate from those of the upgrade you're checking. When you run it outside the project, it can use Composer platform settings to model a newer target.
 
 ## Public beta and compatibility
 
-The released v0.3.x line keeps the public PHP operation, CLI and Artisan behavior, required adapter interfaces and discovery metadata, exit policy, schema `0.8` compatibility, and supported transition and staged-analysis claims backward-compatible across patch releases. Bug fixes, security fixes, and evidence corrections may still change individual findings or diagnostics without changing those contracts.
+Patch releases in v0.3.x keep the existing public contracts compatible. This covers how you run an analysis from PHP, the CLI and Artisan commands, required adapter interfaces, metadata used to discover adapters, exit codes, and report schema `0.8`. Supported upgrade paths and step-by-step analysis also stay compatible. Bug fixes, security fixes, and corrections to evidence may still change individual findings or diagnostics.
 
-v0.3.5 is the latest published release. It identifies reports as tool `0.3.5` with schema `0.8`, unchanged from v0.3.0; development on `main` uses `0.3.x-dev` Composer aliases with `^0.3` internal constraints. The earlier `0.2.x` and `0.1.x` lines are archival: their signed artifacts stay available and immutable, but they receive no further features, bug fixes, or security fixes. See [Project status and licensing](docs/project-status.md) for the upgrade path.
+v0.3.5 is the latest published release. Its reports show tool version `0.3.5` and schema `0.8`, the same schema used in v0.3.0. Development on `main` uses `0.3.x-dev` Composer aliases with `^0.3` internal dependency constraints.
 
-Public beta is not a production-readiness claim. The analyzer provides decision-support evidence: it does not perform an upgrade, execute the analyzed application, prove runtime compatibility, or guarantee a successful deployment. Review every report and validate the resulting upgrade with the application's own test and deployment process. See [Project status and licensing](docs/project-status.md), [Versioning](docs/versioning.md), and [Limitations and trust boundaries](docs/limitations.md).
+The earlier `0.2.x` and `0.1.x` lines are archived. Their signed release files remain available and unchanged, but those versions receive no further features, bug fixes, or security fixes. See [Project status and licensing](docs/project-status.md) for the upgrade path.
+
+Use the report to plan the upgrade. When Composer finds a set of dependencies that fit together, you still need to test the application. The analyzer doesn't apply the upgrade or run your code, and it can't prove that the application will work or deploy successfully. Public beta doesn't mean the tool is ready for production use. Review every report and check the upgrade with your application's tests and deployment process. See [Project status and licensing](docs/project-status.md), [Versioning](docs/versioning.md), and [Limitations and trust boundaries](docs/limitations.md).
 
 ## Install
 
-Install the CLI and Laravel adapter in a separate tools directory when the target project still runs PHP 7 or must remain byte-for-byte unchanged:
+If your project still runs PHP 7, or you need to keep every byte of its files unchanged, install the CLI and Laravel adapter in a separate tools directory:
 
 ```bash
 mkdir php-upgrade-tools
@@ -27,9 +31,9 @@ cd php-upgrade-tools
 composer require php-upgrade-preflight/cli:^0.3 php-upgrade-preflight/laravel:^0.3
 ```
 
-This separate Composer tools-directory installation is the supported external execution path. v0.3 does not ship or support a PHAR or a versioned container image; the repository Docker files are development tooling, not release artifacts.
+Use this separate Composer tools directory to run the analyzer outside your project. v0.3 doesn't ship or support a PHAR or a versioned container image. The Docker files in this repository are for development.
 
-You can install both packages as development dependencies in a project that already runs PHP 8.0 or later:
+For a project already running PHP 8.0 or later, you can install both packages as development dependencies:
 
 ```bash
 composer require --dev php-upgrade-preflight/cli:^0.3 php-upgrade-preflight/laravel:^0.3
@@ -39,7 +43,7 @@ See [Installation](docs/installation.md) and [External analysis](docs/external-a
 
 ## Run an analysis
 
-For an interactive, line-oriented setup that detects the project, separates the current and target PHP versions, validates package targets, and shows the equivalent repeatable command, run:
+The wizard walks you through the options. It detects your project, asks which PHP version you use now and which version you're targeting, checks your package targets, and shows a command you can reuse:
 
 ```bash
 vendor/bin/upgrade-intel wizard
@@ -47,7 +51,13 @@ vendor/bin/upgrade-intel wizard
 
 ![Interactive `upgrade-intel wizard` demo](docs/assets/upgrade-intel-wizard-demo.gif)
 
-The wizard defaults to a Markdown report in the terminal and can optionally save an identical copy outside the analyzed project. Package discovery starts with local `composer.json` facts; local-cache and configured-repository lookups are explicit choices, and the latter warns before metadata lookup may use network access or inherited credentials. Before analysis, the wizard separately requires an explicit choice between restricted and compatible Composer execution, shows its network and credential implications in the reviewed plan, and adds the matching `--composer-mode` option to the repeatable command. Scripts and CI should continue to use the non-interactive command and explicit options; `--save-report=PATH` preserves the canonical stdout report while saving a copy, whereas the existing `--output=PATH` remains file-only:
+You answer the wizard's prompts one line at a time. By default, it shows a Markdown report in the terminal. You can also save an identical copy outside the project you're checking.
+
+The wizard first looks for packages in your local `composer.json`. You can choose to look in the local cache or configured repositories too. Before a repository lookup, it warns that the lookup may use the network or credentials from your environment.
+
+Before running the analysis, you must choose restricted or compatible Composer execution. The wizard shows what that choice means for network access and credentials in the plan you review. It also adds the matching `--composer-mode` option to the command you can reuse.
+
+For scripts and CI, use the non-interactive command and set the options explicitly. `--save-report=PATH` saves a copy and still prints the report to stdout. `--output=PATH` writes the report only to a file:
 
 ```bash
 vendor/bin/upgrade-intel analyze \
@@ -60,7 +70,7 @@ vendor/bin/upgrade-intel analyze \
   --output=/projects/reports/legacy-app.json
 ```
 
-Laravel applications with the adapter installed also expose an Artisan command:
+With the adapter installed in a Laravel application, you can also use Artisan:
 
 ```bash
 php artisan upgrade:analyze \
@@ -71,49 +81,70 @@ php artisan upgrade:analyze \
   --output=/projects/reports/legacy-app.md
 ```
 
-The analyzer returns `0` after producing a valid report, including reports whose `resolution.status` is `blocked` or `unknown`. Automation should read that field instead of treating the process exit code as upgrade feasibility.
+The analyzer returns `0` when it produces a valid report, even if `resolution.status` is `blocked` or `unknown`. In scripts and CI, read that field to see whether Composer found a solution for the direct upgrade. Exit code `0` means the report was produced successfully.
 
 ### Five-minute offline demo
 
-The repository includes a deterministic [Laravel 10 to 13 demo](examples/five-minute-demo/README.md) that uses real offline Composer solves from local path repositories. Its schema `0.8` report keeps direct-final, framework-guidance, and staged resolution separate; retains two simultaneous 10→11 blockers and their different lifecycles; carries selected candidate-state fingerprints through a feasible middle hop; and stops 12→13 on a distinct extension blocker alongside an original-source review finding. The deprecated CSRF aliases remain available; that advice is not a removed-symbol blocker. Recursive before/after digests prove that the target stayed unchanged.
+The [Laravel 10 to 13 demo](examples/five-minute-demo/README.md) runs real Composer dependency checks offline, using local path repositories. It gives repeatable results and a schema `0.8` report to read alongside the terminal output.
+
+The report shows the direct check for Laravel 13, framework guidance, and step-by-step dependency checks separately. It tracks two blockers at 10→11 and shows how each develops across the steps. The middle step has a dependency solution, and fingerprints track the selected candidate states carried into the next step. The 12→13 step stops on a different extension blocker and also flags something to review in the original source.
+
+The deprecated CSRF aliases still exist, so the advice about them doesn't mean a symbol has been removed. Before-and-after hashes of every target file verify that the project stayed unchanged.
 
 ![Laravel 10 to 13 terminal demo](examples/five-minute-demo/laravel-10-to-13.gif)
 
 ## Read-only analysis
 
-The analyzer treats the target project as immutable input. Composer runs only in disposable workspaces, with scripts and plugins disabled. Report destinations supplied through `--output` must sit outside the analyzed project. Tests snapshot every fixture file before analysis and verify the original bytes afterward.
+The analyzer reads your project without changing its files. Composer runs only in temporary workspaces, with scripts and plugins disabled. Report paths passed to `--output` must be outside the project you're checking. Tests save a snapshot of every fixture file before a run and check that every byte is unchanged afterwards.
 
-Composer stdout, stderr, diagnostics, and command failure messages pass through a deterministic secret boundary before they can reach reports or console diagnostics. Credential-bearing URLs, authorization values, common token forms, and named credential fields are replaced with stable redaction markers; release CI also scans generated reports and archives with synthetic canaries.
+Composer's stdout, stderr, diagnostics, and command failure messages are checked for known secrets before they reach a report or the console. The redaction rules replace URLs containing credentials, authorisation values, common token formats, and named credential fields with consistent markers. Release CI also checks generated reports and archives using synthetic test secrets.
 
-Redaction is a publication safeguard, not an execution sandbox. Composer can still read its configured credentials and contact declared repositories, retained debug workspaces contain copied manifests, and no pattern-based filter can recognize every credential format. Use scoped credentials, isolate untrusted projects, and review reports before sharing them.
+These rules don't restrict what Composer can access. It can still read its configured credentials and contact declared repositories. Workspaces kept for debugging contain copies of the Composer manifests, and the redaction rules can't recognise every possible secret format. Give credentials only the access they need, isolate untrusted projects, and review reports before sharing them.
 
-The analyzer keeps exact project and source paths for internal filesystem access. Default shareable JSON and Markdown replace absolute local roots with stable markers: `[PROJECT_ROOT]` for the analyzed project, `[REPORT_OUTPUT]` for the report destination, `[LOCAL_REPOSITORY]` for local Composer repositories, and `[ANALYZER_WORKSPACE]` for analyzer-owned temporary roots. Reported source files remain project-relative.
+The analyzer uses exact file paths internally. In the default shareable JSON and Markdown reports, it replaces absolute local root paths with consistent markers:
 
-`--debug` preserves temporary workspaces and exposes exact `temp_path` values. Debug reports and retained workspaces are therefore non-shareable artifacts. Without `--debug`, cleanup failures report only `[ANALYZER_WORKSPACE]`. Credential redaction remains active in every mode.
+- `[PROJECT_ROOT]` for the analyzed project.
+- `[REPORT_OUTPUT]` for the report destination.
+- `[LOCAL_REPOSITORY]` for local Composer repositories.
+- `[ANALYZER_WORKSPACE]` for the analyzer's temporary workspace roots.
+
+Source file paths in the report stay relative to your project.
+
+Use `--debug` when you need to inspect the temporary workspaces. It keeps them and includes exact `temp_path` values in the report, so don't share debug reports or those workspaces. Without `--debug`, errors during workspace cleanup show only `[ANALYZER_WORKSPACE]`. Secret redaction stays active in every mode.
 
 ## Reports
 
-JSON is the canonical report. The published v0.3.x line produces schema `0.8`; v0.2.1 produced schema `0.7`, and v0.1 produced schema `0.6`. Reports contain:
+JSON defines the report data. The Markdown version is generated from it. The published v0.3.x line uses schema `0.8`. v0.2.1 used schema `0.7`, and v0.1 used schema `0.6`. Reports include:
 
-- scenario commands, solver outcomes, diagnostics, and candidate-lock fingerprints;
-- safe Composer execution provenance, including compatible/restricted mode, version expectation, timeouts, inherited state, and offline policy;
-- platform provenance with explicit host-dependence uncertainty, package changes, structured blockers, raw source inventory, Composer-autoload-owned actionable source impact, framework transition guidance, and hop-scoped framework findings;
-- independent direct-final and staged Composer resolution, including adjacent stages, attempts, selected-state fingerprints, blocker lifecycles, stage-scoped changes, and original-snapshot source findings;
-- staged actions, test guidance, risk, effort, uncertainty, and linked evidence.
+- the commands run for each scenario, Composer results, diagnostics, and hashes that identify candidate lockfiles.
+- a safe record of how Composer ran, including compatible/restricted mode, expected version, timeouts, what it inherited from the environment, and offline policy.
+- where platform assumptions came from and which decisions may depend on the host.
+- package changes, structured blockers, source usages found by the scanner, and source impact that calls for action, linked to Composer autoload ownership.
+- framework upgrade guidance and findings for each step.
+- separate results for the direct upgrade and the step-by-step checks, including each step and attempt, fingerprints that identify selected states, how blockers develop, and changes for each step. Source findings use the original project snapshot.
+- actions for each stage, test guidance, risk and effort estimates, uncertainties, and links to the evidence.
 
-Schema `0.8` adds required `staged_resolution` without changing the meaning of schema 0.7's direct `resolution` or framework guidance. See [JSON schema and compatibility](docs/schema.md) and the [v0.3 staged-analysis contract](docs/v0.3-contract.md) before consuming multiple versions.
+Schema `0.8` adds the required `staged_resolution` field. The direct `resolution` field and framework guidance still mean what they meant in schema 0.7. If your code reads reports from multiple versions, check [JSON schema and compatibility](docs/schema.md) and the [v0.3 staged-analysis contract](docs/v0.3-contract.md).
 
-Laravel guidance is supported for 7→8, the retained direct 7→9 path, and every adjacent hop from 8→9 through 12→13. A multi-major upgrade is supported when the catalog provides every required adjacent hop; advice stops at the first gap. Ambiguous or unknown majors, same-major requests, downgrades, a source or target outside Laravel 7–13, and requests whose first required hop is missing are unsupported. Schema 0.8 consumers must read `transition.framework_guidance[].status`, `resolution.status`, and `staged_resolution.status` separately.
+Laravel guidance covers 7→8, the direct 7→9 path, and every upgrade from one major version to the next, from 8→9 through 12→13. For an upgrade across several major versions, the rule catalogue must cover every required step. Advice stops at the first gap.
 
-Six application-shaped Laravel fixtures have approved JSON and Markdown snapshots in [`packages/laravel/tests/Snapshots`](packages/laravel/tests/Snapshots). CI runs the same suite on Ubuntu and Windows.
+Guidance isn't supported when the current or target major version is unclear or unknown, when both are the same, or when you're downgrading. It also isn't supported outside Laravel 7–13 or when the first required step is missing from the catalogue.
+
+In schema 0.8, read these three fields separately:
+
+- `transition.framework_guidance[].status` tells you whether the rules cover the upgrade path.
+- `resolution.status` tells you whether Composer found a solution for the direct upgrade.
+- `staged_resolution.status` reports the result of the step-by-step dependency checks.
+
+Six Laravel test projects model application structures and have approved JSON and Markdown snapshots in [`packages/laravel/tests/Snapshots`](packages/laravel/tests/Snapshots). CI runs the same suite on Ubuntu and Windows.
 
 ## Packages
 
-- `php-upgrade-preflight/core` contains the analysis pipeline and report contract.
+- `php-upgrade-preflight/core` runs the analysis and defines the report data.
 - `php-upgrade-preflight/cli` provides the non-interactive `upgrade-intel analyze` command and the interactive `upgrade-intel wizard` workflow.
 - `php-upgrade-preflight/laravel` provides Laravel detection, rules, and `upgrade:analyze`.
 
-Third-party adapter packages register themselves through Composer metadata, so they can provide detection, source paths, rules, and package-family classification without editing the CLI. See [Framework adapters](docs/adapters.md).
+Third-party adapters register through Composer metadata. They can detect frameworks, choose source paths, supply rules, and group related packages without changes to the CLI. See [Framework adapters](docs/adapters.md).
 
 ## Documentation
 
@@ -140,7 +171,7 @@ Third-party adapter packages register themselves through Composer metadata, so t
 
 ## Development
 
-The Docker environment uses PHP 8.5 while Composer resolves development dependencies against PHP 8.0.30, the runtime floor. Current PHP and ecosystem versions, consumer checks, and PHP 8.6 preview limits are recorded in [Current compatibility coverage](docs/current-compatibility.md).
+The Docker environment runs PHP 8.5. Composer checks development dependencies against PHP 8.0.30 to keep them compatible with the lowest supported PHP version. [Current compatibility coverage](docs/current-compatibility.md) lists the PHP and ecosystem versions tested, checks of projects using these packages, and limits of PHP 8.6 preview coverage.
 
 ```bash
 docker compose build --pull php
@@ -148,8 +179,10 @@ docker compose run --rm php composer install
 docker compose run --rm php composer check
 ```
 
-`composer check` is the offline, deterministic gate: it validates every package manifest, runs the unit, integration, and smoke PHPUnit suites, performs static analysis, and checks formatting. Live compatibility installs and dependency audits run in separate workflows. See [CONTRIBUTING.md](CONTRIBUTING.md) for the documented `test:unit`, `test:integration`, `test:smoke`, and `test:all` commands, focused package tests, and snapshot updates.
+`composer check` runs repeatable checks offline. It validates every package manifest, runs the unit, integration, and smoke PHPUnit suites, runs static analysis, and checks formatting. Compatibility installs against live repositories and dependency audits run in separate workflows. See [CONTRIBUTING.md](CONTRIBUTING.md) for `test:unit`, `test:integration`, `test:smoke`, and `test:all`, tests for individual packages, and snapshot updates.
 
 ## License
 
-Copyright 2026 Valentin Nikolaev. PHP Upgrade Preflight is Open Source software licensed under the [MIT License](LICENSE). Releases up to and including v0.3.1 were published under the PolyForm Noncommercial License 1.0.0 and remain governed by the license they shipped with; the MIT License applies to this repository and to every release published after v0.3.1. The license text controls if this summary and the license differ.
+Copyright 2026 Valentin Nikolaev. PHP Upgrade Preflight is open source under the [MIT License](LICENSE).
+
+Releases up to and including v0.3.1 were published under the PolyForm Noncommercial License 1.0.0. Those releases still use the license they shipped with. The MIT License applies to this repository and every release published after v0.3.1. If this summary and the license differ, follow the license text.
