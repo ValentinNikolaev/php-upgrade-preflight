@@ -24,8 +24,7 @@ use PhpUpgradePreflight\Laravel\Rules\TargetedPackageAdvisoryRule;
 /**
  * Builds the executable compatibility rules described by a Laravel rule catalog.
  *
- * Rules are yielded in catalog order, one rule per definition, so the report's
- * finding order stays a property of the catalog rather than of this factory.
+ * Yields one rule per definition in catalog order, preserving finding order.
  */
 final class LaravelRuleFactory
 {
@@ -56,9 +55,6 @@ final class LaravelRuleFactory
     }
 
     /**
-     * The one dispatch table over rule-definition subtypes. A new subtype needs a
-     * single entry here, and an unmapped subtype is reported instead of skipped.
-     *
      * @return array<class-string<RuleDefinition>, \Closure(RuleDefinition): ?CompatibilityRule>
      */
     private function ruleBuilders(): array
@@ -93,9 +89,6 @@ final class LaravelRuleFactory
     }
 
     /**
-     * The one dispatch table over built-in rule kinds, keyed by the catalog's own
-     * rule constants so a new kind is a single entry beside its rule class.
-     *
      * @return array<string, \Closure(BuiltinRuleDefinition): CompatibilityRule>
      */
     private function builtinRuleBuilders(): array

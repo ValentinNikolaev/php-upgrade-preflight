@@ -136,9 +136,6 @@ final class CommandLineOptions
     /**
      * Seeded parse-result defaults, in canonical key order.
      *
-     * Values are heterogeneous by design: a string, a list, a bool, or null,
-     * depending on the entry that seeded them.
-     *
      * @return array<string, mixed>
      */
     public static function defaults(): array

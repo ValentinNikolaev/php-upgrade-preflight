@@ -24,9 +24,9 @@ const CRITICAL_MODULES = [
     'packages/core/src/Analysis/ReportAssembler.php',
     'packages/core/src/Analysis/ReportSectionBuilder.php',
     'packages/cli/src/FrameworkIntegrationRegistry.php',
-    // Extracted from StagedUpgradeOrchestrator and LaravelFrameworkIntegration. The floors here are
-    // ratios, so leaving these off the list would let a thin delegator satisfy the original module's
-    // floor while the logic it used to hold went unwatched.
+    // Track these extracted modules separately: ratio floors on their original
+    // StagedUpgradeOrchestrator and LaravelFrameworkIntegration delegators would
+    // leave the moved logic unwatched.
     'packages/core/src/Analysis/StagePlanResolver.php',
     'packages/core/src/Analysis/StageExecutor.php',
     'packages/core/src/Analysis/StageBlockerRegistry.php',

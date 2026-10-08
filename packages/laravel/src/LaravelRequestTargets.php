@@ -9,10 +9,8 @@ use PhpUpgradePreflight\Core\Model\UpgradeRequest;
 /**
  * Reads the Laravel-family package targets out of an upgrade request.
  *
- * Transition assessment and stage planning both need the same answer to "which
- * requested targets belong to Laravel", and both put that answer into evidence
- * context, so the definition of the family lives in one place rather than being
- * restated by each collaborator.
+ * Shares the Laravel package-family definition used by transition assessment
+ * and stage planning when recording evidence.
  */
 final class LaravelRequestTargets
 {

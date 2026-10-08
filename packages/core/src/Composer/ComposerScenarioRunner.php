@@ -102,8 +102,6 @@ final class ComposerScenarioRunner
     }
 
     /**
-     * Resolves the version resolver used when the caller supplied none.
-     *
      * Version detection spawns a real Composer process. That is only acceptable
      * when the caller kept the production process adapters, or explicitly opted
      * in by supplying a metadata process runner. A caller that replaced the

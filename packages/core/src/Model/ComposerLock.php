@@ -94,8 +94,6 @@ final class ComposerLock
     }
 
     /**
-     * Renders skipped package names as one evidence-safe, bounded clause.
-     *
      * @param list<string> $names
      */
     private function reportableNames(array $names): string

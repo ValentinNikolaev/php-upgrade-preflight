@@ -22,10 +22,8 @@ use PhpUpgradePreflight\Laravel\Source\LaravelSourceUsageVisitor;
 /**
  * The Laravel adapter's entry point into the framework-neutral core.
  *
- * This class is a facade: it owns no analysis of its own and holds the adapter's
- * capabilities together behind the interfaces core detects. Detection, rule
- * construction, transition assessment, and stage planning each live in their own
- * collaborator so a change to one cannot disturb the others.
+ * Delegates detection, rules, transition assessment, and stage planning to
+ * separate collaborators behind the interfaces detected by core.
  */
 final class LaravelFrameworkIntegration implements FrameworkIntegration, FrameworkTransitionProvider, FrameworkStageTargetProvider, PackageFamilyClassifier, SourceUsageVisitorProvider
 {
