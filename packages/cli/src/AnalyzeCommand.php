@@ -118,9 +118,7 @@ final class AnalyzeCommand implements CommandRunner
 
         try {
             $analyzer = $this->analyzer ?? $this->analyzerFactory->create($this->frameworkIntegrations->installed());
-            // Discovery skips an installed package whose adapter manifest cannot be read
-            // instead of ending the run. The skip still has to be visible, or an adapter
-            // the user believes is active is silently absent from the report.
+            // Report skipped adapters so users know which integrations are absent.
             foreach ($this->frameworkIntegrations->discoveryDiagnostics() as $discoveryDiagnostic) {
                 $this->diagnostic($discoveryDiagnostic);
             }

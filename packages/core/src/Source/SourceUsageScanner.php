@@ -338,8 +338,6 @@ final class SourceUsageScanner
     }
 
     /**
-     * Collects PHP files under an already-resolved, project-contained directory.
-     *
      * @param array<string, string> $files
      * @param list<string>          $uncertainties
      *

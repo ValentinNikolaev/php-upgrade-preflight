@@ -24,8 +24,7 @@ for package in core cli laravel; do
   git clone --quiet "https://github.com/${owner}/php-upgrade-preflight-${package}.git" "${target}"
   git -C "${target}" config core.filemode false
 
-  # Build the payload the release workflow expects: the package subtree plus the
-  # shared licence, readme, changelog, security policy, and documentation tree.
+  # Match the release workflow's distribution payload.
   mkdir -p "${expected}"
   cp -R "${root}/packages/${package}/." "${expected}/"
   cp "${root}/LICENSE" "${root}/README.md" "${root}/CHANGELOG.md" "${root}/SECURITY.md" "${expected}/"

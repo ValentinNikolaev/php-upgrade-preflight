@@ -51,43 +51,36 @@ final class CommandLineOption
         $this->default = $default;
     }
 
-    /** Single-valued option that always appears in the parse result. */
     public static function value(string $name, string $syntax, string $usage, ?string $default): self
     {
         return new self($name, $syntax, $usage, self::MODE_VALUE, true, $default);
     }
 
-    /** Single-valued option that appears in the parse result only when supplied. */
     public static function optionalValue(string $name, string $syntax, string $usage): self
     {
         return new self($name, $syntax, $usage, self::MODE_VALUE, false, null);
     }
 
-    /** Repeatable option seeded with an empty list. */
     public static function repeatable(string $name, string $syntax, string $usage): self
     {
         return new self($name, $syntax, $usage, self::MODE_LIST, true, []);
     }
 
-    /** Valueless switch seeded with false. */
     public static function flag(string $name, string $syntax, string $usage): self
     {
         return new self($name, $syntax, $usage, self::MODE_FLAG, true, false);
     }
 
-    /** Repeatable extension-present assumption collected outside the parse result. */
     public static function presentExtension(string $name, string $syntax, string $usage): self
     {
         return new self($name, $syntax, $usage, self::MODE_EXTENSION_PRESENT, false, null);
     }
 
-    /** Repeatable extension-absent assumption collected outside the parse result. */
     public static function absentExtension(string $name, string $syntax, string $usage): self
     {
         return new self($name, $syntax, $usage, self::MODE_EXTENSION_ABSENT, false, null);
     }
 
-    /** Entry printed in the help text but handled before parsing. */
     public static function documented(string $name, string $syntax, string $usage): self
     {
         return new self($name, $syntax, $usage, self::MODE_HELP, false, null);

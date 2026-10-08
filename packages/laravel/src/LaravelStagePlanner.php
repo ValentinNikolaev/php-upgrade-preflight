@@ -273,10 +273,9 @@ final class LaravelStagePlanner
                     $guidance->package(),
                     $guidance->compatibleConstraint()
                 );
-                // Every minted evidence ID has to stay referenced. A custom catalog
-                // may carry several guidance entries for one package on one stage,
-                // and the ledger never deduplicates, so overwriting this entry would
-                // orphan the earlier IDs and invalidate the whole staged chain.
+                // A custom catalog may yield multiple guidance entries per package and stage.
+                // The ledger does not deduplicate; retain every evidence ID or the staged
+                // chain is invalid.
                 $references[$guidance->package()][] = $evidenceId;
             }
         }

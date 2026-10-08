@@ -26,8 +26,6 @@ final class ScenarioOutcomeClassifier
     public const PHASE_LOCKFILE = 'lockfile';
 
     /**
-     * Classifies a Composer process that ran to completion.
-     *
      * @param array{exit_code: int, stdout: string, stderr: string} $process
      */
     public function classifyProcessResult(
@@ -55,8 +53,6 @@ final class ScenarioOutcomeClassifier
     }
 
     /**
-     * Classifies a scenario that aborted with an exception.
-     *
      * Only the process phase may report a Composer process failure: any earlier
      * phase failed before a Composer process was started, so a workspace,
      * seeding, manifest, or restricted-state failure must never be published as
@@ -78,8 +74,6 @@ final class ScenarioOutcomeClassifier
     }
 
     /**
-     * Classifies a `composer prohibits` diagnostic that ran to completion.
-     *
      * A nonzero exit status is normal evidence for this command, so only an
      * unusable execution downgrades the outcome.
      *

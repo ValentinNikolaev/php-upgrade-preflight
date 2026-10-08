@@ -97,8 +97,6 @@ final class ProjectStateFingerprint
     }
 
     /**
-     * Drops the lock fields Composer derives from the manifest as written on disk.
-     *
      * Analyzer workspaces rewrite relative path repositories to absolute ones so
      * Composer can resolve them from a temporary directory, so its `content-hash`
      * of that manifest changes with the directory the project was analyzed in. The
@@ -117,8 +115,6 @@ final class ProjectStateFingerprint
     }
 
     /**
-     * Normalizes the separators that follow an exposure marker.
-     *
      * Sanitization replaces a private root with a marker but leaves the remaining
      * segments, and those keep the host separator. The same project analyzed on
      * Windows and on Linux is one state, so the digest reads those remainders in a

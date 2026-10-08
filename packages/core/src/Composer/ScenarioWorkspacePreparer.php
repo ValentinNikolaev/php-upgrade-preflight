@@ -137,8 +137,6 @@ final class ScenarioWorkspacePreparer
     }
 
     /**
-     * Writes the simulated platform values into the temporary manifest.
-     *
      * Composer matches `config.platform` names case-insensitively, so the rewrite
      * reuses whatever casing the project already declared for a package. Adding a
      * lowercase key beside an existing case variant would manufacture a

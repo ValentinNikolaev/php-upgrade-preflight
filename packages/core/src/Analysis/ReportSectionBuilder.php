@@ -222,8 +222,6 @@ final class ReportSectionBuilder
     }
 
     /**
-     * Decides the dependency-stage posture from resolution evidence alone.
-     *
      * Kept separate from {@see dependencyStage()} so that rewording never requires
      * re-reasoning about Composer resolution semantics, and vice versa.
      *
@@ -285,8 +283,6 @@ final class ReportSectionBuilder
     }
 
     /**
-     * The wording for each dependency posture, and nothing else.
-     *
      * @return array{summary: string, actions: list<string>}
      */
     private function dependencyGuidance(string $posture): array

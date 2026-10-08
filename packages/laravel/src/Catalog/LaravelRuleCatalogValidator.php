@@ -97,9 +97,6 @@ final class LaravelRuleCatalogValidator
     }
 
     /**
-     * The one dispatch table over rule-definition subtypes. A new subtype needs a
-     * single entry here, and an unmapped subtype is reported instead of skipped.
-     *
      * @param array<string, true> $keys
      * @param array<string, string> $advice
      * @param list<string> $errors
