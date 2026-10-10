@@ -22,6 +22,7 @@ use PhpUpgradePreflight\Core\Model\ScenarioResult;
 use PhpUpgradePreflight\Core\Model\UpgradeRequest;
 use PhpUpgradePreflight\Core\Model\UpgradeTarget;
 use PhpUpgradePreflight\Core\Reporting\JsonReportWriter;
+use PhpUpgradePreflight\Core\Reporting\MarkdownReportWriter;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Filesystem\Filesystem;
 
@@ -130,8 +131,18 @@ final class DefaultUpgradeAnalyzerTest extends TestCase
             self::assertSame(ScenarioResult::OUTCOME_INVALID_JSON, $report->scenarios()[0]->outcome());
             self::assertTrue($report->scenarios()[0]->isOperationalFailure());
             self::assertStringContainsString('Invalid JSON', $report->scenarios()[0]->stderr());
-            self::assertSame([], $report->planStages());
+            self::assertCount(1, $report->planStages());
             self::assertSame('0.8', $report->metadata()->schemaVersion());
+            self::assertStringContainsString('Assessment unavailable', $report->risk()->drivers()[0]);
+            self::assertStringContainsString('not estimated', implode(' ', $report->effort()->assumptions()));
+            $markdown = (new MarkdownReportWriter())->render($report);
+            self::assertStringContainsString('- Planning range: not estimated.', $markdown);
+            self::assertStringContainsString('- Effort: not estimated (0-0 sentinel).', $markdown);
+            self::assertSame('project-input', $report->planStages()[0]->name());
+            self::assertContains($report->planStages()[0]->evidence()[0], array_map(
+                static fn (Evidence $item): string => $item->id(),
+                $report->evidence()
+            ));
         } finally {
             (new Filesystem())->remove($projectPath);
         }
@@ -379,6 +390,8 @@ final class DefaultUpgradeAnalyzerTest extends TestCase
         self::assertSame('feasible_with_changes', $report->resolutionStatus());
         self::assertSame([], $report->blockers());
         self::assertSame('low', $report->risk()->level());
+        self::assertStringContainsString('not a project quote', implode(' ', $report->effort()->assumptions()));
+        self::assertStringContainsString('deployment', (new MarkdownReportWriter())->render($report));
         self::assertCount(2, $report->lockDiff()->packageChanges());
         self::assertSame('2.0.0', $report->lockDiff()->packageChanges()[0]->toVersion());
         self::assertTrue($report->lockDiff()->packageChanges()[0]->isDirect());
@@ -435,7 +448,7 @@ final class DefaultUpgradeAnalyzerTest extends TestCase
         self::assertSame(Evidence::E2_PACKAGE_METADATA, $report->evidence()[0]->evidenceClass());
         self::assertSame('lock-metadata-1', $report->toArray()['blockers'][0]['evidence'][0]);
         self::assertSame('medium', $report->risk()->level());
-        self::assertSame(['Abandoned packages require replacement or removal.'], $report->risk()->drivers());
+        self::assertContains('Abandoned packages require replacement or removal.', $report->risk()->drivers());
         self::assertSame(
             'Address dependency maintenance advisories in the feasible dependency state.',
             $report->planStages()[1]->summary()
@@ -548,6 +561,8 @@ final class DefaultUpgradeAnalyzerTest extends TestCase
         self::assertSame('unknown', $report->resolutionStatus());
         self::assertSame([], $report->blockers());
         self::assertSame('low', $report->risk()->level());
+        self::assertStringContainsString('Assessment incomplete', $report->risk()->drivers()[0]);
+        self::assertStringContainsString('not a verified low-risk conclusion', $report->risk()->drivers()[0]);
         self::assertCount(8, $report->uncertainties());
         self::assertContains(
             'Composer extension checks used the analyzer runtime because no complete explicit extension platform was supplied.',
@@ -650,6 +665,7 @@ final class DefaultUpgradeAnalyzerTest extends TestCase
         self::assertNotContains('Restore the Composer analysis environment so every scenario can complete.', $dependencyActions);
         self::assertContains('Rerun the isolated Composer scenarios after resolving the reported blockers.', $dependencyActions);
         self::assertStringContainsString('baseline validation did not pass', $report->uncertainties()[0]);
+        self::assertStringContainsString('baseline validation failed', implode(' ', $report->risk()->drivers()));
     }
 
     public function testOperationalFallbackFailuresKeepTheOverallResolutionUnknown(): void

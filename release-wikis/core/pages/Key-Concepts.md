@@ -154,9 +154,13 @@ The risk summary combines deterministic drivers into a level and a list of reaso
 
 Use risk drivers to decide what to investigate. The level is neither a failure probability nor a deployment decision.
 
+A low level grades only observed findings. If Composer failed, metadata or source input was unavailable, an adapter omitted a contribution, or a stage was skipped, current reports state that limit in the drivers. Do not read an empty findings list from partial analysis as verified low upgrade risk.
+
 ## Effort estimate
 
 The effort estimate is a range of hours, a confidence value, components, and assumptions. A range acknowledges that evidence supports bounds better than false precision.
+
+Current ranges are uncalibrated planning heuristics for observed dependency, source and test/debugging work. They exclude unobserved migration, deployment, runtime failures and business validation. A terminal input failure's `0-0` range means not estimated, not no work.
 
 Example:
 

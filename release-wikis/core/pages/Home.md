@@ -262,9 +262,13 @@ The report serializes the values from `AnalysisBudget`. `StagedAnalysisPolicy` e
 
 Memory and JSON/Markdown report-size values are advisory targets. The analyzer does not measure arbitrary projects against them, though committed fixtures check report size. Schema 0.8 puts enforced and advisory values together in `budgets` without enforcement labels or observed measurements. Adding those fields would require a new schema version and an intentional minor-line migration.
 
+The Markdown staged section labels enforced hop, attempt, process and timeout limits separately from advisory memory and size targets. No per-run peak-memory or advisory pass measurement is serialized; absence does not mean zero usage or a passed target.
+
 ## Risk and effort
 
 `RiskAndEffortEstimator` uses structured findings for aggregate and stage assessments. Risk has a level and reasons. Effort has a range, confidence, components, and assumptions. The confidence label is not a probability, and the effort range is planning input rather than a delivery commitment.
+
+`ReportAssessmentQualifier` adds canonical drivers and assumptions for unknown or degraded Composer work, baseline validation failure, unavailable input/source/adapter contributions, and incomplete staged work without changing schema 0.8 grades or ranges. The hour range covers observed dependency, source and test work only; unobserved migration, deployment, runtime and business validation are outside it. `ReportAssembler` orders resolution blockers ahead of advisories for the first decision while preserving each group's existing order.
 
 ## Evidence ledger
 

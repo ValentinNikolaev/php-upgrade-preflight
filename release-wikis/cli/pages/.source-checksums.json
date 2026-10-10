@@ -24,8 +24,8 @@
         {
             "source": "wiki/Key-Concepts.md",
             "destination": "Key-Concepts.md",
-            "source_sha256": "7dd153bdd080ff2a696e3cdf5544789db61f6076dc11047465183c76c12e794e",
-            "materialized_sha256": "a5b625366f8ebd5971bc850450a4b9c2ac07149644714fd52fbae83a9ac4c03c"
+            "source_sha256": "2f3ad83b06e6bc7b184f9b4341079c9e9db81eeb3fec703edaa5e678f836b110",
+            "materialized_sha256": "fd887069849dc2d13c6950c4f5ae4b11dc0074f840b04ffec78f7eb35aa87c06"
         },
         {
             "source": "wiki/Writing-a-Framework-Adapter.md",
@@ -48,8 +48,8 @@
         {
             "source": "wiki/Roadmap-and-Status.md",
             "destination": "Roadmap-and-Status.md",
-            "source_sha256": "f10e7bbf98eadd19b55e2df356a21e7584f31b0bf94df204a8b2a78359d47b3f",
-            "materialized_sha256": "d70a77e75e292166d371c5bd70a4133a08c3c837a65f93386f4b780af1c6cd7a"
+            "source_sha256": "70f235d9a289c0813e8c74ecc23892aec39e87f7e31e1480a492eec42cac6110",
+            "materialized_sha256": "68ae4f6843b14ee7c31709c9fd48c7c787ebe8ce4826c54808c51c1541682406"
         }
     ],
     "generated": {

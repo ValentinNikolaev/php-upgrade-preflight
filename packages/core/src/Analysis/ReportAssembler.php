@@ -7,9 +7,11 @@ namespace PhpUpgradePreflight\Core\Analysis;
 use PhpUpgradePreflight\Core\Model\Blocker;
 use PhpUpgradePreflight\Core\Model\CompatibilityFinding;
 use PhpUpgradePreflight\Core\Model\EffortEstimate;
+use PhpUpgradePreflight\Core\Model\Evidence;
 use PhpUpgradePreflight\Core\Model\EvidenceLedger;
 use PhpUpgradePreflight\Core\Model\FrameworkGuidance;
 use PhpUpgradePreflight\Core\Model\LockDiff;
+use PhpUpgradePreflight\Core\Model\PlanStage;
 use PhpUpgradePreflight\Core\Model\ProjectState;
 use PhpUpgradePreflight\Core\Model\RiskSummary;
 use PhpUpgradePreflight\Core\Model\ScenarioResult;
@@ -30,10 +32,12 @@ use PhpUpgradePreflight\Core\Model\UpgradeRequest;
 final class ReportAssembler
 {
     private ReportSectionBuilder $sectionBuilder;
+    private ReportAssessmentQualifier $assessmentQualifier;
 
     public function __construct(?ReportSectionBuilder $sectionBuilder = null)
     {
         $this->sectionBuilder = $sectionBuilder ?? new ReportSectionBuilder();
+        $this->assessmentQualifier = new ReportAssessmentQualifier();
     }
 
     /**
@@ -63,6 +67,16 @@ final class ReportAssembler
         ?StagedResolution $stagedResolution = null
     ): UpgradeReport {
         $actionableSourceImpact = array_values($actionableSourceImpact);
+        $blocking = [];
+        $advisory = [];
+        foreach ($blockers as $blocker) {
+            if ($blocker->blocksResolution()) {
+                $blocking[] = $blocker;
+            } else {
+                $advisory[] = $blocker;
+            }
+        }
+        $blockers = array_merge($blocking, $advisory);
         $sections = $this->sectionBuilder->build(
             $request,
             $project,
@@ -73,6 +87,13 @@ final class ReportAssembler
             $frameworkFindings,
             $sourceUncertainties,
             $evidence,
+            $stagedResolution
+        );
+        [$risk, $effort] = $this->assessmentQualifier->qualify(
+            $risk,
+            $effort,
+            $scenarioResults,
+            $sourceUncertainties,
             $stagedResolution
         );
 
@@ -110,6 +131,15 @@ final class ReportAssembler
         ScenarioResult $result,
         string $message
     ): UpgradeReport {
+        $evidence = new EvidenceLedger();
+        $evidenceId = $evidence->add(
+            'project-input',
+            Evidence::E3_PROJECT_SOURCE,
+            'Composer project input could not be loaded.',
+            'high',
+            ['outcome' => $result->outcome()]
+        )->id();
+
         return new UpgradeReport(
             request: $request,
             projectState: $project,
@@ -119,16 +149,25 @@ final class ReportAssembler
             sourceImpact: [],
             frameworkFindings: [],
             risk: new RiskSummary('high', [
-                'Upgrade risk could not be assessed because Composer project input is incomplete.',
+                'Assessment unavailable: Composer project input is incomplete; the high grade describes analysis uncertainty, not measured upgrade difficulty.',
             ]),
             effort: new EffortEstimate(
                 [0, 0],
                 'low',
                 [],
-                ['Upgrade effort was not estimated because Composer project input could not be loaded.']
+                [
+                    'Upgrade effort was not estimated because Composer project input could not be loaded; 0-0 hours is a not-estimated sentinel, not a zero-work quote.',
+                    'Unobserved migration, deployment, runtime failures, and business validation work are excluded.',
+                ]
             ),
             uncertainties: [sprintf('Composer project input could not be loaded: %s', $message)],
-            evidence: [],
+            evidence: $evidence->all(),
+            planStages: [new PlanStage(
+                'project-input',
+                'Restore readable Composer project input before assessing the upgrade.',
+                ['Repair the reported Composer project input and rerun analysis before planning dependency changes.'],
+                [$evidenceId]
+            )],
             stagedResolution: StagedResolution::skipped('project_input_failure')
         );
     }

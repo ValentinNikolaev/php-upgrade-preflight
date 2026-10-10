@@ -89,6 +89,7 @@ final class ScenarioWorkspacePreparer
         string $workingDirectory
     ): array {
         $environment = [
+            'COMPOSER' => false,
             'COMPOSER_NO_INTERACTION' => '1',
             'COMPOSER_NO_AUDIT' => '1',
         ];
@@ -114,7 +115,6 @@ final class ScenarioWorkspacePreparer
         }
 
         return array_merge($environment, [
-            'COMPOSER' => false,
             'COMPOSER_HOME' => $composerHome,
             'COMPOSER_CACHE_DIR' => $cache,
             'COMPOSER_AUTH' => '{}',

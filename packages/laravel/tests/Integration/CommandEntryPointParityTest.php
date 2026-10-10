@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace PhpUpgradePreflight\Laravel\Tests\Integration;
 
 use PhpUpgradePreflight\Core\Support\PathExposurePolicy;
+use PhpUpgradePreflight\Core\Reporting\MarkdownReportWriter;
 use PhpUpgradePreflight\Tests\Support\FixtureSnapshot;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Command\Command;
@@ -95,6 +96,13 @@ final class CommandEntryPointParityTest extends TestCase
         self::assertNotNull($cliReport['resolution']['scenarios'][0]['composer_version']);
         self::assertSame('composer', $cliReport['resolution']['scenarios'][0]['command'][0]);
         self::assertSame(['laravel'], $cliReport['request_summary']['frameworks']);
+        self::assertStringContainsString('grades observed', implode(' ', $cliReport['risk']['drivers']));
+        self::assertStringContainsString('not a project quote', implode(' ', $cliReport['effort']['assumptions']));
+        self::assertStringContainsString('business validation work are excluded', implode(' ', $cliReport['effort']['assumptions']));
+        $markdown = (new MarkdownReportWriter())->renderCanonical($cliReport);
+        self::assertStringContainsString('## Decision Summary', $markdown);
+        self::assertStringContainsString(sprintf('- Direct target: `%s`.', $expectedStatus), $markdown);
+        self::assertStringContainsString('## Composer Scenarios', $markdown);
 
         if ($expectedStatus === 'feasible_with_changes') {
             self::assertSame('fixture/dependency', $cliReport['transition']['package_changes'][0]['name']);

@@ -21,11 +21,42 @@ use PhpUpgradePreflight\Core\Model\ScenarioResult;
 use PhpUpgradePreflight\Core\Model\SourceUsage;
 use PhpUpgradePreflight\Core\Model\UpgradeRequest;
 use PhpUpgradePreflight\Core\Model\UpgradeTarget;
+use PhpUpgradePreflight\Core\Reporting\MarkdownReportWriter;
 use PhpUpgradePreflight\Core\Source\SymbolOwnershipIndex;
 use PHPUnit\Framework\TestCase;
 
 final class ReportAssemblerTest extends TestCase
 {
+    public function testItOrdersBlockingFindingsBeforeAdvisoriesForTheDecision(): void
+    {
+        $request = new UpgradeRequest(__DIR__, [new UpgradeTarget('vendor/package', '^2.0')]);
+        $project = new ProjectState(__DIR__, new ComposerJson([]), new ComposerLock([]));
+        $scenario = new ScenarioResult(new Scenario('exact-target', $request->targets()), 2, '', 'Blocked.', null, null, ScenarioResult::FAILURE_SOLVER);
+        $evidence = new EvidenceLedger([new Evidence('solver-1', Evidence::E1_SOLVER, 'Composer blocker.')]);
+
+        $report = (new ReportAssembler())->assemble(
+            $request,
+            $project,
+            [$scenario],
+            new LockDiff([]),
+            [
+                new Blocker('abandoned-package', 'vendor/old', 'Advisory.', 'high', ['solver-1']),
+                new Blocker('root-constraint-conflict', 'vendor/package', 'Blocks.', 'high', ['solver-1']),
+            ],
+            [],
+            [],
+            [],
+            new RiskSummary('high', []),
+            new EffortEstimate([3, 8], 'low', [], []),
+            [],
+            $evidence
+        );
+
+        self::assertSame('vendor/package', $report->blockers()[0]->subject());
+        self::assertSame('vendor/package', $report->toArray()['blockers'][0]['subject']);
+        self::assertStringContainsString('vendor/package', $report->planStages()[1]->actions()[0]);
+    }
+
     public function testItAggregatesOperationalAndSourceUncertaintiesIntoAValidatedReport(): void
     {
         $request = new UpgradeRequest(__DIR__, [new UpgradeTarget('vendor/package', '^2.0')]);
@@ -77,6 +108,10 @@ final class ReportAssemblerTest extends TestCase
             'Rerun the isolated Composer scenarios after resolving the reported blockers.',
         ], $report->planStages()[1]->actions());
         self::assertCount(3, $report->tests());
+        $markdown = (new MarkdownReportWriter())->render($report);
+        $summary = substr($markdown, 0, (int) strpos($markdown, '## Analysis Request'));
+        self::assertStringContainsString('- First recorded check: Validate the edited Composer manifest', $summary);
+        self::assertStringContainsString('- Application validation: Identify and run the project test suite', $summary);
     }
 
     public function testItCarriesTheCorrelatedSourceImpactSuppliedByTheCaller(): void
@@ -153,9 +188,11 @@ final class ReportAssemblerTest extends TestCase
         $report = ReportAssembler::inputFailure($request, $project, $scenarioResult, 'composer.lock is missing.');
 
         self::assertSame('unknown', $report->resolutionStatus());
-        self::assertSame([], $report->planStages());
+        self::assertCount(1, $report->planStages());
+        self::assertSame('project-input', $report->planStages()[0]->name());
+        self::assertContains($report->evidence()[0]->id(), $report->planStages()[0]->evidence());
         self::assertSame([], $report->tests());
-        self::assertSame([], $report->evidence());
+        self::assertCount(1, $report->evidence());
         self::assertContains(
             'Composer project input could not be loaded: composer.lock is missing.',
             $report->uncertainties()

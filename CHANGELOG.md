@@ -6,6 +6,7 @@ This project follows [Semantic Versioning](https://semver.org/). Report schema v
 
 ### Changed
 
+- Qualify schema `0.8` risk and effort through existing drivers and assumptions when Composer, input, source, adapter, or staged evidence is incomplete. Add an evidence-linked decision summary before Markdown transcripts, explicit heuristic scope, and enforced-versus-advisory budget labels without changing report shape or historical release artifacts.
 - Use PHP 8.5 for the default development container and refresh compatible Composer Semver, PHP-Parser, PHP-CS-Fixer, PHPStan, and PHPUnit 9.6 dependencies while retaining the PHP 8.0 runtime floor.
 - Require PHP-Parser 5.9 on the modern parser branch to scan PHP 8.6 partial function applications; retain the legacy 4.19 branch and explicit parse uncertainty for unsupported syntax.
 - Accept reviewed Pest 4 alternatives for Laravel 12 and Pest 5 alternatives for Laravel 13, retaining existing recommendations and pinned package evidence.
@@ -18,6 +19,7 @@ This project follows [Semantic Versioning](https://semver.org/). Report schema v
 
 ### Fixed
 
+- Clear ambient `COMPOSER` for compatible scenario and diagnostic processes so a host manifest override cannot redirect Composer away from the temporary workspace or write its adjacent lockfile.
 - Replace PHP 8.5-deprecated object-storage calls in privacy sanitization while preserving cyclic-object redaction. Direct ordinary development-container diagnostics to stderr with standard deprecation exclusions; explicit `E_ALL` runtime regressions keep diagnostic checks for current and preview PHP.
 - Install mbstring when a PHP preview container omits it, enable CLI argument registration explicitly for PHPStan on current PHP, and declare the test evidence recorder's side effects for PHPStan 2.3.
 - Preserve argument positions around PHP 8.6 placeholders so Laravel config and test-double inspection cannot misclassify later fixed arguments; verify malformed JSON against PHP's native diagnostic, including preview location details.

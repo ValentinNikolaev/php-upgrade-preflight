@@ -15,7 +15,7 @@ You can install the Laravel adapter alongside Laravel 8 on PHP 8.0, Laravel 9 on
 
 Patch releases in v0.3.x keep the existing public contracts compatible. This covers how you run an analysis from PHP, the CLI and Artisan commands, required adapter interfaces, metadata used to discover adapters, exit codes, and report schema `0.8`. Supported upgrade paths and step-by-step analysis also stay compatible. Bug fixes, security fixes, and corrections to evidence may still change individual findings or diagnostics.
 
-v0.3.5 is the latest published release. Its reports show tool version `0.3.5` and schema `0.8`, the same schema used in v0.3.0. Development on `main` uses `0.3.x-dev` Composer aliases with `^0.3` internal dependency constraints.
+v0.3.5 is the latest published release. Its reports show tool version `0.3.5` and schema `0.8`, the same schema used in v0.3.0. Development on `main` uses `0.3.x-dev` Composer aliases with `^0.3` internal dependency constraints. The [readiness decision](docs/readiness/release-direction.md) defers Symfony while reader benefit, real-project operating cost and maintainer capacity are evaluated. The development-tree safety and report-clarity work is unreleased; no new schema, package or v0.4 scope is approved by that decision.
 
 The earlier `0.2.x` and `0.1.x` lines are archived. Their signed release files remain available and unchanged, but those versions receive no further features, bug fixes, or security fixes. See [Project status and licensing](docs/project-status.md) for the upgrade path.
 
@@ -125,6 +125,10 @@ JSON defines the report data. The Markdown version is generated from it. The pub
 - actions for each stage, test guidance, risk and effort estimates, uncertainties, and links to the evidence.
 
 Schema `0.8` adds the required `staged_resolution` field. The direct `resolution` field and framework guidance still mean what they meant in schema 0.7. If your code reads reports from multiple versions, check [JSON schema and compatibility](docs/schema.md) and the [v0.3 staged-analysis contract](docs/v0.3-contract.md).
+
+Read the Markdown **Decision Summary** before the Composer transcripts. It projects the direct and staged outcomes, first recorded blocking subject and evidence, plan actions, assessment limits, and manual validation from the JSON report. Use the [five report-state reading checklists](docs/readiness/report-reading-checklists.md) to choose the next safe action. A `low` risk grade describes observed drivers only; an unknown or degraded Composer result, skipped stage, source-scan omission, or adapter failure is not a verified low-risk upgrade. `risk.drivers`, `effort.assumptions`, and `uncertainties` qualify those cases in canonical JSON too. The hour range is an uncalibrated planning heuristic for observed dependency, source, and test work, not a project quote. Unobserved migration, deployment, runtime, and business validation work is excluded. An unavailable input report's `0-0` hours means **not estimated**, not no work.
+
+Staged hop, attempt, process, and timeout limits are enforced. The `budgets` memory and report-size values are advisory targets; schema `0.8` records no per-run peak-memory or advisory pass result. Missing measurements are unknown, never zero or a successful check.
 
 Laravel guidance covers 7→8, the direct 7→9 path, and every upgrade from one major version to the next, from 8→9 through 12→13. For an upgrade across several major versions, the rule catalogue must cover every required step. Advice stops at the first gap.
 

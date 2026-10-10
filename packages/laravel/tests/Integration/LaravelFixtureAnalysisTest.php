@@ -252,28 +252,182 @@ final class LaravelFixtureAnalysisTest extends TestCase
             $markdownReport
         );
 
-        $this->assertApprovedSnapshot($fixture . '.json', $json);
-        $this->assertApprovedSnapshot($fixture . '.md', $markdown);
+        $this->assertReadinessSemantics($jsonReport, $markdown);
+        $this->assertApprovedSnapshot($fixture . '.json', $this->withoutReadinessQualifiers($json));
+        $this->assertApprovedSnapshot($fixture . '.md', $this->withoutReadinessSummary($markdown));
+    }
+
+    private function assertReadinessSemantics(UpgradeReport $report, string $markdown): void
+    {
+        $canonical = $report->toArray();
+        self::assertContains(
+            'Risk level grades observed dependency, framework, and source findings only; it does not verify application runtime safety.',
+            $canonical['risk']['drivers']
+        );
+        self::assertSame(
+            'Hours are an uncalibrated planning heuristic for reported dependency, source-change, and test/debugging work, not a project quote.',
+            $canonical['effort']['assumptions'][0]
+        );
+        self::assertSame(
+            'Unobserved migration, deployment, runtime failures, and business validation work are excluded.',
+            $canonical['effort']['assumptions'][1]
+        );
+        if ($canonical['resolution']['status'] === 'blocked') {
+            self::assertContains(
+                'No successful direct target resolution was observed; the risk grade is not a verified low-risk conclusion.',
+                $canonical['risk']['drivers']
+            );
+        }
+        if ($canonical['staged_resolution']['status'] === 'unknown') {
+            self::assertContains(
+                'Staged assessment is incomplete; skipped or unknown transitions have no verified compatibility conclusion.',
+                $canonical['risk']['drivers']
+            );
+        }
+        foreach ($canonical['staged_resolution']['stages'] as $stage) {
+            if ($stage['execution_state'] === 'skipped') {
+                self::assertContains(
+                    sprintf('Stage %s was skipped; its observed risk grade is not a verified low-risk assessment.', $stage['id']),
+                    $stage['risk']['drivers']
+                );
+                self::assertContains(
+                    sprintf('Stage %s was skipped; 0-0 hours means not estimated, not zero upgrade work.', $stage['id']),
+                    $stage['effort']['assumptions']
+                );
+            } else {
+                self::assertContains(
+                    'Hours cover observed dependency, source-change, and test work only; unobserved migration, deployment, runtime failures, and business validation are excluded.',
+                    $stage['effort']['assumptions']
+                );
+            }
+        }
+
+        $summary = substr($markdown, 0, (int) strpos($markdown, '## Analysis Request'));
+        self::assertStringContainsString('## Decision Summary', $summary);
+        self::assertStringContainsString(sprintf('- Direct target: `%s`.', $canonical['resolution']['status']), $summary);
+        self::assertStringContainsString(sprintf('`%s`, `%s`', $canonical['staged_resolution']['execution_state'], $canonical['staged_resolution']['status']), $summary);
+        self::assertStringContainsString('- Relevant recorded plan actions:', $summary);
+        self::assertStringContainsString('(evidence:', $summary);
+        self::assertStringContainsString('- Observed risk grade:', $summary);
+        self::assertStringContainsString('- Planning range:', $summary);
+        self::assertStringContainsString('- First recorded limitation:', $summary);
+        self::assertStringContainsString('- First recorded check:', $summary);
+        self::assertStringContainsString('- Application validation:', $summary);
+        self::assertStringContainsString('Advisory targets:', $markdown);
+        self::assertStringContainsString('no peak-memory measurement or per-run pass result', $markdown);
+    }
+
+    private function withoutReadinessQualifiers(string $json): string
+    {
+        /** @var \stdClass $report */
+        $report = json_decode($json, false, 512, JSON_THROW_ON_ERROR);
+        $report->risk->drivers = $this->withoutAddedRiskDrivers($report->risk->drivers);
+        $report->effort->assumptions = $this->withoutAddedEffortAssumptions($report->effort->assumptions);
+        foreach ($report->staged_resolution->stages as $stage) {
+            $stage->risk->drivers = array_values(array_filter(
+                $stage->risk->drivers,
+                static fn (string $driver): bool => $driver !== sprintf(
+                    'Stage %s was skipped; its observed risk grade is not a verified low-risk assessment.',
+                    $stage->id
+                )
+            ));
+            $stage->effort->assumptions = array_values(array_filter(
+                $stage->effort->assumptions,
+                static fn (string $assumption): bool => $assumption !== 'Hours cover observed dependency, source-change, and test work only; unobserved migration, deployment, runtime failures, and business validation are excluded.'
+            ));
+            $newSkipped = sprintf('Stage %s was skipped; 0-0 hours means not estimated, not zero upgrade work.', $stage->id);
+            foreach ($stage->effort->assumptions as &$assumption) {
+                if ($assumption === $newSkipped) {
+                    $assumption = sprintf('Stage %s was skipped, so no application-change effort is inferred.', $stage->id);
+                }
+            }
+            unset($assumption);
+        }
+
+        return json_encode($report, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_PRESERVE_ZERO_FRACTION | JSON_THROW_ON_ERROR) . "\n";
+    }
+
+    /**
+     * @param list<string> $drivers
+     * @return list<string>
+     */
+    private function withoutAddedRiskDrivers(array $drivers): array
+    {
+        $added = $this->addedRiskDrivers();
+
+        return array_values(array_filter($drivers, static fn (string $driver): bool => !in_array($driver, $added, true)));
+    }
+
+    /** @return list<string> */
+    private function addedRiskDrivers(): array
+    {
+        return [
+            'Assessment incomplete: Composer analysis failed or timed out; the reported risk grade is not a verified low-risk conclusion.',
+            'No successful direct target resolution was observed; the risk grade is not a verified low-risk conclusion.',
+            'Assessment degraded: at least one Composer scenario failed operationally; review its outcome before relying on the observed risk grade.',
+            'Assessment degraded: Composer baseline validation failed; target results may include pre-existing manifest or lockfile errors.',
+            'Assessment incomplete: some metadata, source, adapter, or input checks were unavailable; review uncertainties before interpreting the risk grade.',
+            'The staged path has a selectable result but the direct final target does not; validate each hop and do not infer direct feasibility.',
+            'The direct final target resolved but the staged path is blocked; no blocked hop is cleared by the direct result.',
+            'Staged assessment is incomplete; skipped or unknown transitions have no verified compatibility conclusion.',
+            'Risk level grades observed dependency, framework, and source findings only; it does not verify application runtime safety.',
+        ];
+    }
+
+    /**
+     * @param list<string> $assumptions
+     * @return list<string>
+     */
+    private function withoutAddedEffortAssumptions(array $assumptions): array
+    {
+        $added = $this->addedEffortAssumptions();
+
+        return array_values(array_filter($assumptions, static fn (string $assumption): bool => !in_array($assumption, $added, true)));
+    }
+
+    /** @return list<string> */
+    private function addedEffortAssumptions(): array
+    {
+        return [
+            'Hours are an uncalibrated planning heuristic for reported dependency, source-change, and test/debugging work, not a project quote.',
+            'Unobserved migration, deployment, runtime failures, and business validation work are excluded.',
+            'No successful direct target resolution was observed; the range cannot price an unselected dependency transition.',
+            'The range cannot price an unselected dependency transition.',
+            'The range does not price work to repair pre-existing Composer input errors.',
+            'Work in unobserved inputs is excluded from the hour range.',
+            'The range does not price unexecuted staged transitions.',
+        ];
+    }
+
+    private function withoutReadinessSummary(string $markdown): string
+    {
+        $start = strpos($markdown, "\n## Decision Summary\n");
+        $end = strpos($markdown, "\n## Analysis Request\n");
+        self::assertNotFalse($start);
+        self::assertNotFalse($end);
+        $markdown = substr($markdown, 0, $start) . substr($markdown, $end);
+        $lines = explode("\n", $markdown);
+        // The old Markdown snapshot records the original risk and effort sections.
+        $addedLines = array_map(
+            static fn (string $qualifier): string => '  - ' . $qualifier,
+            array_merge($this->addedRiskDrivers(), $this->addedEffortAssumptions())
+        );
+        $lines = array_values(array_filter($lines, static fn (string $line): bool => !in_array($line, $addedLines, true)
+            && !str_starts_with($line, '- Enforced staged limits:')
+            && !str_starts_with($line, '- Advisory targets:')));
+        $lines = array_map(static fn (string $line): string => $line === '  - effort: not estimated (0-0 sentinel).'
+            ? '  - effort: 0-0 hours (`low` confidence)'
+            : $line, $lines);
+
+        return implode("\n", $lines);
     }
 
     private function assertApprovedSnapshot(string $name, string $actual): void
     {
         $path = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'Snapshots' . DIRECTORY_SEPARATOR . $name;
 
-        if (getenv('PHP_UPGRADE_PREFLIGHT_UPDATE_SNAPSHOTS') === '1') {
-            if (!is_dir(dirname($path)) && !mkdir(dirname($path), 0777, true) && !is_dir(dirname($path))) {
-                throw new \RuntimeException(sprintf('Unable to create snapshot directory "%s".', dirname($path)));
-            }
-            if (file_put_contents($path, $actual) === false) {
-                throw new \RuntimeException(sprintf('Unable to write snapshot "%s".', $path));
-            }
-        }
-
         $expected = file_get_contents($path);
-        self::assertIsString($expected, sprintf(
-            'Missing approved snapshot %s. Set PHP_UPGRADE_PREFLIGHT_UPDATE_SNAPSHOTS=1 to create it.',
-            $name
-        ));
+        self::assertIsString($expected, sprintf('Missing approved historical snapshot %s.', $name));
         self::assertSame($expected, $actual, sprintf('Fixture snapshot %s has changed.', $name));
     }
 

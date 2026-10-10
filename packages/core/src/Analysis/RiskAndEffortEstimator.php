@@ -142,7 +142,10 @@ final class RiskAndEffortEstimator
                 'source_changes' => $source,
                 'tests_and_debugging' => $tests,
             ],
-            ['Estimate is heuristic until project-specific tests and Composer solver output are reviewed.']
+            [
+                'Estimate is heuristic until project-specific tests and Composer solver output are reviewed.',
+                'Hours cover observed dependency, source-change, and test work only; unobserved migration, deployment, runtime failures, and business validation are excluded.',
+            ]
         );
     }
 
@@ -174,15 +177,17 @@ final class RiskAndEffortEstimator
             }
         }
 
-        return new RiskSummary(
-            $this->stageRiskLevel(
-                $drivers !== [],
-                $stage->packageChanges() !== [],
-                $findings !== [],
-                $this->actionableWeight($sourceImpact)
-            ),
-            array_values(array_unique($drivers))
+        $level = $this->stageRiskLevel(
+            $drivers !== [],
+            $stage->packageChanges() !== [],
+            $findings !== [],
+            $this->actionableWeight($sourceImpact)
         );
+        if ($stage->executionState() === StageAnalysis::SKIPPED) {
+            $drivers[] = sprintf('Stage %s was skipped; its observed risk grade is not a verified low-risk assessment.', $stageId);
+        }
+
+        return new RiskSummary($level, array_values(array_unique($drivers)));
     }
 
     /**
@@ -202,7 +207,7 @@ final class RiskAndEffortEstimator
         );
         if ($stage->executionState() === StageAnalysis::SKIPPED) {
             return new EffortEstimate(self::NO_EFFORT_HOURS, Confidence::LOW, ['not_estimated' => self::NO_EFFORT_HOURS], [
-                sprintf('Stage %s was skipped, so no application-change effort is inferred.', $stage->target()->id()),
+                sprintf('Stage %s was skipped; 0-0 hours means not estimated, not zero upgrade work.', $stage->target()->id()),
             ]);
         }
 
@@ -221,10 +226,13 @@ final class RiskAndEffortEstimator
                 'source_changes' => $source,
                 'tests_and_debugging' => $tests,
             ],
-            [sprintf(
-                'Stage %s is estimated from unique package and original-snapshot findings; Composer attempt count is excluded.',
-                $stage->target()->id()
-            )]
+            [
+                sprintf(
+                    'Stage %s is estimated from unique package and original-snapshot findings; Composer attempt count is excluded.',
+                    $stage->target()->id()
+                ),
+                'Hours cover observed dependency, source-change, and test work only; unobserved migration, deployment, runtime failures, and business validation are excluded.',
+            ]
         );
     }
 

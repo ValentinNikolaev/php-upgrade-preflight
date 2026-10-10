@@ -52,7 +52,7 @@
     },
     "platform": {
         "analyzer": {
-            "php_version": "8.3.33",
+            "php_version": "8.5.11",
             "provenance": "runtime"
         },
         "current_php": {
@@ -81,7 +81,7 @@
     },
     "composer_execution": {
         "mode": "restricted",
-        "composer_version": "2.10.2",
+        "composer_version": "2.10.3",
         "expected_version": ">=2.0.0 <3.0.0",
         "version_matches_expectation": true,
         "executable_selection": "path_search",
@@ -107,7 +107,7 @@
         "scenarios": [
             {
                 "name": "baseline-validation",
-                "composer_version": "2.10.2",
+                "composer_version": "2.10.3",
                 "command": [
                     "composer",
                     "validate",
@@ -117,7 +117,7 @@
                     "--no-plugins",
                     "--no-interaction"
                 ],
-                "duration_ms": 170,
+                "duration_ms": 187,
                 "exit_code": 0,
                 "succeeded": true,
                 "outcome": "success",
@@ -134,7 +134,7 @@
             },
             {
                 "name": "exact-target",
-                "composer_version": "2.10.2",
+                "composer_version": "2.10.3",
                 "command": [
                     "composer",
                     "update",
@@ -146,13 +146,13 @@
                     "--no-progress",
                     "--no-interaction"
                 ],
-                "duration_ms": 574,
+                "duration_ms": 619,
                 "exit_code": 2,
                 "succeeded": false,
                 "outcome": "solver_failure",
                 "failure_type": "solver",
                 "stdout_excerpt": "",
-                "stderr_excerpt": "Loading composer repositories with package information\nUpdating dependencies\nYour requirements could not be resolved to an installable set of packages.\n\n  Problem 1\n    - Root composer.json requires laravel/framework ^13.0 -> satisfiable by laravel/framework[13.0.0].\n    - laravel/framework 13.0.0 requires ext-preflight-stage ^2.0 -> it is missing from your system. Install or enable PHP's preflight-stage extension.\n\nTo enable extensions, verify that they are enabled in your .ini files:\n    - /usr/local/etc/php/conf.d/docker-php-ext-opcache.ini\n    - /usr/local/etc/php/conf.d/docker-php-ext-sodium.ini\n    - /usr/local/etc/php/conf.d/docker-php-ext-zip.ini\nYou can also run `php --ini` in a terminal to see which files are used by PHP in CLI mode.\nAlternatively, you can run Composer with `--ignore-platform-req=ext-preflight-stage` to temporarily ignore these required extensions.\n\nUse the option --with-all-dependencies (-W) to allow upgrades, downgrades and removals for packages currently locked to specific versions.\n",
+                "stderr_excerpt": "Loading composer repositories with package information\nUpdating dependencies\nYour requirements could not be resolved to an installable set of packages.\n\n  Problem 1\n    - Root composer.json requires laravel/framework ^13.0 -> satisfiable by laravel/framework[13.0.0].\n    - laravel/framework 13.0.0 requires ext-preflight-stage ^2.0 -> it is missing from your system. Install or enable PHP's preflight-stage extension.\n\nTo enable extensions, verify that they are enabled in your .ini files:\n    - /usr/local/etc/php/conf.d/docker-php-ext-sodium.ini\n    - /usr/local/etc/php/conf.d/docker-php-ext-zip.ini\n    - /usr/local/etc/php/conf.d/zz-preflight.ini\nYou can also run `php --ini` in a terminal to see which files are used by PHP in CLI mode.\nAlternatively, you can run Composer with `--ignore-platform-req=ext-preflight-stage` to temporarily ignore these required extensions.\n\nUse the option --with-all-dependencies (-W) to allow upgrades, downgrades and removals for packages currently locked to specific versions.\n",
                 "candidate_lock": null,
                 "diagnostics": [
                     {
@@ -198,7 +198,7 @@
             },
             {
                 "name": "target-with-all-dependencies",
-                "composer_version": "2.10.2",
+                "composer_version": "2.10.3",
                 "command": [
                     "composer",
                     "update",
@@ -211,13 +211,13 @@
                     "--no-progress",
                     "--no-interaction"
                 ],
-                "duration_ms": 199,
+                "duration_ms": 213,
                 "exit_code": 2,
                 "succeeded": false,
                 "outcome": "solver_failure",
                 "failure_type": "solver",
                 "stdout_excerpt": "",
-                "stderr_excerpt": "Loading composer repositories with package information\nUpdating dependencies\nYour requirements could not be resolved to an installable set of packages.\n\n  Problem 1\n    - Root composer.json requires laravel/framework ^13.0 -> satisfiable by laravel/framework[13.0.0].\n    - laravel/framework 13.0.0 requires ext-preflight-stage ^2.0 -> it is missing from your system. Install or enable PHP's preflight-stage extension.\n\nTo enable extensions, verify that they are enabled in your .ini files:\n    - /usr/local/etc/php/conf.d/docker-php-ext-opcache.ini\n    - /usr/local/etc/php/conf.d/docker-php-ext-sodium.ini\n    - /usr/local/etc/php/conf.d/docker-php-ext-zip.ini\nYou can also run `php --ini` in a terminal to see which files are used by PHP in CLI mode.\nAlternatively, you can run Composer with `--ignore-platform-req=ext-preflight-stage` to temporarily ignore these required extensions.\n",
+                "stderr_excerpt": "Loading composer repositories with package information\nUpdating dependencies\nYour requirements could not be resolved to an installable set of packages.\n\n  Problem 1\n    - Root composer.json requires laravel/framework ^13.0 -> satisfiable by laravel/framework[13.0.0].\n    - laravel/framework 13.0.0 requires ext-preflight-stage ^2.0 -> it is missing from your system. Install or enable PHP's preflight-stage extension.\n\nTo enable extensions, verify that they are enabled in your .ini files:\n    - /usr/local/etc/php/conf.d/docker-php-ext-sodium.ini\n    - /usr/local/etc/php/conf.d/docker-php-ext-zip.ini\n    - /usr/local/etc/php/conf.d/zz-preflight.ini\nYou can also run `php --ini` in a terminal to see which files are used by PHP in CLI mode.\nAlternatively, you can run Composer with `--ignore-platform-req=ext-preflight-stage` to temporarily ignore these required extensions.\n",
                 "candidate_lock": null,
                 "diagnostics": [
                     {
@@ -263,7 +263,7 @@
             },
             {
                 "name": "minimal-changes",
-                "composer_version": "2.10.2",
+                "composer_version": "2.10.3",
                 "command": [
                     "composer",
                     "update",
@@ -277,13 +277,13 @@
                     "--no-progress",
                     "--no-interaction"
                 ],
-                "duration_ms": 194,
+                "duration_ms": 214,
                 "exit_code": 2,
                 "succeeded": false,
                 "outcome": "solver_failure",
                 "failure_type": "solver",
                 "stdout_excerpt": "",
-                "stderr_excerpt": "Loading composer repositories with package information\nUpdating dependencies\nYour requirements could not be resolved to an installable set of packages.\n\n  Problem 1\n    - Root composer.json requires laravel/framework ^13.0 -> satisfiable by laravel/framework[13.0.0].\n    - laravel/framework 13.0.0 requires ext-preflight-stage ^2.0 -> it is missing from your system. Install or enable PHP's preflight-stage extension.\n\nTo enable extensions, verify that they are enabled in your .ini files:\n    - /usr/local/etc/php/conf.d/docker-php-ext-opcache.ini\n    - /usr/local/etc/php/conf.d/docker-php-ext-sodium.ini\n    - /usr/local/etc/php/conf.d/docker-php-ext-zip.ini\nYou can also run `php --ini` in a terminal to see which files are used by PHP in CLI mode.\nAlternatively, you can run Composer with `--ignore-platform-req=ext-preflight-stage` to temporarily ignore these required extensions.\n",
+                "stderr_excerpt": "Loading composer repositories with package information\nUpdating dependencies\nYour requirements could not be resolved to an installable set of packages.\n\n  Problem 1\n    - Root composer.json requires laravel/framework ^13.0 -> satisfiable by laravel/framework[13.0.0].\n    - laravel/framework 13.0.0 requires ext-preflight-stage ^2.0 -> it is missing from your system. Install or enable PHP's preflight-stage extension.\n\nTo enable extensions, verify that they are enabled in your .ini files:\n    - /usr/local/etc/php/conf.d/docker-php-ext-sodium.ini\n    - /usr/local/etc/php/conf.d/docker-php-ext-zip.ini\n    - /usr/local/etc/php/conf.d/zz-preflight.ini\nYou can also run `php --ini` in a terminal to see which files are used by PHP in CLI mode.\nAlternatively, you can run Composer with `--ignore-platform-req=ext-preflight-stage` to temporarily ignore these required extensions.\n",
                 "candidate_lock": null,
                 "diagnostics": [
                     {
@@ -329,7 +329,7 @@
             },
             {
                 "name": "target-platform-only",
-                "composer_version": "2.10.2",
+                "composer_version": "2.10.3",
                 "command": [
                     "composer",
                     "update",
@@ -340,7 +340,7 @@
                     "--no-progress",
                     "--no-interaction"
                 ],
-                "duration_ms": 209,
+                "duration_ms": 211,
                 "exit_code": 0,
                 "succeeded": true,
                 "outcome": "success",
@@ -357,7 +357,7 @@
             },
             {
                 "name": "staged-targets",
-                "composer_version": "2.10.2",
+                "composer_version": "2.10.3",
                 "command": [
                     "composer",
                     "update",
@@ -370,13 +370,13 @@
                     "--no-progress",
                     "--no-interaction"
                 ],
-                "duration_ms": 386,
+                "duration_ms": 390,
                 "exit_code": 2,
                 "succeeded": false,
                 "outcome": "solver_failure",
                 "failure_type": "solver",
                 "stdout_excerpt": "",
-                "stderr_excerpt": "Loading composer repositories with package information\nUpdating dependencies\nYour requirements could not be resolved to an installable set of packages.\n\n  Problem 1\n    - Root composer.json requires laravel/framework ^13.0 -> satisfiable by laravel/framework[13.0.0].\n    - laravel/framework 13.0.0 requires php ^8.3 -> your php version (8.1.0; overridden via config.platform, actual: 8.3.33) does not satisfy that requirement.\n\n",
+                "stderr_excerpt": "Loading composer repositories with package information\nUpdating dependencies\nYour requirements could not be resolved to an installable set of packages.\n\n  Problem 1\n    - Root composer.json requires laravel/framework ^13.0 -> satisfiable by laravel/framework[13.0.0].\n    - laravel/framework 13.0.0 requires php ^8.3 -> your php version (8.1.0; overridden via config.platform, actual: 8.5.11) does not satisfy that requirement.\n\n",
                 "candidate_lock": null,
                 "diagnostics": [
                     {
@@ -447,7 +447,7 @@
                     },
                     "effective_sha256": "f7867541fa8d250aab14dc390187c1a8930cdd8fb3b76e3dd72486cc5512107e"
                 },
-                "duration_ms": 1520,
+                "duration_ms": 1699,
                 "evidence": [
                     "laravel-stage-target-1",
                     "laravel-stage-remediation-1",
@@ -508,7 +508,7 @@
                         ],
                         "scenario": {
                             "name": "laravel-10-to-11-attempt-1-target_only",
-                            "composer_version": "2.10.2",
+                            "composer_version": "2.10.3",
                             "command": [
                                 "composer",
                                 "update",
@@ -520,7 +520,7 @@
                                 "--no-progress",
                                 "--no-interaction"
                             ],
-                            "duration_ms": 584,
+                            "duration_ms": 635,
                             "exit_code": 2,
                             "succeeded": false,
                             "outcome": "solver_failure",
@@ -616,7 +616,7 @@
                         ],
                         "scenario": {
                             "name": "laravel-10-to-11-attempt-2-root_constraint_remediation",
-                            "composer_version": "2.10.2",
+                            "composer_version": "2.10.3",
                             "command": [
                                 "composer",
                                 "update",
@@ -629,7 +629,7 @@
                                 "--no-progress",
                                 "--no-interaction"
                             ],
-                            "duration_ms": 739,
+                            "duration_ms": 833,
                             "exit_code": 2,
                             "succeeded": false,
                             "outcome": "solver_failure",
@@ -754,7 +754,7 @@
                         ],
                         "scenario": {
                             "name": "laravel-10-to-11-attempt-3-root_and_locked_package_remediation",
-                            "composer_version": "2.10.2",
+                            "composer_version": "2.10.3",
                             "command": [
                                 "composer",
                                 "update",
@@ -769,7 +769,7 @@
                                 "--no-progress",
                                 "--no-interaction"
                             ],
-                            "duration_ms": 197,
+                            "duration_ms": 231,
                             "exit_code": 0,
                             "succeeded": true,
                             "outcome": "success",
@@ -913,7 +913,8 @@
                         ]
                     },
                     "assumptions": [
-                        "Stage laravel-10-to-11 is estimated from unique package and original-snapshot findings; Composer attempt count is excluded."
+                        "Stage laravel-10-to-11 is estimated from unique package and original-snapshot findings; Composer attempt count is excluded.",
+                        "Hours cover observed dependency, source-change, and test work only; unobserved migration, deployment, runtime failures, and business validation are excluded."
                     ]
                 },
                 "recommended_actions": [
@@ -992,7 +993,7 @@
                     },
                     "effective_sha256": "f7867541fa8d250aab14dc390187c1a8930cdd8fb3b76e3dd72486cc5512107e"
                 },
-                "duration_ms": 198,
+                "duration_ms": 237,
                 "evidence": [
                     "laravel-stage-target-2",
                     "laravel-stage-remediation-4",
@@ -1047,7 +1048,7 @@
                         ],
                         "scenario": {
                             "name": "laravel-11-to-12-attempt-1-target_only",
-                            "composer_version": "2.10.2",
+                            "composer_version": "2.10.3",
                             "command": [
                                 "composer",
                                 "update",
@@ -1059,7 +1060,7 @@
                                 "--no-progress",
                                 "--no-interaction"
                             ],
-                            "duration_ms": 198,
+                            "duration_ms": 237,
                             "exit_code": 0,
                             "succeeded": true,
                             "outcome": "success",
@@ -1191,7 +1192,8 @@
                         ]
                     },
                     "assumptions": [
-                        "Stage laravel-11-to-12 is estimated from unique package and original-snapshot findings; Composer attempt count is excluded."
+                        "Stage laravel-11-to-12 is estimated from unique package and original-snapshot findings; Composer attempt count is excluded.",
+                        "Hours cover observed dependency, source-change, and test work only; unobserved migration, deployment, runtime failures, and business validation are excluded."
                     ]
                 },
                 "recommended_actions": [
@@ -1271,7 +1273,7 @@
                     },
                     "effective_sha256": "f7867541fa8d250aab14dc390187c1a8930cdd8fb3b76e3dd72486cc5512107e"
                 },
-                "duration_ms": 1935,
+                "duration_ms": 2182,
                 "evidence": [
                     "laravel-stage-target-3",
                     "laravel-stage-remediation-6",
@@ -1334,7 +1336,7 @@
                         ],
                         "scenario": {
                             "name": "laravel-12-to-13-attempt-1-target_only",
-                            "composer_version": "2.10.2",
+                            "composer_version": "2.10.3",
                             "command": [
                                 "composer",
                                 "update",
@@ -1346,13 +1348,13 @@
                                 "--no-progress",
                                 "--no-interaction"
                             ],
-                            "duration_ms": 455,
+                            "duration_ms": 498,
                             "exit_code": 2,
                             "succeeded": false,
                             "outcome": "solver_failure",
                             "failure_type": "solver",
                             "stdout_excerpt": "",
-                            "stderr_excerpt": "Loading composer repositories with package information\nUpdating dependencies\nYour requirements could not be resolved to an installable set of packages.\n\n  Problem 1\n    - Root composer.json requires laravel/framework ^13.0 -> satisfiable by laravel/framework[13.0.0].\n    - laravel/framework 13.0.0 requires ext-preflight-stage ^2.0 -> it is missing from your system. Install or enable PHP's preflight-stage extension.\n\nTo enable extensions, verify that they are enabled in your .ini files:\n    - /usr/local/etc/php/conf.d/docker-php-ext-opcache.ini\n    - /usr/local/etc/php/conf.d/docker-php-ext-sodium.ini\n    - /usr/local/etc/php/conf.d/docker-php-ext-zip.ini\nYou can also run `php --ini` in a terminal to see which files are used by PHP in CLI mode.\nAlternatively, you can run Composer with `--ignore-platform-req=ext-preflight-stage` to temporarily ignore these required extensions.\n\nUse the option --with-all-dependencies (-W) to allow upgrades, downgrades and removals for packages currently locked to specific versions.\n",
+                            "stderr_excerpt": "Loading composer repositories with package information\nUpdating dependencies\nYour requirements could not be resolved to an installable set of packages.\n\n  Problem 1\n    - Root composer.json requires laravel/framework ^13.0 -> satisfiable by laravel/framework[13.0.0].\n    - laravel/framework 13.0.0 requires ext-preflight-stage ^2.0 -> it is missing from your system. Install or enable PHP's preflight-stage extension.\n\nTo enable extensions, verify that they are enabled in your .ini files:\n    - /usr/local/etc/php/conf.d/docker-php-ext-sodium.ini\n    - /usr/local/etc/php/conf.d/docker-php-ext-zip.ini\n    - /usr/local/etc/php/conf.d/zz-preflight.ini\nYou can also run `php --ini` in a terminal to see which files are used by PHP in CLI mode.\nAlternatively, you can run Composer with `--ignore-platform-req=ext-preflight-stage` to temporarily ignore these required extensions.\n\nUse the option --with-all-dependencies (-W) to allow upgrades, downgrades and removals for packages currently locked to specific versions.\n",
                             "candidate_lock": null,
                             "diagnostics": [
                                 {
@@ -1441,7 +1443,7 @@
                         ],
                         "scenario": {
                             "name": "laravel-12-to-13-attempt-2-root_constraint_remediation",
-                            "composer_version": "2.10.2",
+                            "composer_version": "2.10.3",
                             "command": [
                                 "composer",
                                 "update",
@@ -1454,13 +1456,13 @@
                                 "--no-progress",
                                 "--no-interaction"
                             ],
-                            "duration_ms": 646,
+                            "duration_ms": 698,
                             "exit_code": 2,
                             "succeeded": false,
                             "outcome": "solver_failure",
                             "failure_type": "solver",
                             "stdout_excerpt": "",
-                            "stderr_excerpt": "Loading composer repositories with package information\nUpdating dependencies\nYour requirements could not be resolved to an installable set of packages.\n\n  Problem 1\n    - Root composer.json requires laravel/framework ^13.0 -> satisfiable by laravel/framework[13.0.0].\n    - laravel/framework 13.0.0 requires ext-preflight-stage ^2.0 -> it is missing from your system. Install or enable PHP's preflight-stage extension.\n\nTo enable extensions, verify that they are enabled in your .ini files:\n    - /usr/local/etc/php/conf.d/docker-php-ext-opcache.ini\n    - /usr/local/etc/php/conf.d/docker-php-ext-sodium.ini\n    - /usr/local/etc/php/conf.d/docker-php-ext-zip.ini\nYou can also run `php --ini` in a terminal to see which files are used by PHP in CLI mode.\nAlternatively, you can run Composer with `--ignore-platform-req=ext-preflight-stage` to temporarily ignore these required extensions.\n\nUse the option --with-all-dependencies (-W) to allow upgrades, downgrades and removals for packages currently locked to specific versions.\n",
+                            "stderr_excerpt": "Loading composer repositories with package information\nUpdating dependencies\nYour requirements could not be resolved to an installable set of packages.\n\n  Problem 1\n    - Root composer.json requires laravel/framework ^13.0 -> satisfiable by laravel/framework[13.0.0].\n    - laravel/framework 13.0.0 requires ext-preflight-stage ^2.0 -> it is missing from your system. Install or enable PHP's preflight-stage extension.\n\nTo enable extensions, verify that they are enabled in your .ini files:\n    - /usr/local/etc/php/conf.d/docker-php-ext-sodium.ini\n    - /usr/local/etc/php/conf.d/docker-php-ext-zip.ini\n    - /usr/local/etc/php/conf.d/zz-preflight.ini\nYou can also run `php --ini` in a terminal to see which files are used by PHP in CLI mode.\nAlternatively, you can run Composer with `--ignore-platform-req=ext-preflight-stage` to temporarily ignore these required extensions.\n\nUse the option --with-all-dependencies (-W) to allow upgrades, downgrades and removals for packages currently locked to specific versions.\n",
                             "candidate_lock": null,
                             "diagnostics": [
                                 {
@@ -1590,7 +1592,7 @@
                         ],
                         "scenario": {
                             "name": "laravel-12-to-13-attempt-3-root_and_locked_package_remediation",
-                            "composer_version": "2.10.2",
+                            "composer_version": "2.10.3",
                             "command": [
                                 "composer",
                                 "update",
@@ -1606,13 +1608,13 @@
                                 "--no-progress",
                                 "--no-interaction"
                             ],
-                            "duration_ms": 834,
+                            "duration_ms": 986,
                             "exit_code": 2,
                             "succeeded": false,
                             "outcome": "solver_failure",
                             "failure_type": "solver",
                             "stdout_excerpt": "",
-                            "stderr_excerpt": "Loading composer repositories with package information\nUpdating dependencies\nYour requirements could not be resolved to an installable set of packages.\n\n  Problem 1\n    - Root composer.json requires laravel/framework ^13.0 -> satisfiable by laravel/framework[13.0.0].\n    - laravel/framework 13.0.0 requires ext-preflight-stage ^2.0 -> it is missing from your system. Install or enable PHP's preflight-stage extension.\n\nTo enable extensions, verify that they are enabled in your .ini files:\n    - /usr/local/etc/php/conf.d/docker-php-ext-opcache.ini\n    - /usr/local/etc/php/conf.d/docker-php-ext-sodium.ini\n    - /usr/local/etc/php/conf.d/docker-php-ext-zip.ini\nYou can also run `php --ini` in a terminal to see which files are used by PHP in CLI mode.\nAlternatively, you can run Composer with `--ignore-platform-req=ext-preflight-stage` to temporarily ignore these required extensions.\n",
+                            "stderr_excerpt": "Loading composer repositories with package information\nUpdating dependencies\nYour requirements could not be resolved to an installable set of packages.\n\n  Problem 1\n    - Root composer.json requires laravel/framework ^13.0 -> satisfiable by laravel/framework[13.0.0].\n    - laravel/framework 13.0.0 requires ext-preflight-stage ^2.0 -> it is missing from your system. Install or enable PHP's preflight-stage extension.\n\nTo enable extensions, verify that they are enabled in your .ini files:\n    - /usr/local/etc/php/conf.d/docker-php-ext-sodium.ini\n    - /usr/local/etc/php/conf.d/docker-php-ext-zip.ini\n    - /usr/local/etc/php/conf.d/zz-preflight.ini\nYou can also run `php --ini` in a terminal to see which files are used by PHP in CLI mode.\nAlternatively, you can run Composer with `--ignore-platform-req=ext-preflight-stage` to temporarily ignore these required extensions.\n",
                             "candidate_lock": null,
                             "diagnostics": [
                                 {
@@ -1830,7 +1832,8 @@
                         ]
                     },
                     "assumptions": [
-                        "Stage laravel-12-to-13 is estimated from unique package and original-snapshot findings; Composer attempt count is excluded."
+                        "Stage laravel-12-to-13 is estimated from unique package and original-snapshot findings; Composer attempt count is excluded.",
+                        "Hours cover observed dependency, source-change, and test work only; unobserved migration, deployment, runtime failures, and business validation are excluded."
                     ]
                 },
                 "recommended_actions": [
@@ -2561,6 +2564,8 @@
     "risk": {
         "level": "high",
         "drivers": [
+            "No successful direct target resolution was observed; the risk grade is not a verified low-risk conclusion.",
+            "Risk level grades observed dependency, framework, and source findings only; it does not verify application runtime safety.",
             "Composer resolution is blocked.",
             "Framework compatibility findings require review.",
             "Executed stage laravel-12-to-13 retains an active Composer blocker."
@@ -2587,6 +2592,9 @@
             ]
         },
         "assumptions": [
+            "Hours are an uncalibrated planning heuristic for reported dependency, source-change, and test/debugging work, not a project quote.",
+            "Unobserved migration, deployment, runtime failures, and business validation work are excluded.",
+            "The range cannot price an unselected dependency transition.",
             "Aggregate effort counts each exact package transition, framework finding, and source occurrence once; scenario and repeated-hop counts are excluded."
         ]
     },
@@ -2641,7 +2649,7 @@
                     }
                 ],
                 "exit_code": 2,
-                "output_excerpt": "Loading composer repositories with package information\nUpdating dependencies\nYour requirements could not be resolved to an installable set of packages.\n\n  Problem 1\n    - Root composer.json requires laravel/framework ^13.0 -> satisfiable by laravel/framework[13.0.0].\n    - laravel/framework 13.0.0 requires ext-preflight-stage ^2.0 -> it is missing from your system. Install or enable PHP's preflight-stage extension.\n\nTo enable extensions, verify that they are enabled in your .ini files:\n    - /usr/local/etc/php/conf.d/docker-php-ext-opcache.ini\n    - /usr/local/etc/php/conf.d/docker-php-ext-sodium.ini\n    - /usr/local/etc/php/conf.d/docker-php-ext-zip.ini\nYou can also run `php --ini` in a terminal to see which files are used by PHP in CLI mode.\nAlternatively, you can run Composer with `--ignore-platform-req=ext-preflight-stage` to temporarily ignore these required extensions.\n\nUse the option --with-all-dependencies (-W) to allow upgrades, downgrades and removals for packages currently locked to specific versions.",
+                "output_excerpt": "Loading composer repositories with package information\nUpdating dependencies\nYour requirements could not be resolved to an installable set of packages.\n\n  Problem 1\n    - Root composer.json requires laravel/framework ^13.0 -> satisfiable by laravel/framework[13.0.0].\n    - laravel/framework 13.0.0 requires ext-preflight-stage ^2.0 -> it is missing from your system. Install or enable PHP's preflight-stage extension.\n\nTo enable extensions, verify that they are enabled in your .ini files:\n    - /usr/local/etc/php/conf.d/docker-php-ext-sodium.ini\n    - /usr/local/etc/php/conf.d/docker-php-ext-zip.ini\n    - /usr/local/etc/php/conf.d/zz-preflight.ini\nYou can also run `php --ini` in a terminal to see which files are used by PHP in CLI mode.\nAlternatively, you can run Composer with `--ignore-platform-req=ext-preflight-stage` to temporarily ignore these required extensions.\n\nUse the option --with-all-dependencies (-W) to allow upgrades, downgrades and removals for packages currently locked to specific versions.",
                 "diagnostics": [
                     {
                         "package": "laravel/framework",
@@ -2702,7 +2710,7 @@
                     }
                 ],
                 "exit_code": 2,
-                "output_excerpt": "Loading composer repositories with package information\nUpdating dependencies\nYour requirements could not be resolved to an installable set of packages.\n\n  Problem 1\n    - Root composer.json requires laravel/framework ^13.0 -> satisfiable by laravel/framework[13.0.0].\n    - laravel/framework 13.0.0 requires ext-preflight-stage ^2.0 -> it is missing from your system. Install or enable PHP's preflight-stage extension.\n\nTo enable extensions, verify that they are enabled in your .ini files:\n    - /usr/local/etc/php/conf.d/docker-php-ext-opcache.ini\n    - /usr/local/etc/php/conf.d/docker-php-ext-sodium.ini\n    - /usr/local/etc/php/conf.d/docker-php-ext-zip.ini\nYou can also run `php --ini` in a terminal to see which files are used by PHP in CLI mode.\nAlternatively, you can run Composer with `--ignore-platform-req=ext-preflight-stage` to temporarily ignore these required extensions.",
+                "output_excerpt": "Loading composer repositories with package information\nUpdating dependencies\nYour requirements could not be resolved to an installable set of packages.\n\n  Problem 1\n    - Root composer.json requires laravel/framework ^13.0 -> satisfiable by laravel/framework[13.0.0].\n    - laravel/framework 13.0.0 requires ext-preflight-stage ^2.0 -> it is missing from your system. Install or enable PHP's preflight-stage extension.\n\nTo enable extensions, verify that they are enabled in your .ini files:\n    - /usr/local/etc/php/conf.d/docker-php-ext-sodium.ini\n    - /usr/local/etc/php/conf.d/docker-php-ext-zip.ini\n    - /usr/local/etc/php/conf.d/zz-preflight.ini\nYou can also run `php --ini` in a terminal to see which files are used by PHP in CLI mode.\nAlternatively, you can run Composer with `--ignore-platform-req=ext-preflight-stage` to temporarily ignore these required extensions.",
                 "diagnostics": [
                     {
                         "package": "laravel/framework",
@@ -2763,7 +2771,7 @@
                     }
                 ],
                 "exit_code": 2,
-                "output_excerpt": "Loading composer repositories with package information\nUpdating dependencies\nYour requirements could not be resolved to an installable set of packages.\n\n  Problem 1\n    - Root composer.json requires laravel/framework ^13.0 -> satisfiable by laravel/framework[13.0.0].\n    - laravel/framework 13.0.0 requires ext-preflight-stage ^2.0 -> it is missing from your system. Install or enable PHP's preflight-stage extension.\n\nTo enable extensions, verify that they are enabled in your .ini files:\n    - /usr/local/etc/php/conf.d/docker-php-ext-opcache.ini\n    - /usr/local/etc/php/conf.d/docker-php-ext-sodium.ini\n    - /usr/local/etc/php/conf.d/docker-php-ext-zip.ini\nYou can also run `php --ini` in a terminal to see which files are used by PHP in CLI mode.\nAlternatively, you can run Composer with `--ignore-platform-req=ext-preflight-stage` to temporarily ignore these required extensions.",
+                "output_excerpt": "Loading composer repositories with package information\nUpdating dependencies\nYour requirements could not be resolved to an installable set of packages.\n\n  Problem 1\n    - Root composer.json requires laravel/framework ^13.0 -> satisfiable by laravel/framework[13.0.0].\n    - laravel/framework 13.0.0 requires ext-preflight-stage ^2.0 -> it is missing from your system. Install or enable PHP's preflight-stage extension.\n\nTo enable extensions, verify that they are enabled in your .ini files:\n    - /usr/local/etc/php/conf.d/docker-php-ext-sodium.ini\n    - /usr/local/etc/php/conf.d/docker-php-ext-zip.ini\n    - /usr/local/etc/php/conf.d/zz-preflight.ini\nYou can also run `php --ini` in a terminal to see which files are used by PHP in CLI mode.\nAlternatively, you can run Composer with `--ignore-platform-req=ext-preflight-stage` to temporarily ignore these required extensions.",
                 "diagnostics": [
                     {
                         "package": "laravel/framework",
@@ -2824,7 +2832,7 @@
                     }
                 ],
                 "exit_code": 2,
-                "output_excerpt": "Loading composer repositories with package information\nUpdating dependencies\nYour requirements could not be resolved to an installable set of packages.\n\n  Problem 1\n    - Root composer.json requires laravel/framework ^13.0 -> satisfiable by laravel/framework[13.0.0].\n    - laravel/framework 13.0.0 requires php ^8.3 -> your php version (8.1.0; overridden via config.platform, actual: 8.3.33) does not satisfy that requirement.",
+                "output_excerpt": "Loading composer repositories with package information\nUpdating dependencies\nYour requirements could not be resolved to an installable set of packages.\n\n  Problem 1\n    - Root composer.json requires laravel/framework ^13.0 -> satisfiable by laravel/framework[13.0.0].\n    - laravel/framework 13.0.0 requires php ^8.3 -> your php version (8.1.0; overridden via config.platform, actual: 8.5.11) does not satisfy that requirement.",
                 "diagnostics": [
                     {
                         "package": "laravel/framework",
@@ -3351,7 +3359,7 @@
                     }
                 ],
                 "exit_code": 2,
-                "output_excerpt": "Loading composer repositories with package information\nUpdating dependencies\nYour requirements could not be resolved to an installable set of packages.\n\n  Problem 1\n    - Root composer.json requires laravel/framework ^13.0 -> satisfiable by laravel/framework[13.0.0].\n    - laravel/framework 13.0.0 requires ext-preflight-stage ^2.0 -> it is missing from your system. Install or enable PHP's preflight-stage extension.\n\nTo enable extensions, verify that they are enabled in your .ini files:\n    - /usr/local/etc/php/conf.d/docker-php-ext-opcache.ini\n    - /usr/local/etc/php/conf.d/docker-php-ext-sodium.ini\n    - /usr/local/etc/php/conf.d/docker-php-ext-zip.ini\nYou can also run `php --ini` in a terminal to see which files are used by PHP in CLI mode.\nAlternatively, you can run Composer with `--ignore-platform-req=ext-preflight-stage` to temporarily ignore these required extensions.\n\nUse the option --with-all-dependencies (-W) to allow upgrades, downgrades and removals for packages currently locked to specific versions.",
+                "output_excerpt": "Loading composer repositories with package information\nUpdating dependencies\nYour requirements could not be resolved to an installable set of packages.\n\n  Problem 1\n    - Root composer.json requires laravel/framework ^13.0 -> satisfiable by laravel/framework[13.0.0].\n    - laravel/framework 13.0.0 requires ext-preflight-stage ^2.0 -> it is missing from your system. Install or enable PHP's preflight-stage extension.\n\nTo enable extensions, verify that they are enabled in your .ini files:\n    - /usr/local/etc/php/conf.d/docker-php-ext-sodium.ini\n    - /usr/local/etc/php/conf.d/docker-php-ext-zip.ini\n    - /usr/local/etc/php/conf.d/zz-preflight.ini\nYou can also run `php --ini` in a terminal to see which files are used by PHP in CLI mode.\nAlternatively, you can run Composer with `--ignore-platform-req=ext-preflight-stage` to temporarily ignore these required extensions.\n\nUse the option --with-all-dependencies (-W) to allow upgrades, downgrades and removals for packages currently locked to specific versions.",
                 "diagnostics": [
                     {
                         "package": "laravel/framework",
@@ -3444,7 +3452,7 @@
                     }
                 ],
                 "exit_code": 2,
-                "output_excerpt": "Loading composer repositories with package information\nUpdating dependencies\nYour requirements could not be resolved to an installable set of packages.\n\n  Problem 1\n    - Root composer.json requires laravel/framework ^13.0 -> satisfiable by laravel/framework[13.0.0].\n    - laravel/framework 13.0.0 requires ext-preflight-stage ^2.0 -> it is missing from your system. Install or enable PHP's preflight-stage extension.\n\nTo enable extensions, verify that they are enabled in your .ini files:\n    - /usr/local/etc/php/conf.d/docker-php-ext-opcache.ini\n    - /usr/local/etc/php/conf.d/docker-php-ext-sodium.ini\n    - /usr/local/etc/php/conf.d/docker-php-ext-zip.ini\nYou can also run `php --ini` in a terminal to see which files are used by PHP in CLI mode.\nAlternatively, you can run Composer with `--ignore-platform-req=ext-preflight-stage` to temporarily ignore these required extensions.\n\nUse the option --with-all-dependencies (-W) to allow upgrades, downgrades and removals for packages currently locked to specific versions.",
+                "output_excerpt": "Loading composer repositories with package information\nUpdating dependencies\nYour requirements could not be resolved to an installable set of packages.\n\n  Problem 1\n    - Root composer.json requires laravel/framework ^13.0 -> satisfiable by laravel/framework[13.0.0].\n    - laravel/framework 13.0.0 requires ext-preflight-stage ^2.0 -> it is missing from your system. Install or enable PHP's preflight-stage extension.\n\nTo enable extensions, verify that they are enabled in your .ini files:\n    - /usr/local/etc/php/conf.d/docker-php-ext-sodium.ini\n    - /usr/local/etc/php/conf.d/docker-php-ext-zip.ini\n    - /usr/local/etc/php/conf.d/zz-preflight.ini\nYou can also run `php --ini` in a terminal to see which files are used by PHP in CLI mode.\nAlternatively, you can run Composer with `--ignore-platform-req=ext-preflight-stage` to temporarily ignore these required extensions.\n\nUse the option --with-all-dependencies (-W) to allow upgrades, downgrades and removals for packages currently locked to specific versions.",
                 "diagnostics": [
                     {
                         "package": "laravel/framework",
@@ -3579,7 +3587,7 @@
                     }
                 ],
                 "exit_code": 2,
-                "output_excerpt": "Loading composer repositories with package information\nUpdating dependencies\nYour requirements could not be resolved to an installable set of packages.\n\n  Problem 1\n    - Root composer.json requires laravel/framework ^13.0 -> satisfiable by laravel/framework[13.0.0].\n    - laravel/framework 13.0.0 requires ext-preflight-stage ^2.0 -> it is missing from your system. Install or enable PHP's preflight-stage extension.\n\nTo enable extensions, verify that they are enabled in your .ini files:\n    - /usr/local/etc/php/conf.d/docker-php-ext-opcache.ini\n    - /usr/local/etc/php/conf.d/docker-php-ext-sodium.ini\n    - /usr/local/etc/php/conf.d/docker-php-ext-zip.ini\nYou can also run `php --ini` in a terminal to see which files are used by PHP in CLI mode.\nAlternatively, you can run Composer with `--ignore-platform-req=ext-preflight-stage` to temporarily ignore these required extensions.",
+                "output_excerpt": "Loading composer repositories with package information\nUpdating dependencies\nYour requirements could not be resolved to an installable set of packages.\n\n  Problem 1\n    - Root composer.json requires laravel/framework ^13.0 -> satisfiable by laravel/framework[13.0.0].\n    - laravel/framework 13.0.0 requires ext-preflight-stage ^2.0 -> it is missing from your system. Install or enable PHP's preflight-stage extension.\n\nTo enable extensions, verify that they are enabled in your .ini files:\n    - /usr/local/etc/php/conf.d/docker-php-ext-sodium.ini\n    - /usr/local/etc/php/conf.d/docker-php-ext-zip.ini\n    - /usr/local/etc/php/conf.d/zz-preflight.ini\nYou can also run `php --ini` in a terminal to see which files are used by PHP in CLI mode.\nAlternatively, you can run Composer with `--ignore-platform-req=ext-preflight-stage` to temporarily ignore these required extensions.",
                 "diagnostics": [
                     {
                         "package": "laravel/framework",

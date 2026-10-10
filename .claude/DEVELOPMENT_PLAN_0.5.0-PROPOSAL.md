@@ -2,31 +2,33 @@
 
 Status: **PROPOSAL**. This is not the active plan and it authorizes nothing.
 
-Prepared: 2026-08-18, against released `0.3.0` and the active [v0.4 plan](DEVELOPMENT_PLAN.md).
+Prepared: 2026-08-18, against released `0.3.0`; revised 2026-10-10 against the published `0.3.5` baseline and the [R5 decision](../docs/readiness/release-direction.md).
 
-This file collects the work deliberately cut from v0.4 so the second-adapter release stays narrow enough to finish. Nothing here may be pulled forward into v0.4 without reopening the v0.4 scope section, and nothing here is committed for v0.5 either: the theme of v0.5 must be re-decided against evidence from the v0.4 line, exactly as v0.4 gates its own theme.
+This file preserves possible later work. The R5 decision defers Symfony and leaves the v0.4 theme unapproved, so the assumed two-adapter baseline and the original "cut from v0.4" framing are hypothetical. Nothing here is committed for v0.5 or eligible for implementation without an evidence-backed release decision and a reconciled active plan.
+
+Planning amendment, 2026-10-10: R5 selected `VALIDATE_FIRST`. R3 has no participant, repeat-use or Symfony-owner evidence; R4 has bounded small offline and CI observations but lacks large-project/child-memory profiles, Lychee cause and maintainer capacity. Re-evaluate every candidate after those gates and any approved v0.4 contract. This amendment approves no v0.5 implementation.
 
 On approval this file becomes the active plan: archive the completed roadmap to `DEVELOPMENT_PLAN_0.4.0.md` first, then replace `DEVELOPMENT_PLAN.md` with the approved v0.5 content and delete this proposal.
 
 ## Entry Conditions
 
-- v0.4.0 published, with the `0.4.x` line supported and `0.3.x` moved to archival terms.
-- The v0.4 acceptance gates met, in particular: two adapters coexisting with deterministic arbitration and attribution, and the honest published answer to how much of a Symfony upgrade a static analyzer can explain.
-- Evidence collected from the v0.4 line the same way v0.4 Milestone 0 collects it: real analyses, recorded gaps, recorded requests.
+- Readiness R3/R4 empirical gates evaluated and a v0.4 theme explicitly approved, implemented and published; until then `0.3.x` is the active line.
+- Every acceptance gate for the *actual approved* v0.4 scope met. Two-adapter arbitration, attribution and Symfony explained-work checks apply only if that scope includes a second adapter.
+- Real analyses, recorded gaps and requests from the published line support a distinct v0.5 need and maintainer capacity.
 
-## Deferred From v0.4
+## Conditional candidates originally deferred from the Symfony v0.4 outline
 
 ### 1. Symfony console command
 
-Parity with the Laravel Artisan command: one command, default project path, the same analyzer operation, canonical-report equivalent output. Cut from v0.4 because the generic CLI already analyzes a Symfony project, so the command is convenience rather than proof of neutrality. It becomes worth doing once Symfony users exist.
+If a Symfony adapter eventually ships, parity with the Laravel Artisan command could offer one command, default project path, the same analyzer operation and canonical-report equivalent output. The generic CLI already serves as the entry point for Composer projects; a Symfony command requires evidence of actual users and convenience value.
 
 ### 2. A wider Symfony transition matrix
 
-v0.4 encodes one approved hop pair. Widening means the same evidence standard applied to more upgrade guides and manifests, plus fixtures per path. This is the single largest deferred cost, and the v0.2 history is the warning: v0.1 shipped two Laravel paths, v0.2 shipped nine, and the breadth arrived before any production evidence.
+No Symfony hop pair is approved by R5. If a later release establishes one, widening would require the same evidence standard for more guides, manifests and fixtures. The v0.2 history is the warning: v0.1 shipped two Laravel paths, v0.2 shipped nine, and the breadth arrived before production evidence.
 
 ### 3. Adapter migration guide with a worked diff
 
-v0.4 documents the multi-adapter contracts; it does not walk an adapter author through migrating a v0.3-era adapter line by line. Useful when there is a third-party adapter author to serve. External code contributions are not accepted today, so the audience is the maintainer and documentation readers.
+If a future release changes public adapter contracts, that release must ship minimum worked migration examples. An extended line-by-line tutorial remains a later candidate, justified when there are adapter authors to serve. External contributions are accepted under the current MIT contribution policy; that policy does not establish that external adapter authors exist.
 
 ### 4. Published adapter conformance kit
 
@@ -34,7 +36,7 @@ A packaged test kit an external adapter can run against its own implementation. 
 
 ### 5. Composer process-count reduction
 
-Caching equivalent scenario and diagnostic executions inside one analysis, proving byte-identical canonical output with the cache disabled. v0.4 measures two-adapter budgets but does not optimize them. Do this when a measured budget is actually breached, not before: a cache that changes results is worse than a slow analysis.
+Caching equivalent scenario and diagnostic executions inside one analysis, proving equivalent canonical resolution and evidence with the cache disabled after declared timing/provenance normalization. Readiness Milestone R may justify a narrow performance repair when measured cost prevents useful analysis; a general cache remains deferred. Do this for a demonstrated bottleneck, not a presumed one.
 
 ## Candidate v0.5 Themes
 
@@ -42,8 +44,8 @@ None of these is chosen. They are recorded so the decision starts from a list ra
 
 | Theme | Argument for | Argument against |
 |---|---|---|
-| Depth on the two shipped adapters — wider matrices, the console command, the migration guide | Uses proven machinery; lowest risk; directly serves whoever adopted v0.4 | Adds no new capability class, and repeats the v0.2 breadth pattern |
-| A third adapter (CodeIgniter, or an ecosystem family such as Doctrine) | Confirms neutrality beyond two frameworks and grows addressable projects | Two adapters already prove the contract; a third mostly multiplies release cost |
+| Depth on any actually shipped adapters — wider matrices, a console command, a migration guide | Could serve observed users of a later line | Adds no new capability class, and risks repeating the v0.2 breadth pattern |
+| Another adapter (CodeIgniter, or an ecosystem family such as Doctrine) | Could test neutrality and serve new projects if owners demonstrate a need | Multiplies release and catalog cost before demand and capacity are established |
 | PHP language and API deprecation catalog | Matches the product's name, which promises PHP upgrade preflight rather than framework preflight | Overlaps Rector and PHPCompatibility, and every claim must meet the project's evidence rules, which is expensive |
 | Consolidation toward `1.0` | Freezes contracts, sharpens documentation, reduces the maintenance surface | Premature while adoption is unproven; `1.0` is a promise, not a milestone |
 
@@ -104,6 +106,6 @@ Unchanged from v0.3 and v0.4, restated so no proposal quietly reopens them:
 
 ## Open Decisions
 
-- **D1 — Theme.** Decide against v0.4-line evidence, not against this list. Record the evidence beside the decision.
+- **D1 — Theme.** Decide against evidence from the actual published predecessor and its users, not against this list. Record the evidence beside the decision.
 - **D2 — Whether `1.0` is in sight.** If the answer is yes, v0.5 should be a consolidation release and the deferred items above become `1.0` scope items or permanent non-goals.
 - **D3 — Support policy.** The current policy archives a line the moment its successor publishes. Confirm it still fits once there are external users, or state the change explicitly.
