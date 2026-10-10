@@ -317,6 +317,8 @@ Depends on R0; baseline measurement can proceed alongside R2/R3 after R1.
 
 Acceptance: observed operational cost and maintenance capacity are recorded; required caps remain enforced; advisory targets are identified; every proposed performance or contract expansion has a measured/user-case justification.
 
+The [bounded operational-cost record](../docs/readiness/operational-cost.md) now gives real offline Composer timings and process counts for the committed small path fixture and three-stage demo, input immutability/cleanup hashes, analyzer-process PHP peaks, report bytes, and separate Quality/Compatibility CI step-time baselines. It explicitly labels the six-hop Composer substitute as synthetic. Child-process RSS, large real-project and live-network cost, the Lychee 128 MiB failure cause, maintainer capacity, user setup/read time and planning benefit remain unavailable. Therefore the first two items have partial evidence but stay unchecked; the existing caps remain in place, and neither a performance change nor a Symfony application/family target has been justified.
+
 ### R5: Select the next release and hand off
 
 Depends on R1–R4 outcomes. Owner: maintainer records the decision, using independent engineering/product review where useful.
@@ -329,7 +331,7 @@ Acceptance gate: R1 safety proof is green, accepted R2 changes are verified, R3/
 
 Planning estimate: 8–18 person-days for a lean implementation/evaluation cycle, typically spread over 2–4 calendar weeks plus recruitment delays. This is a low-confidence capacity assumption for one experienced maintainer, not an estimate of a full application upgrade; substantive newly discovered defects may require a revised range.
 
-Status: R0–R2 complete; R1's real Composer regression proved the inherited-manifest redirect and its repair, and R2's report semantics passed independent review with the composed verification recorded in the [decision baseline](../docs/readiness/decision-baseline.md). R3's [study materials](../docs/readiness/decision-study.md) are prepared, but no participant, reuse, timing or Symfony-owner case evidence is available; all real-study criteria remain open. R3–R5 remain open. Next executable task: R3's participant study; R4's measured cost work can proceed independently. Neither has evidence from R2's engineering tests.
+Status: R0–R2 complete; R1's real Composer regression proved the inherited-manifest redirect and its repair, and R2's report semantics passed independent review with the composed verification recorded in the [decision baseline](../docs/readiness/decision-baseline.md). R3's [study materials](../docs/readiness/decision-study.md) are prepared, but no participant, reuse, timing or Symfony-owner case evidence is available; all real-study criteria remain open. R4's available offline and CI measurements are recorded, while its real-project, capacity, benefit and owner-case gates remain open. R3–R5 remain open. Next external evidence task: R3's participant study; any Lychee memory explanation requires a separate pinned profiling reproduction. Engineering checks do not substitute for reader observations.
 
 ## Milestone 0: Confirm the Theme, Freeze v0.3.x, Lock the v0.4 Contract
 
