@@ -1,12 +1,12 @@
 # Roadmap and Project Status
 
-> Checked against the repository on **2026-10-07**. The release facts below describe that date. Future milestones have no promised delivery dates.
+> Release baseline checked on **2026-10-07**; roadmap reviewed on **2026-10-10**. Future milestones have no promised delivery dates.
 
 ## Current status
 
 PHP Upgrade Preflight is an Open Source **public beta**. The latest published release recorded by the repository is **v0.3.5**, producing tool version `0.3.5` reports with schema `0.8`. Development on `main` uses `0.3.x-dev` aliases and `^0.3` internal constraints.
 
-The bounded Laravel completion milestone is published in v0.3.5: all 299 reviewed guide headings are accounted for, with three primary and two supplemental pinned application snapshots evaluated. This closes the reviewed patch-compatible coverage, not every Laravel application or runtime-compatibility question. Next is v0.4 Milestone 0 to confirm the theme, freeze the v0.3 baseline and define the new contracts, followed by version identity in Milestone 1 and adapter/package ownership in Milestone 2 before Symfony work in Milestone 3.
+The bounded Laravel completion milestone is published in v0.3.5: all 299 reviewed guide headings are accounted for, with three primary and two supplemental pinned application snapshots evaluated. This closes the reviewed patch-compatible coverage, not every Laravel application or runtime-compatibility question. Next is Readiness Milestone R: repair a confirmed compatible-mode manifest-isolation defect, clarify report assessment limits, evaluate whether upgrade owners make better decisions, and measure operating/maintenance cost. Its final decision can proceed with, narrow, or defer Symfony. Existing v0.4 Milestones 0–2 then define the approved contracts, version identity and adapter ownership before conditional Symfony work in Milestone 3. See the [active development plan](https://github.com/ValentinNikolaev/php-upgrade-preflight/blob/main/.claude/DEVELOPMENT_PLAN.md) and [2026-10-10 review](https://github.com/ValentinNikolaev/php-upgrade-preflight/blob/main/.claude/audits/2026-10-10-product-engineering-review.md). Planning does not mean these fixes or studies are complete.
 
 Public beta means the PHP API, CLI and Artisan commands, adapter extension points, package boundaries, and report semantics may still need refinement before `1.0`. A report gives you evidence for planning. It cannot guarantee a production upgrade.
 

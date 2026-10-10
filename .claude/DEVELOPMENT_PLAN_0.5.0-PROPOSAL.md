@@ -6,6 +6,8 @@ Prepared: 2026-08-18, against released `0.3.0` and the active [v0.4 plan](DEVELO
 
 This file collects the work deliberately cut from v0.4 so the second-adapter release stays narrow enough to finish. Nothing here may be pulled forward into v0.4 without reopening the v0.4 scope section, and nothing here is committed for v0.5 either: the theme of v0.5 must be re-decided against evidence from the v0.4 line, exactly as v0.4 gates its own theme.
 
+Planning amendment, 2026-10-10: the active plan now inserts Readiness Milestone R before v0.4 contract migration and makes Symfony conditional on demonstrated reader value and measured cost. Re-evaluate this proposal against R5's direction before treating its assumed two-adapter baseline as fact. This amendment approves no v0.5 implementation.
+
 On approval this file becomes the active plan: archive the completed roadmap to `DEVELOPMENT_PLAN_0.4.0.md` first, then replace `DEVELOPMENT_PLAN.md` with the approved v0.5 content and delete this proposal.
 
 ## Entry Conditions
@@ -26,7 +28,7 @@ v0.4 encodes one approved hop pair. Widening means the same evidence standard ap
 
 ### 3. Adapter migration guide with a worked diff
 
-v0.4 documents the multi-adapter contracts; it does not walk an adapter author through migrating a v0.3-era adapter line by line. Useful when there is a third-party adapter author to serve. External code contributions are not accepted today, so the audience is the maintainer and documentation readers.
+If Symfony proceeds, v0.4 ships minimum worked migration examples for changed public contracts. An extended line-by-line tutorial remains a candidate here, justified when there are adapter authors to serve. External contributions are accepted under the current MIT contribution policy; that policy does not establish that external adapter authors exist.
 
 ### 4. Published adapter conformance kit
 
@@ -34,7 +36,7 @@ A packaged test kit an external adapter can run against its own implementation. 
 
 ### 5. Composer process-count reduction
 
-Caching equivalent scenario and diagnostic executions inside one analysis, proving byte-identical canonical output with the cache disabled. v0.4 measures two-adapter budgets but does not optimize them. Do this when a measured budget is actually breached, not before: a cache that changes results is worse than a slow analysis.
+Caching equivalent scenario and diagnostic executions inside one analysis, proving equivalent canonical resolution and evidence with the cache disabled after declared timing/provenance normalization. Readiness Milestone R may justify a narrow performance repair when measured cost prevents useful analysis; a general cache remains deferred. Do this for a demonstrated bottleneck, not a presumed one.
 
 ## Candidate v0.5 Themes
 
