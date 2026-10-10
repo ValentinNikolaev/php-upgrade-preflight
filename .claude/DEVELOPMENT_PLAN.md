@@ -4,20 +4,20 @@ Last updated: 2026-10-10
 
 - Released baseline: `0.3.5` (published 2026-10-07 Europe/Rome; 2026-10-06 at 23:03:05 UTC)
 - Released report schema: `0.8`
-- Immediate work: Pre-v0.4 Readiness Milestone R; the bounded Laravel completion milestone remains complete
-- Active development target: `0.4.0`
-- Planned v0.4 report schema: `0.9`
+- Immediate work: finish R3/R4 empirical gates after R5's `VALIDATE_FIRST` scope decision; the bounded Laravel completion milestone remains complete
+- Active published line: `0.3.x`; a v0.4 theme and implementation are unapproved
+- Candidate future report schema: `0.9`, conditional on a new contract decision
 
 This roadmap supersedes the archived [v0.3.0 implementation plan](DEVELOPMENT_PLAN_0.3.0.md), which records the completed v0.3 milestones and the v0.3.0 release evidence. The archive was copied from the completed plan before this file was replaced.
 
 v0.3 made the analyzer honest about *how* an upgrade would be reached: staged Composer evidence, candidate-state chaining, blocker lifecycles, closed-world platform profiles. It did all of that with one framework adapter.
 
-The proposed v0.4 theme is a second published adapter that tests the core's framework neutrality through a real integration. That is a useful architecture experiment, but it is not evidence that users need Symfony next. The [2026-10-10 product and engineering review](audits/2026-10-10-product-engineering-review.md) adds Readiness Milestone R before contract migration: repair the confirmed input-isolation defect, prove that readers can make better upgrade decisions, and choose the smallest justified next release. Symfony remains the conditional direction of Milestones 0–6 until R records a decision.
+The [2026-10-10 product and engineering review](audits/2026-10-10-product-engineering-review.md) added Readiness Milestone R before contract migration. R5 now records [`VALIDATE_FIRST`](../docs/readiness/release-direction.md): defer Symfony while reader benefit, real-project operating cost and maintainer capacity are unmeasured. R3/R4 empirical gates remain open. Milestones 0–6 below preserve the candidate Symfony contract and its acceptance gates as a conditional outline; none authorizes implementation until a later evidence-backed scope decision.
 
 ## How to Use This Plan
 
 - Continue the first unchecked item in the earliest incomplete milestone unless repository evidence requires a safer order.
-- Execute Readiness Milestone R before Milestone 0 or any Symfony implementation. Preserve existing milestone numbers and completed historical evidence; R adds a dependency, not a new version or a release authorization.
+- Complete R3/R4 empirical gates and reconfirm the release direction before Milestone 0 or any Symfony implementation. Preserve existing milestone numbers and completed historical evidence; R5's conservative decision is not a new version or release authorization.
 - Mark work `[~]` only while someone is implementing it. Mark it `[x]` only after the acceptance evidence passes.
 - Reconcile this plan in the same change whenever roadmap work is completed, partially completed, reopened, or reverted.
 - Complete the intermediate Laravel completion milestone before v0.4 Milestone 0. Keep v0.3.x work limited to security fixes, regressions, dependency maintenance, evidence-backed corrections to the existing Laravel rule packs, documentation corrections, and release-process repairs. Put new supported transition modes, version identity, multi-adapter behavior, and the Symfony adapter in v0.4.
@@ -27,12 +27,12 @@ The proposed v0.4 theme is a second published adapter that tests the core's fram
 
 ## Version and Contract Vocabulary
 
-| Contract | State entering v0.4 | v0.4 direction |
+| Contract | Current published/development state | Conditional v0.4 proposal; unapproved |
 | --- | --- | --- |
-| Tool and package line | `0.3.5` published; bounded Laravel completion accepted; `0.3.x-dev` aliases; `^0.3` internal constraints | `0.4.0`; identity switched atomically in Milestone 0 |
-| Canonical report | Schema `0.8` | New schema `0.9` for framework-declared version identity and adapter attribution |
-| Published packages | `core`, `cli`, `laravel` | Adds `symfony` as a fourth published package and distribution repository |
-| Active release policy | `0.3.x` from `main`; `0.2.x` and `0.1.x` archival | `0.4.x` from `main` once Milestone 0 establishes the protected `0.3.x` branch |
+| Tool and package line | `0.3.5` published; bounded Laravel completion accepted; `0.3.x-dev` aliases; `^0.3` internal constraints | `0.4.0` identity only after Milestone 0 approval |
+| Canonical report | Schema `0.8` | Schema `0.9` only if an approved contract requires new structured semantics |
+| Published packages | `core`, `cli`, `laravel` | Fourth `symfony` package only if later owner cases and cost gates justify it |
+| Active release policy | `0.3.x` from `main`; `0.2.x` and `0.1.x` archival | `0.4.x` from `main` only after coordinated branch/identity migration |
 
 Schemas `0.2` through `0.8` and every signed compatibility artifact remain immutable. Packages continue to derive exact versions from matching signed Git tags rather than manifest `version` fields, and all published packages release in lockstep.
 
@@ -55,9 +55,9 @@ The current published baseline is documented in the [v0.3.5 release notes](../do
 - v0.3.3 was published from `3725603a` through the verified release workflow. It keeps schema `0.8` and the PHP `^8.0` runtime floor while adding the interactive wizard, terminal progress, optional report copies, package metadata lookup modes, and the wizard-first Pages workflow.
 - v0.3.5 was published from `60f0c49f5a357406e37ee75ffcb03c2b90abf43f` through [release run 37543254451](https://github.com/ValentinNikolaev/php-upgrade-preflight/actions/runs/37543254451), with all 45 jobs successful and none skipped. It publishes the bounded Laravel corrections, earlier merged hardening and maintenance, and the distribution file-mode repair while retaining schema `0.8`, the PHP `^8.0` floor, and existing patch contracts. The v0.3.4 distribution-only candidate remains an immutable recovery record, not the final baseline.
 
-## v0.4 Evidence and Gap Map
+## Conditional v0.4 Evidence and Gap Map
 
-Every gap below was verified against the released tree.
+Every gap below was verified against the released tree. The responses describe engineering work **only if** a later approved release requires a second adapter; they are not current implementation tasks.
 
 | Gap | Repository evidence | Roadmap response |
 | --- | --- | --- |
@@ -82,9 +82,9 @@ Exact version endpoints stay illustrative until Milestone 3 reviews official upg
 
 The intermediate Laravel completion milestone is complete in published v0.3.5. Keep subsequent `0.3.x` maintenance compatible with schema `0.8`, the public PHP operation, CLI and Artisan behavior, adapter metadata, exit policy, staged-analysis semantics, and supported Laravel transitions. Establish and protect the `0.3.x` maintenance branch in Milestone 0 before `main` adopts v0.4 identity, so urgent patch work never requires backporting v0.4 behavior.
 
-### v0.4.0
+### v0.4.0 candidate, deferred
 
-If R approves the Symfony direction, v0.4.0 delivers a proven second framework, deliberately narrow:
+If later R3/R4 evidence and a new Milestone 0 decision approve Symfony, v0.4.0 could deliver a proven second framework, deliberately narrow:
 
 - framework-declared, ordered version identity for hops and stages, replacing integer majors, under schema `0.9` with a documented `0.8` migration;
 - multi-adapter activation, deterministic stage-provider arbitration, package-family collision rules, and per-finding adapter attribution;
@@ -92,7 +92,7 @@ If R approves the Symfony direction, v0.4.0 delivers a proven second framework, 
 - a published `php-upgrade-preflight/symfony` adapter with detection, a versioned rule catalog, and staged solving across one approved hop pair — the same-major deprecation-clearing hop and the major hop that departs from it — held to the same evidence standard as Laravel;
 - the existing PHP `^8.0` runtime floor. The Symfony requirement applies to the analyzed project and never raises the analyzer floor, exactly as the Laravel 13 requirement did not.
 
-Deferred to [the v0.5 proposal](DEVELOPMENT_PLAN_0.5.0-PROPOSAL.md) rather than dropped: the Symfony console command, a broader Symfony matrix, extended adapter migration tutorials, published conformance tooling, and speculative Composer caching. Minimum migration examples for changed contracts ship with v0.4. R may pull forward a narrowly justified performance repair when measured cost prevents useful analysis; it does not authorize a general cache or removal of safety checks.
+The [v0.5 proposal](DEVELOPMENT_PLAN_0.5.0-PROPOSAL.md) preserves further conditional ideas: a Symfony console command, broader matrix, extended adapter migration tutorials, conformance tooling and Composer caching. Any future release that changes public contracts must ship minimum migration examples. A narrowly justified performance repair needs measured cost evidence; this decision authorizes neither a general cache nor removal of safety checks.
 
 ### Separate maintenance patch: GitHub Actions JavaScript runtime
 
@@ -111,9 +111,9 @@ Separate audit TODO: complete the broader JavaScript-action inventory and verify
 
 Acceptance gate for the remaining audit: all JavaScript actions remain commit-pinned, no workflow run reports a deprecated Node.js 20 action runtime, existing security permissions and cache semantics are unchanged, and the full required CI matrix passes. The cache refresh alone does not close this audit or authorize any v0.4 feature or contract change.
 
-## v0.4 Scope and Non-Goals
+## Conditional v0.4 Scope and Non-Goals
 
-The feature scope below is conditional on R5. Readiness fixes and evidence collection precede it; if R chooses another direction, revise this section and its contracts before feature implementation.
+The feature scope below is an archived candidate outline. R5 chose `VALIDATE_FIRST` and deferred Symfony. Reconfirm each item against actual owner cases, reader benefit and operating cost before treating it as an approved contract. Its exclusions remain conservative boundaries for any future proposal.
 
 In scope:
 
@@ -260,7 +260,7 @@ Acceptance evidence: the final Docker `composer check` passed 1,368 unit tests, 
 
 ## Pre-v0.4 Readiness Milestone R: Trusted Reports and Demonstrated User Value
 
-Priority: P0. Depends on the published Laravel completion baseline. Complete before Milestone 0 changes contracts or development identity and before Symfony work in Milestone 3. Owner: maintainer; implementation and independent review may be delegated. R0–R2 are complete; R3–R5 remain open.
+Priority: P0. Depends on the published Laravel completion baseline. Complete before Milestone 0 changes contracts or development identity and before Symfony work in Milestone 3. Owner: maintainer; implementation and independent review may be delegated. R0–R2 are complete; R5's scope decision is recorded; R3/R4 empirical gates remain open.
 
 Outcome: a reader can distinguish an evidenced blocker from unavailable analysis, identify the next safe action, and explain why this tool adds value to their current workflow. The decision to fund a second adapter follows that evidence. Keep the local, read-only, MIT product, PHP `^8.0` floor, existing valid-report exit policy, and canonical JSON boundary.
 
@@ -323,19 +323,21 @@ The [bounded operational-cost record](../docs/readiness/operational-cost.md) now
 
 Depends on R1–R4 outcomes. Owner: maintainer records the decision, using independent engineering/product review where useful.
 
-- [ ] Record one direction: proceed with the bounded Symfony pair, revise/narrow that pair, or defer Symfony for the demonstrated Laravel/PHP/Composer planning need. State passed/failed/unavailable criteria, unresolved risks and the decision's confidence. An incomplete demand study may close as `VALIDATE_FIRST` with Symfony deferred; it cannot close as approval to expand.
-- [ ] If Symfony proceeds, feed R2 semantics and R4 budgets/scope into Milestone 0; explicitly resolve multiple `--framework` selections, competing rooted target families and the minimum migration guide. If the direction changes, revise Milestones 0–6 and the v0.5 proposal before implementation; do not quietly delete contractual acceptance gates.
-- [ ] Reconcile the canonical roadmap and current public status/Wiki sources with the recorded direction. Preserve historical release notes/schemas and the completed Laravel milestone. Publish any separately authorized maintenance release using the existing release checklist, not by marking planning tasks as implementation.
+- [x] Record one direction in the [R5 decision](../docs/readiness/release-direction.md): `VALIDATE_FIRST`, with Symfony deferred. It distinguishes passed development checks from unavailable user and production evidence, gives confidence and risks, and states measurable conditions to revisit.
+- [x] Rescope Milestones 0–6 and the v0.5 proposal as conditional outlines before implementation. Retain their contractual acceptance gates as future checks. Multiple `--framework` selections, competing rooted families, same-major identity, attribution, budget representation and migration remain explicit Milestone 0 decisions if cases justify them.
+- [x] Reconcile the canonical roadmap and current public status/Wiki sources with the recorded direction. Preserve historical release notes/schemas and the completed Laravel milestone. Any separately authorized maintenance release uses the existing release checklist.
 
-Acceptance gate: R1 safety proof is green, accepted R2 changes are verified, R3/R4 results are real and bounded, and an explicit decision determines which downstream milestones are authorized. No new package, schema, branch, version or tag is implied by completing this review.
+R5 decision acceptance: the R1 safety proof and accepted R2 engineering changes have reviewable checks; available R3/R4 evidence and its missing parts are explicitly bounded; the direction is recorded and downstream implementation stays gated. The broader R milestone acceptance still requires real R3/R4 outcomes and a later confirmation of release scope. No new package, schema, branch, version or tag is implied by this decision.
 
 Planning estimate: 8–18 person-days for a lean implementation/evaluation cycle, typically spread over 2–4 calendar weeks plus recruitment delays. This is a low-confidence capacity assumption for one experienced maintainer, not an estimate of a full application upgrade; substantive newly discovered defects may require a revised range.
 
-Status: R0–R2 complete; R1's real Composer regression proved the inherited-manifest redirect and its repair, and R2's report semantics passed independent review with the composed verification recorded in the [decision baseline](../docs/readiness/decision-baseline.md). R3's [study materials](../docs/readiness/decision-study.md) are prepared, but no participant, reuse, timing or Symfony-owner case evidence is available; all real-study criteria remain open. R4's available offline and CI measurements are recorded, while its real-project, capacity, benefit and owner-case gates remain open. R3–R5 remain open. Next external evidence task: R3's participant study; any Lychee memory explanation requires a separate pinned profiling reproduction. Engineering checks do not substitute for reader observations.
+Status: R0–R2 and the R5 decision/reconciliation are complete in the development tree. R1's real Composer regression proved the inherited-manifest redirect and its repair, and R2's report semantics passed independent review with composed verification recorded in the [decision baseline](../docs/readiness/decision-baseline.md). R3's [study materials](../docs/readiness/decision-study.md) are prepared, but no participant, reuse, timing or Symfony-owner case evidence is available. R4's bounded offline and CI measurements are recorded, while real-project, capacity, benefit and owner-case gates remain open. The full R milestone is incomplete. Next: voluntary participant study and pinned Lychee/large-run profiling, then maintainer-capacity assessment. Engineering checks do not substitute for reader observations.
 
 ## Milestone 0: Confirm the Theme, Freeze v0.3.x, Lock the v0.4 Contract
 
-Priority: P0. Depends on Readiness Milestone R and its recorded release direction. Complete before changing report shape or development identity; re-scope this milestone first if R defers Symfony.
+Priority: conditional. Depends on completed R3/R4 empirical gates and a later explicit release-theme approval. Complete before changing report shape or development identity. R5 deferred Symfony; the checklist below preserves candidate contract gates but authorizes no implementation.
+
+First determine whether observed Laravel/PHP/Composer planning needs require a minor release at all. If a new contract is justified, scope it to the measured need. Structured assessment completeness, unknown/null effort representation and enforced-versus-advisory budgets are candidate schema `0.9` decisions. Same-major version identity, family-scoped targets, attribution and multi-adapter support require actual owner cases. Current v0.3 behavior refuses multiple active stage providers; the Laravel planner skips unsupported mixed Laravel-family targets with evidence. Competing rooted-family ownership and repeated `--framework` selections require a new explicit contract. The proposed branch, identity and schema migration below occurs only after that approval; a maintenance fix retains the current line.
 
 - [ ] Consume R's application/report evaluations, user studies and cost record; fill only evidence gaps that affect the approved release contract.
 - [ ] Confirm the R5 decision still holds against any subsequent published-line feedback; reopen scope before Milestone 1 when new evidence changes it.
@@ -354,13 +356,13 @@ Priority: P0. Depends on Readiness Milestone R and its recorded release directio
 - [ ] Record the decision to keep the Symfony console command, a wider Symfony matrix, CodeIgniter, PHP deprecation catalogs, PHAR, container delivery, and runtime-floor changes out of v0.4.
 - [ ] Atomically switch `main` to v0.4 development identity, schema `0.9`, `0.4.x-dev` aliases, `^0.4` internal constraints, and a verifier permitting only `0.4.x` from `main`.
 
-Acceptance gate: the release theme is confirmed against evidence from real use rather than architecture alone; immutable v0.2.1 and v0.3.0 evidence remains green alongside the final Laravel completion patch baseline; the `0.3.x` branch can still verify its own line; and `main` identifies every subsequent build as v0.4 under schema `0.9` after a machine-checked contract defines identity, arbitration, attribution, family targets, and budgets.
+Conditional acceptance gate for the original Symfony proposal: the release theme is confirmed against evidence from real use rather than architecture alone; immutable v0.2.1 and v0.3.0 evidence remains green alongside the final Laravel completion patch baseline; the `0.3.x` branch can still verify its own line; and `main` identifies every subsequent build as v0.4 under schema `0.9` after a machine-checked contract defines identity, arbitration, attribution, family targets, and budgets. If a narrower release is approved, replace this gate with an equally explicit contract and migration gate before implementation, preserving the historical checks.
 
 Status: not started.
 
 ## Milestone 1: Framework Version Identity and Schema 0.9
 
-Priority: P0. Depends on Milestone 0 and R5's approved direction.
+Priority: conditional. Depends on an approved Milestone 0 contract that actually requires new version or assessment identity. Same-major/minor precision and schema `0.9` remain candidate work, not selected features.
 
 - [ ] Replace integer `from_major` and `to_major` hop identity with the approved framework-declared version identity across models, guidance, stages, plan actions, and evidence references.
 - [ ] Keep ordering, comparison, and gap detection inside a tested value object; adapters declare versions and their ordering rule, core never parses framework version semantics.
@@ -378,7 +380,7 @@ Status: not started.
 
 ## Milestone 2: Multi-Adapter Core
 
-Priority: P0. Depends on Milestones 0–1; limit generalization to R4's approved cases.
+Priority: conditional. Depends on approved multiple-adapter owner cases and Milestones 0–1. Default safe behavior is one unambiguous stage provider or an evidence-backed conflict refusal; preserve every requested target. The checklist describes the full second-adapter contract only if real cases justify it.
 
 - [ ] Support several simultaneously active integrations with deterministic ordering, and cover activation, non-activation, and mutual-exclusion cases.
 - [ ] Replace the single-stage-provider restriction with the approved deterministic arbitration: one explicitly selected eligible provider wins; multiple explicit providers and automatic selection require one unambiguous owner of the requested root targets. Competing or disjoint ownership that the approved slice cannot handle skips with conflict evidence. Never select by installation order.
@@ -395,7 +397,7 @@ Status: not started.
 
 ## Milestone 3: Symfony Detection and the Approved Hop Pair
 
-Priority: P0. Depends on R5 explicitly selecting Symfony and Milestones 0–2 passing; defer/rewrite when R chooses another direction.
+Priority: deferred. R5 did not select Symfony. Require at least two concrete owner cases, a positive reviewable reader-value/safety result, bounded cost and an explicit later decision before Milestones 0–2 or this checklist can authorize adapter implementation.
 
 - [ ] Detect Symfony conservatively from rooted `symfony/framework-bundle`, `symfony/runtime`, or rooted `symfony/*` components, preferring exact locked versions over root constraints.
 - [ ] Never activate on transitively installed Symfony components. This is the Illuminate lesson restated: the analyzer's own dependencies and every Laravel application would otherwise trigger false detection.
@@ -414,7 +416,7 @@ Status: not started.
 
 ## Milestone 4: Symfony Staged Solving
 
-Priority: P0. Depends on Milestone 3 and the R4 family-target decision.
+Priority: deferred. Depends on a later approved Symfony Milestone 3 and an owner-case decision that family staging is necessary; same-major solving and rooted-component breadth cannot be inferred from architectural interest.
 
 - [ ] Provide Symfony stage targets through the optional stage-target contract, at minor precision, with evidence-backed PHP requirements and stable stage IDs.
 - [ ] Move every rooted member of the declared Symfony family together in one stage target, and record the enumerated member list as evidence.
@@ -430,9 +432,9 @@ Acceptance gate: one approved Symfony hop pair produces real Composer evidence a
 
 Status: not started.
 
-## Milestone 5: Quality, Budgets, and Supply Chain for Four Packages
+## Milestone 5: Quality, Budgets, and Conditional Supply Chain
 
-Priority: P1.
+Priority: conditional. Preserve existing three-package quality, privacy and supply-chain gates for any authorized release. Fourth-package, two-adapter and Symfony-specific checks below activate only after a later approved scope and measured maintainer/CI budget.
 
 - [ ] Extend adapter conformance coverage to two live adapters plus the third-party and legacy fixtures: stable IDs, version identity and ordering, exact target constraints, PHP evidence, duplicate targets, conflicting providers, missing metadata, and invalid provider output.
 - [ ] Prove an adapter written against the v0.3 contracts still loads under v0.4 with a widened Core constraint, contributes guidance, and makes no staged or attribution claims it cannot support.
@@ -450,9 +452,9 @@ Acceptance gate: the worst supported two-adapter request is bounded, determinist
 
 Status: not started.
 
-## Milestone 6: v0.4 Documentation, Migration, and Release
+## Milestone 6: Conditional v0.4 Documentation, Migration, and Release
 
-Priority: P0.
+Priority: conditional. A release requires its own authorized scope, exact contract, migration and publication evidence. The four-package and fifth-Wiki-destination steps below apply only if Symfony is subsequently approved; the current release set and four Wiki destinations remain authoritative until then.
 
 - [ ] Update README, installation, external-analysis, CLI, schema, limitations, troubleshooting, adapters, versioning, contribution, security, and release documentation for approved v0.4 behavior.
 - [ ] Document version identity, multi-adapter activation and arbitration, family ownership, attribution, the approved Symfony hop pair and its honest gaps, and the `0.8` to `0.9` migration.
@@ -478,20 +480,20 @@ Status: not started.
 
 | Risk | Control |
 |---|---|
-| The release theme is chosen from architecture rather than demand | R tests user decisions against alternatives and records unavailable evidence; R5 chooses scope before Milestone 0 pays for migration |
+| The release theme is chosen from architecture rather than demand | R5 defers Symfony; R3 reader observations and R4 capacity/cost must precede any Milestone 0 migration |
 | A host manifest override defeats temporary-workspace isolation | R1 clears ambient `COMPOSER` in both modes and proves target immutability with real Composer |
 | Unknown analysis looks low-risk or numeric effort looks like a quote | R2 qualifies completeness/estimate scope; Milestones 0–1 implement any new schema semantics |
-| Symfony upgrades are recipe-driven, so a static analyzer explains less of them than it does for Laravel | Milestone 4 measures the explained fraction on a real fixture and publishes the honest limit; if the report cannot explain a useful share of the work without executing recipes, stop after the hop pair and reconsider the theme rather than widening the matrix |
+| Symfony upgrades may be recipe-driven, limiting a static analyzer's value | Seek owner cases first; if later approved, Milestone 4 measures the explained fraction on a real fixture and publishes the honest limit before any wider matrix |
 | Version identity touches every hop, stage, guidance, and evidence path | Contract and schema first in Milestone 0, one tested value object in Milestone 1, Laravel snapshots as the regression proof |
 | Two adapters collide on package families and stage providers | Deterministic arbitration and attribution defined before adapter code, with collision evidence instead of silent skips |
-| A fourth package multiplies release and CI cost | Milestone 5 measures the matrices before Milestone 6 pays for them |
-| Scope creep repeats the v0.3 breadth expansion | The Symfony matrix is one approved hop pair; the console command, wider matrix, migration guide, conformance tooling, and process-count work are already parked in the v0.5 proposal |
+| A fourth package multiplies release and CI cost | R4 must establish maintainer capacity; conditional Milestone 5 measures the matrices before Milestone 6 pays for them |
+| Scope creep repeats the v0.3 breadth expansion | Symfony is deferred. Even a bounded pair requires real owner cases and a later decision; wider matrix and convenience surfaces remain unapproved |
 | An unsupported line is left exposed | `0.3.x` stays supported until v0.4.0 publishes, and the public pages change in the same release |
 
-## Deferred Until After v0.4.0
+## Deferred or Unapproved
 
-- The Symfony console command and any second framework entry point.
-- A wider Symfony transition matrix beyond the approved hop pair.
+- The Symfony adapter and its first hop pair until owner cases, reader-value and cost gates justify an explicit new decision; its console command and any second framework entry point remain further deferred.
+- A wider Symfony transition matrix; there is no approved first pair yet.
 - Extended adapter migration tutorials and any published conformance test kit; minimum instructions for breaking contracts ship in Milestone 6.
 - Speculative caching of equivalent Composer scenarios; a measured readiness blocker may justify a narrowly tested repair in R4.
 - CodeIgniter, Doctrine, or any fifth adapter.
@@ -501,11 +503,11 @@ Status: not started.
 - PHAR or versioned container distribution.
 - Raising the shared runtime floor above PHP 8.0.
 
-These are collected with rationale in [the v0.5 proposal](DEVELOPMENT_PLAN_0.5.0-PROPOSAL.md), which authorizes nothing.
+These are collected with rationale in [the revised v0.5 proposal](DEVELOPMENT_PLAN_0.5.0-PROPOSAL.md), which authorizes nothing. No candidate v0.4 milestone above is a release commitment.
 
 ## Recommended Next Work Session
 
-Readiness Milestone R now has [R0's decision baseline and R2 acceptance record](../docs/readiness/decision-baseline.md), grounded in the published v0.3.5 contracts and [the product/engineering review](audits/2026-10-10-product-engineering-review.md). R1 repaired the inherited-manifest boundary with a real offline Composer regression; R2 qualified report completeness, estimate scope, next actions, and budget language without changing schema `0.8`. Proceed through R3 reader value and R4 measured cost to R5's scope decision. Milestone 0 then owns any approved contract/branch/schema migration. Do not begin Symfony implementation or check off later readiness work from this baseline alone. The separate JavaScript-action audit remains open.
+Readiness Milestone R has [R0's decision baseline and R2 acceptance record](../docs/readiness/decision-baseline.md) and an explicit [R5 `VALIDATE_FIRST` decision](../docs/readiness/release-direction.md), grounded in the published v0.3.5 contracts and [point-in-time review](audits/2026-10-10-product-engineering-review.md). R1 repaired the inherited-manifest boundary with a real offline Composer regression; R2 qualified report completeness, estimate scope, next actions and budget language without changing schema `0.8`. Arrange R3's participant study, pinned Lychee/large-project profiling and maintainer-capacity assessment for R4. Then revisit release scope and, only if justified, let Milestone 0 own a coordinated contract/branch/schema migration. Symfony remains deferred. The separate JavaScript-action audit remains open.
 
 Operational notes carried forward:
 

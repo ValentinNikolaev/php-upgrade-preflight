@@ -15,7 +15,7 @@ You can install the Laravel adapter alongside Laravel 8 on PHP 8.0, Laravel 9 on
 
 Patch releases in v0.3.x keep the existing public contracts compatible. This covers how you run an analysis from PHP, the CLI and Artisan commands, required adapter interfaces, metadata used to discover adapters, exit codes, and report schema `0.8`. Supported upgrade paths and step-by-step analysis also stay compatible. Bug fixes, security fixes, and corrections to evidence may still change individual findings or diagnostics.
 
-v0.3.5 is the latest published release. Its reports show tool version `0.3.5` and schema `0.8`, the same schema used in v0.3.0. Development on `main` uses `0.3.x-dev` Composer aliases with `^0.3` internal dependency constraints.
+v0.3.5 is the latest published release. Its reports show tool version `0.3.5` and schema `0.8`, the same schema used in v0.3.0. Development on `main` uses `0.3.x-dev` Composer aliases with `^0.3` internal dependency constraints. The [readiness decision](docs/readiness/release-direction.md) defers Symfony while reader benefit, real-project operating cost and maintainer capacity are evaluated. The development-tree safety and report-clarity work is unreleased; no new schema, package or v0.4 scope is approved by that decision.
 
 The earlier `0.2.x` and `0.1.x` lines are archived. Their signed release files remain available and unchanged, but those versions receive no further features, bug fixes, or security fixes. See [Project status and licensing](docs/project-status.md) for the upgrade path.
 

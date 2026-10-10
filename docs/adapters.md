@@ -235,4 +235,4 @@ Without `SourceUsageVisitorProvider`, the source inventory contains only core's 
 
 ## Post-v0.3 adapter roadmap
 
-Symfony is the first adapter candidate after the optional staged-target contract has production evidence. v0.3 does not add a Symfony or CodeIgniter package, a fourth distribution repository, or another published adapter.
+The [R5 readiness decision](readiness/release-direction.md) defers Symfony. A second adapter needs concrete owner cases, reviewable R3 reader-benefit and safety results, bounded R4 operating cost and maintainer capacity, and a later explicit release-scope decision. Evidence for the optional staged-target contract alone does not approve a new adapter. v0.3 does not add a Symfony or CodeIgniter package, a fourth distribution repository, or another published adapter.

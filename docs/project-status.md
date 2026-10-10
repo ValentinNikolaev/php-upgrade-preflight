@@ -4,6 +4,8 @@
 
 PHP Upgrade Preflight is a public beta. v0.3.5 is the latest published release, verified through signed tags in the monorepo and all three distribution repositories, checksum-bound archives, cross-host release checks, Packagist synchronization, and a published-package quick start. The public PHP API, CLI and Artisan surfaces, adapter extension points, package boundaries, and report semantics are still being proven before `1.0`.
 
+The [R5 readiness decision](readiness/release-direction.md) is `VALIDATE_FIRST`: Symfony is deferred while upgrade-owner decision benefit, large-project operating cost and maintainer capacity remain unmeasured. R1 safety and R2 report-clarity changes exist in the development tree and are not part of published v0.3.5. The active line remains `0.3.x` with schema `0.8`; this decision creates no new release or v0.4 contract.
+
 Public beta is not a production-readiness claim. The analyzer produces decision-support evidence. It does not modify the target project, perform the upgrade, boot or execute the analyzed application, prove runtime compatibility, or guarantee a successful deployment. Users must review every report and validate any resulting upgrade with the application's own tests, runtime checks, security review, and deployment process.
 
 ## v0.3.x compatibility commitment

@@ -1,7 +1,7 @@
 ---
 memory_contract: 1
 name: laravel-completion-baseline
-description: Use when sequencing v0.4 work after the published Laravel completion milestone.
+description: Use when sequencing readiness evidence and conditional v0.4 work after published Laravel completion.
 type: project
 related: []
 provenance:
@@ -16,6 +16,9 @@ provenance:
   - kind: file
     locator: .claude/DEVELOPMENT_PLAN.md
     retrieved_at: 2026-10-10
+  - kind: file
+    locator: docs/readiness/release-direction.md
+    retrieved_at: 2026-10-10
 last_updated: 2026-10-10
 last_reviewed: 2026-10-10
 ---
@@ -24,7 +27,7 @@ last_reviewed: 2026-10-10
 
 The intermediate Laravel milestone shipped as v0.3.5 after a bounded review of 299 guide headings and five pinned application snapshots. All 45 actual tag-workflow jobs passed. Canonical details are in `docs/releases/v0.3.5.md` and its publication receipt; `.claude/DEVELOPMENT_PLAN.md` owns sequencing.
 
-The next gate is **Readiness Milestone R** in the active plan. It repairs the confirmed manifest-isolation defect, clarifies report assessment limits, tests reader value and measures cost before R5 chooses whether to proceed with, narrow or defer Symfony. Existing v0.4 Milestone 0 then consumes that decision and owns any approved contract/identity migration. This sequencing change does not reopen completed historical milestones or mean readiness implementation is complete. See `.claude/audits/2026-10-10-product-engineering-review.md` for the point-in-time evidence; the active plan remains the sole checklist.
+Readiness R1 repaired the confirmed manifest-isolation defect in development, and R2 clarified report assessment limits under schema `0.8`. R5 selected **`VALIDATE_FIRST`** and deferred Symfony because no participant study, voluntary repeat use, Symfony-owner cases, real large-project/child-memory profile, Lychee memory cause or maintainer-capacity estimate is available. This is a conservative scope decision, not negative-demand evidence. R3/R4 empirical gates and the full R milestone remain open. Milestone 0 may change contracts or identity only after a later evidence-backed release-theme approval; the candidate v0.4 Milestones 0–6 authorize no current adapter/schema/branch migration. See `docs/readiness/release-direction.md` for the decision and `.claude/audits/2026-10-10-product-engineering-review.md` for the original point-in-time audit; the active plan remains the sole checklist.
 
 Same-major Laravel and Illuminate-only/mixed-family staging remain deliberate exclusions, not completed support. The coverage review and static reports never certify target runtime compatibility.
 
