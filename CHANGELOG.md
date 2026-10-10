@@ -18,6 +18,7 @@ This project follows [Semantic Versioning](https://semver.org/). Report schema v
 
 ### Fixed
 
+- Clear ambient `COMPOSER` for compatible scenario and diagnostic processes so a host manifest override cannot redirect Composer away from the temporary workspace or write its adjacent lockfile.
 - Replace PHP 8.5-deprecated object-storage calls in privacy sanitization while preserving cyclic-object redaction. Direct ordinary development-container diagnostics to stderr with standard deprecation exclusions; explicit `E_ALL` runtime regressions keep diagnostic checks for current and preview PHP.
 - Install mbstring when a PHP preview container omits it, enable CLI argument registration explicitly for PHPStan on current PHP, and declare the test evidence recorder's side effects for PHPStan 2.3.
 - Preserve argument positions around PHP 8.6 placeholders so Laravel config and test-double inspection cannot misclassify later fixed arguments; verify malformed JSON against PHP's native diagnostic, including preview location details.

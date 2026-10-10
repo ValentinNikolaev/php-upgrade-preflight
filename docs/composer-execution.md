@@ -4,7 +4,7 @@ Every schema 0.8 report records the Composer executable selection mode, detected
 
 ## Compatible mode
 
-`compatible` is the default. It preserves the behavior needed by projects whose private repositories depend on the analyzer host's Composer configuration, credentials, proxy settings, cache, Git or SSH setup, and network access. Reports label that inheritance explicitly. Solver evidence from this mode depends on that host state and should not be described as cross-host reproducible.
+`compatible` is the default. It preserves the behavior needed by projects whose private repositories depend on the analyzer host's Composer configuration, credentials, proxy settings, cache, Git or SSH setup, and network access. The child process always clears ambient `COMPOSER`, which can otherwise select a manifest and lockfile outside the temporary workspace. This also applies to diagnostic commands. Reports label inherited state explicitly. Solver evidence from this mode depends on that host state and should not be described as cross-host reproducible.
 
 ## Restricted mode
 
@@ -17,6 +17,8 @@ The controlled sources are:
 - XDG config, data, and cache roots;
 - `HTTP_PROXY`, `HTTPS_PROXY`, `ALL_PROXY`, and `NO_PROXY`, including lowercase variants;
 - Git and SSH askpass environment variables and Git terminal prompting.
+
+The manifest selector `COMPOSER` is cleared in both modes. Other Composer environment settings were reviewed for this boundary: `COMPOSER_HOME`, `COMPOSER_AUTH`, `COMPOSER_CACHE_DIR`, and the XDG roots intentionally remain inherited in compatible mode and analyzer-owned in restricted mode. `COMPOSER_VENDOR_DIR` and `COMPOSER_BIN_DIR` can select output directories for installation, but scenario commands use `--no-install` and do not run scripts or plugins; they do not select the manifest or lockfile. `COMPOSER_ROOT_VERSION` and repository/global configuration can affect solving, so compatible results remain host-dependent. This is an input and write-redirection audit, not an OS isolation claim.
 
 Restricted mode does not remove repository URLs or credentials embedded in the analyzed `composer.json`; those are project input and remain available inside the temporary workspace. Use a sanitized manifest when that distinction matters.
 
