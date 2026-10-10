@@ -260,15 +260,15 @@ Acceptance evidence: the final Docker `composer check` passed 1,368 unit tests, 
 
 ## Pre-v0.4 Readiness Milestone R: Trusted Reports and Demonstrated User Value
 
-Priority: P0. Depends on the published Laravel completion baseline. Complete before Milestone 0 changes contracts or development identity and before Symfony work in Milestone 3. Owner: maintainer; implementation and independent review may be delegated. All implementation work below is **not started**; the review that identified it is complete.
+Priority: P0. Depends on the published Laravel completion baseline. Complete before Milestone 0 changes contracts or development identity and before Symfony work in Milestone 3. Owner: maintainer; implementation and independent review may be delegated. R0 is complete; R1–R5 remain open.
 
 Outcome: a reader can distinguish an evidenced blocker from unavailable analysis, identify the next safe action, and explain why this tool adds value to their current workflow. The decision to fund a second adapter follows that evidence. Keep the local, read-only, MIT product, PHP `^8.0` floor, existing valid-report exit policy, and canonical JSON boundary.
 
 ### R0: Record the decision baseline
 
-- [ ] Build a bounded evidence ledger from the five pinned application comparisons, current v0.3.5 contracts, and the new review. Record missing/inaccessible raw reports honestly; report hashes do not substitute for readable evidence. Reuse valid evaluations rather than rerunning the entire guide audit.
-- [ ] Classify the review findings as reproduced defect, source/test-confirmed semantics, measured limitation, or product hypothesis. For each accepted action record priority, owner, affected contract, prerequisite, smallest fix, and observable acceptance evidence.
-- [ ] Define the first intended user and job: provisionally a PHP/Laravel lead or upgrade consultant making a scope, sequence, or budget decision before implementation. Compare with Composer plus upgrade guides and existing migration/static-analysis tools. Record a reason users would choose this report and a practical discovery/install path; do not infer demand from technical coverage or a quiet issue tracker.
+- [x] Build a bounded [evidence ledger](../docs/readiness/decision-baseline.md) from the five pinned application comparisons, current v0.3.5 contracts, and the new review. Record missing/inaccessible raw reports honestly; report hashes do not substitute for readable evidence. Reuse valid evaluations rather than rerunning the entire guide audit.
+- [x] Classify the review findings as reproduced defect, source/test-confirmed semantics, measured limitation, or product hypothesis. For each accepted action record priority, owner, affected contract, prerequisite, smallest fix, and observable acceptance evidence.
+- [x] Define the first intended user and job: provisionally a PHP/Laravel lead or upgrade consultant making a scope, sequence, or budget decision before implementation. Compare with Composer plus upgrade guides and existing migration/static-analysis tools. Record a reason users would choose this report and a practical discovery/install path; do not infer demand from technical coverage or a quiet issue tracker.
 
 Acceptance: every selected action has evidence and a contract classification; the segment and differentiation are explicit hypotheses; no previously completed Laravel item is reopened merely to repeat its checks.
 
@@ -328,7 +328,7 @@ Acceptance gate: R1 safety proof is green, accepted R2 changes are verified, R3/
 
 Planning estimate: 8–18 person-days for a lean implementation/evaluation cycle, typically spread over 2–4 calendar weeks plus recruitment delays. This is a low-confidence capacity assumption for one experienced maintainer, not an estimate of a full application upgrade; substantive newly discovered defects may require a revised range.
 
-Status: not started. First executable task: R0's evidence ledger and contract classification, immediately followed by R1's failing regression and isolation repair.
+Status: R0 complete with its evidence and contract classifications recorded; R1–R5 remain open. Next executable task: R1's failing regression and input-isolation repair.
 
 ## Milestone 0: Confirm the Theme, Freeze v0.3.x, Lock the v0.4 Contract
 
@@ -502,7 +502,7 @@ These are collected with rationale in [the v0.5 proposal](DEVELOPMENT_PLAN_0.5.0
 
 ## Recommended Next Work Session
 
-Start Readiness Milestone R at R0 with the published v0.3.5 baseline and [the product/engineering review](audits/2026-10-10-product-engineering-review.md). Classify the evidence, then add the R1 failing ambient-`COMPOSER` regression and repair the input-isolation boundary before running affected user studies. Proceed through report semantics, reader value and measured cost to R5's scope decision. Milestone 0 then owns any approved contract/branch/schema migration. Do not begin Symfony implementation or check off readiness work from this review alone. The separate JavaScript-action audit remains open.
+Readiness Milestone R now has [R0's decision baseline](../docs/readiness/decision-baseline.md), grounded in the published v0.3.5 contracts and [the product/engineering review](audits/2026-10-10-product-engineering-review.md). Next add the R1 failing ambient-`COMPOSER` regression and repair the input-isolation boundary before running affected user studies. Proceed through report semantics, reader value and measured cost to R5's scope decision. Milestone 0 then owns any approved contract/branch/schema migration. Do not begin Symfony implementation or check off later readiness work from this baseline alone. The separate JavaScript-action audit remains open.
 
 Operational notes carried forward:
 
