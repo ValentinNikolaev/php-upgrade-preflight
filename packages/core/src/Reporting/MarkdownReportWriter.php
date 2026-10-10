@@ -21,6 +21,7 @@ final class MarkdownReportWriter implements ReportWriter
 
         $lines = array_merge(
             $this->renderHeadlineSection($canonical),
+            $this->renderDecisionSection($canonical),
             $this->renderAnalysisRequestSection($canonical),
             $this->renderPlatformProvenanceSection($canonical),
             $this->renderComposerExecutionSection($canonical),
@@ -79,6 +80,129 @@ final class MarkdownReportWriter implements ReportWriter
             '',
             $headline,
         ];
+    }
+
+    /**
+     * Projects the canonical outcome, evidence, plan, and assessment qualifiers before transcripts.
+     *
+     * @param array<string, mixed> $canonical
+     * @return list<string>
+     */
+    private function renderDecisionSection(array $canonical): array
+    {
+        $resolution = $canonical['resolution'];
+        $staged = $this->optionalSection($canonical, 'staged_resolution');
+        $risk = $canonical['risk'];
+        $effort = $canonical['effort'];
+        $lines = [
+            '',
+            '## Decision Summary',
+            sprintf('- Direct target: %s.', $this->code($resolution['status'])),
+        ];
+        if ($staged !== null) {
+            $lines[] = sprintf(
+                '- Staged path: %s, %s; stop reason: %s.',
+                $this->code($this->recordedValue($staged, 'execution_state', 'not recorded')),
+                $this->code($this->recordedValue($staged, 'status', 'not recorded')),
+                $this->code($this->recordedValue($staged, 'stop_reason', 'none'))
+            );
+        }
+
+        $blockers = $canonical['blockers'];
+        $hasRecordedFinding = false;
+        if ($blockers !== []) {
+            $blocker = $blockers[0];
+            $lines[] = sprintf(
+                '- First recorded direct dependency finding: %s for %s (evidence: %s).',
+                $this->code($this->recordedValue($blocker, 'type', 'not recorded')),
+                $this->code($this->recordedValue($blocker, 'subject', 'not recorded')),
+                $this->references($blocker['evidence'] ?? [])
+            );
+            $hasRecordedFinding = true;
+        }
+        if ($staged !== null && ($blocker = $this->firstActiveStagedBlocker($staged)) !== null) {
+            $lines[] = sprintf(
+                '- First active staged blocker: %s for %s (evidence: %s).',
+                $this->code($this->recordedValue($blocker, 'category', 'not recorded')),
+                $this->code($this->recordedValue($blocker, 'subject', 'not recorded')),
+                $this->references($blocker['evidence'] ?? [])
+            );
+            $hasRecordedFinding = true;
+        }
+        if (!$hasRecordedFinding) {
+            $lines[] = '- First recorded blocker: none recorded.';
+        }
+
+        $lines[] = '- Relevant recorded plan actions:';
+        $planStages = $canonical['plan']['stages'] ?? [];
+        if ($planStages === []) {
+            $lines[] = '  - None recorded.';
+        } else {
+            $selectedStages = array_slice($planStages, 0, 2);
+            if ($staged !== null) {
+                foreach ($this->optionalList($staged, 'stages') as $stageOutcome) {
+                    if (($stageOutcome['execution_state'] ?? null) === 'evaluated'
+                        && in_array($stageOutcome['resolution_status'] ?? null, ['feasible', 'feasible_with_changes'], true)) {
+                        continue;
+                    }
+                    foreach (array_slice($planStages, 2) as $planStage) {
+                        if (($planStage['stage_id'] ?? null) === ($stageOutcome['id'] ?? null)) {
+                            $selectedStages[] = $planStage;
+                            break;
+                        }
+                    }
+                    break;
+                }
+            }
+            foreach ($selectedStages as $stage) {
+                $lines[] = sprintf(
+                    '  - %s: %s (evidence: %s)',
+                    $this->singleLine($stage['name']),
+                    $this->singleLine($stage['actions'][0] ?? $stage['summary']),
+                    $this->references($stage['evidence'])
+                );
+            }
+        }
+        $lines[] = sprintf('- Observed risk grade: %s. %s', $this->code($risk['level']), $this->singleLine($risk['drivers'][0] ?? 'No qualification recorded.'));
+        $range = (array) $effort['components'] === []
+            ? 'not estimated'
+            : sprintf('%d-%d hours (%s confidence)', $effort['range_hours'][0], $effort['range_hours'][1], $this->singleLine($effort['confidence']));
+        $scope = array_slice($effort['assumptions'], 0, 2);
+        $lines[] = sprintf(
+            '- Planning range: %s. %s',
+            $range,
+            $scope === [] ? 'No scope recorded.' : implode(' ', array_map([$this, 'singleLine'], $scope))
+        );
+        $uncertainties = $canonical['uncertainties'];
+        $lines[] = sprintf('- First recorded limitation: %s', $this->singleLine($uncertainties[0] ?? 'None recorded.'));
+        $tests = $canonical['tests'];
+        $lines[] = sprintf('- First recorded check: %s', $this->singleLine($tests[0]['purpose'] ?? 'No test guidance recorded.'));
+        $applicationValidation = null;
+        foreach ($tests as $test) {
+            if (($test['name'] ?? null) === 'project-test-suite') {
+                $applicationValidation = $test['purpose'];
+                break;
+            }
+        }
+        $lines[] = sprintf('- Application validation: %s', $this->singleLine($applicationValidation ?? 'No project test guidance recorded.'));
+
+        return $lines;
+    }
+
+    /**
+     * @param array<string, mixed> $staged
+     * @return array<string, mixed>|null
+     */
+    private function firstActiveStagedBlocker(array $staged): ?array
+    {
+        foreach ($this->optionalList($staged, 'blocker_registry') as $blocker) {
+            if (($blocker['blocking'] ?? false) === true
+                && !in_array($blocker['lifecycle'] ?? null, ['resolved', 'superseded'], true)) {
+                return $blocker;
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -392,6 +516,27 @@ final class MarkdownReportWriter implements ReportWriter
             $this->code($this->recordedValue($stagedResolution, 'stop_reason', 'none'))
         );
 
+        $budgets = $this->optionalSection($stagedResolution, 'budgets');
+        if ($budgets === null) {
+            $lines[] = '- Budget classification: not recorded by this report.';
+        } else {
+            $lines[] = sprintf(
+                '- Enforced staged limits: %s hops, %s attempts per stage, %s Composer/diagnostic processes, %s seconds per scenario, %s seconds per stage, %s seconds aggregate.',
+                $this->code($this->recordedValue($budgets, 'max_hops', 'not recorded')),
+                $this->code($this->recordedValue($budgets, 'max_attempts_per_stage', 'not recorded')),
+                $this->code($this->recordedValue($budgets, 'max_composer_processes', 'not recorded')),
+                $this->code($this->recordedValue($budgets, 'scenario_timeout_seconds', 'not recorded')),
+                $this->code($this->recordedValue($budgets, 'stage_timeout_seconds', 'not recorded')),
+                $this->code($this->recordedValue($budgets, 'aggregate_timeout_seconds', 'not recorded'))
+            );
+            $lines[] = sprintf(
+                '- Advisory targets: memory %s bytes, JSON %s bytes, Markdown %s bytes. This report records no peak-memory measurement or per-run pass result for these targets.',
+                $this->code($this->recordedValue($budgets, 'memory_bytes', 'not recorded')),
+                $this->code($this->recordedValue($budgets, 'json_report_bytes', 'not recorded')),
+                $this->code($this->recordedValue($budgets, 'markdown_report_bytes', 'not recorded'))
+            );
+        }
+
         $stages = $this->optionalList($stagedResolution, 'stages');
         if ($stages === []) {
             $lines[] = '- No framework stages were executed.';
@@ -539,12 +684,15 @@ final class MarkdownReportWriter implements ReportWriter
             );
         }
         if (isset($stage['effort']['range_hours'])) {
-            $lines[] = sprintf(
-                '  - effort: %d-%d hours (%s confidence)',
-                $stage['effort']['range_hours'][0],
-                $stage['effort']['range_hours'][1],
-                $this->code((string) ($stage['effort']['confidence'] ?? 'not recorded'))
-            );
+            $stageComponents = (array) ($stage['effort']['components'] ?? []);
+            $lines[] = array_key_exists('not_estimated', $stageComponents)
+                ? '  - effort: not estimated (0-0 sentinel).'
+                : sprintf(
+                    '  - effort: %d-%d hours (%s confidence)',
+                    $stage['effort']['range_hours'][0],
+                    $stage['effort']['range_hours'][1],
+                    $this->code((string) ($stage['effort']['confidence'] ?? 'not recorded'))
+                );
         }
         foreach (($stage['recommended_actions'] ?? []) as $action) {
             $lines[] = '  - action: ' . $this->singleLine((string) $action);
@@ -948,12 +1096,14 @@ final class MarkdownReportWriter implements ReportWriter
                 $lines[] = '  - ' . $this->singleLine($driver);
             }
         }
-        $lines[] = sprintf(
-            '- Effort: `%d-%d` hours (%s confidence)',
-            $effort['range_hours'][0],
-            $effort['range_hours'][1],
-            $this->singleLine($effort['confidence'])
-        );
+        $lines[] = (array) $effort['components'] === []
+            ? '- Effort: not estimated (0-0 sentinel).'
+            : sprintf(
+                '- Effort: `%d-%d` hours (%s confidence)',
+                $effort['range_hours'][0],
+                $effort['range_hours'][1],
+                $this->singleLine($effort['confidence'])
+            );
         $lines[] = '- Effort components:';
         $components = (array) $effort['components'];
         if ($components === []) {

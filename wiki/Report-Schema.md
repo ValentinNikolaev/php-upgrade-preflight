@@ -382,6 +382,8 @@ assumptions
 
 Hour bounds are non-negative integers. Use the range and its assumptions for planning, not as a quote.
 
+Schema 0.8 keeps the same field shape and grade vocabulary while current reports qualify incomplete assessments through `risk.drivers` and excluded work through `effort.assumptions`. A low observed-driver grade does not establish runtime compatibility or a complete source assessment. The input-failure `0-0` range is a not-estimated sentinel. The Markdown Decision Summary projects canonical outcomes, evidence, plan actions and qualifiers ahead of transcripts; it does not make a separate compatibility judgment. Structured completeness or nullable estimates require a later schema decision.
+
 ## Tests
 
 Every test has name, purpose, nullable command, and priority (`required` or `recommended`). Null command means known work whose executable command was not discovered. Stage tests add stable `stage_id`.

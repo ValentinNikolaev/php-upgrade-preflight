@@ -266,6 +266,20 @@ final class RiskAndEffortEstimatorTest extends TestCase
         self::assertSame([], $mediumRisk->drivers());
     }
 
+    public function testSkippedStageRetainsItsGradeButSaysTheAssessmentWasNotExecuted(): void
+    {
+        $estimator = new RiskAndEffortEstimator();
+        $stage = $this->stage(null, null, StageAnalysis::SKIPPED);
+
+        $risk = $estimator->estimateStageRisk($stage, [], [], []);
+        $effort = $estimator->estimateStageEffort($stage, [], [], []);
+
+        self::assertSame('low', $risk->level());
+        self::assertStringContainsString('not a verified low-risk assessment', $risk->drivers()[0]);
+        self::assertSame([0, 0], $effort->rangeHours());
+        self::assertStringContainsString('not zero upgrade work', $effort->assumptions()[0]);
+    }
+
     public function testTheStageAndWholeUpgradeRuleSetsDeliberatelyDisagree(): void
     {
         $estimator = new RiskAndEffortEstimator();
@@ -328,7 +342,7 @@ final class RiskAndEffortEstimatorTest extends TestCase
         return $findings;
     }
 
-    private function stage(string $resolutionStatus, ?PackageChange $change = null): StageAnalysis
+    private function stage(?string $resolutionStatus, ?PackageChange $change = null, string $executionState = StageAnalysis::EXECUTED): StageAnalysis
     {
         return new StageAnalysis(
             new FrameworkStageTarget(
@@ -342,7 +356,7 @@ final class RiskAndEffortEstimatorTest extends TestCase
                 [],
                 ['target-evidence']
             ),
-            StageAnalysis::EXECUTED,
+            $executionState,
             $resolutionStatus,
             [],
             null,

@@ -126,6 +126,10 @@ JSON defines the report data. The Markdown version is generated from it. The pub
 
 Schema `0.8` adds the required `staged_resolution` field. The direct `resolution` field and framework guidance still mean what they meant in schema 0.7. If your code reads reports from multiple versions, check [JSON schema and compatibility](docs/schema.md) and the [v0.3 staged-analysis contract](docs/v0.3-contract.md).
 
+Read the Markdown **Decision Summary** before the Composer transcripts. It projects the direct and staged outcomes, first recorded blocking subject and evidence, plan actions, assessment limits, and manual validation from the JSON report. Use the [five report-state reading checklists](docs/readiness/report-reading-checklists.md) to choose the next safe action. A `low` risk grade describes observed drivers only; an unknown or degraded Composer result, skipped stage, source-scan omission, or adapter failure is not a verified low-risk upgrade. `risk.drivers`, `effort.assumptions`, and `uncertainties` qualify those cases in canonical JSON too. The hour range is an uncalibrated planning heuristic for observed dependency, source, and test work, not a project quote. Unobserved migration, deployment, runtime, and business validation work is excluded. An unavailable input report's `0-0` hours means **not estimated**, not no work.
+
+Staged hop, attempt, process, and timeout limits are enforced. The `budgets` memory and report-size values are advisory targets; schema `0.8` records no per-run peak-memory or advisory pass result. Missing measurements are unknown, never zero or a successful check.
+
 Laravel guidance covers 7→8, the direct 7→9 path, and every upgrade from one major version to the next, from 8→9 through 12→13. For an upgrade across several major versions, the rule catalogue must cover every required step. Advice stops at the first gap.
 
 Guidance isn't supported when the current or target major version is unclear or unknown, when both are the same, or when you're downgrading. It also isn't supported outside Laravel 7–13 or when the first required step is missing from the catalogue.

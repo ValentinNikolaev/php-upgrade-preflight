@@ -6,6 +6,7 @@ This project follows [Semantic Versioning](https://semver.org/). Report schema v
 
 ### Changed
 
+- Qualify schema `0.8` risk and effort through existing drivers and assumptions when Composer, input, source, adapter, or staged evidence is incomplete. Add an evidence-linked decision summary before Markdown transcripts, explicit heuristic scope, and enforced-versus-advisory budget labels without changing report shape or historical release artifacts.
 - Use PHP 8.5 for the default development container and refresh compatible Composer Semver, PHP-Parser, PHP-CS-Fixer, PHPStan, and PHPUnit 9.6 dependencies while retaining the PHP 8.0 runtime floor.
 - Require PHP-Parser 5.9 on the modern parser branch to scan PHP 8.6 partial function applications; retain the legacy 4.19 branch and explicit parse uncertainty for unsupported syntax.
 - Accept reviewed Pest 4 alternatives for Laravel 12 and Pest 5 alternatives for Laravel 13, retaining existing recommendations and pinned package evidence.

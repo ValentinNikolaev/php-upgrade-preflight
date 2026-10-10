@@ -260,7 +260,7 @@ Acceptance evidence: the final Docker `composer check` passed 1,368 unit tests, 
 
 ## Pre-v0.4 Readiness Milestone R: Trusted Reports and Demonstrated User Value
 
-Priority: P0. Depends on the published Laravel completion baseline. Complete before Milestone 0 changes contracts or development identity and before Symfony work in Milestone 3. Owner: maintainer; implementation and independent review may be delegated. R0 and R1 are complete; R2–R5 remain open.
+Priority: P0. Depends on the published Laravel completion baseline. Complete before Milestone 0 changes contracts or development identity and before Symfony work in Milestone 3. Owner: maintainer; implementation and independent review may be delegated. R0–R2 are complete; R3–R5 remain open.
 
 Outcome: a reader can distinguish an evidenced blocker from unavailable analysis, identify the next safe action, and explain why this tool adds value to their current workflow. The decision to fund a second adapter follows that evidence. Keep the local, read-only, MIT product, PHP `^8.0` floor, existing valid-report exit policy, and canonical JSON boundary.
 
@@ -286,11 +286,11 @@ Acceptance: no ambient manifest override can redirect a supported scenario outsi
 
 Depends on R0; real affected-project execution also depends on R1.
 
-- [ ] Decide how unknown/degraded resolution and source-scan omissions qualify headline risk and effort. Cover missing Composer, timeout, unavailable metadata, invalid input, failed adapter, scan limits and partially executed stages. Absence of observed findings must not be presented as a completed low-risk assessment.
-- [ ] Separate observed risk drivers from assessment completeness and heuristic effort from a project quote. The existing numeric ranges are uncalibrated planning heuristics; explicitly exclude unobserved migration, deployment, runtime and business validation work. Choose patch-compatible clarification where sufficient; carry any new state/nullability/shape to Milestone 0's schema decision rather than editing published schema `0.8`.
-- [ ] Review task-based reading of feasible, blocked, unknown, direct/staged disagreement and skipped-stage reports. Identify the first blocking subject, evidence, limitation, next action and required manual validation. Put a concise summary before command transcripts using canonical fields; change canonical semantics first if the needed fact is absent. Keep all evidence available and Markdown a faithful projection.
-- [ ] Distinguish enforced budgets from advisory memory/report-size targets in user-facing explanations now, and define any structured schema `0.9` representation in Milestone 0. Test missing measurements as missing evidence, not zero or a successful limit check.
-- [ ] Add behavior tests for accepted semantic/summary changes, CLI/Artisan parity, JSON/Markdown projection and evidence integrity. Run the complete deterministic gate before marking implementation complete; do not freeze incidental copy or pretend usability was proved by snapshots.
+- [x] Decide how unknown/degraded resolution and source-scan omissions qualify headline risk and effort. Cover missing Composer, timeout, unavailable metadata, invalid input, failed adapter, scan limits and partially executed stages. Absence of observed findings must not be presented as a completed low-risk assessment.
+- [x] Separate observed risk drivers from assessment completeness and heuristic effort from a project quote. The existing numeric ranges are uncalibrated planning heuristics; explicitly exclude unobserved migration, deployment, runtime and business validation work. Choose patch-compatible clarification where sufficient; carry any new state/nullability/shape to Milestone 0's schema decision rather than editing published schema `0.8`.
+- [x] Review task-based reading of feasible, blocked, unknown, direct/staged disagreement and skipped-stage reports. Identify the first blocking subject, evidence, limitation, next action and required manual validation. Put a concise summary before command transcripts using canonical fields; change canonical semantics first if the needed fact is absent. Keep all evidence available and Markdown a faithful projection.
+- [x] Distinguish enforced budgets from advisory memory/report-size targets in user-facing explanations now, and define any structured schema `0.9` representation in Milestone 0. Test missing measurements as missing evidence, not zero or a successful limit check.
+- [x] Add behavior tests for accepted semantic/summary changes, CLI/Artisan parity, JSON/Markdown projection and evidence integrity. Run the complete deterministic gate before marking implementation complete; do not freeze incidental copy or pretend usability was proved by snapshots.
 
 Acceptance: the reviewed unknown-resolution case cannot be read as verified low upgrade risk; five report states have independently reviewed next-action checklists; the estimate's scope and unmeasured work are clear without searching the uncertainty appendix.
 
@@ -328,7 +328,7 @@ Acceptance gate: R1 safety proof is green, accepted R2 changes are verified, R3/
 
 Planning estimate: 8–18 person-days for a lean implementation/evaluation cycle, typically spread over 2–4 calendar weeks plus recruitment delays. This is a low-confidence capacity assumption for one experienced maintainer, not an estimate of a full application upgrade; substantive newly discovered defects may require a revised range.
 
-Status: R0 and R1 complete; R1's real Composer regression proved the inherited-manifest redirect and its repair. R2–R5 remain open. Next executable task: R2's report-semantic clarification.
+Status: R0–R2 complete; R1's real Composer regression proved the inherited-manifest redirect and its repair, and R2's report semantics passed independent review with the composed verification recorded in the [decision baseline](../docs/readiness/decision-baseline.md). R3–R5 remain open. Next executable task: R3's participant study; R4's measured cost work can proceed independently. Neither has evidence from R2's engineering tests.
 
 ## Milestone 0: Confirm the Theme, Freeze v0.3.x, Lock the v0.4 Contract
 
@@ -502,7 +502,7 @@ These are collected with rationale in [the v0.5 proposal](DEVELOPMENT_PLAN_0.5.0
 
 ## Recommended Next Work Session
 
-Readiness Milestone R now has [R0's decision baseline](../docs/readiness/decision-baseline.md), grounded in the published v0.3.5 contracts and [the product/engineering review](audits/2026-10-10-product-engineering-review.md). R1 repaired the inherited-manifest boundary with a real offline Composer regression. Proceed through report semantics, reader value and measured cost to R5's scope decision. Milestone 0 then owns any approved contract/branch/schema migration. Do not begin Symfony implementation or check off later readiness work from this baseline alone. The separate JavaScript-action audit remains open.
+Readiness Milestone R now has [R0's decision baseline and R2 acceptance record](../docs/readiness/decision-baseline.md), grounded in the published v0.3.5 contracts and [the product/engineering review](audits/2026-10-10-product-engineering-review.md). R1 repaired the inherited-manifest boundary with a real offline Composer regression; R2 qualified report completeness, estimate scope, next actions, and budget language without changing schema `0.8`. Proceed through R3 reader value and R4 measured cost to R5's scope decision. Milestone 0 then owns any approved contract/branch/schema migration. Do not begin Symfony implementation or check off later readiness work from this baseline alone. The separate JavaScript-action audit remains open.
 
 Operational notes carried forward:
 

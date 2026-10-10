@@ -17,6 +17,9 @@ PHP Upgrade Preflight is a public-beta planning tool that predicts dependency an
 
 ## Source inspection
 
+- The headline risk grade rates observed findings, not assessment completeness or runtime compatibility. Missing Composer, timeout, unavailable metadata, invalid project input, failed adapter rules, source-scan limits, and unexecuted stages can leave important work unseen. Read `risk.drivers` and `uncertainties` alongside `resolution.status` and `staged_resolution.status`; an empty finding list in a partial analysis is not a clean bill of health.
+- Effort ranges are low-confidence, uncalibrated planning heuristics over observed dependency, source-change, and test/debugging work. They exclude unobserved migrations, deployment, runtime failures, and business validation. The terminal input-failure report uses `0-0` as an explicit **not-estimated** sentinel. No report is a whole-project quote.
+
 - The scanner parses PHP syntax and reports supported static symbol and configuration references.
 - It does not execute the application, resolve container bindings, evaluate dynamic class names, or infer string-built symbols.
 - Composer PSR-4 and PSR-0 ownership uses deterministic longest-prefix matching for class-like symbols. Function and constant ownership requires an exact declaration from an available classmap or files entry. Root `autoload-dev` metadata is indexed, while dependency `autoload-dev` metadata remains root-only and is ignored.

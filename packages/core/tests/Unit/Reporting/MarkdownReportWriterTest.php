@@ -31,6 +31,142 @@ use PHPUnit\Framework\TestCase;
 
 final class MarkdownReportWriterTest extends TestCase
 {
+    public function testDecisionSummaryProjectsCanonicalStatesActionsAndEvidenceBeforeTranscripts(): void
+    {
+        $writer = new MarkdownReportWriter();
+        $canonical = $this->buildReport()->toArray();
+        $canonical['blockers'][] = (new Blocker(
+            'abandoned-package',
+            'vendor/old',
+            'Maintenance advisory.',
+            'high',
+            ['source-1']
+        ))->toArray();
+        $canonical['resolution']['status'] = 'unknown';
+        $canonical['staged_resolution']['execution_state'] = 'skipped';
+        $canonical['staged_resolution']['status'] = 'unknown';
+        $canonical['staged_resolution']['stop_reason'] = 'hop_budget_exceeded';
+        $canonical['risk']['drivers'] = ['Assessment incomplete: target resolution was unavailable.'];
+        $canonical['effort']['assumptions'] = ['Planning heuristic, not a quote.', 'Deployment work excluded.'];
+
+        $markdown = $writer->renderCanonical($canonical);
+
+        self::assertLessThan(strpos($markdown, '## Composer Scenarios'), strpos($markdown, '## Decision Summary'));
+        self::assertStringContainsString('- Direct target: `unknown`.', $markdown);
+        self::assertStringContainsString('- Staged path: `skipped`, `unknown`; stop reason: `hop_budget_exceeded`.', $markdown);
+        self::assertStringContainsString('First recorded direct dependency finding: `transitive-package-conflict` for `fixture/dependency` (evidence: `source-1`)', $markdown);
+        self::assertStringContainsString('dependencies: Regenerate the lock file. (evidence: `source-1`)', $markdown);
+        self::assertStringContainsString('Assessment incomplete: target resolution was unavailable.', $markdown);
+        self::assertStringContainsString('Planning heuristic, not a quote. Deployment work excluded.', $markdown);
+        self::assertStringContainsString('- First recorded check: Run regression coverage.', $markdown);
+        self::assertStringContainsString('- Application validation: Run regression coverage.', $markdown);
+        self::assertStringNotContainsString('First recorded direct dependency finding: `abandoned-package`', $markdown);
+    }
+
+    public function testDecisionSummaryShowsDirectAndStagedDisagreementAndUnmeasuredAdvisoryBudgets(): void
+    {
+        $canonical = $this->buildReport()->toArray();
+        $canonical['resolution']['status'] = 'blocked';
+        $canonical['staged_resolution']['execution_state'] = 'evaluated';
+        $canonical['staged_resolution']['status'] = 'feasible_with_changes';
+        $canonical['staged_resolution']['stop_reason'] = null;
+        $canonical['staged_resolution']['budgets']['memory_bytes'] = null;
+
+        $markdown = (new MarkdownReportWriter())->renderCanonical($canonical);
+
+        self::assertStringContainsString('- Direct target: `blocked`.', $markdown);
+        self::assertStringContainsString('- Staged path: `evaluated`, `feasible_with_changes`;', $markdown);
+        self::assertStringContainsString('- Enforced staged limits:', $markdown);
+        self::assertStringContainsString('- Advisory targets: memory `not recorded` bytes', $markdown);
+        self::assertStringContainsString('records no peak-memory measurement or per-run pass result', $markdown);
+        self::assertStringNotContainsString('memory `0` bytes', $markdown);
+    }
+
+    public function testDecisionSummarySkipsResolvedStagedBlockerWhenSelectingFirstActiveSubject(): void
+    {
+        $canonical = $this->buildReport()->toArray();
+        $canonical['blockers'] = [];
+        $resolved = $this->stagedResolutionFixture()['blocker_registry'][0];
+        $resolved['blocking'] = true;
+        $resolved['lifecycle'] = 'resolved';
+        $active = $resolved;
+        $active['subject'] = 'vendor/active';
+        $active['lifecycle'] = 'persists';
+        $active['evidence'] = ['stage-evidence-1'];
+        $canonical['staged_resolution']['blocker_registry'] = [$resolved, $active];
+
+        $markdown = (new MarkdownReportWriter())->renderCanonical($canonical);
+
+        self::assertStringContainsString('First active staged blocker: `package_conflict` for `vendor/active` (evidence: `stage-evidence-1`)', $markdown);
+        self::assertStringNotContainsString('First active staged blocker: `package_conflict` for `phpunit/phpunit`', $markdown);
+    }
+
+    public function testDecisionSummaryRetainsBlockedStageBesideDirectAdvisory(): void
+    {
+        $canonical = $this->buildReport()->toArray();
+        $canonical['resolution']['status'] = 'feasible_with_changes';
+        $canonical['blockers'] = [(new Blocker('abandoned-package', 'vendor/old', 'Advisory.', 'high', ['source-1']))->toArray()];
+        $active = $this->stagedResolutionFixture()['blocker_registry'][0];
+        $active['blocking'] = true;
+        $active['lifecycle'] = 'persists';
+        $active['evidence'] = ['stage-evidence-1'];
+        $canonical['staged_resolution']['blocker_registry'] = [$active];
+
+        $markdown = (new MarkdownReportWriter())->renderCanonical($canonical);
+        $summary = substr($markdown, 0, (int) strpos($markdown, '## Analysis Request'));
+
+        self::assertStringContainsString('First recorded direct dependency finding: `abandoned-package` for `vendor/old`', $summary);
+        self::assertStringContainsString('First active staged blocker: `package_conflict` for `phpunit/phpunit`', $summary);
+    }
+
+    public function testDecisionSummaryIncludesTheFirstStoppedHopBeyondTwoSuccessfulHops(): void
+    {
+        $canonical = $this->buildReport()->toArray();
+        $first = $this->stagedResolutionFixture()['stages'][0];
+        $first['id'] = 'laravel-10-to-11';
+        $first['resolution_status'] = 'feasible_with_changes';
+        $second = $first;
+        $second['id'] = 'laravel-11-to-12';
+        $stopped = $first;
+        $stopped['id'] = 'laravel-12-to-13';
+        $stopped['resolution_status'] = 'blocked';
+        $canonical['staged_resolution']['stages'] = [$first, $second, $stopped];
+        $canonical['plan']['stages'] = [
+            ['stage_id' => 'laravel-10-to-11', 'name' => 'first', 'summary' => 'First hop.', 'actions' => ['Apply first candidate.'], 'evidence' => ['source-1']],
+            ['stage_id' => 'laravel-11-to-12', 'name' => 'second', 'summary' => 'Second hop.', 'actions' => ['Apply second candidate.'], 'evidence' => ['source-1']],
+            ['stage_id' => 'laravel-12-to-13', 'name' => 'stopped', 'summary' => 'Stop here.', 'actions' => ['Resolve the third-hop blocker and rerun.'], 'evidence' => ['source-1']],
+        ];
+
+        $markdown = (new MarkdownReportWriter())->renderCanonical($canonical);
+        $summary = substr($markdown, 0, (int) strpos($markdown, '## Analysis Request'));
+
+        self::assertStringContainsString('first: Apply first candidate.', $summary);
+        self::assertStringContainsString('second: Apply second candidate.', $summary);
+        self::assertStringContainsString('stopped: Resolve the third-hop blocker and rerun.', $summary);
+    }
+
+    public function testSkippedStageEffortSentinelIsNotDisplayedAsZeroWork(): void
+    {
+        $canonical = $this->buildReport()->toArray();
+        $stage = $this->minimalStage('laravel-10-to-11', [
+            'execution_state' => 'skipped',
+            'resolution_status' => null,
+            'attempts' => [],
+            'effort' => [
+                'range_hours' => [0, 0],
+                'confidence' => 'low',
+                'components' => ['not_estimated' => [0, 0]],
+                'assumptions' => ['The stage was not analyzed.'],
+            ],
+        ]);
+        $canonical['staged_resolution']['stages'] = [$stage];
+
+        $markdown = (new MarkdownReportWriter())->renderCanonical($canonical);
+
+        self::assertStringContainsString('  - effort: not estimated (0-0 sentinel).', $markdown);
+        self::assertStringNotContainsString('  - effort: 0-0 hours', $markdown);
+    }
+
     public function testItProjectsDiagnosticsSourceImpactUncertaintiesAndEvidence(): void
     {
         $longStdoutLine = $this->longStdoutLine();

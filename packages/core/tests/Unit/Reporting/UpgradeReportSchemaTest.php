@@ -47,13 +47,30 @@ final class UpgradeReportSchemaTest extends TestCase
             $projectPath
         );
         $snapshotPath = dirname(__DIR__, 2) . '/Snapshots/upgrade-report-v0.8.json';
-        if (getenv('PHP_UPGRADE_PREFLIGHT_UPDATE_SNAPSHOTS') === '1') {
-            file_put_contents($snapshotPath, $actual);
-        }
         $snapshot = file_get_contents($snapshotPath);
 
         self::assertIsString($snapshot);
-        self::assertSame($snapshot, $actual);
+        /** @var array<string, mixed> $current */
+        $current = json_decode($actual, true, 512, JSON_THROW_ON_ERROR);
+        /** @var array<string, mixed> $historical */
+        $historical = json_decode($snapshot, true, 512, JSON_THROW_ON_ERROR);
+        self::assertSame(
+            'Risk level grades observed dependency, framework, and source findings only; it does not verify application runtime safety.',
+            $current['risk']['drivers'][0]
+        );
+        self::assertSame(
+            'Hours are an uncalibrated planning heuristic for reported dependency, source-change, and test/debugging work, not a project quote.',
+            $current['effort']['assumptions'][0]
+        );
+        self::assertSame(
+            'Unobserved migration, deployment, runtime failures, and business validation work are excluded.',
+            $current['effort']['assumptions'][1]
+        );
+        array_shift($current['risk']['drivers']);
+        array_shift($current['effort']['assumptions']);
+        array_shift($current['effort']['assumptions']);
+
+        self::assertSame($historical, $current);
     }
 
     public function testCanonicalV08ReportConformsToThePublishedSchema(): void
