@@ -12,6 +12,41 @@ use Symfony\Component\Filesystem\Filesystem;
 
 final class AutoloadOwnershipIndexBuilderTest extends TestCase
 {
+    public function testAnUnreadableClassmapDirectoryDoesNotAbortOwnershipIndexing(): void
+    {
+        if (DIRECTORY_SEPARATOR === '\\') {
+            self::markTestSkipped('POSIX directory permissions are required for this failure control.');
+        }
+        $projectPath = sys_get_temp_dir() . '/autoload-ownership-' . bin2hex(random_bytes(8));
+        mkdir($projectPath . '/blocked', 0700, true);
+        mkdir($projectPath . '/readable', 0700, true);
+        file_put_contents($projectPath . '/readable/Client.php', '<?php namespace Fixture; final class Client {}');
+        file_put_contents($projectPath . '/composer.json', '{"autoload":{"psr-4":{"App\\\\":"src/"},"classmap":["blocked/","readable/"]}}');
+        file_put_contents($projectPath . '/composer.lock', '{"packages":[],"packages-dev":[]}');
+
+        try {
+            chmod($projectPath . '/blocked', 0000);
+            clearstatcache();
+            if (is_readable($projectPath . '/blocked')) {
+                self::markTestSkipped('The current user can bypass the directory permission control.');
+            }
+            $uncertainties = [];
+            $index = (new AutoloadOwnershipIndexBuilder())->build(
+                (new ProjectStateBuilder())->build($projectPath),
+                $uncertainties
+            );
+
+            self::assertSame([SymbolOwnershipIndex::ROOT_OWNER], $index->lookup('App\\Service')['owners']);
+            self::assertSame([SymbolOwnershipIndex::ROOT_OWNER], $index->lookup('Fixture\\Client')['owners']);
+            self::assertSame([
+                'Root package classmap mapping could not be traversed, so its symbols could not be indexed.',
+            ], $uncertainties);
+        } finally {
+            chmod($projectPath . '/blocked', 0700);
+            (new Filesystem())->remove($projectPath);
+        }
+    }
+
     public function testItIndexesRootAndLockedStaticAutoloadMetadataWithoutLoadingCode(): void
     {
         $projectPath = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'autoload-ownership-' . bin2hex(random_bytes(8));

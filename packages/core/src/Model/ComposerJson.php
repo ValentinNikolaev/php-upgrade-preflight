@@ -10,18 +10,54 @@ final class ComposerJson
     private array $data;
     /** @var array<string, string|false> */
     private array $platformPackages;
+    /** @var array<string, true> */
+    private array $objectPaths = [];
 
-    /** @param array<string, mixed> $data */
-    public function __construct(array $data)
+    /**
+     * @param array<string, mixed> $data
+     * @param list<list<array-key>> $objectPaths
+     */
+    public function __construct(array $data, array $objectPaths = [])
     {
         $this->data = $data;
         $this->platformPackages = self::normalizePlatformPackages($data['config']['platform'] ?? null);
+        foreach ($objectPaths as $path) {
+            $this->objectPaths[serialize($path)] = true;
+        }
     }
 
     /** @return array<string, mixed> */
     public function data(): array
     {
         return $this->data;
+    }
+
+    /** @param array<string, mixed> $data */
+    public function withData(array $data): self
+    {
+        $manifest = new self($data);
+        $manifest->objectPaths = $this->objectPaths;
+
+        return $manifest;
+    }
+
+    /** Preserve source object shapes without changing the array-based analysis API. */
+    public function jsonData(): \stdClass
+    {
+        return (object) $this->restoreJsonObjects($this->data, []);
+    }
+
+    /** @param list<array-key> $path */
+    private function restoreJsonObjects(mixed $value, array $path): mixed
+    {
+        if (!is_array($value)) {
+            return $value;
+        }
+        foreach ($value as $key => $item) {
+            $value[$key] = $this->restoreJsonObjects($item, array_merge($path, [$key]));
+        }
+
+        return isset($this->objectPaths[serialize($path)]) ? (object) $value : $value;
     }
 
     /** @return array<string, string> */

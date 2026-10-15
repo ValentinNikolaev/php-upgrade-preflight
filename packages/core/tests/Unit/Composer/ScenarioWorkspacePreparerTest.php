@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace PhpUpgradePreflight\Core\Tests\Unit\Composer;
 
 use PhpUpgradePreflight\Core\Composer\InvalidJsonException;
+use PhpUpgradePreflight\Core\Composer\ProjectStateBuilder;
 use PhpUpgradePreflight\Core\Composer\ScenarioOutcomeClassifier;
 use PhpUpgradePreflight\Core\Composer\ScenarioWorkspacePreparer;
 use PhpUpgradePreflight\Core\Model\ComposerJson;
@@ -22,6 +23,71 @@ final class ScenarioWorkspacePreparerTest extends TestCase
 {
     /** @var list<string> */
     private array $directories = [];
+
+    public function testWorkspaceRewritesPreserveJsonObjectsAndListsAcrossCandidateStates(): void
+    {
+        $projectPath = $this->createDirectory('preflight-project-');
+        $workspacePath = $this->createDirectory('preflight-workspace-');
+        file_put_contents($projectPath . '/composer.json', <<<'JSON'
+{"require":{},"require-dev":{},"autoload":{"psr-4":{},"classmap":[]},"autoload-dev":{},"config":{},"extra":{"object":{},"list":[],"numeric-object":{"0":"value"}},"repositories":[{"packagist.org":false}]}
+JSON);
+        file_put_contents($projectPath . '/composer.lock', '{"packages":[],"packages-dev":[]}');
+        $project = (new ProjectStateBuilder())->build($projectPath);
+        $request = new UpgradeRequest($projectPath, [], null, '8.2');
+        $scenario = new Scenario('json-shapes', $request->targets(), false);
+        $preparer = new ScenarioWorkspacePreparer();
+
+        $preparer->seedProjectState($workspacePath, $project);
+        $this->assertWorkspaceJsonShapes($workspacePath);
+        $candidate = $preparer->applyTemporaryComposerChanges(
+            $workspacePath,
+            $project,
+            $scenario,
+            TargetPlatform::fromRequest($request, $project)
+        );
+        $this->assertWorkspaceJsonShapes($workspacePath);
+        $written = json_decode((string) file_get_contents($workspacePath . '/composer.json'));
+        self::assertSame('8.2.0', $written->config->platform->php);
+
+        $preparer->seedProjectState($workspacePath, new ProjectState($projectPath, $candidate, $project->composerLock()));
+        $this->assertWorkspaceJsonShapes($workspacePath);
+    }
+
+    public function testAnInvalidManifestListIsNotSilentlyConvertedIntoAnObject(): void
+    {
+        $projectPath = $this->createDirectory('preflight-project-');
+        $workspacePath = $this->createDirectory('preflight-workspace-');
+        file_put_contents($projectPath . '/composer.json', '{"require":[]}');
+        file_put_contents($projectPath . '/composer.lock', '{"packages":[]}');
+        $project = (new ProjectStateBuilder())->build($projectPath);
+        $request = new UpgradeRequest($projectPath, [], null, '8.2');
+        $preparer = new ScenarioWorkspacePreparer();
+        $preparer->applyTemporaryComposerChanges(
+            $workspacePath,
+            $project,
+            new Scenario('invalid-list', $request->targets(), false),
+            TargetPlatform::fromRequest($request, $project)
+        );
+
+        $written = json_decode((string) file_get_contents($workspacePath . '/composer.json'));
+        self::assertSame([], $written->require);
+    }
+
+    private function assertWorkspaceJsonShapes(string $workspacePath): void
+    {
+        $written = json_decode((string) file_get_contents($workspacePath . '/composer.json'));
+        self::assertInstanceOf(\stdClass::class, $written->require);
+        self::assertInstanceOf(\stdClass::class, $written->{'require-dev'});
+        self::assertInstanceOf(\stdClass::class, $written->autoload->{'psr-4'});
+        self::assertSame([], $written->autoload->classmap);
+        self::assertInstanceOf(\stdClass::class, $written->{'autoload-dev'});
+        self::assertInstanceOf(\stdClass::class, $written->config);
+        self::assertInstanceOf(\stdClass::class, $written->extra->object);
+        self::assertSame([], $written->extra->list);
+        self::assertInstanceOf(\stdClass::class, $written->extra->{'numeric-object'});
+        self::assertSame('value', $written->extra->{'numeric-object'}->{'0'});
+        self::assertIsArray($written->repositories);
+    }
 
     protected function tearDown(): void
     {

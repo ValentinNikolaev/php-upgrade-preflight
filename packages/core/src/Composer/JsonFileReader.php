@@ -8,8 +8,13 @@ use PhpUpgradePreflight\Core\Support\SensitiveOutputRedactor;
 
 final class JsonFileReader
 {
-    /** @return array<string, mixed> */
-    public function read(string $path): array
+    /**
+     * Pass an array to capture object locations for lossless manifest rewrites.
+     *
+     * @param list<list<array-key>>|null $objectPaths
+     * @return array<string, mixed>
+     */
+    public function read(string $path, ?array &$objectPaths = null): array
     {
         if (!is_file($path)) {
             throw new MissingJsonFileException(
@@ -53,12 +58,35 @@ final class JsonFileReader
 
         $this->assertManifestObjectSections($structured, $path);
 
+        if ($objectPaths !== null) {
+            $objectPaths = [];
+            $this->collectObjectPaths($structured, [], $objectPaths);
+        }
+
         $decoded = json_decode($contents, true);
         if (!is_array($decoded)) {
             throw new \LogicException('A JSON object must decode to an associative array.');
         }
 
         return $decoded;
+    }
+
+    /**
+     * @param list<array-key> $path
+     * @param list<list<array-key>> $objectPaths
+     */
+    private function collectObjectPaths(mixed $value, array $path, array &$objectPaths): void
+    {
+        if ($value instanceof \stdClass) {
+            $objectPaths[] = $path;
+            $value = get_object_vars($value);
+        }
+        if (!is_array($value)) {
+            return;
+        }
+        foreach ($value as $key => $item) {
+            $this->collectObjectPaths($item, array_merge($path, [$key]), $objectPaths);
+        }
     }
 
     private function assertManifestObjectSections(\stdClass $document, string $path): void

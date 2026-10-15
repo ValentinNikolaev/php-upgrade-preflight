@@ -225,9 +225,19 @@ final class AutoloadOwnershipIndexBuilder
             return;
         }
 
-        $files = is_file($resolved)
-            ? [$resolved]
-            : $this->phpFiles($resolved, $this->maxExactFiles - $this->indexedFileCount);
+        try {
+            $files = is_file($resolved)
+                ? [$resolved]
+                : $this->phpFiles($resolved, $this->maxExactFiles - $this->indexedFileCount);
+        } catch (\UnexpectedValueException) {
+            $uncertainties[] = sprintf(
+                '%s %s mapping could not be traversed, so its symbols could not be indexed.',
+                $this->ownerLabel($owner),
+                $mappingType
+            );
+
+            return;
+        }
         if ($files === null) {
             $this->indexedFileCount = $this->maxExactFiles;
             $this->reportLimit($uncertainties);

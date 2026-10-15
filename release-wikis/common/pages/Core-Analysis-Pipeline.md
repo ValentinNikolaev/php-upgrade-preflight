@@ -83,6 +83,8 @@ Core removes scenarios that would run the same Composer operation. A PHP-only re
 
 `ScenarioWorkspacePreparer` writes copied `composer.json` and `composer.lock` data into an analyzer-owned workspace. Target constraints and simulated platform values are applied to that copy.
 
+Unreleased correction: temporary manifests preserve JSON object and list shapes, including empty maps such as `require: {}`. Selected candidate manifests retain those shapes when the next stage seeds its workspace.
+
 Example transformation inside the temporary copy:
 
 ```json
@@ -151,6 +153,8 @@ Staged execution uses bounded timeouts from `StagedAnalysisPolicy`. The blocker 
 `SourceScanLimits` bounds the deterministic file prefix, bytes per file, aggregate bytes, and retained unique usages. A reached limit is visible as `E3` evidence-backed uncertainty rather than silent truncation. The default limits are 10,000 files, 2 MiB per file, 64 MiB aggregate, and 10,000 usages.
 
 The scan produces an inventory first. `AutoloadOwnershipIndexBuilder` then maps relevant declarations and symbols to Composer packages using autoload metadata. `SourceImpactBuilder` correlates usages with framework findings or actual candidate package changes.
+
+Unreleased correction: an unreadable classmap directory produces ownership uncertainty and skips that mapping. Other mappings continue to be indexed, so the traversal failure does not abort the report.
 
 Example:
 

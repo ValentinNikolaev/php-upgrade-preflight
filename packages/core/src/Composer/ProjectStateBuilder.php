@@ -37,7 +37,8 @@ final class ProjectStateBuilder
         $composerJsonPath = $projectPath . DIRECTORY_SEPARATOR . 'composer.json';
 
         try {
-            $composerJson = $this->reader->read($composerJsonPath);
+            $objectPaths = [];
+            $composerJson = $this->reader->read($composerJsonPath, $objectPaths);
         } catch (JsonFileException $exception) {
             return new ProjectStateLoadResult(
                 new ProjectState($projectPath, new ComposerJson([]), new ComposerLock([])),
@@ -48,7 +49,7 @@ final class ProjectStateBuilder
         // The manifest model rejects a contradictory manifest at construction, so it is
         // built once, here, where the rejection can still become a structured result.
         try {
-            $manifest = new ComposerJson($composerJson);
+            $manifest = new ComposerJson($composerJson, $objectPaths);
         } catch (\InvalidArgumentException $exception) {
             return new ProjectStateLoadResult(
                 new ProjectState($projectPath, new ComposerJson([]), new ComposerLock([])),
