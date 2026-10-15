@@ -38,6 +38,17 @@ final class JsonFileReaderTest extends TestCase
         );
     }
 
+    public function testObjectPathsDistinguishEmptyAndNumericObjectsFromLists(): void
+    {
+        $path = $this->file('composer.json', '{"extra":{"object":{},"list":[],"numeric-object":{"0":"value"},"nested":[{}]}}');
+        $objectPaths = [];
+        (new JsonFileReader())->read($path, $objectPaths);
+
+        self::assertSame([
+            [], ['extra'], ['extra', 'object'], ['extra', 'numeric-object'], ['extra', 'nested', 0],
+        ], $objectPaths);
+    }
+
     public function testAMissingFileIsReportedWithoutItsDirectory(): void
     {
         $path = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'preflight-absent-composer.json';

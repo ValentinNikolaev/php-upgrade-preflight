@@ -21,7 +21,7 @@ final class ScenarioWorkspacePreparer
     public function seedProjectState(string $tempPath, ProjectState $project): void
     {
         $files = [
-            'composer.json' => $project->composerJson()->data(),
+            'composer.json' => $project->composerJson()->jsonData(),
             'composer.lock' => $project->composerLock()->data(),
         ];
         foreach ($files as $name => $data) {
@@ -66,10 +66,13 @@ final class ScenarioWorkspacePreparer
             $data = $this->withPlatformOverrides($data, $platformOverrides, $project->path());
         }
 
-        $candidateManifest = new ComposerJson($data);
+        $candidateManifest = $project->composerJson()->withData($data);
         $data = $this->absolutePathRepositories($data, $project->path());
 
-        $encoded = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR) . PHP_EOL;
+        $encoded = json_encode(
+            $candidateManifest->withData($data)->jsonData(),
+            JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR
+        ) . PHP_EOL;
         if (@file_put_contents($composerPath, $encoded) === false) {
             throw new \RuntimeException('Unable to write the temporary Composer manifest.');
         }

@@ -19,6 +19,8 @@ This project follows [Semantic Versioning](https://semver.org/). Report schema v
 
 ### Fixed
 
+- Preserve empty and numeric-key JSON objects in temporary Composer manifests and carried candidate states, so valid maps such as `require: {}` are not rewritten as schema-invalid lists.
+- Report unreadable classmap directories as ownership uncertainty and continue indexing other mappings instead of aborting the analysis.
 - Clear ambient `COMPOSER` for compatible scenario and diagnostic processes so a host manifest override cannot redirect Composer away from the temporary workspace or write its adjacent lockfile.
 - Replace PHP 8.5-deprecated object-storage calls in privacy sanitization while preserving cyclic-object redaction. Direct ordinary development-container diagnostics to stderr with standard deprecation exclusions; explicit `E_ALL` runtime regressions keep diagnostic checks for current and preview PHP.
 - Install mbstring when a PHP preview container omits it, enable CLI argument registration explicitly for PHPStan on current PHP, and declare the test evidence recorder's side effects for PHPStan 2.3.
