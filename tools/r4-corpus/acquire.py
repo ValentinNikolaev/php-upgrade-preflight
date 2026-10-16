@@ -6,9 +6,61 @@ import json
 import os
 from pathlib import Path
 import re
+import subprocess
 import tarfile
 import tempfile
 import urllib.request
+
+SOURCE_ALGORITHM = 'r4-tree-v1'
+
+
+def tree_snapshot(root):
+    """Portable r4-tree-v1; byte-compatible with the standalone harness snapshot."""
+    root = Path(root)
+    if root.is_symlink() or not root.is_dir():
+        raise ValueError('source root missing or symlinked')
+    digest = hashlib.sha256()
+    shape = dict.fromkeys(('files', 'directories', 'symlinks', 'bytes', 'php_files', 'php_bytes'), 0)
+    for current, dirs, files in os.walk(root, followlinks=False):
+        dirs.sort()
+        files.sort()
+        for name in sorted(dirs + files):
+            path = Path(current) / name
+            relative = path.relative_to(root).as_posix()
+            if path.is_symlink():
+                kind, content = 'link', os.readlink(path).encode('utf-8', 'surrogateescape')
+                shape['symlinks'] += 1
+            elif path.is_dir():
+                kind, content = 'directory', b''
+                shape['directories'] += 1
+            elif path.is_file():
+                kind = 'file'
+                hasher, size = hashlib.sha256(), 0
+                with path.open('rb') as stream:
+                    for block in iter(lambda: stream.read(1024 * 1024), b''):
+                        hasher.update(block)
+                        size += len(block)
+                content = hasher.digest()
+                shape['files'] += 1
+                shape['bytes'] += size
+                if path.suffix.lower() == '.php':
+                    shape['php_files'] += 1
+                    shape['php_bytes'] += size
+            else:
+                raise ValueError('source contains an unsupported filesystem entry')
+            digest.update(json.dumps([relative, kind], ensure_ascii=True).encode() + b'\0' + content + b'\0')
+    result = {'sha256': digest.hexdigest(), 'shape': shape}
+    for name in ('composer.json', 'composer.lock'):
+        path = root / name
+        result[name + '_sha256'] = sha256(path) if path.is_file() else None
+    return result
+
+
+def source_pin(project):
+    value = project.get('source_snapshot_sha256')
+    if project.get('source_snapshot_algorithm') != SOURCE_ALGORITHM or not isinstance(value, str) or not re.fullmatch(r'[0-9a-f]{64}', value):
+        raise ValueError('missing or invalid verified source snapshot pin: ' + project['id'])
+    return value
 
 
 def sha256(path):
@@ -52,6 +104,8 @@ def projects(manifest):
         for name in ('archive_sha256', 'composer_json_sha256', 'composer_lock_sha256'):
             if not re.fullmatch(r'[0-9a-f]{64}', project[name]):
                 raise ValueError('invalid pinned hash')
+        if 'source_snapshot_sha256' in project or 'source_snapshot_algorithm' in project:
+            source_pin(project)
     return items
 
 
@@ -68,12 +122,37 @@ def safe_parts(name):
     return parts
 
 
-def verify_app(root, project):
+def case_directories(project):
+    result = project.get('case_sensitive_directories', [])
+    if not isinstance(result, list) or any(not isinstance(p, str) or '/'.join(safe_parts(p)) != p for p in result) or len(set(result)) != len(result):
+        raise ValueError('invalid case-sensitive directory declarations')
+    return result
+
+
+def prepare_case_directories(destination, directories):
+    for relative in sorted(directories, key=lambda value: (value.count('/'), value)):
+        path = destination.joinpath(*safe_parts(relative))
+        path.mkdir(parents=True, exist_ok=True)
+        if os.name == 'nt':
+            try:
+                result = subprocess.run(['fsutil', 'file', 'setCaseSensitiveInfo', str(path), 'enable'],
+                                        capture_output=True, timeout=30)
+                if result.returncode != 0:
+                    raise ValueError('fsutil rejected case-sensitive directory: ' + relative)
+            except (OSError, subprocess.SubprocessError, ValueError) as error:
+                raise ValueError('cannot preserve declared archive case variants at ' + str(path) +
+                                 '; enable NTFS case sensitivity or acquire on a case-sensitive filesystem') from error
+
+
+def verify_app(root, project, require_source=False):
     root = Path(root)
     for filename, field in (('composer.json', 'composer_json_sha256'), ('composer.lock', 'composer_lock_sha256')):
         path = root / filename
         if path.is_symlink() or sha256(path) != project[field]:
             raise ValueError('pinned input mismatch: ' + project['id'] + '/' + filename)
+    if require_source or 'source_snapshot_sha256' in project:
+        if tree_snapshot(root)['sha256'] != source_pin(project):
+            raise ValueError('source snapshot mismatch: ' + project['id'])
 
 
 def extract(archive, destination, project, max_total=1024 * 1024 * 1024, max_members=100000):
@@ -81,7 +160,9 @@ def extract(archive, destination, project, max_total=1024 * 1024 * 1024, max_mem
         raise ValueError('archive hash mismatch')
     destination = Path(destination)
     destination.mkdir(parents=True, exist_ok=False)
-    seen, links, total, files, php_files, prefix = set(), [], 0, 0, 0, None
+    sensitive = case_directories(project)
+    prepare_case_directories(destination, sensitive)
+    seen, aliases, links, total, files, php_files, prefix = set(), {}, [], 0, 0, 0, None
     try:
         with tarfile.open(archive, mode='r|gz') as source:
             for count, member in enumerate(source, 1):
@@ -96,7 +177,12 @@ def extract(archive, destination, project, max_total=1024 * 1024 * 1024, max_mem
                         raise ValueError('archive root is not a directory')
                     continue
                 relative = '/'.join(parts[1:])
-                key = relative.casefold()
+                for depth in range(2, len(parts) + 1):
+                    component = '/'.join(parts[1:depth])
+                    prior = aliases.setdefault(component.casefold(), component)
+                    if prior != component and not any(component.startswith(directory + '/') for directory in sensitive):
+                        raise ValueError('case-collision archive path: ' + component)
+                key = relative
                 if key in seen:
                     raise ValueError('duplicate archive path')
                 seen.add(key)
@@ -127,6 +213,9 @@ def extract(archive, destination, project, max_total=1024 * 1024 * 1024, max_mem
                 php_files += target.suffix.lower() == '.php'
         if sorted(links) != sorted(project.get('skipped_archive_links', [])):
             raise ValueError('omitted symlink inventory mismatch')
+        # Declared directories must be archive structure, never synthetic additions.
+        if any(directory not in aliases.values() for directory in sensitive):
+            raise ValueError('declared case-sensitive directory absent from archive')
         verify_app(destination, project)
         for key, actual in (('file_count', files), ('source_bytes', total), ('php_files', php_files)):
             if key in project and actual != project[key]:
@@ -134,7 +223,9 @@ def extract(archive, destination, project, max_total=1024 * 1024 * 1024, max_mem
     except Exception:
         # Keep failed extraction for diagnosis; never remove an existing source tree.
         raise
-    return {'files': files, 'bytes': total, 'php_files': php_files, 'omitted_symlinks': links}
+    return {'files': files, 'bytes': total, 'php_files': php_files, 'omitted_symlinks': links,
+            'source_snapshot_algorithm': SOURCE_ALGORITHM,
+            'source_snapshot_sha256': tree_snapshot(destination)['sha256']}
 
 
 def acquire(project, root, max_archive=512 * 1024 * 1024, max_total=1024 * 1024 * 1024):

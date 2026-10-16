@@ -4,11 +4,12 @@ import argparse
 import hashlib
 import json
 from pathlib import Path
+import shutil
 import subprocess
 import sys
 import time
 
-from acquire import load_json, projects, sha256, verify_app, write_new
+from acquire import SOURCE_ALGORITHM, load_json, projects, sha256, source_pin, verify_app, write_new
 
 
 def fingerprint(root):
@@ -63,6 +64,8 @@ def matrix(manifest):
 
 def make_plan(args):
     manifest = load_json(args.projects)
+    for project in projects(manifest):
+        verify_app(args.apps / project['id'], project, require_source=True)
     tool_files = {p.name: sha256(p) for p in sorted(args.harness.parent.iterdir())
                   if p.is_file() and (p.suffix in ('.py', '.php', '.sh') or p.name == 'Dockerfile')}
     runtime_files = {p.relative_to(args.repo).as_posix(): sha256(p)
@@ -76,7 +79,8 @@ def make_plan(args):
             'tool_runtime_tree_sha256': hashlib.sha256(json.dumps(runtime_files, sort_keys=True).encode()).hexdigest(),
             'github_transport': args.github_transport,
             'image': args.image, 'budget_seconds': args.budget_seconds,
-            'external_timeout_seconds': 600, 'overall_timeout_seconds': args.overall_timeout,
+            'external_timeout_seconds': 600, 'recovery_timeout_seconds': 120,
+            'overall_timeout_seconds': args.overall_timeout,
             'scenario_timeout_seconds': 45, 'diagnostic_timeout_seconds': 15,
             'composer_memory_limit': '1024M', 'runs': matrix(manifest)}
 
@@ -104,14 +108,44 @@ def command(plan, spec, output, cache):
     return result
 
 
+def clean(record):
+    return isinstance(record, dict) and isinstance(record.get('cleanup'), dict) and all(
+        record['cleanup'].get(k) is True for k in ('container_removed', 'host_scratch_removed'))
+
+
+def recover_owned(plan, attempt):
+    """The harness owns identity, PID and OS-temp containment verification."""
+    from summarize import partial_json
+    ownership = attempt / 'raw' / 'ownership.json'
+    result = {'returncode': None, 'ownership_path': str(ownership.resolve()), 'cleanup': {}, 'error': None}
+    if not ownership.is_file():
+        result['error'] = 'Missing durable ownership; manual resource review required before cache inspection or retry'
+        return result
+    try:
+        with (attempt / 'recovery.stdout.log').open('xb') as stdout, (attempt / 'recovery.stderr.log').open('xb') as stderr:
+            result['returncode'] = subprocess.run(
+                [sys.executable, plan['harness'], 'recover', '--ownership', str(ownership.resolve())],
+                stdout=stdout, stderr=stderr, timeout=plan.get('recovery_timeout_seconds', 120)).returncode
+        owner = partial_json(ownership)
+        if isinstance(owner, dict):
+            result['cleanup'] = owner.get('cleanup', {})
+        if result['returncode'] != 0 or not clean(result):
+            result['error'] = 'Owned-resource cleanup unverified; inspect ownership and recovery logs before cache inspection or retry'
+    except (OSError, subprocess.SubprocessError) as error:
+        result['error'] = 'Recovery failed (' + type(error).__name__ + '); ownership retained for manual review'
+    return result
+
+
 def execute(root, plan, only=None):
-    from summarize import verify_attempt
+    from summarize import partial_json, record_error, verify_attempt
     root = Path(root).resolve()
     # Exclusive controller lease: an interrupted controller leaves this for explicit review.
     lease = root / 'controller.lock'
     with lease.open('x'):
         pass
     try:
+        for project in projects(plan['manifest']):
+            verify_app(Path(plan['apps']) / project['id'], project, require_source=True)
         spent = 0.0
         completed = {}
         for spec in plan['runs']:
@@ -127,8 +161,10 @@ def execute(root, plan, only=None):
                     completed[spec['id']] = (attempts[-1], receipt)
                 elif receipt:
                     raw = attempts[-1] / 'raw' / 'run.json'
-                    record = load_json(raw) if raw.exists() else {}
-                    if record.get('immutable') is not True or not all(record.get('cleanup', {}).get(k) is True for k in ('container_removed', 'host_scratch_removed')):
+                    record = partial_json(raw)
+                    recovery = receipt.get('recovery')
+                    safe = (recovery.get('returncode') == 0 and clean(recovery)) if recovery else clean(record)
+                    if not safe or receipt.get('source_after_sha256') != source_pin(next(p for p in projects(plan['manifest']) if p['id'] == spec['project'])):
                         raise ValueError('failed attempt requires safety review before retry')
         ids = {s['id'] for s in plan['runs']}
         if only and not set(only) <= ids:
@@ -136,26 +172,34 @@ def execute(root, plan, only=None):
         for spec in plan['runs']:
             if spec['id'] in completed or (only and spec['id'] not in only):
                 continue
-            if spent + 600 > plan['budget_seconds']:
-                print('Campaign partial: remaining aggregate budget is below one external run cap', file=sys.stderr)
+            if spent + plan.get('external_timeout_seconds', 600) + plan.get('recovery_timeout_seconds', 120) > plan['budget_seconds']:
+                print('Campaign partial: remaining aggregate budget is below one run plus cleanup reserve', file=sys.stderr)
                 return 1
             project = next(p for p in projects(plan['manifest']) if p['id'] == spec['project'])
-            verify_app(Path(plan['apps']) / spec['project'], project)
+            verify_app(Path(plan['apps']) / spec['project'], project, require_source=True)
             parent = completed.get(spec['warm_after']) if spec['warm_after'] else None
             if spec['warm_after'] and not parent:
                 raise ValueError('warm run requires a verifiably completed cold predecessor')
             attempts = attempt_dirs(root, spec['id'])
             attempt = root / 'runs' / spec['id'] / f'attempt-{len(attempts) + 1:04d}'
-            attempt.mkdir(parents=True, exist_ok=False)
-            cache = root / 'caches' / (spec['cache'] if parent else spec['cache'] + '-' + attempt.name)
+            cache = root / 'caches' / (spec['id'] + '-' + attempt.name)
+            if cache.exists() or cache.is_symlink():
+                raise ValueError('refusing existing attempt cache')
             if parent:
-                cache = Path(parent[1]['cache_path'])
-                if fingerprint(cache) != parent[1]['cache_after_sha256']:
+                cold_cache = Path(parent[1]['cache_path'])
+                if fingerprint(cold_cache) != parent[1]['cache_after_sha256']:
                     raise ValueError('warm cache changed since cold completion')
+                cache.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copytree(cold_cache, cache)
+                if fingerprint(cache) != parent[1]['cache_after_sha256'] or fingerprint(cold_cache) != parent[1]['cache_after_sha256']:
+                    raise ValueError('warm cache copy differs from cold completion')
             else:
                 cache.mkdir(parents=True, exist_ok=False)
+            # Source/cache lineage checks finish before allocating an attempt number.
+            attempt.mkdir(parents=True, exist_ok=False)
             invocation = {'plan_sha256': digest(plan), 'spec': spec, 'cache_path': str(cache.resolve()),
                           'cache_before_sha256': fingerprint(cache),
+                          'source_snapshot_algorithm': SOURCE_ALGORITHM, 'source_snapshot_sha256': source_pin(project),
                           'cold_receipt_sha256': sha256(parent[0] / 'completion.json') if parent else None,
                           'argv': command(plan, spec, attempt / 'raw', cache)}
             write_new(attempt / 'invocation.json', invocation)
@@ -163,24 +207,36 @@ def execute(root, plan, only=None):
             exit_code, timed_out, failure = None, False, None
             with (attempt / 'stdout.log').open('xb') as stdout, (attempt / 'stderr.log').open('xb') as stderr:
                 try:
-                    exit_code = subprocess.run(invocation['argv'], stdout=stdout, stderr=stderr, timeout=600).returncode
+                    exit_code = subprocess.run(invocation['argv'], stdout=stdout, stderr=stderr,
+                                               timeout=plan.get('external_timeout_seconds', 600)).returncode
                 except subprocess.TimeoutExpired:
                     timed_out = True
                 except OSError as error:
                     failure = type(error).__name__
-            elapsed = time.monotonic() - started
             raw = attempt / 'raw' / 'run.json'
-            record = load_json(raw) if raw.exists() else None
-            safe = record and record.get('immutable') is True and record.get('cleanup', {}).get('container_removed') is True and record.get('cleanup', {}).get('host_scratch_removed') is True
-            status = 'completed' if safe and record.get('status') == 'completed' and exit_code == 0 and not timed_out else 'failed'
+            record = partial_json(raw)
+            recovery = recover_owned(plan, attempt) if timed_out or not clean(record) else None
+            safe = (recovery.get('returncode') == 0 and clean(recovery)) if recovery else clean(record)
+            validation_error = record_error(record, attempt / 'raw', plan, spec)
+            source_after = None
+            if safe:
+                try:
+                    verify_app(Path(plan['apps']) / spec['project'], project, require_source=True)
+                    source_after = source_pin(project)
+                except (OSError, ValueError) as error:
+                    validation_error = validation_error or str(error)
+            status = 'completed' if safe and not validation_error and record.get('status') == 'completed' and exit_code == 0 and not timed_out else 'failed'
+            elapsed = time.monotonic() - started
             receipt = {'status': status, 'plan_sha256': digest(plan), 'run_id': spec['id'],
                        'external_wall_seconds': elapsed, 'external_timeout': timed_out, 'exit_code': exit_code,
-                       'failure_class': failure, 'cache_path': str(cache.resolve()),
-                       'cache_after_sha256': fingerprint(cache), 'files_sha256': fingerprint(attempt)}
+                       'failure_class': failure, 'validation_error': validation_error, 'recovery': recovery,
+                       'cleanup_verified': safe, 'source_after_sha256': source_after,
+                       'cache_path': str(cache.resolve()),
+                       'cache_after_sha256': fingerprint(cache) if safe else None, 'files_sha256': fingerprint(attempt)}
             write_new(attempt / 'completion.json', receipt)
             verify_attempt(attempt, plan, spec)
             spent += elapsed
-            if status != 'completed' and not (spec['category'] == 'probe' and safe and not timed_out):
+            if status != 'completed' and not (spec['category'] == 'probe' and safe and not timed_out and not validation_error):
                 print('Campaign partial: failed attempt retained at ' + str(attempt), file=sys.stderr)
                 return 1
             if status == 'completed':

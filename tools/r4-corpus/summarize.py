@@ -2,11 +2,12 @@
 """Verify R4 evidence and project JSON/Markdown tables; missing measurements stay null."""
 import argparse
 import math
+import re
 from collections import Counter
 from pathlib import Path
 
-from acquire import load_json, projects, sha256, write_new
-from campaign import attempt_dirs, digest, fingerprint
+from acquire import SOURCE_ALGORITHM, load_json, projects, sha256, source_pin, write_new
+from campaign import attempt_dirs, clean, digest, fingerprint
 
 
 def numeric(value, name):
@@ -16,20 +17,47 @@ def numeric(value, name):
     return value
 
 
+def partial_json(path):
+    """A killed writer may leave no JSON or a truncated document; never infer success."""
+    try:
+        return load_json(path)
+    except (OSError, ValueError):
+        return None
+
+
+def record_error(record, raw, plan, spec):
+    try:
+        if record is None:
+            raise ValueError('missing or truncated harness record')
+        validate_record(record, raw, plan, spec)
+    except (ValueError, TypeError, KeyError, AttributeError) as error:
+        return str(error)
+    return None
+
+
 def verify_attempt(attempt, plan, spec):
     attempt = Path(attempt)
     invocation_path = attempt / 'invocation.json'
     if not invocation_path.exists():
-        if any(attempt.iterdir()):
-            raise ValueError('attempt missing invocation')
         return None
-    invocation = load_json(invocation_path)
+    invocation = partial_json(invocation_path)
+    if invocation is None:
+        return None
+    if not isinstance(invocation, dict):
+        raise ValueError('invalid invocation object')
     if invocation.get('plan_sha256') != digest(plan) or invocation.get('spec') != spec:
         raise ValueError('attempt does not match declared plan')
+    project = next(p for p in projects(plan['manifest']) if p['id'] == spec['project'])
+    if invocation.get('source_snapshot_algorithm') != SOURCE_ALGORITHM or invocation.get('source_snapshot_sha256') != source_pin(project):
+        raise ValueError('invocation source differs from frozen plan')
     completion = attempt / 'completion.json'
     if not completion.exists():
         return None
-    receipt = load_json(completion)
+    receipt = partial_json(completion)
+    if receipt is None:
+        return None
+    if not isinstance(receipt, dict):
+        raise ValueError('invalid completion object')
     if receipt.get('plan_sha256') != digest(plan) or receipt.get('run_id') != spec['id']:
         raise ValueError('completion does not match declared plan')
     if receipt.get('status') not in ('completed', 'failed', 'unavailable'):
@@ -41,8 +69,23 @@ def verify_attempt(attempt, plan, spec):
     del actual['completion.json']
     if actual != receipt.get('files_sha256'):
         raise ValueError('artifact hash inventory mismatch: ' + str(attempt))
+    if receipt.get('cache_path') != invocation.get('cache_path'):
+        raise ValueError('completion cache differs from invocation')
     raw = attempt / 'raw' / 'run.json'
-    record = load_json(raw) if raw.exists() else None
+    record = partial_json(raw)
+    error = record_error(record, attempt / 'raw', plan, spec)
+    if error and not (receipt['status'] != 'completed' and receipt.get('validation_error') == error):
+        raise ValueError(error)
+    recovery = receipt.get('recovery')
+    if recovery is not None:
+        if not isinstance(recovery, dict):
+            raise ValueError('invalid recovery receipt')
+        owner = partial_json(attempt / 'raw' / 'ownership.json')
+        if recovery.get('returncode') == 0 and (not clean(recovery) or not isinstance(owner, dict) or owner.get('cleanup') != recovery.get('cleanup')):
+            raise ValueError('recovery disagrees with durable ownership cleanup')
+    safe = (recovery.get('returncode') == 0 and clean(recovery)) if recovery else clean(record)
+    if receipt.get('cleanup_verified') is not safe or (not safe and receipt.get('cache_after_sha256') is not None):
+        raise ValueError('unverified cleanup or unsafe cache inspection')
     if receipt['status'] == 'completed':
         if not record or record.get('status') != 'completed' or record.get('immutable') is not True or receipt.get('exit_code') != 0 or receipt.get('external_timeout'):
             raise ValueError('false completed attempt')
@@ -50,12 +93,14 @@ def verify_attempt(attempt, plan, spec):
             raise ValueError('inconsistent immutability evidence')
         if not all(record.get('cleanup', {}).get(k) is True for k in ('container_removed', 'host_scratch_removed')):
             raise ValueError('completed record has unverified cleanup')
-    if record:
-        validate_record(record, attempt / 'raw', plan, spec)
+        if not safe or receipt.get('source_after_sha256') != source_pin(project):
+            raise ValueError('completed attempt missing verified source or cleanup')
     return receipt
 
 
 def validate_record(record, raw, plan, spec):
+    if not isinstance(record, dict):
+        raise ValueError('invalid harness record object')
     if record.get('status') not in ('completed', 'failed', 'watchdog_timeout', 'incomplete'):
         raise ValueError('unknown harness status')
     expected = {**spec['request'], 'memory_limit': spec['memory_limit'], 'network': spec['network'],
@@ -82,20 +127,55 @@ def validate_record(record, raw, plan, spec):
     project = next(p for p in projects(plan['manifest']) if p['id'] == spec['project'])
     for key in ('input_before', 'input_after'):
         snapshot = record.get(key)
-        if snapshot:
+        if snapshot is not None or record.get('status') == 'completed':
+            if not isinstance(snapshot, dict) or not isinstance(snapshot.get('sha256'), str) or not re.fullmatch(r'[0-9a-f]{64}', snapshot['sha256']):
+                raise ValueError('missing or invalid source snapshot: ' + key)
+            shape = snapshot.get('shape')
+            if not isinstance(shape, dict) or any(type(shape.get(k)) is not int or shape[k] < 0 for k in ('files', 'directories', 'symlinks', 'bytes', 'php_files', 'php_bytes')):
+                raise ValueError('missing or invalid source snapshot shape: ' + key)
+            if shape['files'] < 2 or shape['php_files'] > shape['files'] or shape['php_bytes'] > shape['bytes']:
+                raise ValueError('inconsistent source snapshot shape: ' + key)
+            for field, count in (('file_count', 'files'), ('source_bytes', 'bytes'), ('php_files', 'php_files')):
+                if field in project and project[field] != shape[count]:
+                    raise ValueError('source snapshot inventory differs from pinned manifest')
+            if snapshot['sha256'] != source_pin(project):
+                raise ValueError('run source snapshot differs from pinned manifest')
             for filename, field in (('composer.json_sha256', 'composer_json_sha256'), ('composer.lock_sha256', 'composer_lock_sha256')):
                 if snapshot.get(filename) != project[field]:
                     raise ValueError('run input differs from pinned manifest')
+    if record.get('status') == 'completed' and (record.get('immutable') is not True or record['input_before'] != record['input_after']):
+        raise ValueError('inconsistent immutability evidence')
+    if record.get('status') == 'completed' and not clean(record):
+        raise ValueError('completed record has unverified cleanup')
+    collector = record.get('collector')
+    if record.get('status') == 'completed' and (not isinstance(collector, dict) or collector.get('status') != 'completed'):
+        raise ValueError('completed record missing completed collector')
+    for section, fields in ((record, ('container_wall_seconds',)),
+                            (collector or {}, ('analysis_seconds', 'php_heap_peak_bytes', 'php_process_peak_rss_kib')),
+                            (record.get('analyzer_resources') or {}, ('elapsed_seconds', 'max_rss_kib')),
+                            (record.get('container') or {}, ('container_memory_v1_peak_bytes',))):
+        if not isinstance(section, dict):
+            raise ValueError('invalid resource metrics object')
+        for key in fields:
+            numeric(section.get(key), key)
     composer = record.get('composer')
-    if composer:
+    if record.get('status') == 'completed' and not isinstance(composer, dict):
+        raise ValueError('completed record missing Composer inventory')
+    if composer is not None:
+        if not isinstance(composer, dict):
+            raise ValueError('invalid Composer inventory')
         invocations = composer.get('invocations')
-        if not isinstance(invocations, list) or composer.get('started_count') != len(invocations):
+        if not isinstance(invocations, list) or type(composer.get('started_count')) is not int or composer['started_count'] != len(invocations):
             raise ValueError('inconsistent Composer starts')
+        if any(not isinstance(v, dict) or not isinstance(v.get('id'), str) or not v['id'] or not isinstance(v.get('resources'), dict) for v in invocations):
+            raise ValueError('invalid Composer invocation')
         if len({v['id'] for v in invocations}) != len(invocations):
             raise ValueError('duplicate Composer invocation')
-        if composer.get('timed_count') != sum(v.get('resources', {}).get('available') is True for v in invocations):
+        if type(composer.get('timed_count')) is not int or composer['timed_count'] != sum(v['resources'].get('available') is True for v in invocations):
             raise ValueError('inconsistent Composer timed count')
         for invocation in invocations:
+            if type(invocation['resources'].get('available')) is not bool:
+                raise ValueError('invalid Composer resource availability')
             for key in ('elapsed_seconds', 'max_rss_kib'):
                 numeric(invocation.get('resources', {}).get(key), key)
     for filename in ('report.json', 'report.md'):
@@ -105,16 +185,45 @@ def validate_record(record, raw, plan, spec):
     report_path = raw / 'report.json'
     if report_path.exists():
         report = load_json(report_path)
+        if not isinstance(report, dict):
+            raise ValueError('invalid canonical report object')
         states = (record.get('collector') or {}).get('report_states') or {}
         for key in ('resolution', 'staged_resolution'):
-            if states.get(key) != report.get(key, {}).get('status'):
+            section = report.get(key)
+            if not isinstance(section, dict) or section.get('status') not in ('feasible', 'feasible_with_changes', 'blocked', 'unknown'):
+                raise ValueError('missing or invalid canonical report section: ' + key)
+            if states.get(key) != section['status']:
                 raise ValueError('collector disagrees with canonical report')
+        if not isinstance(report['resolution'].get('scenarios'), list) or not isinstance(report['staged_resolution'].get('stages'), list) or not isinstance(report.get('uncertainties'), list):
+            raise ValueError('missing canonical scenario, stage or uncertainty inventory')
+        canonical_scenarios(report)
     elif record.get('status') == 'completed':
         raise ValueError('completed harness record missing canonical report')
 
 
+def canonical_scenarios(report):
+    direct, stages = report['resolution']['scenarios'], report['staged_resolution']['stages']
+    staged = []
+    for stage in stages:
+        if not isinstance(stage, dict) or not isinstance(stage.get('attempts'), list):
+            raise ValueError('invalid canonical stage attempts')
+        for attempt in stage['attempts']:
+            if not isinstance(attempt, dict):
+                raise ValueError('invalid canonical stage attempt')
+            if attempt.get('scenario') is not None:
+                staged.append(attempt['scenario'])
+    if any(not isinstance(s, dict) or not isinstance(s.get('outcome'), str) or not isinstance(s.get('diagnostics'), list) for s in direct + staged):
+        raise ValueError('invalid canonical scenario diagnostics')
+    return direct, staged
+
+
 def row_for(attempt, plan, spec):
     receipt = verify_attempt(attempt, plan, spec)
+    if not receipt or receipt.get('validation_error'):
+        return {'run_id': spec['id'], 'project': spec['project'], 'category': spec['category'],
+                'attempt': attempt.name, 'status': receipt['status'] if receipt else 'interrupted',
+                'validation_error': receipt.get('validation_error') if receipt else 'missing or truncated attempt evidence',
+                'metrics': None, 'report_states': None, 'report_counts': None}
     record_path = attempt / 'raw' / 'run.json'
     record = load_json(record_path) if record_path.exists() else {}
     collector = record.get('collector') or {}
@@ -126,12 +235,13 @@ def row_for(attempt, plan, spec):
     report = load_json(report_path) if report_path.exists() else None
     report_counts = None
     if report and isinstance(report.get('resolution', {}).get('scenarios'), list) and isinstance(report.get('staged_resolution', {}).get('stages'), list):
-        direct = report['resolution']['scenarios']
+        direct, staged = canonical_scenarios(report)
         stages = report['staged_resolution']['stages']
-        staged = [a['scenario'] for stage in stages for a in stage.get('attempts', []) if a.get('scenario') is not None]
         scenarios = direct + staged
         report_counts = {'direct_scenarios': len(direct), 'staged_scenarios': len(staged),
                          'stages': len(stages),
+                         'direct_diagnostic_calls': sum(len(s['diagnostics']) for s in direct),
+                         'staged_diagnostic_calls': sum(len(s['diagnostics']) for s in staged),
                          'diagnostic_calls': sum(len(s['diagnostics']) for s in scenarios) if all(isinstance(s.get('diagnostics'), list) for s in scenarios) else None,
                          'scenario_outcomes': dict(Counter(s.get('outcome') for s in scenarios)),
                          'uncertainties': len(report['uncertainties']) if isinstance(report.get('uncertainties'), list) else None}
@@ -192,7 +302,9 @@ def summarize(root):
         rows.extend(current)
         latest.append(current[-1] if current else {'run_id': spec['id'], 'project': spec['project'],
                       'category': spec['category'], 'status': 'not_run', 'metrics': None, 'report_states': None})
-        for attempt in attempts:
+        for attempt, row in zip(attempts, current):
+            if row['status'] == 'interrupted':
+                continue
             invocation_path = attempt / 'invocation.json'
             if not invocation_path.exists():
                 continue
@@ -207,7 +319,7 @@ def summarize(root):
                 if len(matches) != 1:
                     raise ValueError('warm run missing cold predecessor evidence')
                 predecessor = load_json(matches[0] / 'completion.json')
-                if predecessor.get('status') != 'completed' or predecessor.get('cache_path') != invocation.get('cache_path') or predecessor.get('cache_after_sha256') != invocation.get('cache_before_sha256'):
+                if predecessor.get('status') != 'completed' or predecessor.get('cache_path') == invocation.get('cache_path') or predecessor.get('cache_after_sha256') != invocation.get('cache_before_sha256'):
                     raise ValueError('warm cache lineage mismatch')
     complete = all(r['status'] == 'completed' and r.get('probe_observed') is not False for r in latest)
     return {'summary_version': 1, 'status': 'completed' if complete else 'partial',
