@@ -10,6 +10,8 @@ The preselected applications are Crater, BookStack, Lychee, Snipe-IT, Invoice Ni
 
 `projects.json` records immutable application commits, source links, manifest/lock hashes and requests. Acquire source without running application code, Composer installation, scripts, plugins, tests or migrations. Mount application snapshots read-only during analysis. The tool's dependencies are installed separately from its own lock.
 
+Final intake also binds the complete extracted tree with `source_snapshot_sha256` under `r4-tree-v1`, matching the harness's portable path/type/file-content digest. Every source file and directory was compared with a fresh copy of the originally hashed pinned archive before final execution. Lychee's two listed non-source symlinks are omitted explicitly. Windows extraction initially collapsed Koel's `no-name.MP3`/`no-name.mp3` fixtures and Monica 7's `tests/Fixtures`/`tests/fixtures`; those task-owned input directories were reconstructed with case sensitivity before any analysis of those applications. Reproduction must preserve the declared case-sensitive directories or stop with an actionable acquisition error.
+
 ## Predeclared run matrix
 
 Thirty primary top-level analyzer runs:
@@ -33,6 +35,8 @@ The first default-policy Lychee pilot returned operational unknowns after GitHub
 Record analyzer wall time, host/container wall time, PHP heap peak, analyzer RSS, child RSS and container peak as distinct metrics with units and collection methods. Missing measurements are null/unavailable, never zero. Record Composer starts, completions and exit statuses, report bytes, direct/staged conclusions, timeouts/unknowns, scratch leftovers and before/after input digests on success and failure. Derive JSON and Markdown from the same report object without a second solve. Preserve fatal stderr and watchdog outcomes even when no valid report exists.
 
 Pilot Lychee, a small application and the largest/longest-path case before broad execution. Calibrate instrumentation with controlled real offline Composer success/failure and termination. Initially allow at most 600 seconds per top-level run, a 2 GiB container limit and nine analysis hours for the campaign; scenario/diagnostic caps are recorded per run. These are evaluation limits, not product guarantees. Execute measured runs serially to reduce contention. Stop and report partial evidence if measurement or safety checks fail; repair the harness before continuing.
+
+Independent review found that the initial GNU-time Composer wrapper could leave its child alive on a Symfony per-PID timeout, and that the initial controller did not durably own Docker cleanup at its outer deadline. The two early Lychee attempts remain diagnostic pilots, with timeout/resource limitations disclosed; the first also overlapped 6.65 seconds of offline Docker tests. The old controller was stopped after its first receipt at a verified checkpoint with no matching analyzer processes or labeled containers remaining. Do not reuse its plan or cache for the corrected primary series. Recalibrate the repaired cancellation and ownership paths before freezing the final campaign.
 
 ## Review and deliverables
 

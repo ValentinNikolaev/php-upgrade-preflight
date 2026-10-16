@@ -36,7 +36,11 @@
           "target_php": "8.3.0"
         }
       },
-      "snapshot_policy": "Archive regular files; symlinks omitted and listed explicitly; no application dependency installation or execution."
+      "snapshot_policy": "Archive regular files; symlinks omitted and listed explicitly; no application dependency installation or execution.",
+      "source_snapshot_sha256": "52378705ac710e9a3d5c5c1712a67a0c05101617bb8944772452896b71866bf2",
+      "source_snapshot_algorithm": "r4-tree-v1",
+      "source_verification": "Full extracted regular-file bytes and directory shape rechecked against the original pinned archive digest before final campaign; listed symlinks omitted.",
+      "initial_extraction_file_count": 1406
     },
     {
       "id": "bookstack",
@@ -70,7 +74,11 @@
           "target_php": "8.3.0"
         }
       },
-      "snapshot_policy": "Archive regular files; symlinks omitted and listed explicitly; no application dependency installation or execution."
+      "snapshot_policy": "Archive regular files; symlinks omitted and listed explicitly; no application dependency installation or execution.",
+      "source_snapshot_sha256": "7956ae679cdb12723fd1d70ee122b16a2a25ba2243b7606a11646275efc1c654",
+      "source_snapshot_algorithm": "r4-tree-v1",
+      "source_verification": "Full extracted regular-file bytes and directory shape rechecked against the original pinned archive digest before final campaign; listed symlinks omitted.",
+      "initial_extraction_file_count": 2214
     },
     {
       "id": "lychee",
@@ -107,7 +115,11 @@
           "target_php": "8.3.0"
         }
       },
-      "snapshot_policy": "Archive regular files; symlinks omitted and listed explicitly; no application dependency installation or execution."
+      "snapshot_policy": "Archive regular files; symlinks omitted and listed explicitly; no application dependency installation or execution.",
+      "source_snapshot_sha256": "1bc0805d4cd631d132eeda4072cbf0d5c62161187da8fb298fbbec05d5b4a1d6",
+      "source_snapshot_algorithm": "r4-tree-v1",
+      "source_verification": "Full extracted regular-file bytes and directory shape rechecked against the original pinned archive digest before final campaign; listed symlinks omitted.",
+      "initial_extraction_file_count": 2377
     },
     {
       "id": "snipeit",
@@ -141,7 +153,11 @@
           "target_php": "8.3.0"
         }
       },
-      "snapshot_policy": "Archive regular files; symlinks omitted and listed explicitly; no application dependency installation or execution."
+      "snapshot_policy": "Archive regular files; symlinks omitted and listed explicitly; no application dependency installation or execution.",
+      "source_snapshot_sha256": "4cf51d49a7362f683178932c4471e085b9ba6d8526ecc49f018b056f5577bee2",
+      "source_snapshot_algorithm": "r4-tree-v1",
+      "source_verification": "Full extracted regular-file bytes and directory shape rechecked against the original pinned archive digest before final campaign; listed symlinks omitted.",
+      "initial_extraction_file_count": 6994
     },
     {
       "id": "invoiceninja",
@@ -175,7 +191,11 @@
           "target_php": "8.3.0"
         }
       },
-      "snapshot_policy": "Archive regular files; symlinks omitted and listed explicitly; no application dependency installation or execution."
+      "snapshot_policy": "Archive regular files; symlinks omitted and listed explicitly; no application dependency installation or execution.",
+      "source_snapshot_sha256": "3cfa36b145dd24ce337ff9916ffd13b98a71868c1f96c77d59280d00bcaf274e",
+      "source_snapshot_algorithm": "r4-tree-v1",
+      "source_verification": "Full extracted regular-file bytes and directory shape rechecked against the original pinned archive digest before final campaign; listed symlinks omitted.",
+      "initial_extraction_file_count": 4029
     },
     {
       "id": "akaunting",
@@ -209,7 +229,11 @@
           "target_php": "8.3.0"
         }
       },
-      "snapshot_policy": "Archive regular files; symlinks omitted and listed explicitly; no application dependency installation or execution."
+      "snapshot_policy": "Archive regular files; symlinks omitted and listed explicitly; no application dependency installation or execution.",
+      "source_snapshot_sha256": "e9da4cdb15378206626eca9eedf9172b4d0b0ac096a94f52d6d78d9f35cfa7ef",
+      "source_snapshot_algorithm": "r4-tree-v1",
+      "source_verification": "Full extracted regular-file bytes and directory shape rechecked against the original pinned archive digest before final campaign; listed symlinks omitted.",
+      "initial_extraction_file_count": 4119
     },
     {
       "id": "monica",
@@ -243,7 +267,11 @@
           "target_php": "8.3.0"
         }
       },
-      "snapshot_policy": "Archive regular files; symlinks omitted and listed explicitly; no application dependency installation or execution."
+      "snapshot_policy": "Archive regular files; symlinks omitted and listed explicitly; no application dependency installation or execution.",
+      "source_snapshot_sha256": "345ebdb85042bcfe7b6ef4f5a699f8e11a983b2ba02563eb129e0470d7a78622",
+      "source_snapshot_algorithm": "r4-tree-v1",
+      "source_verification": "Full extracted regular-file bytes and directory shape rechecked against the original pinned archive digest before final campaign; listed symlinks omitted.",
+      "initial_extraction_file_count": 1792
     },
     {
       "id": "koel",
@@ -261,9 +289,9 @@
       "composer_json_sha256": "28ab0296fa28203739fb2db496c338d213c1147071209fc8726e15d0d8c1af63",
       "composer_lock_sha256": "4de013cd497add4141065df33676c5cc2aca35ef08d8779239a2f68ca48caaf2",
       "acquired": true,
-      "file_count": 1555,
+      "file_count": 1556,
       "php_files": 642,
-      "source_bytes": 13894746,
+      "source_bytes": 13935559,
       "skipped_archive_links": [],
       "requests": {
         "nearest": {
@@ -277,7 +305,14 @@
           "target_php": "8.3.0"
         }
       },
-      "snapshot_policy": "Archive regular files; symlinks omitted and listed explicitly; no application dependency installation or execution."
+      "snapshot_policy": "Archive regular files; symlinks omitted and listed explicitly; no application dependency installation or execution.",
+      "source_snapshot_sha256": "a38cd344634f566312dbacb7e57ea4e4fe712fb8cc91a6cb43949d91242883d8",
+      "source_snapshot_algorithm": "r4-tree-v1",
+      "source_verification": "Full extracted regular-file bytes and directory shape rechecked against the original pinned archive digest before final campaign; listed symlinks omitted.",
+      "initial_extraction_file_count": 1555,
+      "case_sensitive_directories": [
+        "tests/songs/subdir"
+      ]
     },
     {
       "id": "bagisto",
@@ -311,7 +346,11 @@
           "target_php": "8.3.0"
         }
       },
-      "snapshot_policy": "Archive regular files; symlinks omitted and listed explicitly; no application dependency installation or execution."
+      "snapshot_policy": "Archive regular files; symlinks omitted and listed explicitly; no application dependency installation or execution.",
+      "source_snapshot_sha256": "448baa884e7d25493dc83de02be37dc949084ce7b502dd9d97ca9b5998fb44ae",
+      "source_snapshot_algorithm": "r4-tree-v1",
+      "source_verification": "Full extracted regular-file bytes and directory shape rechecked against the original pinned archive digest before final campaign; listed symlinks omitted.",
+      "initial_extraction_file_count": 2399
     },
     {
       "id": "firefly",
@@ -345,7 +384,11 @@
           "target_php": "8.4.0"
         }
       },
-      "snapshot_policy": "Archive regular files; symlinks omitted and listed explicitly; no application dependency installation or execution."
+      "snapshot_policy": "Archive regular files; symlinks omitted and listed explicitly; no application dependency installation or execution.",
+      "source_snapshot_sha256": "ad214ffdb75e769804e34e60cc5c33f5683ba603fbe50fe8958df2956da037d4",
+      "source_snapshot_algorithm": "r4-tree-v1",
+      "source_verification": "Full extracted regular-file bytes and directory shape rechecked against the original pinned archive digest before final campaign; listed symlinks omitted.",
+      "initial_extraction_file_count": 2352
     }
   ],
   "supplemental_projects": [
@@ -377,7 +420,14 @@
         }
       },
       "supplemental": true,
-      "snapshot_policy": "Archive regular files; symlinks omitted and listed explicitly; no application execution."
+      "snapshot_policy": "Archive regular files; symlinks omitted and listed explicitly; no application execution.",
+      "source_snapshot_sha256": "9559094a393c5fb0862f78e646877cddb0ec2f22856aa15f8f4018299f4119a7",
+      "source_snapshot_algorithm": "r4-tree-v1",
+      "source_verification": "Full extracted regular-file bytes and directory shape rechecked against the original pinned archive digest before final campaign; listed symlinks omitted.",
+      "initial_extraction_file_count": 1946,
+      "case_sensitive_directories": [
+        "tests"
+      ]
     }
   ]
 }
