@@ -332,7 +332,10 @@ def summarize(root):
                                'php_heap_peak_bytes': 'PHP memory_get_peak_usage(true)',
                                'php_process_peak_rss_kib': 'collector Linux /proc/self/status VmHWM',
                                'gnu_time_envelope_max_rss_kib': 'GNU time maxRSS; may include waited descendants',
-                               'composer_max_individual_rss_kib': 'maximum observed GNU time per Composer invocation; not concurrent sum',
+                               'composer_max_individual_rss_kib': 'maximum observed resources.max_rss_kib per Composer invocation; '
+                                                                  'composer_php_process scope = own Linux /proc/self/status VmHWM; '
+                                                                  'other scopes retained in composer_invocations[].resources.scope; '
+                                                                  'absent scope = unknown (including legacy); not concurrent sum',
                                'container_memory_v1_peak_bytes': 'cgroup v1 peak; null where unavailable'},
             'latest': latest, 'attempts': rows}
 

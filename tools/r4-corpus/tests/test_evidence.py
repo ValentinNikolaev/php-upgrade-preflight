@@ -263,6 +263,37 @@ class CampaignEvidence(unittest.TestCase):
         self.assertEqual(123, metrics['composer_max_individual_rss_kib'])
         self.assertIn('null', summarize.markdown(summary))
 
+    def test_composer_rss_projection_preserves_observed_scope_and_unknowns(self):
+        original_record = self.record
+        for index, (scope, rss) in enumerate((('composer_php_process', 123),
+                                             ('gnu_time_envelope', 456), (None, 789), (None, None))):
+            with self.subTest(scope=scope, rss=rss):
+                # Equivalent to PR42 composer_records' PHP shutdown metrics record.
+                resources = {'available': rss is not None, 'elapsed_seconds': 0.125 if rss is not None else None,
+                             'max_rss_kib': rss, 'exit_code': None, 'termination_kind': 'unknown',
+                             'termination_signal': None}
+                if scope is not None:
+                    resources['scope'] = scope
+                def record(spec):
+                    result = original_record(spec)
+                    result['composer'] = {'started_count': 1, 'timed_count': int(resources['available']),
+                                          'invocations': [{'id': 'observed', 'resources': resources}]}
+                    return result
+                output = self.root / ('rss-projection-' + str(index))
+                output.mkdir()
+                acquire.write_new(output / 'plan.json', self.plan)
+                with patch.object(self, 'record', side_effect=record), patch('campaign.subprocess.run', side_effect=self.runner):
+                    self.assertEqual(0, campaign.execute(output, self.plan))
+                summary = summarize.summarize(output)
+                row = summary['latest'][0]
+                self.assertEqual(resources, row['composer_invocations'][0]['resources'])
+                self.assertEqual(rss, row['metrics']['composer_max_individual_rss_kib'])
+                method = summary['metric_methods']['composer_max_individual_rss_kib']
+                self.assertIn('composer_php_process', method)
+                self.assertIn('own Linux /proc/self/status VmHWM', method)
+                self.assertIn('absent scope = unknown', method)
+                self.assertNotIn('GNU time per Composer invocation', method)
+
     def test_failure_preserves_attempt_and_counts_even_without_report(self):
         def fail(argv, **kwargs):
             raw = Path(argv[argv.index('--output') + 1]); raw.mkdir()
