@@ -347,5 +347,37 @@
       },
       "snapshot_policy": "Archive regular files; symlinks omitted and listed explicitly; no application dependency installation or execution."
     }
+  ],
+  "supplemental_projects": [
+    {
+      "id": "monica7",
+      "repository": "monicahq/monica",
+      "requested_ref": "v2.19.1",
+      "kind": "supplemental-six-hop-personal-crm",
+      "commit": "6d809fda1d59048521c6d5c7e8c3306039b18d4c",
+      "eligible": true,
+      "locked_framework": "v7.28.1",
+      "php_constraint": "^7.2.5",
+      "locked_packages": 251,
+      "lock_bytes": 606052,
+      "source_url": "https://github.com/monicahq/monica/tree/6d809fda1d59048521c6d5c7e8c3306039b18d4c",
+      "archive_sha256": "70e9c3253a8ba60f5ced254119d3685d556541d6349c0d35c96da40853d15e8e",
+      "composer_json_sha256": "890761dd30d85fc80bbe4e4ed465182a0d5d0e021e0c44bf0892761db64f27cd",
+      "composer_lock_sha256": "3a060aa6703d61c0203a00636d3d1207c8c37c604c5024bbb72f876e510c0014",
+      "acquired": true,
+      "file_count": 1946,
+      "php_files": 1524,
+      "source_bytes": 17487263,
+      "skipped_archive_links": [],
+      "requests": {
+        "longest": {
+          "target_major": 13,
+          "from_php": "7.4.0",
+          "target_php": "8.3.0"
+        }
+      },
+      "supplemental": true,
+      "snapshot_policy": "Archive regular files; symlinks omitted and listed explicitly; no application execution."
+    }
   ]
 }

@@ -20,6 +20,8 @@ Thirty primary top-level analyzer runs:
 
 Six focused probes: matched Lychee analyzer limits of 128 MiB and 1024 MiB with the same request/cache policy; a short Composer timeout; network denied with an empty cache; a controlled child-process failure; and a disposable cache/workspace failure where safely injectable. Record an unsupported probe as unavailable rather than inventing execution. A supplemental real Laravel 7 snapshot may supply the otherwise uncovered six-hop chain; retain its separate identity and count.
 
+The supplemental snapshot is Monica `v2.19.1`, Laravel `7.28.1`, pinned in `projects.json`: one independent-cache request from PHP 7.4 to 8.3 and Laravel 13. This makes **37 planned slots**: 30 primary, six probes and one supplemental. A pilot consumes its matching slot only when its final harness, request and cache policy match the frozen campaign; otherwise retain it as an additional pilot attempt. Retries never overwrite artifacts and are counted separately from planned slots. The nine-hour analysis budget includes pilots, fault probes and retries; acquisition, installation, calibration and review are separate activities and must be reported separately when measured.
+
 "Run" means one analyzer invocation, not one internal scenario. Count internal direct/staged scenarios, diagnostic calls and instrumented Composer invocations separately. Cold means an empty task-owned Composer cache, not cold DNS, network, OS cache or provider infrastructure. Warm live runs may see metadata drift; preserve outcomes and do not claim causal speedup from a pair.
 
 ## Measurement and budgets
@@ -35,6 +37,8 @@ Pilot Lychee, a small application and the largest/longest-path case before broad
 Retain raw canonical reports, Markdown projections, resource records and hashes in reviewable artifacts. Publish a concise per-project table plus an issue ledger separating product defects, expected dependency blockers, source-rule uncertainty, harness limitations and external network/security-policy drift. Verify every selected high-impact conclusion against pinned manifests/locks, source or an authoritative guide. Unknown recall and runtime compatibility remain unknown without a suitable oracle and application validation.
 
 Use independent code review for each completed component PR, fix accepted findings, push and verify CI. Integrate reviewed components into one branch and create a final PR against `main`, with another independent review and green required checks. Only the user merges the final PR. No release tag, schema migration or new adapter is part of this campaign.
+
+Bounded acceptance requires a disposition for all 37 slots, valid input/cleanup checks for every executed attempt, independently calibrated resource instrumentation, and an evidence disposition for each selected high-impact recommendation. An unavailable probe or uncompleted six-hop chain keeps the corresponding claim open. Blocked live solves are useful operational evidence but do not demonstrate successful candidate chaining; report successful live transitions and offline calibration separately. An incomplete campaign is a valid published result and must not be relabeled full R4 completion.
 
 ## R3 boundary
 
