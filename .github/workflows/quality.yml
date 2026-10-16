@@ -68,6 +68,11 @@ jobs:
           composer analyse
           composer lint
 
+      - name: Verify offline R4 evaluation tooling
+        run: |
+          python3 -B -m unittest discover -s tools/r4-corpus -p test_harness.py -v
+          python3 -B -m unittest discover -s tools/r4-corpus/tests -p test_evidence.py -v
+
   coverage:
     name: Coverage ratchet / PHP 8.3
     runs-on: ubuntu-latest
