@@ -11,6 +11,12 @@ export COMPOSER_CACHE_DIR=/composer-cache
 export COMPOSER_MEMORY_LIMIT="$R4_COMPOSER_MEMORY_LIMIT"
 export COMPOSER_NO_INTERACTION=1
 unset COMPOSER COMPOSER_AUTH
+export LC_ALL=C
+if [ "${R4_GITHUB_TRANSPORT:-default}" = public-https ]; then
+    export GIT_CONFIG_COUNT=1
+    export GIT_CONFIG_KEY_0=url.https://github.com/.insteadOf
+    export GIT_CONFIG_VALUE_0=git@github.com:
+fi
 if [ "$R4_PROBE" = cache-failure ]; then
     export COMPOSER_CACHE_DIR=/target/.r4-unwritable-cache
 fi

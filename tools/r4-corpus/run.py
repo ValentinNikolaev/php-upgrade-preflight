@@ -39,6 +39,7 @@ def arguments(argv=None):
     parser.add_argument("--memory-limit", choices=("128M", "1024M"), required=True)
     parser.add_argument("--composer-memory-limit", choices=("128M", "1024M"), default="1024M")
     parser.add_argument("--network", choices=("bridge", "none"), required=True)
+    parser.add_argument("--github-transport", choices=("default", "public-https"), default="default")
     parser.add_argument("--scenario-timeout", type=bounded(3600), required=True)
     parser.add_argument("--diagnostic-timeout", type=bounded(900), required=True)
     parser.add_argument("--overall-timeout", type=bounded(86400), required=True)
@@ -119,15 +120,27 @@ def read_json(path):
 
 
 def resource_stats(path):
-    result = {"available": False, "elapsed_seconds": None, "max_rss_kib": None, "exit_code": None}
+    result = {"available": False, "elapsed_seconds": None, "max_rss_kib": None, "exit_code": None, "termination_kind": "unknown", "termination_signal": None}
+    signal_seen = False
     try:
-        for line in path.read_text().splitlines():
+        for line in path.read_text().splitlines(keepends=True):
+            if line.startswith("Command terminated"):
+                signal_seen = True
+                match = re.fullmatch(r"Command terminated by signal ([1-9][0-9]*)\r?\n", line)
+                result["termination_signal"] = int(match[1]) if match else None
+            # A final unterminated field may be a partial write, not a measurement.
+            if not line.endswith("\n"):
+                continue
+            line = line.rstrip("\r\n")
             key, separator, value = line.partition("=")
             if separator and key in ("elapsed_seconds", "user_seconds", "system_seconds", "max_rss_kib", "exit_code"):
-                try:
+                if re.fullmatch(r"[0-9]+(?:\.[0-9]+)?" if key.endswith("seconds") else r"[0-9]+", value):
                     result[key] = float(value) if key.endswith("seconds") else int(value)
-                except ValueError:
-                    pass
+        if signal_seen:
+            result["exit_code"] = None
+            result["termination_kind"] = "signalled" if result["termination_signal"] is not None else "unknown"
+        elif result["exit_code"] is not None:
+            result["termination_kind"] = "exited"
         result["available"] = result["elapsed_seconds"] is not None
     except OSError:
         pass
@@ -153,6 +166,17 @@ def write_record(path, data):
 
 def docker_call(command, timeout=30):
     return subprocess.run(["docker", *command], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=timeout).returncode
+
+
+def prepare_composer_home(home, policy):
+    before = snapshot(home)
+    config = None
+    git_config = None
+    if policy == "public-https":
+        config = {"config": {"github-protocols": ["https"], "use-github-api": False}}
+        write_record(home / "config.json", config)
+        git_config = {"GIT_CONFIG_COUNT": "1", "GIT_CONFIG_KEY_0": "url.https://github.com/.insteadOf", "GIT_CONFIG_VALUE_0": "git@github.com:"}
+    return {"policy": policy, "composer_config": config, "git_environment": git_config, "home_before_policy": before, "home_after_policy": snapshot(home)}
 
 
 def provenance(repo, harness, image):
@@ -181,17 +205,18 @@ def run(args):
     scratch.mkdir()
     home.mkdir()
     name = "preflight-r4-" + uuid.uuid4().hex
-    record = {"harness_version": 1, "status": "incomplete", "source_digest_scope": "full host tree before/after; outside analysis and container wall timers", "input_before": None, "input_after": None, "immutable": None, "container_exit_code": None, "container_wall_seconds": None, "watchdog": False, "request": {key: value for key, value in vars(args).items() if key not in ("app", "repo", "output", "cache")}, "container_memory_limit_bytes": 2147483648, "composer_home": "isolated empty", "cleanup": {}}
+    record = {"harness_version": 1, "status": "incomplete", "source_digest_scope": "full host tree before/after; outside analysis and container wall timers", "input_before": None, "input_after": None, "immutable": None, "container_exit_code": None, "container_wall_seconds": None, "watchdog": False, "request": {key: value for key, value in vars(args).items() if key not in ("app", "repo", "output", "cache")}, "container_memory_limit_bytes": 2147483648, "composer_home": "isolated empty" if args.github_transport == "default" else "isolated public HTTPS configuration", "cleanup": {}}
     created = False
     cleanup_failed = False
     try:
         record["input_before"] = snapshot(args.app)
+        record["github_transport"] = prepare_composer_home(home, args.github_transport)
         record["provenance"] = provenance(args.repo, Path(__file__).resolve().parent, args.image)
         command = ["create", "--name", name, "--label", "preflight.r4.task=" + name, "--init", "--memory", "2g", "--network", args.network, "--cap-drop", "ALL", "--security-opt", "no-new-privileges"]
         harness = Path(__file__).resolve().parent
         for source, destination, readonly in ((args.app, "/target", True), (args.repo, "/app", True), (harness, "/harness", True), (args.output, "/output", False), (args.cache, "/composer-cache", False), (home, "/composer-home", False), (scratch, "/scratch", False)):
             command += ["--mount", f"type=bind,source={source},target={destination}" + (",readonly" if readonly else "")]
-        for key in ("target_major", "from_php", "target_php", "memory_limit", "composer_memory_limit", "scenario_timeout", "diagnostic_timeout", "probe"):
+        for key in ("target_major", "from_php", "target_php", "memory_limit", "composer_memory_limit", "scenario_timeout", "diagnostic_timeout", "probe", "github_transport"):
             command += ["--env", "R4_" + key.upper() + "=" + str(getattr(args, key))]
         if args.network == "none":
             command += ["--env", "COMPOSER_DISABLE_NETWORK=1"]
@@ -238,6 +263,7 @@ def run(args):
             record["input_after"] = snapshot(args.app)
             record["immutable"] = record["input_before"] == record["input_after"] if record["input_before"] is not None else None
             record["cleanup"]["scratch_before_host_cleanup"] = leftovers(scratch)
+            record["composer_home_final"] = snapshot(home)
         except (OSError, ValueError):
             record["cleanup"]["inspection_failed"] = True
         if not cleanup_failed:

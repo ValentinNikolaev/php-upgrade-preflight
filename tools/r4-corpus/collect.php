@@ -39,6 +39,10 @@ try {
     $record['runtime_php'] = PHP_VERSION;
     $record['collector_memory_limit'] = ini_get('memory_limit');
     $record['composer_child_memory_limit'] = getenv('COMPOSER_MEMORY_LIMIT');
+    $record['github_transport_policy'] = getenv('R4_GITHUB_TRANSPORT') === 'public-https' ? 'public-https' : 'default';
+    $record['github_https_git_environment_active'] = getenv('GIT_CONFIG_COUNT') === '1'
+        && getenv('GIT_CONFIG_KEY_0') === 'url.https://github.com/.insteadOf'
+        && getenv('GIT_CONFIG_VALUE_0') === 'git@github.com:';
     $extensions = [];
     foreach (['bcmath', 'curl', 'exif', 'fileinfo', 'gd', 'imagick', 'mbstring', 'openssl', 'pdo', 'xml', 'zip'] as $name) {
         $extensions[] = ExtensionAssumption::fromPresenceInput('ext-' . $name);

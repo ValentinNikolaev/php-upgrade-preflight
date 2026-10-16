@@ -1,5 +1,6 @@
 #!/bin/sh
 set -eu
+export LC_ALL=C
 kind=other
 case "${1:-}" in
     --version|show|update|validate|prohibits|why-not) kind=$1 ;;
