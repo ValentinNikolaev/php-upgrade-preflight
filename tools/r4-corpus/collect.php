@@ -11,6 +11,8 @@ use PhpUpgradePreflight\Core\Reporting\JsonReportWriter;
 use PhpUpgradePreflight\Core\Reporting\MarkdownReportWriter;
 use PhpUpgradePreflight\Laravel\LaravelFrameworkIntegration;
 
+require __DIR__ . '/runtime.php';
+
 // The reserved buffer allows a small fatal record after PHP exhausts its heap.
 $reserve = str_repeat('x', 262144);
 $record = ['status' => 'started', 'php_heap_peak_bytes' => null, 'analysis_seconds' => null];
@@ -20,8 +22,9 @@ register_shutdown_function(static function () use (&$reserve, &$record, &$starte
     $record['php_heap_peak_bytes'] = memory_get_peak_usage(true);
     $status = @file_get_contents('/proc/self/status');
     $record['php_process_peak_rss_kib'] = $status !== false && preg_match('/^VmHWM:\s+(\d+) kB/m', $status, $match) === 1 ? (int) $match[1] : null;
-    if ($started !== null) {
-        $record['analysis_seconds'] = (hrtime(true) - $started) / 1e9;
+    $elapsed = r4Elapsed($started);
+    if ($elapsed !== null) {
+        $record['analysis_seconds'] = $elapsed;
     }
     $last = error_get_last();
     if ($last !== null && in_array($last['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR], true)) {
@@ -31,11 +34,11 @@ register_shutdown_function(static function () use (&$reserve, &$record, &$starte
         $record['fatal_file'] = str_replace(['/app/', '/harness/', '/target/'], ['[TOOL]/', '[HARNESS]/', '[PROJECT_ROOT]/'], $last['file']);
         $record['fatal_line'] = $last['line'];
     }
-    file_put_contents('/output/collector.json', json_encode($record, JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR) . "\n");
+    r4Write('/output/collector.json', json_encode($record, JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR) . "\n");
 });
 
 try {
-    require '/app/vendor/autoload.php';
+    r4Autoload();
     $record['runtime_php'] = PHP_VERSION;
     $record['collector_memory_limit'] = ini_get('memory_limit');
     $record['composer_child_memory_limit'] = getenv('COMPOSER_MEMORY_LIMIT');
@@ -57,8 +60,8 @@ try {
     $request = new UpgradeRequest(
         '/target',
         [new UpgradeTarget('laravel/framework', '^' . getenv('R4_TARGET_MAJOR') . '.0')],
-        getenv('R4_FROM_PHP'),
-        getenv('R4_TARGET_PHP'),
+        (string) getenv('R4_FROM_PHP'),
+        (string) getenv('R4_TARGET_PHP'),
         [],
         ['laravel'],
         'json',
@@ -69,12 +72,18 @@ try {
         $execution
     );
     $analyzer = new DefaultUpgradeAnalyzer([new LaravelFrameworkIntegration()]);
-    $started = hrtime(true);
+    $started = (float) hrtime(true);
     $report = $analyzer->analyzeUpgrade($request);
-    $record['analysis_seconds'] = (hrtime(true) - $started) / 1e9;
+    $record['analysis_seconds'] = r4Elapsed($started);
     $started = null;
-    file_put_contents('/output/report.json', (new JsonReportWriter())->render($report));
-    file_put_contents('/output/report.md', (new MarkdownReportWriter())->render($report));
+    $json = (new JsonReportWriter())->render($report);
+    $markdown = (new MarkdownReportWriter())->render($report);
+    r4Write('/output/report.json', $json);
+    r4Write('/output/report.md', $markdown);
+    $record['report_artifacts'] = [
+        'report.json' => ['bytes' => strlen($json), 'sha256' => hash('sha256', $json)],
+        'report.md' => ['bytes' => strlen($markdown), 'sha256' => hash('sha256', $markdown)],
+    ];
     $canonical = $report->toArray();
     $record['status'] = 'completed';
     $record['report_states'] = [

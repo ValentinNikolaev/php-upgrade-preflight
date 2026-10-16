@@ -24,4 +24,6 @@ fi
     php -d "memory_limit=$R4_MEMORY_LIMIT" /harness/collect.php >/dev/null 2>/scratch/analyzer.stderr
 result=$?
 php -d memory_limit=128M /harness/finalize.php "$result" >/dev/null 2>/dev/null
+finalized=$?
+if [ "$finalized" -ne 0 ]; then exit "$finalized"; fi
 exit "$result"

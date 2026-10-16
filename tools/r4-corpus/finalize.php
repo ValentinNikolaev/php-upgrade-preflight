@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+require __DIR__ . '/runtime.php';
+
 $scratch = ['entries' => 0, 'files' => 0, 'bytes' => 0];
 $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator('/scratch/work', FilesystemIterator::SKIP_DOTS));
 foreach ($iterator as $entry) {
@@ -33,6 +35,7 @@ foreach ($candidates as $directory) {
     }
 }
 $record = [
+    'status' => 'completed',
     'collector_exit_code' => (int) $argv[1],
     'scratch_leftovers_before_container_exit' => $scratch,
     'container_memory_v1_peak_bytes' => $peak !== null && ctype_digit($peak) ? (int) $peak : null,
@@ -42,13 +45,15 @@ $record = [
 ];
 // Bounded diagnostics are sanitized before leaving task-owned scratch.
 try {
-    require '/app/vendor/autoload.php';
+    r4Autoload();
     $stderr = (string) file_get_contents('/scratch/analyzer.stderr', false, null, 0, 32768);
     $stderr = PhpUpgradePreflight\Core\Support\SensitiveOutputRedactor::redact($stderr);
     $stderr = str_replace(['/app/', '/target/', '/scratch/', '/harness/'], ['[TOOL]/', '[PROJECT_ROOT]/', '[SCRATCH]/', '[HARNESS]/'], $stderr);
-    file_put_contents('/output/analyzer.stderr.txt', $stderr);
+    r4Write('/output/analyzer.stderr.txt', $stderr);
     $record['sanitized_stderr_bytes'] = strlen($stderr);
 } catch (Throwable $failure) {
+    $record['status'] = 'failed';
     $record['sanitized_stderr_bytes'] = null;
 }
-file_put_contents('/output/container.json', json_encode($record, JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR) . "\n");
+r4Write('/output/container.json', json_encode($record, JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR) . "\n");
+exit($record['status'] === 'completed' ? 0 : 1);
