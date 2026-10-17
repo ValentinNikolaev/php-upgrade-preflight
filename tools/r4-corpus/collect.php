@@ -50,6 +50,7 @@ try {
         $record['cache_seed_verified'] = true;
     }
     r4Autoload();
+    $record['runtime_class_files_sha256'] = r4RuntimeAttestation();
     require_once __DIR__ . '/OptimizationProbe.php';
     $record['runtime_php'] = PHP_VERSION;
     $record['collector_memory_limit'] = ini_get('memory_limit');
@@ -119,20 +120,43 @@ try {
     } else {
         $record['source_cache_policy'] = $disableSourceCache ? 'unavailable_in_baseline' : 'tool_default';
     }
+    $sourceProfile = null;
+    $record['source_profile_instrumented'] = getenv('R4_SOURCE_PROFILE') === '1';
+    if ($record['source_profile_instrumented']) {
+        $profileApi = OptimizationProbe::optionalClass('PhpUpgradePreflight\\Core\\Source\\SourceScanProfile');
+        if ($profileApi === null || !$profileApi->hasMethod('snapshot')) {
+            throw new RuntimeException('Selected runtime does not support source profiling.');
+        }
+        $sourceProfile = $profileApi->newInstance();
+        // Keep the profile independently: the analyzer may clone the scanner per request.
+        $scanner = (new ReflectionClass(SourceUsageScanner::class))->newInstanceArgs([null, null, $cache ?? null, $sourceProfile]);
+    }
+    $analysisTimings = null;
+    if ($record['source_profile_instrumented']) {
+        $timingApi = OptimizationProbe::optionalClass('PhpUpgradePreflight\\Core\\Analysis\\AnalysisTimings');
+        if ($timingApi !== null && $timingApi->hasMethod('snapshot')) {
+            $analysisTimings = $timingApi->newInstance();
+        }
+    }
     $probe = new OptimizationProbe();
     $scenarioRunner = new ComposerScenarioRunner();
-    $analyzer = new DefaultUpgradeAnalyzer(
-        [new LaravelFrameworkIntegration()],
-        scenarioRunner: $scenarioRunner,
-        sourceUsageScanner: $scanner,
-        progressReporter: $probe
-    );
+    $analyzerArguments = [[new LaravelFrameworkIntegration()],
+        'scenarioRunner' => $scenarioRunner, 'sourceUsageScanner' => $scanner, 'progressReporter' => $probe];
+    if ($analysisTimings !== null) {
+        $analyzerArguments['timings'] = $analysisTimings;
+    }
+    // Reflection supports named arguments on PHP 8.0, including optional APIs.
+    $analyzer = (new ReflectionClass(DefaultUpgradeAnalyzer::class))->newInstanceArgs($analyzerArguments);
     $started = (float) hrtime(true);
+    $probe->startAnalysis($started);
     $report = $analyzer->analyzeUpgrade($request);
     $record['analysis_seconds'] = r4Elapsed($started);
     $record['heap_peak_through_analysis_bytes'] = memory_get_peak_usage(true);
     $started = null;
     $record['phase_seconds'] = $probe->seconds();
+    $record['source_profile'] = $sourceProfile === null ? null : OptimizationProbe::sourceProfileSnapshot($sourceProfile);
+    $record['analysis_profile'] = $analysisTimings === null ? null : OptimizationProbe::analysisProfileSnapshot($analysisTimings);
+    $record['first_direct_finding_seconds'] = $probe->firstDirectFindingSeconds();
     $runnerApi = new ReflectionObject($scenarioRunner);
     if ($runnerApi->hasMethod('measurements')) {
         $record['runner_measurements'] = $runnerApi->getMethod('measurements')->invoke($scenarioRunner);
