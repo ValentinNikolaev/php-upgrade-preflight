@@ -6,6 +6,7 @@ namespace PhpUpgradePreflight\Core\Tests\Unit\Analysis;
 
 use PhpUpgradePreflight\Core\Analysis\BlockerGrouper;
 use PhpUpgradePreflight\Core\Analysis\ComposerBlockerParser;
+use PhpUpgradePreflight\Core\Model\ComposerDiagnostic;
 use PhpUpgradePreflight\Core\Model\ComposerLock;
 use PhpUpgradePreflight\Core\Model\EvidenceLedger;
 use PhpUpgradePreflight\Core\Model\Scenario;
@@ -88,6 +89,66 @@ final class ComposerBlockerProvenanceTest extends TestCase
             ['fixture/blocker is locked to version 1.0.0 and an update of this package was not requested.'],
             ['fixture/blocker is fixed to 1.0.0 (lock file version) by a partial update.'],
         ];
+    }
+
+    /** @dataProvider lockedNoticePackageProvider */
+    public function testExplicitNoticeProvesOnlyTheExactPackage(string $noticePackage, string $notice, ?string $expectedVersion): void
+    {
+        $diagnostic = new ComposerDiagnostic(
+            'fixture/target',
+            '^2.0',
+            ['composer', 'prohibits'],
+            1,
+            'fixture/blocker 1.0.0 requires fixture/target ^1.0',
+            ''
+        );
+        $result = new ScenarioResult(
+            $this->result('')->scenario(),
+            2,
+            '',
+            '- ' . $noticePackage . ' ' . $notice,
+            null,
+            null,
+            ScenarioResult::FAILURE_SOLVER,
+            null,
+            [],
+            0,
+            null,
+            [$diagnostic]
+        );
+        $blockers = (new ComposerBlockerParser())->parse($result, 'exact-package-evidence');
+
+        self::assertCount(1, $blockers);
+        self::assertSame('fixture/blocker', $blockers[0]->blocker());
+        self::assertSame($expectedVersion, $blockers[0]->lockedVersion());
+        self::assertSame('^1.0', $blockers[0]->conflict());
+        self::assertSame(['fixture/blocker', 'fixture/target'], $blockers[0]->dependencyPath());
+        self::assertSame(['exact-package-evidence'], $blockers[0]->evidence());
+    }
+
+    /** @return list<array{string, string, ?string}> */
+    public function lockedNoticePackageProvider(): array
+    {
+        $cases = [];
+        foreach ([
+            'is locked to version 1.0.0 and an update of this package was not requested.',
+            'is fixed to 1.0.0 (lock file version) by a partial update.',
+        ] as $notice) {
+            foreach ([
+                ['fixture/blocker', '1.0.0'],
+                ['other-fixture/blocker', null],
+                ['other_fixture/blocker', null],
+                ['other.fixture/blocker', null],
+                ['otherfixture/blocker', null],
+                ['fixture/blocker-extra', null],
+                ['fixture/blocker_extra', null],
+                ['fixture/blocker.extra', null],
+            ] as [$package, $version]) {
+                $cases[] = [$package, $notice, $version];
+            }
+        }
+
+        return $cases;
     }
 
     public function testALockedPackageCannotBorrowADifferentCandidatesRequirement(): void

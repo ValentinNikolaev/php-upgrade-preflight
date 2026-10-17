@@ -64,7 +64,7 @@ final class ComposerBlockerParser
             $verified = $locked !== null && $this->sameVersion($version, $locked->version());
         } else {
             $output = $result->stdout() . "\n" . $result->stderr();
-            $name = preg_quote($package, '~');
+            $name = '(?<![a-z0-9_./-])' . preg_quote($package, '~') . '(?![a-z0-9_./-])';
             $verified = (preg_match('~' . $name . '\s+is locked to version\s+([^\s,]+)~i', $output, $matches) === 1
                 || preg_match('~' . $name . '\s+is fixed to\s+([^\s,]+).*?lock file version~i', $output, $matches) === 1)
                 && $this->sameVersion($version, $matches[1]);
