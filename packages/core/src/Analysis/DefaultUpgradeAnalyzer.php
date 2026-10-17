@@ -22,6 +22,7 @@ use PhpUpgradePreflight\Core\Model\UpgradeRequest;
 use PhpUpgradePreflight\Core\Progress\AnalysisPhase;
 use PhpUpgradePreflight\Core\Progress\AnalysisProgressEvent;
 use PhpUpgradePreflight\Core\Progress\AnalysisProgressReporter;
+use PhpUpgradePreflight\Core\Progress\DirectFinding;
 use PhpUpgradePreflight\Core\Progress\NoOpAnalysisProgressReporter;
 use PhpUpgradePreflight\Core\Source\AutoloadOwnershipIndexBuilder;
 use PhpUpgradePreflight\Core\Source\SourceUsageScanner;
@@ -187,6 +188,12 @@ final class DefaultUpgradeAnalyzer implements UpgradeAnalyzer
             $platform
         );
         $this->phaseCompleted(AnalysisPhase::COMPOSER_FEASIBILITY);
+        if ($bestLock === null) {
+            $finding = DirectFinding::first($blockers, $evidence, $project, $request);
+            if ($finding !== null) {
+                $this->reportProgress(AnalysisProgressEvent::directFinding($finding));
+            }
+        }
         $this->phaseStarted(AnalysisPhase::STAGED_RESOLUTION);
         $stagedResolution = $this->stagedUpgradeOrchestrator->analyze(
             $activeFrameworks,

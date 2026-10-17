@@ -10,6 +10,15 @@ request format remains JSON because schema `0.8` permits only `json` and `markdo
 The summary display identifies the presentation independently. No release or
 version identity changes with this work.
 
+On a terminal diagnostic stream, an evidenced high-confidence cause from a direct
+Composer attempt can appear before the staged and source checks finish. This
+four-line preview includes one cause, one suggested action and evidence IDs. It
+explicitly marks the finding preliminary and the repair unverified; it is not an
+overall blocked verdict. A successful direct alternative suppresses this preview,
+as do unclassified failures, advisory-only causes and unsupported evidence. All
+remaining checks still run. Redirected diagnostics stay silent, and neither
+machine-readable stdout nor the canonical report schema includes the preview.
+
 The summary reads typed report objects without calling `UpgradeReport::toArray()`.
 It does not serialize raw source usages, evidence contexts, candidate lockfiles or
 Composer output. It shows the independent direct and staged results, grouped

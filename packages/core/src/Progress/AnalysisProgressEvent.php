@@ -15,6 +15,7 @@ final class AnalysisProgressEvent
     public const PHASE_COMPLETED = 'phase-completed';
     public const SCENARIO_STARTED = 'scenario-started';
     public const SCENARIO_COMPLETED = 'scenario-completed';
+    public const DIRECT_FINDING = 'direct-finding';
     public const ANALYSIS_COMPLETED = 'analysis-completed';
     public const ANALYSIS_FAILED = 'analysis-failed';
 
@@ -34,7 +35,8 @@ final class AnalysisProgressEvent
         ?string $scenario = null,
         ?string $status = null,
         ?string $outcome = null,
-        ?float $durationMs = null
+        ?float $durationMs = null,
+        private ?DirectFinding $finding = null
     ) {
         $this->type = $type;
         $this->phase = $phase;
@@ -47,6 +49,16 @@ final class AnalysisProgressEvent
     public static function analysisStarted(): self
     {
         return new self(self::ANALYSIS_STARTED);
+    }
+
+    public static function directFinding(DirectFinding $finding): self
+    {
+        return new self(self::DIRECT_FINDING, AnalysisPhase::COMPOSER_FEASIBILITY, finding: $finding);
+    }
+
+    public function finding(): ?DirectFinding
+    {
+        return $this->finding;
     }
 
     public static function phaseStarted(string $phase): self
