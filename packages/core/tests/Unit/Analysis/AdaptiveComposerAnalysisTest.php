@@ -95,6 +95,19 @@ final class AdaptiveComposerAnalysisTest extends TestCase
                     self::assertGreaterThanOrEqual(0, $event->durationMs());
                 }
             }
+            $previews = array_values(array_filter($events, static fn (AnalysisProgressEvent $event): bool => $event->type() === AnalysisProgressEvent::DIRECT_FINDING));
+            if ($expectedStatus === 'feasible_with_changes' || ($exactExit === 1 && $relaxedExit === 1)) {
+                self::assertSame([], $previews, 'A successful alternative or operational failure must not produce an early cause.');
+            }
+            if ($previews !== []) {
+                self::assertCount(1, $previews);
+                $types = array_map(static fn (AnalysisProgressEvent $event): string => $event->type(), $events);
+                $previewIndex = array_search(AnalysisProgressEvent::DIRECT_FINDING, $types, true);
+                self::assertIsInt($previewIndex);
+                self::assertSame(AnalysisProgressEvent::PHASE_STARTED, $events[$previewIndex + 1]->type());
+                self::assertSame('staged-resolution', $events[$previewIndex + 1]->phase());
+                self::assertSame(AnalysisProgressEvent::ANALYSIS_COMPLETED, $events[count($events) - 1]->type());
+            }
             self::assertArrayNotHasKey('analysis_mode', $report->request()->toArray());
             self::assertSame('0.8', $report->metadata()->schemaVersion());
             $snapshot->assertUnchanged($this);

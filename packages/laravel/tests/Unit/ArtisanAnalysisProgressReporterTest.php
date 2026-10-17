@@ -4,6 +4,11 @@ declare(strict_types=1);
 
 namespace PhpUpgradePreflight\Laravel\Tests\Unit;
 
+use PhpUpgradePreflight\Core\Model\Blocker;
+use PhpUpgradePreflight\Core\Model\BlockerType;
+use PhpUpgradePreflight\Core\Model\Evidence;
+use PhpUpgradePreflight\Core\Model\EvidenceLedger;
+use PhpUpgradePreflight\Core\Progress\DirectFinding;
 use PhpUpgradePreflight\Core\Model\ComposerJson;
 use PhpUpgradePreflight\Core\Model\ComposerLock;
 use PhpUpgradePreflight\Core\Model\EffortEstimate;
@@ -28,6 +33,27 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 final class ArtisanAnalysisProgressReporterTest extends TestCase
 {
+    public function testItShowsPreliminaryFindingsOnlyForAttachedTerminalDiagnostics(): void
+    {
+        $evidence = new EvidenceLedger();
+        $reference = $evidence->add('solver', Evidence::E1_SOLVER, 'Constraint conflict.')->id();
+        $report = $this->report();
+        $finding = DirectFinding::first([
+            new Blocker(BlockerType::ROOT_CONSTRAINT_CONFLICT, 'vendor/package', 'A root constraint conflicts.', 'high', [$reference], options: ['Review the root constraint.']),
+        ], $evidence, $report->projectState(), $report->request());
+        self::assertNotNull($finding);
+        foreach ([true, false] as $terminal) {
+            $output = new BufferedOutput();
+            $reporter = new ArtisanAnalysisProgressReporter(static fn (): bool => $terminal);
+            $reporter->attach(new SymfonyStyle(new ArrayInput([]), $output), $output);
+            $reporter->report(AnalysisProgressEvent::directFinding($finding));
+            self::assertSame($terminal ? implode(PHP_EOL, $finding->lines()) . PHP_EOL : '', $output->fetch());
+            $reporter->detach();
+            $reporter->report(AnalysisProgressEvent::directFinding($finding));
+            self::assertSame('', $output->fetch());
+        }
+    }
+
     public function testItWritesDurableRawLinesOnlyWhileAttachedToATerminal(): void
     {
         $output = new BufferedOutput();

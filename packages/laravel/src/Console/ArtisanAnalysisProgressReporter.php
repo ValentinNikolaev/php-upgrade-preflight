@@ -62,6 +62,9 @@ final class ArtisanAnalysisProgressReporter implements AnalysisProgressReporter
 
     private function message(AnalysisProgressEvent $event): ?string
     {
+        if ($event->type() === AnalysisProgressEvent::DIRECT_FINDING) {
+            return $event->finding() === null ? null : implode(PHP_EOL, $event->finding()->lines());
+        }
         if ($event->type() === AnalysisProgressEvent::ANALYSIS_STARTED) {
             return '[working] Analysis started';
         }
