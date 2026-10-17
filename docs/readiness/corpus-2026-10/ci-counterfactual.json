@@ -1,0 +1,293 @@
+{
+  "classification": "conditional accounting scenario, not an approved Symfony matrix or cost forecast",
+  "baseline_run": 38205268082,
+  "source_url": "https://github.com/ValentinNikolaev/php-upgrade-preflight/actions/runs/38205268082",
+  "observed_jobs": 30,
+  "observed_total_job_seconds": 549.0,
+  "observed_job_seconds_min": 12.0,
+  "observed_job_seconds_max": 25.0,
+  "observed_job_seconds_median": 18.0,
+  "hypothetical_additional_jobs": 10,
+  "assumption": "Illustrative five consumer install cases at normal and lowest resolution give ten extra jobs. This is a chosen scenario, not an existing package share or an approved future matrix.",
+  "hypothetical_additional_runner_seconds_min": 120.0,
+  "hypothetical_additional_runner_seconds_max": 250.0,
+  "range_method": "ten times the observed per-job extrema, not a confidence interval; cache, dependencies, scheduler and future adapter behavior can differ; current package shares are unequal: four core jobs, four CLI jobs, twenty-two Laravel-adapter jobs; no four-thirds scaling is used",
+  "shared_quality_job_delta_assumption": 0,
+  "shared_quality_duration_delta": "UNAVAILABLE: reusing job topology does not make added tests free",
+  "incremental_pipeline_wall_time": "UNAVAILABLE: parallel placement and queueing are not determined by summed job durations",
+  "monetary_cost": "UNAVAILABLE: no account billing, allowances, multipliers or prices observed",
+  "catalog_and_wiki_hours": "UNAVAILABLE: no measured human upkeep for a fourth package/fifth Wiki destination",
+  "jobs": [
+    {
+      "id": 114667247451,
+      "name": "Laravel 9 / PHP 8.0 / normal",
+      "conclusion": "success",
+      "started_at": "2026-10-12T04:48:17Z",
+      "completed_at": "2026-10-12T04:48:37Z",
+      "html_url": "https://github.com/ValentinNikolaev/php-upgrade-preflight/actions/runs/38205268082/job/114667247451"
+    },
+    {
+      "id": 114667247514,
+      "name": "Laravel 13 / PHPUnit 13 / PHP 8.5 / normal",
+      "conclusion": "success",
+      "started_at": "2026-10-12T04:48:16Z",
+      "completed_at": "2026-10-12T04:48:34Z",
+      "html_url": "https://github.com/ValentinNikolaev/php-upgrade-preflight/actions/runs/38205268082/job/114667247514"
+    },
+    {
+      "id": 114667247558,
+      "name": "Laravel 8 / PHP 8.0 / lowest",
+      "conclusion": "success",
+      "started_at": "2026-10-12T04:48:17Z",
+      "completed_at": "2026-10-12T04:48:35Z",
+      "html_url": "https://github.com/ValentinNikolaev/php-upgrade-preflight/actions/runs/38205268082/job/114667247558"
+    },
+    {
+      "id": 114667247564,
+      "name": "Laravel 13 / PHP 8.3 / normal",
+      "conclusion": "success",
+      "started_at": "2026-10-12T04:48:16Z",
+      "completed_at": "2026-10-12T04:48:33Z",
+      "html_url": "https://github.com/ValentinNikolaev/php-upgrade-preflight/actions/runs/38205268082/job/114667247564"
+    },
+    {
+      "id": 114667247567,
+      "name": "Laravel 12 / PHP 8.2 / normal",
+      "conclusion": "success",
+      "started_at": "2026-10-12T04:48:16Z",
+      "completed_at": "2026-10-12T04:48:36Z",
+      "html_url": "https://github.com/ValentinNikolaev/php-upgrade-preflight/actions/runs/38205268082/job/114667247567"
+    },
+    {
+      "id": 114667247573,
+      "name": "CLI / PHP 8.0 / normal",
+      "conclusion": "success",
+      "started_at": "2026-10-12T04:48:17Z",
+      "completed_at": "2026-10-12T04:48:36Z",
+      "html_url": "https://github.com/ValentinNikolaev/php-upgrade-preflight/actions/runs/38205268082/job/114667247573"
+    },
+    {
+      "id": 114667247583,
+      "name": "CLI / PHP 8.0 / lowest",
+      "conclusion": "success",
+      "started_at": "2026-10-12T04:48:17Z",
+      "completed_at": "2026-10-12T04:48:32Z",
+      "html_url": "https://github.com/ValentinNikolaev/php-upgrade-preflight/actions/runs/38205268082/job/114667247583"
+    },
+    {
+      "id": 114667247615,
+      "name": "core / PHP 8.0 / lowest",
+      "conclusion": "success",
+      "started_at": "2026-10-12T04:48:17Z",
+      "completed_at": "2026-10-12T04:48:34Z",
+      "html_url": "https://github.com/ValentinNikolaev/php-upgrade-preflight/actions/runs/38205268082/job/114667247615"
+    },
+    {
+      "id": 114667247617,
+      "name": "core / PHP 8.0 / normal",
+      "conclusion": "success",
+      "started_at": "2026-10-12T04:48:16Z",
+      "completed_at": "2026-10-12T04:48:29Z",
+      "html_url": "https://github.com/ValentinNikolaev/php-upgrade-preflight/actions/runs/38205268082/job/114667247617"
+    },
+    {
+      "id": 114667247620,
+      "name": "Laravel 13 / PHPUnit 13 / PHP 8.5 / lowest",
+      "conclusion": "success",
+      "started_at": "2026-10-12T04:48:16Z",
+      "completed_at": "2026-10-12T04:48:36Z",
+      "html_url": "https://github.com/ValentinNikolaev/php-upgrade-preflight/actions/runs/38205268082/job/114667247620"
+    },
+    {
+      "id": 114667247627,
+      "name": "Laravel 11 / PHP 8.2 / normal",
+      "conclusion": "success",
+      "started_at": "2026-10-12T04:48:16Z",
+      "completed_at": "2026-10-12T04:48:31Z",
+      "html_url": "https://github.com/ValentinNikolaev/php-upgrade-preflight/actions/runs/38205268082/job/114667247627"
+    },
+    {
+      "id": 114667247634,
+      "name": "Illuminate 13 / Symfony 8.1 / PHP 8.5 / normal",
+      "conclusion": "success",
+      "started_at": "2026-10-12T04:48:16Z",
+      "completed_at": "2026-10-12T04:48:35Z",
+      "html_url": "https://github.com/ValentinNikolaev/php-upgrade-preflight/actions/runs/38205268082/job/114667247634"
+    },
+    {
+      "id": 114667247649,
+      "name": "Illuminate 13 / Symfony 8.1 / PHP 8.5 / lowest",
+      "conclusion": "success",
+      "started_at": "2026-10-12T04:48:17Z",
+      "completed_at": "2026-10-12T04:48:34Z",
+      "html_url": "https://github.com/ValentinNikolaev/php-upgrade-preflight/actions/runs/38205268082/job/114667247649"
+    },
+    {
+      "id": 114667247661,
+      "name": "Illuminate 13 current / PHP 8.3 / lowest",
+      "conclusion": "success",
+      "started_at": "2026-10-12T04:48:17Z",
+      "completed_at": "2026-10-12T04:48:33Z",
+      "html_url": "https://github.com/ValentinNikolaev/php-upgrade-preflight/actions/runs/38205268082/job/114667247661"
+    },
+    {
+      "id": 114667247662,
+      "name": "Laravel 9 / PHP 8.0 / lowest",
+      "conclusion": "success",
+      "started_at": "2026-10-12T04:48:17Z",
+      "completed_at": "2026-10-12T04:48:41Z",
+      "html_url": "https://github.com/ValentinNikolaev/php-upgrade-preflight/actions/runs/38205268082/job/114667247662"
+    },
+    {
+      "id": 114667247670,
+      "name": "Laravel 8 / PHP 8.0 / normal",
+      "conclusion": "success",
+      "started_at": "2026-10-12T04:48:17Z",
+      "completed_at": "2026-10-12T04:48:37Z",
+      "html_url": "https://github.com/ValentinNikolaev/php-upgrade-preflight/actions/runs/38205268082/job/114667247670"
+    },
+    {
+      "id": 114667247679,
+      "name": "Laravel 11 / PHP 8.2 / lowest",
+      "conclusion": "success",
+      "started_at": "2026-10-12T04:48:16Z",
+      "completed_at": "2026-10-12T04:48:34Z",
+      "html_url": "https://github.com/ValentinNikolaev/php-upgrade-preflight/actions/runs/38205268082/job/114667247679"
+    },
+    {
+      "id": 114667247684,
+      "name": "Laravel 13 / Pest 5 / PHP 8.5 / lowest",
+      "conclusion": "success",
+      "started_at": "2026-10-12T04:48:17Z",
+      "completed_at": "2026-10-12T04:48:42Z",
+      "html_url": "https://github.com/ValentinNikolaev/php-upgrade-preflight/actions/runs/38205268082/job/114667247684"
+    },
+    {
+      "id": 114667247695,
+      "name": "Laravel 13 current / PHP 8.3 / lowest",
+      "conclusion": "success",
+      "started_at": "2026-10-12T04:48:17Z",
+      "completed_at": "2026-10-12T04:48:40Z",
+      "html_url": "https://github.com/ValentinNikolaev/php-upgrade-preflight/actions/runs/38205268082/job/114667247695"
+    },
+    {
+      "id": 114667247701,
+      "name": "Laravel 10 / PHP 8.1 / normal",
+      "conclusion": "success",
+      "started_at": "2026-10-12T04:48:17Z",
+      "completed_at": "2026-10-12T04:48:40Z",
+      "html_url": "https://github.com/ValentinNikolaev/php-upgrade-preflight/actions/runs/38205268082/job/114667247701"
+    },
+    {
+      "id": 114667247718,
+      "name": "core current dependencies / PHP 8.5 / lowest",
+      "conclusion": "success",
+      "started_at": "2026-10-12T04:48:17Z",
+      "completed_at": "2026-10-12T04:48:29Z",
+      "html_url": "https://github.com/ValentinNikolaev/php-upgrade-preflight/actions/runs/38205268082/job/114667247718"
+    },
+    {
+      "id": 114667247732,
+      "name": "Laravel 12 / PHP 8.2 / lowest",
+      "conclusion": "success",
+      "started_at": "2026-10-12T04:48:17Z",
+      "completed_at": "2026-10-12T04:48:37Z",
+      "html_url": "https://github.com/ValentinNikolaev/php-upgrade-preflight/actions/runs/38205268082/job/114667247732"
+    },
+    {
+      "id": 114667247742,
+      "name": "Laravel 13 / Pest 5 / PHP 8.5 / normal",
+      "conclusion": "success",
+      "started_at": "2026-10-12T04:48:17Z",
+      "completed_at": "2026-10-12T04:48:41Z",
+      "html_url": "https://github.com/ValentinNikolaev/php-upgrade-preflight/actions/runs/38205268082/job/114667247742"
+    },
+    {
+      "id": 114667247744,
+      "name": "CLI current / PHP 8.5 / normal",
+      "conclusion": "success",
+      "started_at": "2026-10-12T04:48:17Z",
+      "completed_at": "2026-10-12T04:48:30Z",
+      "html_url": "https://github.com/ValentinNikolaev/php-upgrade-preflight/actions/runs/38205268082/job/114667247744"
+    },
+    {
+      "id": 114667247745,
+      "name": "core current dependencies / PHP 8.5 / normal",
+      "conclusion": "success",
+      "started_at": "2026-10-12T04:48:17Z",
+      "completed_at": "2026-10-12T04:48:32Z",
+      "html_url": "https://github.com/ValentinNikolaev/php-upgrade-preflight/actions/runs/38205268082/job/114667247745"
+    },
+    {
+      "id": 114667247751,
+      "name": "Laravel 13 / PHP 8.3 / lowest",
+      "conclusion": "success",
+      "started_at": "2026-10-12T04:48:17Z",
+      "completed_at": "2026-10-12T04:48:40Z",
+      "html_url": "https://github.com/ValentinNikolaev/php-upgrade-preflight/actions/runs/38205268082/job/114667247751"
+    },
+    {
+      "id": 114667247772,
+      "name": "CLI current / PHP 8.5 / lowest",
+      "conclusion": "success",
+      "started_at": "2026-10-12T04:48:17Z",
+      "completed_at": "2026-10-12T04:48:32Z",
+      "html_url": "https://github.com/ValentinNikolaev/php-upgrade-preflight/actions/runs/38205268082/job/114667247772"
+    },
+    {
+      "id": 114667247776,
+      "name": "Laravel 13 current / PHP 8.3 / normal",
+      "conclusion": "success",
+      "started_at": "2026-10-12T04:48:17Z",
+      "completed_at": "2026-10-12T04:48:36Z",
+      "html_url": "https://github.com/ValentinNikolaev/php-upgrade-preflight/actions/runs/38205268082/job/114667247776"
+    },
+    {
+      "id": 114667247789,
+      "name": "Laravel 10 / PHP 8.1 / lowest",
+      "conclusion": "success",
+      "started_at": "2026-10-12T04:48:17Z",
+      "completed_at": "2026-10-12T04:48:31Z",
+      "html_url": "https://github.com/ValentinNikolaev/php-upgrade-preflight/actions/runs/38205268082/job/114667247789"
+    },
+    {
+      "id": 114667247812,
+      "name": "Illuminate 13 current / PHP 8.3 / normal",
+      "conclusion": "success",
+      "started_at": "2026-10-12T04:48:17Z",
+      "completed_at": "2026-10-12T04:48:34Z",
+      "html_url": "https://github.com/ValentinNikolaev/php-upgrade-preflight/actions/runs/38205268082/job/114667247812"
+    }
+  ],
+  "observed_package_job_counts": {
+    "cli": 4,
+    "core": 4,
+    "laravel": 22
+  },
+  "topology_scenarios": [
+    {
+      "name": "mirror existing core/CLI install topology",
+      "consumer_cases": 2,
+      "resolution_modes": 2,
+      "additional_jobs": 4,
+      "additional_runner_seconds_min": 48.0,
+      "additional_runner_seconds_max": 100.0
+    },
+    {
+      "name": "illustrative five-case install topology",
+      "consumer_cases": 5,
+      "resolution_modes": 2,
+      "additional_jobs": 10,
+      "additional_runner_seconds_min": 120.0,
+      "additional_runner_seconds_max": 250.0
+    },
+    {
+      "name": "mirror existing Laravel-adapter install topology",
+      "consumer_cases": 11,
+      "resolution_modes": 2,
+      "additional_jobs": 22,
+      "additional_runner_seconds_min": 264.0,
+      "additional_runner_seconds_max": 550.0
+    }
+  ]
+}

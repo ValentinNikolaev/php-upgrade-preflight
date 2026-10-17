@@ -13,6 +13,7 @@ This project follows [Semantic Versioning](https://semver.org/). Report schema v
 
 ### Added
 
+- A pinned ten-application Laravel evaluation with immutable report archives, bounded claim reviews, operational measurements and R3 engineering exercise materials. Participant benefit, source recall and successful application upgrades remain unverified.
 - Current PHP 8.5 consumer installation and boot cases for Symfony 8.1, Laravel/Illuminate 13, PHPUnit 13, and Pest 5 with its Laravel plugin, at normal and lowest dependency resolution.
 - An experimental PHP 8.6 unit/smoke runtime job and source-scanning regressions for PHP 8.4 property hooks, PHP 8.5 pipes, and PHP 8.6 partial function applications.
 - A dated [current compatibility inventory](docs/current-compatibility.md) with upstream sources and precise support boundaries.

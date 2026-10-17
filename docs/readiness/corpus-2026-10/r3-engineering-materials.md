@@ -1,9 +1,10 @@
 # R3 engineering exercise materials — draft
 
-Status: **ENGINEERING PREPARATION; REPORT-SPECIFIC KEYS PENDING** (2026-10-17).
+Status: **ENGINEERING PREPARATION; REPORT-BOUND KEYS AVAILABLE, LIVE STUDY NOT READY** (2026-10-17).
 These materials support a PHP/Laravel upgrade lead's bounded scope/sequence decision.
 They are not actual participant comprehension, planning benefit, demand, user or reuse outcomes.
-Public-project report bodies are not yet supplied to this draft; no case outcome is asserted below.
+Sealed report-backed keys are available in the separate [withheld answer packet](exercise-answers.md), including original A-D, controlled U and supplements.
+The four known baseline attribution/provenance defect families require a separately frozen reviewed fixed-report cohort for ordinary live R3 use; do not use these as uncorrected live stimuli.
 The [R3 protocol and thresholds](../decision-study.md#predeclared-decision-criteria) remain canonical;
 this document adds no acceptance gate, numerical score or substitute participant result.
 Use the [reading checklists](../report-reading-checklists.md) and [R4 protocol](protocol.md#r3-boundary).
@@ -39,7 +40,7 @@ Tell the facilitator when you start/finish each active phase and when waiting be
 ## Participant exercise cards
 
 All revisions and requests below are anchored to [the frozen project manifest](projects.json).
-Report availability and answers remain **PENDING**; the facilitator must bind a reviewed run before using a card.
+Original A-D and supplemental E keys are now bound in the [withheld answer packet](exercise-answers.md); keep keys separate from participant prompts and review cohort readiness before use.
 Cold/warm repeats are the same task and may expose changed live metadata; they are not independent difficulty levels.
 
 | Card | Frozen case and request | Decision emphasis; no outcome implied |
@@ -129,13 +130,12 @@ This compact worksheet is an entry aid; no participant responses or measurements
 Leave unmeasured numeric cells blank with status UNAVAILABLE; zero requires direct observation/confirmation.
 Do not calculate time benefit from absent/zero normal time or mix runner cost with participant planning time.
 
-## Pending report references — required before exact answer-key completion
+## Report bindings and remaining study gates
 
-- A–D: nearest Crater, BookStack, Lychee and Bagisto canonical JSON + Markdown, run IDs/hashes and provenance.
-- E: supplemental Monica7 longest report pair, executed stages/selection/stop evidence and run provenance.
-- U: actual short-timeout/unknown probe request, diagnostics, watchdog/exit record and report pair if produced.
-- Every assigned key: exact blocker/evidence/action citations, direct/staged outcomes, selected claim/source review,
-  reviewer disposition and source/guide references; unresolved claims stay explicitly pending.
-- Any chosen paired task: reviewed equivalence rationale and normal-workflow source packet before observation.
+- [Withheld answer packet](exercise-answers.md): original A Crater, B BookStack, C Lychee, D Bagisto; supplemental E Monica7, N Invoice Ninja and K Koel; controlled U sealed timeout probe.
+- Keys bind exact sealed report IDs/hashes, JSON pointers/evidence and independent case reviews; portable canonical reports are selected through the published [report index](evidence/reports.json). [Publication verification](publication-verification.json) is separate.
+- Four known attribution/provenance defect families remain in frozen reports; corrections and final aggregate acceptance are assessed separately. No baseline artifact is rewritten here.
+- U is an injected operational-unknown exercise, not ordinary participant workflow timing. Never pool its duration with genuine tasks.
+- Actual study still requires a separately frozen reviewed fixed-report cohort, consented intended users/tasks, equivalence rationale, counterbalancing, observed timings/quality and voluntary second-decision reuse; all R3 outcomes remain UNAVAILABLE.
 
-No actual R3 participant, timing, safety-observation or voluntary-reuse record is supplied by this draft.
+No actual participant answer, safety-observation rate, planning benefit, demand or Symfony-owner case is supplied by this engineering packet. The canonical scoring thresholds remain unchanged.

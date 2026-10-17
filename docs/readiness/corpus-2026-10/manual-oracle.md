@@ -1,6 +1,7 @@
 # Independent source/lock oracle — R4 corpus
 
 Status: **SOURCE-ONLY BASELINE; ALL TOOL COMPARISONS PENDING** (2026-10-17).
+This status records the blinded pre-report checkpoint. Later comparisons are in [case reviews A](case-review-a.md), [B](case-review-b.md) and [C](case-review-c.md); the predeclared checks below remain unchanged.
 Prepared without opening analyzer pilot/final reports or executing application code, scripts, tests or installs.
 This engineering review is not a participant normal-workflow comparison, time benefit, demand or reuse outcome; it does not complete R3.
 Authority: [frozen inputs/requests](projects.json), [campaign protocol](protocol.md), [R3 gates](../decision-study.md).

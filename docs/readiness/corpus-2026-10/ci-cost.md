@@ -43,3 +43,18 @@ The latest-run queries can change; use the recorded run IDs to reproduce this ob
 The maintainer stated that **more than five hours per week** are available for library maintenance during this study. That is a stated capacity lower bound, not measured maintenance consumption, a promised allocation, or an upper bound. Actual maintenance time, support incidents, review throughput and a sustainable fourth-package commitment remain unmeasured.
 
 No fourth-package implementation, approved matrix or measured adapter workload exists in this study. Its incremental job count, elapsed time, runner time, review burden and maintenance cost are unknown; multiplying the existing totals by four-thirds would not provide evidence. A defensible range needs a proposed matrix and measured comparable jobs, including release/distribution and adapter-specific work. Actual monetary spend, account allowances, billing multipliers, runner rates and the maintainer's monetary time value are unknown. These observations do not close the R3 or R4 readiness gates on their own.
+
+
+## Conditional fourth-package accounting - 2026-10-17
+
+The [machine counterfactual](ci-counterfactual.json) binds Compatibility run 38205268082: **30 jobs**, distributed **core 4 / CLI 4 / Laravel 22**, with observed **12-25 seconds per job**. Package shares are unequal; a four-thirds multiplier is not evidence.
+
+| Conditional added install topology | Added jobs | Summed runner-second range using observed extrema |
+| --- | ---: | ---: |
+| Mirror core/CLI's two cases, each normal/lowest | 4 | 48-100 |
+| Illustrative five cases, each normal/lowest | 10 | 120-250 |
+| Mirror Laravel's eleven cases, each normal/lowest | 22 | 264-550 |
+
+These are explicit accounting scenarios, not an approved Symfony matrix, confidence intervals, package shares or measured future workloads. The five-case/ten-job example is illustrative and does not equal an existing package's share. OS/PHP/framework cases remain unselected. Shared Quality topology assumes **zero added jobs**, which does **not** make added tests free: the duration increase is unknown. Parallel scheduling/queueing prevents deriving added pipeline wall time from these sums.
+
+Catalog/guide review, fixtures, release/distribution work and a fifth Wiki destination need human upkeep that has not been measured. Monetary spend, rates/allowances and net benefit remain unavailable. The user's >5 hours/week is a stated capacity lower bound, not observed consumption or allocation. No demand/use-case approval exists for a fourth package or fifth Wiki. These conditional ranges preserve VALIDATE_FIRST and do not close R4 or authorize Symfony/schema/release expansion.

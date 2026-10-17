@@ -1,0 +1,79 @@
+{
+  "scope": "Prepared integration verification; no public-application reruns or post-repair performance measurement",
+  "prepared_composition": {
+    "library_and_root": "79a95f4819e76d0a9cc78719d96edccf1b09d705",
+    "tools_readonly_overlay": "38bfd09e4f3d405af7ea41702a707b7eb13f21eb",
+    "method": "Root checkout at /app plus exact PR48 tools read-only at /app/tools; after merge, tools match PR48 and packages/tests/Composer inputs match the checked root exactly",
+    "merged_source_head": "82b8c2ab4ec86e540d98f56b9a76d9417ab79cfd",
+    "equivalence_verified": true
+  },
+  "composer_check": {
+    "exit_code": 0,
+    "php": "8.3.33",
+    "network": "none",
+    "unit_tests": 1437,
+    "unit_assertions": 10350,
+    "integration_tests": 99,
+    "integration_assertions": 6003,
+    "smoke_tests": 2,
+    "smoke_assertions": 5,
+    "phpstan_configurations": 2,
+    "phpstan_errors": 0,
+    "lint_files": 373,
+    "lint_changes_needed": 0,
+    "wiki_destinations_checked": 4
+  },
+  "harness_and_evidence": {
+    "head": "38bfd09e4f3d405af7ea41702a707b7eb13f21eb",
+    "observed_by": "Fix author; exact-delta independent reviewer inspected retained red/green logs and independently checked all four CLI derivations",
+    "harness_tests_passed": 26,
+    "includes_four_real_kill_recovery_phases": true,
+    "combined_tests": 55,
+    "combined_passed": 54,
+    "combined_skipped": 1,
+    "skip_reason": "Existing Windows symlink privilege unavailable",
+    "offline_cache_docker_tests_passed": 3,
+    "public_application_reruns": 0
+  },
+  "public_bundle_recheck": {
+    "manifest_entries_verified": 88,
+    "gzip_reports_verified": 80,
+    "original_and_compressed_hashes_match": true,
+    "zero_mtime_and_no_filename": true
+  },
+  "r3_bindings_recheck": {
+    "report_hash_bindings": 8,
+    "parsed_report_pointers_resolved": 63,
+    "scope": "Existing report-root pointers in withheld key sections, not linked source-lock pointers or semantic adjudication"
+  },
+  "primary_advisory_exceedances": {
+    "json_target_bytes": 524288,
+    "json_exceeded_of_30": 30,
+    "smallest_json_bytes": 670720,
+    "markdown_target_bytes": 262144,
+    "markdown_exceeded_of_30": 30,
+    "smallest_markdown_bytes": 342445,
+    "scope": "Advisory report size, not enforced failure or observed participant reading cost"
+  },
+  "memory_validation": {
+    "new_focused_file_errors": 0,
+    "preexisting_index_warnings": 1,
+    "warning": "Unchanged MEMORY.md line21 external audit link violates portable index grammar",
+    "unchanged_index_verified": true,
+    "other_info": [
+      "Index capacity advisory",
+      "Windows signing memory review due"
+    ],
+    "scope": "Preserved inherited index/manual content; no unrelated memory migration"
+  },
+  "aggregate_acceptance": "Fresh independent final review and literal final-head CI belong to PR44; component approvals and this prepared-composition check alone do not establish them.",
+  "pr48_final_ci": {
+    "head": "38bfd09e4f3d405af7ea41702a707b7eb13f21eb",
+    "run": 38992678079,
+    "jobs": 19,
+    "successful": 19,
+    "failed_or_skipped": 0,
+    "independent_cumulative_review": "APPROVE",
+    "merged_only_into": "codex/r4-corpus-20261017"
+  }
+}

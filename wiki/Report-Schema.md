@@ -327,6 +327,8 @@ Direct changes must not be overwritten with staged changes. Framework status is 
 
 Top-level blockers describe direct final-target conflicts. They contain blocker vocabulary, subject, optional package/version/constraint/path details, options, summary, confidence, and evidence.
 
+Unreleased provenance repair preserves schema `0.8`: nullable `locked_version` requires a matching version in the current analysis state's lock, or an explicit matching Composer lock notice when no lock context is available. Candidate-only versions remain unknown. Later stages use their current candidate-state lock; candidate requirements are not transferred to another locked version.
+
 Real demo excerpt:
 
 ```json
