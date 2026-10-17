@@ -10,6 +10,10 @@ derived source symbols can be sensitive. The historical tool can accept `full`
 as its exhaustive baseline behavior; it rejects a requested `standard` mode or
 source cache it cannot implement. Omitted controls use the selected tool defaults.
 Existing frozen campaigns and their reports are not rewritten by these options.
+The collector uses a runtime-created private `facts/` child below the source-cache
+mount. A Windows-created mount root can be mode `0777`, UID 0, while the analyzer
+runs as UID 1000; using that root directly would correctly disable the private
+source cache. The child's owner and permissions survive repeated runtime use.
 
 The collector also measures existing analyzer phase boundaries and full-report
 rendering separately. Where the selected tool supports the compact summary, it

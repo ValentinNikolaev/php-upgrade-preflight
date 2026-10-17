@@ -103,11 +103,13 @@ try {
     $disableSourceCache = getenv('R4_DISABLE_SOURCE_CACHE') === '1';
     $scanner = null;
     $cacheApi = OptimizationProbe::optionalClass('PhpUpgradePreflight\\Core\\Source\\SourceFactsCache');
+    $record['source_cache_supported'] = $cacheApi !== null;
     if ($sourceCachePath !== false && $sourceCachePath !== '') {
         if ($sourceCachePath !== '/source-cache' || $disableSourceCache || $cacheApi === null) {
             throw new RuntimeException('Selected tool or configuration cannot use the dedicated source cache.');
         }
-        $cache = $cacheApi->newInstanceArgs([$sourceCachePath]);
+        // The mount root can be host-owned on Docker Desktop. Create private facts as the runtime user.
+        $cache = $cacheApi->newInstanceArgs([$sourceCachePath . '/facts']);
         $scanner = (new ReflectionClass(SourceUsageScanner::class))->newInstanceArgs([null, null, $cache]);
         $record['source_cache_policy'] = 'dedicated_external_directory';
     } elseif ($disableSourceCache && $cacheApi !== null) {
