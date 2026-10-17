@@ -116,6 +116,11 @@ Use `--debug` when you need to inspect the temporary workspaces. It keeps them a
 
 **Unreleased default migration:** CLI, Artisan and the wizard select `--format=summary` and `--analysis-mode=standard` in this checkout. Published v0.3.5 keeps its previous defaults. Automation must request `--format=json`; use `--analysis-mode=full` to retain exhaustive alternative Composer probes. Formatting and execution mode are independent. The [migration and summary contract](docs/optimization/actionable-summary.md), [execution policy](docs/optimization/composer-execution.md) and [source cache contract](docs/optimization/source-facts-cache.md) describe the changes. No new release is prepared; publication requires a deliberate minor-release migration.
 
+The [ten-project optimization results](docs/optimization/results.md) explain what
+became clearer, what remained blocked or unknown, and where analysis slowed down.
+The controlled Windows Docker Desktop series missed its speed targets; smaller
+output and fewer Composer starts do not establish a general performance win.
+
 JSON defines the report data. The Markdown version is generated from it. The published v0.3.x line uses schema `0.8`. v0.2.1 used schema `0.7`, and v0.1 used schema `0.6`. Reports include:
 
 - the commands run for each scenario, Composer results, diagnostics, and hashes that identify candidate lockfiles.

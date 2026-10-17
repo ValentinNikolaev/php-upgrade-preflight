@@ -4,7 +4,7 @@ Last updated: 2026-10-17
 
 - Released baseline: `0.3.5` (published 2026-10-07 Europe/Rome; 2026-10-06 at 23:03:05 UTC)
 - Released report schema: `0.8`
-- Immediate work: run fresh controlled measurements on the reviewed, green and locally verified PHP-only optimization, then finish aggregate review/CI; remaining R3/R4 empirical gates stay open
+- Immediate work: review the measured PHP optimization outcome on PR44; speed targets remain unmet, so profile source/cache and report-assembly costs before making acceleration claims. R3/R4 empirical gates stay open
 - Active published line: `0.3.x`; a v0.4 theme and implementation are unapproved
 - Candidate future report schema: `0.9`, conditional on a new contract decision
 
@@ -19,10 +19,12 @@ The [2026-10-10 product and engineering review](audits/2026-10-10-product-engine
 The user explicitly authorized the [PHP-only optimization execution plan](../docs/optimization/php-optimization.md)
 on 2026-10-17 after reviewing the corpus results. O1/O2 (compact actionable output),
 O3/O4 (adaptive Composer execution and reuse), and O5 (source-fact caching) are
-active; semantic corpus review reopened O2 and O5 after the initial combined
-gates passed. Their corrections now have independent approval, green final-head
-CI and a passing corrected integrated gate. The partial pre-fix series is diagnostic only; O6
-requires a fresh final-runtime series. This bounded authorization takes
+implemented; semantic corpus review reopened O2 and O5 after the initial combined
+gates passed. Their corrections have independent approval, green final-head CI
+and a passing corrected integrated gate. O6 now has 43 validated primary runs,
+three exploratory controls and [readable results](../docs/optimization/results.md).
+Speed targets were not met; performance acceptance remains open. The partial
+pre-fix series is diagnostic only. This bounded authorization takes
 precedence over the old patch-only sequencing for these changes, including the
 intentional human-output default change. It does not approve a v0.4 identity,
 schema migration, Symfony, release/tag preparation, or a final main merge. Resolve
@@ -332,7 +334,19 @@ Acceptance: observed operational cost and maintenance capacity are recorded; req
 
 The [operational-cost follow-up](../docs/readiness/operational-cost.md#2026-10-17-bounded-live-corpus-follow-up) and [corpus record](../docs/readiness/corpus-2026-10/README.md) retain the earlier offline observations alongside 37 completed frozen slots and three extra diagnostic attempts (40 public-application attempts total). The 37 external invocation envelopes sum to 4103.6932044 seconds, excluding acquisition/install/controller preflight/cache copying/review/pauses. All 37 JSON schema and exact Markdown projection checks passed; 364,505 explicit evidence-array references have no duplicate/dangling IDs, a structural check that does not prove attribution truth. Independent case reviews cover ten applications plus supplemental Monica7 and identify four defect families: copied ancestry, candidate-conflict promotion, diagnostic target identity, and candidate-as-locked provenance. Bagisto's 598 retained usages exclude all 31 Webkul source roots under documented conventional defaults; no path repository or automatic autoload coverage was promised. This is not full-application performance or recall evidence.
 
-The R3 [engineering packet](../docs/readiness/corpus-2026-10/exercise-answers.md) binds original A-D cards, controlled U and supplements; all participant outcomes remain UNAVAILABLE. Known-defect baseline reports require a separately frozen, reviewed fixed-report cohort before ordinary live study use. PR45/PR47 repair the four attribution/provenance families, and PR48 repairs warm-cache ownership without a Git trust exception. All three plus publisher PR46 have independent approval and all 19 respective final-head Quality jobs passed before integration-only merges. The full prepared-composition `composer check` passed (1,437 unit, 99 integration, two smoke tests, both static configurations and lint); merged source equivalence is verified. Offline regression checks passed all 26 harness cases and 54/55 combined cases with one existing Windows symlink privilege skip. No performance optimization or cap relaxation was introduced. These changes close the demonstrated repair item, while all human and remaining R4 gates stay open. Final aggregate review/CI are separate requirements on PR44, whose main merge belongs to the maintainer. User capacity >5 hours/week is a stated lower bound, not observed consumption/allocation; actual upkeep, net benefit, Symfony owner cases and a successful six-hop chain remain unavailable. Existing caps, VALIDATE_FIRST and deferred schema/package/release scope remain unchanged.
+The R3 [engineering packet](../docs/readiness/corpus-2026-10/exercise-answers.md) binds original A-D cards, controlled U and supplements; all participant outcomes remain UNAVAILABLE. Known-defect baseline reports require a separately frozen, reviewed fixed-report cohort before ordinary live study use. PR45/PR47 repair the four attribution/provenance families, and PR48 repairs warm-cache ownership without a Git trust exception. All three plus publisher PR46 have independent approval and all 19 respective final-head Quality jobs passed before integration-only merges. The full prepared-composition `composer check` passed (1,437 unit, 99 integration, two smoke tests, both static configurations and lint); merged source equivalence is verified. Offline regression checks passed all 26 harness cases and 54/55 combined cases with one existing Windows symlink privilege skip. That earlier repair composition introduced no performance optimization or cap relaxation. These changes close the demonstrated repair item, while all human and remaining R4 gates stay open. Final aggregate review/CI are separate requirements on PR44, whose main merge belongs to the maintainer. User capacity >5 hours/week is a stated lower bound, not observed consumption/allocation; actual upkeep, net benefit, Symfony owner cases and a successful six-hop chain remain unavailable. Existing caps, VALIDATE_FIRST and deferred schema/package/release scope remain unchanged.
+
+The later [PHP-only optimization](../docs/optimization/results.md) adds compact
+default summaries, adaptive execution and source-fact caching/discovery. Its
+corrected runtime passed the combined gate (1,585 unit, 112 integration and two
+smoke tests), and bounded semantic review covered all ten displayed summaries.
+The 43-run controlled series plus three exploratory controls are complete, but
+the 30% first / 50% repeat acceleration goals remain unmet. Five projects were
+blocked and five unknown from offline metadata retrieval; none demonstrates a
+successful real upgrade or a full chain. Bagisto's broader module selection and
+cap displacement qualify source comparisons. Investigate source/cache IO and
+report assembly under matched scope; smaller output, unchanged retained facts
+and passing tests do not establish faster useful decisions or demand.
 
 ### R5: Select the next release and hand off
 
@@ -346,7 +360,7 @@ R5 decision acceptance: the R1 safety proof and accepted R2 engineering changes 
 
 Planning estimate: 8–18 person-days for a lean implementation/evaluation cycle, typically spread over 2–4 calendar weeks plus recruitment delays. This is a low-confidence capacity assumption for one experienced maintainer, not an estimate of a full application upgrade; substantive newly discovered defects may require a revised range.
 
-Status: R0–R2 and the R5 decision/reconciliation are complete in the development tree. R1's real Composer regression proved the inherited-manifest redirect and its repair, and R2's report semantics passed independent review with composed verification recorded in the [decision baseline](../docs/readiness/decision-baseline.md). R3's [study materials](../docs/readiness/decision-study.md) are prepared, but no participant, reuse, timing or Symfony-owner case evidence is available. R4's bounded offline and CI measurements are recorded, while real-project, capacity, benefit and owner-case gates remain open. The full R milestone is incomplete. Next: voluntary participant study and pinned Lychee/large-run profiling, then maintainer-capacity assessment. Engineering checks do not substitute for reader observations.
+Status: R0–R2 and the R5 decision/reconciliation are complete in the development tree. R1's real Composer regression proved the inherited-manifest redirect and its repair, and R2's report semantics passed independent review with composed verification recorded in the [decision baseline](../docs/readiness/decision-baseline.md). R3's [study materials](../docs/readiness/decision-study.md) are prepared, but no participant, reuse, timing or Symfony-owner case evidence is available. R4's bounded offline, public-project and CI measurements are recorded, while performance acceptance, successful-chain, capacity, benefit and owner-case gates remain open. The full R milestone is incomplete. Next: voluntary participant study and matched-scope source/cache/report profiling, then maintainer-capacity assessment. Lychee's historical OOM cause remains unresolved. Engineering checks do not substitute for reader observations.
 
 ## Milestone 0: Confirm the Theme, Freeze v0.3.x, Lock the v0.4 Contract
 

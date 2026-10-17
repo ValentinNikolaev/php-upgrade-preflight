@@ -1,9 +1,9 @@
 # PHP optimization: execution and acceptance
 
-Status: initial implementation and combined local gates passed; semantic corpus
-review exposed causal-attribution and summary-limit defects. Corrections have
-independent approval, green final-head CI and a passing integrated local gate;
-fresh controlled measurement is next. Authorized 2026-10-17. No release is prepared.
+Status: implementation, corrective reviews and combined local gates passed.
+Controlled measurement completed on ten projects: 43 primary executions and three
+exploratory controls. **Performance targets were not met.** See the readable
+[outcome and next work](results.md). Authorized 2026-10-17; no release is prepared.
 
 The ordinary result must answer three questions: what prevents the requested
 upgrade, what the owner can do next, and which parts of that answer remain
@@ -15,8 +15,9 @@ of the tool's job.
 
 The starting implementation is `2a0b01ad6be1e59458a0d2fa6a3ff0aa43738138`,
 including the reviewed attribution and cache-ownership repairs from the R4 work.
-That composition has not yet been measured on the public corpus. The older
-reports are historical observations, not corrected performance baselines.
+That composition is the measured pre-optimization baseline in the accepted
+comparison. Older corpus reports remain historical observations and are not
+substituted for these paired measurements.
 
 Across the ten historical nearest-cold runs, reported analysis time totals
 1,029.234 seconds. Direct scenario durations plus staged attempt durations total
@@ -38,11 +39,11 @@ of the changed default. R3 participant benefit and demand remain unmeasured.
 | Step | Deliverable | Acceptance evidence | Status |
 | --- | --- | --- | --- |
 | O1 | Bounded human summary by default in CLI, Artisan and the normal wizard flow; full JSON/Markdown requested explicitly | Correct actions and qualifications for blocked, feasible, unknown, advisory-only, partial-source and direct/staged disagreement; no entire inventory serialization for summary | Implemented; component review/CI and combined local gate passed |
-| O2 | Grouped explanations with specific safe actions and accurate verification status | Every material recommendation has supporting evidence; hypothetical candidates are not represented as checked repairs; maintenance advisories do not become blockers | Causal and explanation-retention corrections independently approved, CI green and integrated gate passed; fresh corpus validation pending |
+| O2 | Grouped explanations with specific safe actions and accurate verification status | Every material recommendation has supporting evidence; hypothetical candidates are not represented as checked repairs; maintenance advisories do not become blockers | Corrections reviewed, CI green and integrated gate passed; independent bounded semantic review found no material defect in the ten displayed candidate-first summaries |
 | O3 | Adaptive standard execution and an explicit exhaustive alternative | Exact-target failure cannot suppress a successful dependency-expansion path; requested stage chains and honest unknowns remain; executed work is inspectable | Implemented; component review/CI and combined local gate passed |
 | O4 | Measured phases and equivalent Composer-result reuse | Fewer actual subprocesses in deterministic cases; relevant state/configuration changes prevent reuse; cached and uncached semantic conclusions agree | Implemented with O3; same gates passed |
-| O5 | Persistent source-fact reuse, safe source discovery and visible omissions | Unchanged files avoid reparsing; edits/additions/deletions and changed collectors invalidate appropriately; corrupt/unavailable cache falls back; source coverage and mutation checks remain | Cache/discovery and cap-summary corrections reviewed, CI green and integrated gate passed; controlled cache measurements pending |
-| O6 | Controlled before/after measurement and a readable outcome | Corrected baseline and candidate identified separately; results explain improvements, regressions, remaining limitations and failed targets | Partial pre-fix series stopped after 25 completed invocations; retained as diagnostics, excluded from final statistics; fresh 43-invocation series required |
+| O5 | Persistent source-fact reuse, safe source discovery and visible omissions | Unchanged files avoid reparsing; edits/additions/deletions and changed collectors invalidate appropriately; corrupt/unavailable cache falls back; source coverage and mutation checks remain | Reviewed and verified; all ten candidate first/repeat fact hashes and three full controls match. Cache acceleration is not established; the exploratory control was fastest with caching disabled |
+| O6 | Controlled before/after measurement and a readable outcome | Corrected baseline and candidate identified separately; results explain improvements, regressions, remaining limitations and failed targets | Complete: 43 accepted primary executions plus three exploratory controls, exact CSV and readable results. Pre-fix 25-run series excluded. Speed acceptance remains unmet |
 
 O1/O2, O3/O4 and O5 may proceed independently in separate checkouts. Integration
 must reconcile their public interfaces before running the complete gate. Each

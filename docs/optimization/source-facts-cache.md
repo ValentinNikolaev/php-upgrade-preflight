@@ -84,3 +84,9 @@ canonical SHA-256 in disabled, cold and warm modes. The warmed disabled scan too
 parses. These are in-process source-phase measurements using a counting parser
 wrapper, not whole-analyzer or cross-process default-cache benchmarks. They do
 not establish a total-analysis performance target.
+
+The later [ten-project whole-analyzer comparison](results.md) did not establish
+cache acceleration. Its Windows-backed cold cache had material overhead, and a
+single exploratory Crater control was fastest with caching disabled even after
+moving the cache to a Docker local volume. Those observations qualify the
+synthetic parser counts above; source-fact equivalence is not a speed guarantee.

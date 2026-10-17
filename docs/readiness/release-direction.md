@@ -31,3 +31,12 @@ The original 2026-10-10 decision and its evidence table above remain historical.
 The engineering packet now binds original A-D, controlled timeout U and supplemental tasks. It establishes no consented users, normal-workflow timings, answer quality, comprehension/pass rates, planning benefit, voluntary reuse, demand or Symfony-owner cases: all remain **UNAVAILABLE**. Known-defect baseline reports cannot be ordinary uncorrected live stimuli; separately freeze/review a fixed-report cohort, then collect and score actual intended-user observations under the unchanged [R3 protocol](decision-study.md).
 
 PR45/PR46/PR47/PR48 have independent approval, all 19 respective final-head Quality jobs passed, and integration-only merges. Final aggregate review/CI are separate PR44 requirements, and the maintainer owns the main merge. Nothing here publishes those changes or approves a release. User capacity >5 hours/week is stated capacity, not observed upkeep or a committed allocation. [Conditional CI scenarios](corpus-2026-10/ci-cost.md) do not select OS/PHP/framework cases, price upkeep or establish net benefit. A fourth package/fifth Wiki destination, Symfony, schema `0.9` and any new release remain deferred. Revisit only after the remaining repair, human-study, successful-chain and sustainable-cost gates have reviewable evidence.
+
+The subsequent [PHP optimization outcome](../optimization/results.md) adds 43
+controlled primary executions and three exploratory controls on corrected code.
+It supplies compact human output, more conservative cause explanations and
+bounded modular discovery, while documenting cold-run regressions and missed
+speed targets. Independent review found no material defect in the ten displayed
+candidate-first summaries; no real-user benefit, demand or successful application
+upgrade was observed. Retain `VALIDATE_FIRST`: functional engineering acceptance
+does not close performance, R3, successful-chain or sustainable-cost gates.

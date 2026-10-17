@@ -5,8 +5,11 @@ the optimization branch; combined local gates and independent code review passed
 A subsequent semantic review of actual public-case reports found two remaining
 correctness defects. Both corrections have independent approval, 19/19 final-head
 CI, and signed integration merges; the corrected combined local gate passed.
-Fresh measurements and the final aggregation review/CI remain. No release or
-main merge is authorized here.
+Controlled measurement and all ten bounded summary reviews are complete; speed
+targets remain unmet. The readable [outcome](results.md) is separate from passing
+engineering gates. The [aggregate PR44](https://github.com/ValentinNikolaev/php-upgrade-preflight/pull/44)
+records final-head review and CI; its main merge belongs to the maintainer.
+No release is authorized here.
 
 ## Component acceptance
 
@@ -123,8 +126,9 @@ case instead records a security-advisory policy rejection. It also found that
 Lychee's 8,672 and Snipe-IT's 8,284 omitted unique source usages were hidden behind
 other source-warning representatives. Passing structural/code checks had not
 established the truth or completeness of these user-facing explanations. Both
-defects require runtime corrections and independent regression review before
-new timings can describe the final implementation.
+defects required runtime corrections and independent regression review before
+new timings could describe the final implementation. Those corrections and the
+fresh series are now complete.
 
 The separate task-owned controller is approved at SHA-256
 `0fd6cd4c1048ef86178b08245e16cc71c9f8edbd59e40bee90789284522938a4`.
@@ -137,7 +141,7 @@ Its independent 46 synthetic checks exercised the actual controller and report
 validators, exact 43-slot membership, source/runtime/request/seed bindings,
 positive cleanup, strict numeric admission, both distinct median formulas and
 retained source qualifications. No real timing entered those controls.
-The planned comparison has 40 paired first/repeat invocations and three full-mode
+The completed comparison has 40 paired first/repeat invocations and three full-mode
 controls, using ten pinned sources, one fixed Docker image, no network, and
 identical historical post-cold Composer metadata seeds. First-run source caches
 are empty; this is not a cold-network experiment.
@@ -146,6 +150,72 @@ Analyzer time, summary readiness, full rendering, container wall time and
 controller wall time have separate scopes. PHP heap peaks are cumulative and
 exclude Composer-child memory; absent instrumentation remains unknown. Broader
 autoload coverage and omitted standard alternatives must accompany speed claims.
+
+## Accepted measurement and semantic review
+
+The completed `cohort-v4` binds baseline `2a0b01ad6be1e59458a0d2fa6a3ff0aa43738138`
+to candidate `7e482766f07b0c8a5321cae9b06ee84319c489b3`, whose runtime is unchanged
+from the corrected integrated gate. The controller exited zero after all 43
+receipts passed identity, source/request/toolchain, output-seal, immutability and
+positive-cleanup checks. The approved statistics helper independently admitted
+the complete set before producing derived results. The exact CSV and canonical
+human conclusions are in [results](results.md); neither speed target passed.
+
+Local SHA-256 identities:
+
+| Record | SHA-256 |
+| --- | --- |
+| Primary plan | `26c39cb19475f53e74361eb7aa4e1ede1dc4372389e831d1c6d5ed88e79c361b` |
+| Bound inputs | `424389b866ed9ea143b6f38582f9d94d24b264af548e6a1568545db1f9279a60` |
+| Primary completed summary | `78bb6c593215cb000f50ae929fdf4e75604605c03fb965c49e622b6ecd052506` |
+| Derived measurements | `4d0ceca3acfcaf233cea5abcb66f73afd4c6c58b6c92d63f35af544163591115` |
+| Candidate runtime tree | `4254e2f4a20eaaadc6feeab60311947d38a46d2c5f73ca6a98cd06930a682bc2` |
+| Docker image | `c3087cd6c2f9848a65d7442df36dbde51852513f5130848091d13ba87c3cb63b` |
+
+Independent bounded semantic review covered all ten sealed candidate-first
+summaries, actual Composer excerpts and targeted pinned metadata/source. The
+review reports `summary-claims-v4-*.md` found no confirmed material defect in the
+displayed summaries. They do not certify every canonical finding or application
+compatibility. The new combined static runtime review at `7e48276` inspected all
+28 changed product-runtime paths against `2a0b01ad`, including the final cap and
+causality/identity corrections, and approved that scope. Its
+`final-runtime-7e48276.md` records tests inspected separately from tests executed.
+The subsequent `final-aggregate-code-7e48276.md` approved the complete committed
+diff against main `0329c5a32adeb10cb48a1e93e81c0249864270cf`: all 234 paths were
+classified, with fresh harness/test/contract inspection and explicit same-head
+runtime/archival review reuse. That static verdict excludes the later results
+and documentation delta. Its final exact-head acceptance and CI are recorded on
+PR44.
+
+Independent data review reconciled all 43 CSV rows, 1,204 measurement cells,
+80 unavailable blanks and 109 primary output seals, plus the three supplemental
+controls and their lineage/cleanup. It found one documentation error: individual
+Composer PHP peak RSS was available in all 485 primary invocations, although the
+draft called child RSS unmeasured. The corrected text distinguishes those
+`VmHWM` values from analyzer heap and an unmeasured simultaneous process-tree
+peak; no metric value changed. The initial receipt is
+`final-results-data-review.md`; final reporting acceptance is separate on PR44.
+
+Three post-hoc Crater controls ran only after primary completion, under a
+separately approved plan/controller. They compare standard mode with source
+caching disabled, a fresh default-local Docker volume, and that volume in a
+second container. Composer seeds, source and temporary-workspace binds remained
+controlled; the latter binds stayed on Windows. Actual mount/environment,
+private fact files and cold-to-warm lineage were validated, as were identical
+retained facts and recorded states. Both controllers exited zero, all three
+analysis containers were removed, and the verified owned volume was removed.
+These controls are excluded from primary aggregates; no cache hit rate or
+whole-Linux speed estimate was measured.
+
+The supplemental controller SHA-256 is
+`6087b363842a77f96a38813b5b459539446d61983f09122de47b370ded737c3b`;
+the reviewed plan is
+`555eb84c01ee818d5a26c663cbcd8f942197a3833b93f39456d797f3614bbea0`;
+the completed supplemental summary is
+`1037594b7c702a044e72cafc492700697facd41af03cfb1f4e2b4e882b432908`.
+The owned-volume cleanup receipt is separately sealed at
+`f3b55cf4c8e5c4fd1b96be019508101cc374eb50e10a793ab65051fd3d28a243`.
+Existing unrelated database containers were preserved.
 
 ## Artifact accounting
 

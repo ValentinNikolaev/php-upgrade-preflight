@@ -59,3 +59,25 @@ Bagisto's 598 retained usages, without a usage-cap warning, exclude its **31 Web
 PR45/PR46/PR47/PR48 have independent approval and all 19 respective final-head Quality jobs passed before integration-only merges. Four core attribution/provenance families and the warm-cache ownership fault have separately tested repairs; final aggregate review/CI remain requirements on PR44, with maintainer-only main merge. Frozen baseline reports are not rewritten or claimed fixed. [Engineering exercise keys](corpus-2026-10/exercise-answers.md) are preparation, not R3 observations; ordinary live study requires a separately frozen reviewed fixed-report cohort.
 
 The [CI counterfactual](corpus-2026-10/ci-cost.md) supplies conditional topology ranges, not approved matrix cost. User capacity **>5 hours/week** is a stated lower bound, not observed usage/allocation. Human catalog/Wiki upkeep, monetary spend, actual participant setup/read/decision benefit and net benefit remain unmeasured. R4 stays partially measured and R3 UNAVAILABLE; retain [VALIDATE_FIRST](release-direction.md), deferred Symfony/schema expansion and no new release authorization.
+
+## 2026-10-17 PHP optimization follow-up
+
+The later [controlled optimization results](../optimization/results.md) compare
+the repaired pre-optimization baseline `2a0b01ad` with corrected runtime `7e48276`
+on the same ten pinned repositories. All 43 primary analysis executions and three
+exploratory cache controls passed input/cleanup validation. The default human
+output is bounded, but the first/repeat speed targets were not met on Windows
+Docker Desktop. Five nearest-hop requests remained blocked and five remained
+unknown because their offline metadata was insufficient; this is neither an
+online failure-frequency estimate nor successful worst-chain evidence.
+
+Bagisto's modular selection and the retained-usage cap change the scope of that
+comparison. The source phase combines IO, hashing, cache work and parsing;
+Individual Composer PHP process RSS is recorded separately from analyzer heap;
+a simultaneous process-tree peak and normal participant setup/read time remain
+unmeasured.
+The [engineering record](../optimization/engineering-review.md) separates the
+corrected runtime gate, bounded semantic reviews and measurement receipts from
+final aggregate PR44 checks. These observations supplement the historical corpus
+above without rewriting it. Performance acceptance, real successful-chain,
+human-benefit and sustainable-maintenance gates remain open.
