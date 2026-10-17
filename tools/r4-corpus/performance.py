@@ -138,6 +138,8 @@ def prepare(config, output):
         require(extension_reason(prior_rows) is not None, 'third pair trigger not met')
     output = Path(output).resolve()
     inputs = [reference_path.parent, Path(__file__).resolve().parent]
+    if prior is not None:
+        inputs.append(prior_path.parent)
     for variant in config['variants'].values():
         require(isinstance(variant['head'], str) and re.fullmatch('[0-9a-f]{40}', variant['head']),
                 'supply exact reviewed runtime heads; placeholders cannot execute')
@@ -146,9 +148,8 @@ def prepare(config, output):
         require((vendor / 'autoload.php').is_file(), 'runtime dependencies unavailable')
         if variant.get('vendor'):
             variant['vendor'] = str(vendor)
-            inputs.append(vendor)
         code_clean(variant['repo'], variant['head'])
-        inputs.append(Path(variant['repo']))
+        inputs.extend([Path(variant['repo']), vendor])
     if prior is not None:
         require(prior['variants'] == config['variants'], 'third pair must bind the same final runtimes')
     cases = [dict(c) for c in reference['cases']
@@ -156,7 +157,7 @@ def prepare(config, output):
     module = runner(Path(__file__).resolve().parent)
     for case in cases:
         case['seed_proof_sha256'] = sha256(Path(case['seed_proof']))
-        inputs.extend([Path(case['app']).resolve(), Path(case['seed']).resolve()])
+        inputs.extend(Path(case[k]).resolve() for k in ('app', 'seed', 'seed_proof'))
         check_case(module, case)
         source_report = reference_path.parent / (case['project'] + '-candidate-first') / 'report.json'
         case['reference_report_sha256'] = sha256(source_report)
@@ -173,6 +174,7 @@ def prepare(config, output):
             'reference_plan': str(reference_path), 'reference_plan_sha256': config['reference_plan_sha256'],
             'reference_summary_sha256': config['reference_summary_sha256'],
             'variants': config['variants'], 'cases': cases, 'schedule': entries,
+            'protected_export_paths': sorted({str(p.resolve()) for p in inputs}),
             'harness_files_sha256': harness_files(Path(__file__).resolve().parent),
             'controller_sha256': sha256(Path(__file__)), 'output': str(output),
             'instrumented': stage == 'profiles',
@@ -445,11 +447,34 @@ def extension_reason(rows):
     return None
 
 
+def export_destination(plan, plan_path, output):
+    """Resolve aliases before admitting a fresh directory disjoint from sealed inputs."""
+    raw = Path(output)
+    require(not os.path.lexists(raw), 'export directory must be fresh')
+    target = raw.resolve()
+    protected = [Path(plan['output']), Path(plan_path).resolve().parent,
+                 Path(plan['reference_plan']).resolve().parent, Path(__file__).resolve().parent,
+                 *[Path(p) for p in plan.get('protected_export_paths', [])]]
+    for variant in plan['variants'].values():
+        repo = Path(variant['repo'])
+        protected.extend([repo, Path(variant.get('vendor', repo / 'vendor'))])
+    for case in plan['cases']:
+        protected.extend(Path(case[k]) for k in ('app', 'seed', 'seed_proof'))
+    if plan.get('prior_final'):
+        protected.append(Path(plan['prior_final']['prior_final_plan']).resolve().parent)
+    for path in protected:
+        path = path.resolve()
+        require(target != path and target not in path.parents and path not in target.parents,
+                'export directory overlaps a protected cohort/input/code path')
+    require(not os.path.lexists(target), 'export directory must be fresh')
+    return target
+
+
 def export(plan_path, output):
     """Validate every expected receipt before writing concise derived CSV; no invented medians."""
     plan = load_json(plan_path)
     rows = verified_rows(plan_path)
-    output = Path(output)
+    output = export_destination(plan, plan_path, output)
     output.mkdir(parents=True, exist_ok=False)
     with (output / 'measurements.csv').open('x', encoding='utf-8', newline='') as stream:
         writer = csv.DictWriter(stream, fieldnames=list(rows[0]))
