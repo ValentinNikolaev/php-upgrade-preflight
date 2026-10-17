@@ -28,8 +28,7 @@ final class ComposerBlockerParser
         string $evidenceId,
         ?TargetPlatform $platform = null,
         ?ComposerLock $sourceLock = null
-    ): array
-    {
+    ): array {
         $blockers = [];
 
         foreach ($result->diagnostics() as $diagnostic) {
