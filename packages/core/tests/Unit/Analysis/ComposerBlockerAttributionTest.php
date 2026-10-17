@@ -165,6 +165,33 @@ final class ComposerBlockerAttributionTest extends TestCase
         ];
     }
 
+    public function testUnparseableIncomingConflictRetainsFailedEvidenceWithoutInventingPackageBlame(): void
+    {
+        $output = 'fixture/blocker 1.0.0 conflicts with fixture/target (not-a-version)';
+        $result = $this->result('fixture/target', '^2.0', $output, true);
+        $evidence = new EvidenceLedger();
+        $blockers = (new BlockerGrouper())->group([$result], $evidence);
+
+        self::assertCount(1, $blockers);
+        self::assertSame('unknown-composer-failure', $blockers[0]->type());
+        self::assertSame('fixture/target', $blockers[0]->subject());
+        self::assertSame('^2.0', $blockers[0]->requestedConstraint());
+        self::assertSame('low', $blockers[0]->confidence());
+        self::assertNull($blockers[0]->blocker());
+        self::assertNull($blockers[0]->lockedVersion());
+        self::assertNull($blockers[0]->conflict());
+        self::assertSame(['fixture/target'], $blockers[0]->dependencyPath());
+        self::assertSame(['solver-1'], $blockers[0]->evidence());
+        self::assertCount(1, $evidence->all());
+        self::assertSame('solver-1', $evidence->all()[0]->id());
+        $context = $evidence->all()[0]->context();
+        self::assertSame(2, $context['exit_code']);
+        self::assertSame('Resolution failed.', $context['output_excerpt']);
+        self::assertSame('fixture/target', $context['diagnostics'][0]['package']);
+        self::assertSame('^2.0', $context['diagnostics'][0]['constraint']);
+        self::assertSame($output, $context['diagnostics'][0]['stdout_excerpt']);
+    }
+
     public function testAmbiguousOrConflictingAncestorsDoNotInventARequirementPath(): void
     {
         $output = implode("\n", [
