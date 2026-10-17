@@ -55,7 +55,8 @@ final class SourceUsageScanner
         array &$uncertainties = [],
         bool $reportMissingPaths = true,
         array $frameworks = [],
-        array &$readDigests = []
+        array &$readDigests = [],
+        bool $discoverAutoload = false
     ): array {
         $usages = [];
         /** @var array<string, int> $usageIndexes */
@@ -67,7 +68,7 @@ final class SourceUsageScanner
         $omittedOversizedFiles = 0;
         $omittedAggregateFiles = 0;
         $totalBytes = 0;
-        $files = $this->selectedPhpFiles($project, $paths, $uncertainties, $reportMissingPaths, $evidence);
+        $files = $this->selectedPhpFiles($project, $paths, $uncertainties, $reportMissingPaths, $evidence, $discoverAutoload);
 
         if ($files === []) {
             $uncertainties[] = 'No PHP source files were scanned.';
@@ -240,7 +241,8 @@ final class SourceUsageScanner
         array $paths,
         array &$uncertainties = [],
         bool $reportMissingPaths = true,
-        ?EvidenceLedger $evidence = null
+        ?EvidenceLedger $evidence = null,
+        bool $discoverAutoload = false
     ): array {
         $files = $this->phpFiles($project->path(), $paths, $uncertainties, $reportMissingPaths);
         $omitted = count($files) - $this->limits->maxFiles();
