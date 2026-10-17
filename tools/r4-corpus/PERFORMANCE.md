@@ -81,6 +81,31 @@ python -B COHORT/harness/performance.py run --plan COHORT/plan.json --approved-p
 python -B COHORT/harness/performance.py export --plan COHORT/plan.json --output FRESH_DERIVED_DIRECTORY
 ```
 
+Export verifies every expected receipt before writing. `--output` creates a new
+directory separate from the cohort, runtime/vendor, source/seed/proof, accepted
+reference, prior-final cohort and original/frozen tooling paths. Equality and
+containment in either direction are refused after resolving `..`, directory
+symlinks and Windows junction ancestors. Existing outputs and dangling final
+aliases are refused; invalid placement creates no directory or parent. A fresh
+sibling such as `COHORT/../final-derived-v1` under the same existing parent is
+allowed. The parent itself need not be separate from every input; the new
+directory must be separate. Safe missing parents may still be created.
+
+New plans seal the original protected input/tooling paths in
+`protected_export_paths`, preserving them when the controller runs from its
+frozen harness. Export also derives the mandatory roots from the plan fields
+and executing controller, independently of that additional list. The exact
+controller and plan/summary SHA checks still apply: retain historical frozen
+plans, controllers and evidence unchanged, and use their matching controller.
+This guard applies to newly prepared plans; do not rewrite historical plans to
+add the field or export them with a replacement controller.
+
+The focused host controls run with
+`python -B -m unittest discover -s tools/r4-corpus/tests -p test_performance.py -v`.
+They use temporary synthetic inputs, including a sealed 40-row export followed
+by re-verification; no corpus, Docker or PHP execution is needed. Symlink and
+native junction controls report platform/privilege skips when unavailable.
+
 Only sealed completed entries can resume. An unsealed existing output, failed
 invocation or unknown cleanup stops the stage; ABORTED cohorts cannot resume or
 export statistics. Stale controller leases require explicit ownership review,
