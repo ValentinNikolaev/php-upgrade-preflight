@@ -28,7 +28,7 @@ final class DefaultUpgradeAnalyzerProgressTest extends TestCase
             ['name' => 'fixture/dependency', 'version' => '1.0.0'],
             ['name' => 'vendor/legacy', 'version' => '1.0.0', 'require' => ['fixture/dependency' => '^1.0']],
         ], 'packages-dev' => []], JSON_THROW_ON_ERROR));
-        $reporter = new class implements AnalysisProgressReporter {
+        $reporter = new class () implements AnalysisProgressReporter {
             /** @var list<AnalysisProgressEvent> */
             public array $events = [];
 
