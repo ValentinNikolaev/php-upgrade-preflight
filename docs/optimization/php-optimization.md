@@ -81,6 +81,27 @@ checks, supported runtime/Windows CI, and independent reviews on the final heads
 Schema/format parity and cache invalidation need behavioral assertions; snapshots
 alone do not establish correctness.
 
+## Performance follow-up (authorized 2026-10-17)
+
+The next comparison starts at `6fe3249686866e0b9764ceb7eb2b51c89aad88e6`.
+It preserves the expanded source selection, safety limits, and ordinary standard
+analysis. The previous measurements and their failed targets remain historical
+evidence; they will not be overwritten.
+
+| Order | Deliverable | Acceptance |
+| --- | --- | --- |
+| P1 | Disable persistent source caching by default; explicit CLI, Artisan and API opt-in | No default cache writes; identical source facts and conclusions on the ten pinned projects; matched cache-off timing comparison |
+| P2 | Optional source subphase profile and actual cache/parse counters | Discovery, reads, hashing, cache lookup, parsing, cache writes and evidence construction distinguishable; counters reset per scan and reflect real operations; no paths or source contents in metrics |
+| P3 | Reduce cache filesystem transactions only if profiling justifies it | Preserve privacy, current-byte invalidation and conservative fallback; measured whole-analysis win over disabled caching before any default promotion |
+| P4 | Reduce report construction cost without losing canonical detail | Equivalent evidence, ordering, uncertainty and full JSON/Markdown; measured representative-project improvement |
+| P5 | Show an evidenced direct Composer cause before remaining checks finish | Terminal diagnostic stream only; clearly preliminary, repair unverified, no early overall verdict; later checks still execute |
+| P6 | Freeze, independently review, compare and report the complete result | Controlled scope, exact heads, cleanup/input-integrity evidence, concise human conclusions and CSV; green component and aggregate checks; maintainer performs the main merge |
+
+P1/P2, P4 and measurement tooling use separate checkouts. Cache storage redesign
+depends on P2 measurements. Heavy measurements run without concurrent test or
+benchmark workloads. Detailed profiles and raw reports stay in task-owned OS
+temporary storage; ordinary users do not receive them by default.
+
 The outcome must state what changed for a user, what became faster under which
 conditions, which targets were missed, and what remains unverified. Repository
 corpus measurements do not complete the [R3 user study](../readiness/decision-study.md).
