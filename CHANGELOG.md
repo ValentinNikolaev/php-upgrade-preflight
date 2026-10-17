@@ -19,6 +19,7 @@ This project follows [Semantic Versioning](https://semver.org/). Report schema v
 
 ### Fixed
 
+- Keep blocker `locked_version` unknown when a solver relation names an unverified candidate, using the current attempt's lock as provenance and retaining explicit locked-package evidence without borrowing another version's requirements.
 - Anchor Composer blocker paths to the reported blocking relation and follow only unambiguous requirement ancestry. Keep unrelated or candidate-only diagnostics unclassified, and ignore diagnostic conflict ranges that exclude none of the requested dependency versions.
 - Preserve empty and numeric-key JSON objects in temporary Composer manifests and carried candidate states, so valid maps such as `require: {}` are not rewritten as schema-invalid lists.
 - Report unreadable classmap directories as ownership uncertainty and continue indexing other mappings instead of aborting the analysis.
