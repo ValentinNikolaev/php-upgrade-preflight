@@ -21,6 +21,7 @@ final class UpgradeRequest
     private ExtensionAssumptionSet $extensionAssumptions;
     private ?TargetPlatformProfile $targetPlatformProfile;
     private ComposerExecutionConfiguration $composerExecution;
+    private string $analysisMode;
 
     /**
      * @param list<UpgradeTarget> $targets
@@ -40,7 +41,8 @@ final class UpgradeRequest
         bool $debug = false,
         array $extensionAssumptions = [],
         ?TargetPlatformProfile $targetPlatformProfile = null,
-        ?ComposerExecutionConfiguration $composerExecution = null
+        ?ComposerExecutionConfiguration $composerExecution = null,
+        string $analysisMode = 'standard'
     ) {
         $resolved = realpath($projectPath);
 
@@ -71,6 +73,10 @@ final class UpgradeRequest
         $this->extensionAssumptions = new ExtensionAssumptionSet($extensionAssumptions);
         $this->targetPlatformProfile = $targetPlatformProfile;
         $this->composerExecution = $composerExecution ?? ComposerExecutionConfiguration::compatible();
+        if (!in_array($analysisMode, ['standard', 'full'], true)) {
+            throw new \InvalidArgumentException('Analysis mode must be standard or full.');
+        }
+        $this->analysisMode = $analysisMode;
         $this->assertTargetPlatformProfileCompatibility();
     }
 
@@ -140,6 +146,11 @@ final class UpgradeRequest
     public function composerExecution(): ComposerExecutionConfiguration
     {
         return $this->composerExecution;
+    }
+
+    public function analysisMode(): string
+    {
+        return $this->analysisMode;
     }
 
     public function withComposerExecution(ComposerExecutionConfiguration $composerExecution): self
