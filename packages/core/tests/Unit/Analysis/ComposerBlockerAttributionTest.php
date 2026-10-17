@@ -8,6 +8,7 @@ use PhpUpgradePreflight\Core\Analysis\BlockerGrouper;
 use PhpUpgradePreflight\Core\Analysis\ComposerBlockerParser;
 use PhpUpgradePreflight\Core\Analysis\StageBlockerRegistry;
 use PhpUpgradePreflight\Core\Model\ComposerDiagnostic;
+use PhpUpgradePreflight\Core\Model\ComposerLock;
 use PhpUpgradePreflight\Core\Model\EvidenceLedger;
 use PhpUpgradePreflight\Core\Model\Scenario;
 use PhpUpgradePreflight\Core\Model\ScenarioResult;
@@ -28,7 +29,11 @@ final class ComposerBlockerAttributionTest extends TestCase
             '`--lychee-org/lychee (requires nunomaduro/collision ^8.3)',
         ]);
         $result = $this->result('laravel/framework', '^13.0', $output, $diagnostic);
-        $blockers = (new BlockerGrouper())->group([$result], new EvidenceLedger());
+        $lock = new ComposerLock([
+            'packages' => [['name' => 'spatie/laravel-image-optimizer', 'version' => '1.8.2']],
+            'packages-dev' => [['name' => 'nunomaduro/collision', 'version' => 'v8.8.2']],
+        ]);
+        $blockers = (new BlockerGrouper())->group([$result], new EvidenceLedger(), $lock);
         self::assertCount($diagnostic ? 2 : 1, $blockers);
         $collision = $blockers[count($blockers) - 1];
         self::assertSame('nunomaduro/collision', $collision->blocker());

@@ -11,6 +11,7 @@ use PhpUpgradePreflight\Core\Model\Blocker;
 use PhpUpgradePreflight\Core\Model\BlockerAttribution;
 use PhpUpgradePreflight\Core\Model\BlockerType;
 use PhpUpgradePreflight\Core\Model\ComposerDiagnostic;
+use PhpUpgradePreflight\Core\Model\ComposerLock;
 use PhpUpgradePreflight\Core\Model\ExtensionAssumption;
 use PhpUpgradePreflight\Core\Model\ScenarioResult;
 use PhpUpgradePreflight\Core\Model\SolverRelation;
@@ -22,7 +23,12 @@ final class ComposerBlockerParser
     private const PLATFORM_PATTERN = '(?:php(?:-64bit|-ipv6)?|ext-[a-z0-9_.-]+|lib-[a-z0-9_.-]+|composer(?:-plugin-api|-runtime-api)?)';
 
     /** @return list<Blocker> */
-    public function parse(ScenarioResult $result, string $evidenceId, ?TargetPlatform $platform = null): array
+    public function parse(
+        ScenarioResult $result,
+        string $evidenceId,
+        ?TargetPlatform $platform = null,
+        ?ComposerLock $sourceLock = null
+    ): array
     {
         $blockers = [];
 
@@ -32,16 +38,60 @@ final class ComposerBlockerParser
             }
         }
 
-        if ($blockers !== []) {
-            return $blockers;
+        if ($blockers === []) {
+            $output = trim($result->stdout() . "\n" . $result->stderr());
+            $blockers = array_map(
+                fn (string $problem): Blocker => $this->fromOutput($problem, $result, $evidenceId, $platform),
+                $this->problemSections($output)
+            );
         }
 
-        $output = trim($result->stdout() . "\n" . $result->stderr());
-
         return array_map(
-            fn (string $problem): Blocker => $this->fromOutput($problem, $result, $evidenceId, $platform),
-            $this->problemSections($output)
+            fn (Blocker $blocker): Blocker => $this->withLockProvenance($blocker, $result, $sourceLock),
+            $blockers
         );
+    }
+
+    private function withLockProvenance(Blocker $blocker, ScenarioResult $result, ?ComposerLock $sourceLock): Blocker
+    {
+        $package = $blocker->blocker();
+        $version = $blocker->lockedVersion();
+        if ($package === null || $version === null) {
+            return $blocker;
+        }
+
+        if ($sourceLock !== null) {
+            $locked = $sourceLock->package($package);
+            $verified = $locked !== null && $this->sameVersion($version, $locked->version());
+        } else {
+            $output = $result->stdout() . "\n" . $result->stderr();
+            $name = preg_quote($package, '~');
+            $verified = (preg_match('~' . $name . '\s+is locked to version\s+([^\s,]+)~i', $output, $matches) === 1
+                || preg_match('~' . $name . '\s+is fixed to\s+([^\s,]+).*?lock file version~i', $output, $matches) === 1)
+                && $this->sameVersion($version, $matches[1]);
+        }
+        if ($verified) {
+            return $blocker;
+        }
+
+        return new Blocker(
+            $blocker->type(),
+            $blocker->subject(),
+            $blocker->summary(),
+            $blocker->confidence(),
+            $blocker->evidence(),
+            $blocker->requestedConstraint(),
+            $package,
+            null,
+            $blocker->conflict(),
+            $blocker->dependencyPath(),
+            $blocker->options()
+        );
+    }
+
+    private function sameVersion(string $left, string $right): bool
+    {
+        return ltrim($left, 'vV') === ltrim($right, 'vV');
     }
 
     /** @return list<Blocker> */
@@ -401,7 +451,8 @@ final class ComposerBlockerParser
             $subject = $this->onlyPackageTarget($result)
                 ?? ($relation === null ? $blockingPackage : $relation->package());
             foreach ($relations as $candidate) {
-                if ($candidate->package() === $blockingPackage && $candidate->dependency() === $subject) {
+                if ($candidate->package() === $blockingPackage && $candidate->dependency() === $subject
+                    && $candidate->version() !== null && $this->sameVersion($candidate->version(), $matches[2])) {
                     $relation = $candidate;
                     break;
                 }
