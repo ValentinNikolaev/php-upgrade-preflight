@@ -1,6 +1,12 @@
 # Parsed source facts and modular discovery
 
-`SourceUsageScanner` caches successful parser-derived usage facts across checks.
+Persistent source-fact caching is **off by default** in `SourceUsageScanner`, the
+CLI and Artisan. Enable it explicitly with `--source-cache=PATH`, using a private
+analyzer-owned directory outside the project. The operational path is excluded
+from canonical request data and reports. Each request selects its own cache;
+opting in does not enable caching for a later default request on the same analyzer.
+
+When enabled, the cache reuses successful parser-derived usage facts across checks.
 Every invocation still discovers files, reads the configured bounded bytes and
 hashes those exact bytes. It rebuilds evidence, ordering, deduplication and safety
 limit omissions against the current ledger. Dependency ownership, changed-package
@@ -21,11 +27,13 @@ Parse failures and adapter failures are never cached. Corrupt, oversized,
 unreadable or unavailable cache entries are misses. JSON checksums and fact-shape
 validation reject malformed entries; no PHP deserialization or cached code runs.
 
-The default directory is
+For an explicit API `new SourceFactsCache()` without a directory, the location is
 `sys_get_temp_dir()/php-upgrade-preflight-source-cache-<user-hash>`. It must remain
 outside the analyzed project, including through existing symlinked ancestors.
 Unix directories require mode `0700` and current-user ownership; files require
-private permissions. Windows uses the current user's temporary-directory ACLs.
+private permissions. On Windows, use a directory protected by the current user's
+private ACLs; PHP's Unix permission checks do not establish arbitrary Windows ACL
+privacy. The API's temporary-directory default relies on the user's temp ACLs.
 Symlinks, special files and hardlinked cache files are rejected. Writes use a
 nonblocking writer lock and an atomic same-directory rename. Cache contents
 include private symbol names, usage types and line numbers, so the directory is
@@ -38,18 +46,32 @@ slot reduces collision misses without increasing that bound. Collisions and
 large fact sets can reduce the hit rate; they never reduce scanning coverage.
 The directory is disposable and may be removed while no scans are running.
 
-Existing scanner callers benefit without changing their constructor. Embedders
-can choose an analyzer-owned directory or disable caching explicitly:
+Existing scanner callers now run without persistent caching. Embedders can opt in
+with an injected cache or an operational request `sourceCacheDirectory`:
 
 ```php
 $scanner = new SourceUsageScanner(null, null, new SourceFactsCache('/private/source-cache'));
-$uncached = new SourceUsageScanner(null, null, SourceFactsCache::disabled());
+$uncached = new SourceUsageScanner();
 ```
 
 The cache accepts an optional existing-path resolver with `realpath` semantics
 for deterministic filesystem-failure tests. The internal parser fingerprint
 helper similarly accepts a file-digest reader and parser-file provenance. Default
-callers use the real filesystem; no runtime CLI or environment settings are added.
+callers use the real filesystem. These testing hooks are not CLI or environment
+settings; the explicit CLI/Artisan cache directory is a separate operational option.
+
+Optional profiling is available by injecting a `SourceScanProfile` as the fourth
+scanner constructor argument and retaining its `snapshot()` after scanning. It
+contains inclusive scan milliseconds, exclusive discovery/read/hash/cache-get/
+parse/cache-put/evidence times and actual file, byte and cache-operation counters.
+Parse includes traversal and collectors; hash includes parser/key identity work;
+cache operations include validation and serialization. Oversized entries and
+unavailable storage are counted separately from accepted hits. Snapshots reset
+per scan, contain no source, symbol or path values, and never enter canonical
+reports. Without injection the extra operation clocks do not run. Source input
+capture and later consistency rechecks are outside this scanner profile; the
+optional analyzer timings described in the [follow-up plan](php-optimization.md)
+attribute those operations separately.
 
 Default source selection can additionally discover up to 256 static root
 `autoload` and `autoload-dev` paths from PSR-4, PSR-0, classmap and files metadata.

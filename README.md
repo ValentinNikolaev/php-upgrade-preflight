@@ -116,6 +116,9 @@ Use `--debug` when you need to inspect the temporary workspaces. It keeps them a
 
 **Unreleased default migration:** CLI, Artisan and the wizard select `--format=summary` and `--analysis-mode=standard` in this checkout. Published v0.3.5 keeps its previous defaults. Automation must request `--format=json`; use `--analysis-mode=full` to retain exhaustive alternative Composer probes. Formatting and execution mode are independent. The [migration and summary contract](docs/optimization/actionable-summary.md), [execution policy](docs/optimization/composer-execution.md) and [source cache contract](docs/optimization/source-facts-cache.md) describe the changes. No new release is prepared; publication requires a deliberate minor-release migration.
 
+Persistent source-fact caching is off by default. CLI and Artisan can opt in with
+`--source-cache=PATH` using a private directory outside the analyzed project.
+
 The [ten-project optimization results](docs/optimization/results.md) explain what
 became clearer, what remained blocked or unknown, and where analysis slowed down.
 The controlled Windows Docker Desktop series missed its speed targets; smaller
