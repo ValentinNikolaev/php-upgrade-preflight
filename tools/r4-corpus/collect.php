@@ -3,12 +3,16 @@
 declare(strict_types=1);
 
 use PhpUpgradePreflight\Core\Analysis\DefaultUpgradeAnalyzer;
+use PhpUpgradePreflight\Core\Composer\ComposerScenarioRunner;
 use PhpUpgradePreflight\Core\Model\ComposerExecutionConfiguration;
 use PhpUpgradePreflight\Core\Model\ExtensionAssumption;
 use PhpUpgradePreflight\Core\Model\UpgradeRequest;
 use PhpUpgradePreflight\Core\Model\UpgradeTarget;
 use PhpUpgradePreflight\Core\Reporting\JsonReportWriter;
 use PhpUpgradePreflight\Core\Reporting\MarkdownReportWriter;
+use PhpUpgradePreflight\Core\Reporting\ReportWriterResolver;
+use PhpUpgradePreflight\Core\Model\ReportFormat;
+use PhpUpgradePreflight\Core\Source\SourceUsageScanner;
 use PhpUpgradePreflight\Laravel\LaravelFrameworkIntegration;
 
 require __DIR__ . '/runtime.php';
@@ -46,6 +50,7 @@ try {
         $record['cache_seed_verified'] = true;
     }
     r4Autoload();
+    require_once __DIR__ . '/OptimizationProbe.php';
     $record['runtime_php'] = PHP_VERSION;
     $record['collector_memory_limit'] = ini_get('memory_limit');
     $record['composer_child_memory_limit'] = getenv('COMPOSER_MEMORY_LIMIT');
@@ -64,7 +69,7 @@ try {
         (int) getenv('R4_DIAGNOSTIC_TIMEOUT'),
         'compatible'
     );
-    $request = new UpgradeRequest(
+    $requestArguments = [
         '/target',
         [new UpgradeTarget('laravel/framework', '^' . getenv('R4_TARGET_MAJOR') . '.0')],
         (string) getenv('R4_FROM_PHP'),
@@ -76,15 +81,79 @@ try {
         false,
         $extensions,
         null,
-        $execution
+        $execution,
+    ];
+    $requestApi = new ReflectionClass(UpgradeRequest::class);
+    $analysisMode = getenv('R4_ANALYSIS_MODE');
+    if ($analysisMode !== false && $analysisMode !== '') {
+        if (!in_array($analysisMode, ['standard', 'full'], true)) {
+            throw new RuntimeException('Unsupported requested analysis mode.');
+        }
+        if ($requestApi->hasMethod('analysisMode')) {
+            $requestArguments[] = $analysisMode;
+        } elseif ($analysisMode !== 'full') {
+            throw new RuntimeException('Selected baseline does not support standard analysis mode.');
+        }
+    }
+    // Compare both API revisions without requiring the newer constructor on the baseline.
+    $request = $requestApi->newInstanceArgs($requestArguments);
+    $record['analysis_mode_effective'] = $requestApi->hasMethod('analysisMode')
+        ? $requestApi->getMethod('analysisMode')->invoke($request) : 'full';
+    $sourceCachePath = getenv('R4_SOURCE_CACHE_DIR');
+    $disableSourceCache = getenv('R4_DISABLE_SOURCE_CACHE') === '1';
+    $scanner = null;
+    $cacheApi = OptimizationProbe::optionalClass('PhpUpgradePreflight\\Core\\Source\\SourceFactsCache');
+    $record['source_cache_supported'] = $cacheApi !== null;
+    if ($sourceCachePath !== false && $sourceCachePath !== '') {
+        if ($sourceCachePath !== '/source-cache' || $disableSourceCache || $cacheApi === null) {
+            throw new RuntimeException('Selected tool or configuration cannot use the dedicated source cache.');
+        }
+        // The mount root can be host-owned on Docker Desktop. Create private facts as the runtime user.
+        $cache = $cacheApi->newInstanceArgs([$sourceCachePath . '/facts']);
+        $scanner = (new ReflectionClass(SourceUsageScanner::class))->newInstanceArgs([null, null, $cache]);
+        $record['source_cache_policy'] = 'dedicated_external_directory';
+    } elseif ($disableSourceCache && $cacheApi !== null) {
+        $cache = $cacheApi->getMethod('disabled')->invoke(null);
+        $scanner = (new ReflectionClass(SourceUsageScanner::class))->newInstanceArgs([null, null, $cache]);
+        $record['source_cache_policy'] = 'disabled';
+    } else {
+        $record['source_cache_policy'] = $disableSourceCache ? 'unavailable_in_baseline' : 'tool_default';
+    }
+    $probe = new OptimizationProbe();
+    $scenarioRunner = new ComposerScenarioRunner();
+    $analyzer = new DefaultUpgradeAnalyzer(
+        [new LaravelFrameworkIntegration()],
+        scenarioRunner: $scenarioRunner,
+        sourceUsageScanner: $scanner,
+        progressReporter: $probe
     );
-    $analyzer = new DefaultUpgradeAnalyzer([new LaravelFrameworkIntegration()]);
     $started = (float) hrtime(true);
     $report = $analyzer->analyzeUpgrade($request);
     $record['analysis_seconds'] = r4Elapsed($started);
+    $record['heap_peak_through_analysis_bytes'] = memory_get_peak_usage(true);
     $started = null;
+    $record['phase_seconds'] = $probe->seconds();
+    $runnerApi = new ReflectionObject($scenarioRunner);
+    if ($runnerApi->hasMethod('measurements')) {
+        $record['runner_measurements'] = $runnerApi->getMethod('measurements')->invoke($scenarioRunner);
+    }
+    $record['human_summary_ready_seconds'] = null;
+    if (defined(ReportFormat::class . '::SUMMARY')) {
+        $renderStarted = (float) hrtime(true);
+        $summary = (new ReportWriterResolver())->resolve('summary')->render($report);
+        $record['summary_render_seconds'] = r4Elapsed($renderStarted);
+        if ($record['analysis_seconds'] !== null && $record['summary_render_seconds'] !== null) {
+            $record['human_summary_ready_seconds'] = $record['analysis_seconds'] + $record['summary_render_seconds'];
+        }
+        $record['summary_bytes'] = strlen($summary);
+        $record['summary_lines'] = substr_count(rtrim($summary, "\r\n"), "\n") + 1;
+        $record['heap_peak_through_summary_bytes'] = memory_get_peak_usage(true);
+        r4Write('/output/summary.txt', $summary);
+    }
+    $renderStarted = (float) hrtime(true);
     $json = (new JsonReportWriter())->render($report);
     $markdown = (new MarkdownReportWriter())->render($report);
+    $record['full_report_render_seconds'] = r4Elapsed($renderStarted);
     r4Write('/output/report.json', $json);
     r4Write('/output/report.md', $markdown);
     $record['report_artifacts'] = [

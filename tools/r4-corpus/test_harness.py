@@ -280,6 +280,75 @@ class HostTests(unittest.TestCase):
 
 @unittest.skipUnless(os.environ.get("R4_TEST_REPO"), "set R4_TEST_REPO for opt-in offline Docker tests")
 class DockerTests(unittest.TestCase):
+    def test_private_source_cache_is_usable_across_runtime_owned_mounts(self):
+        with tempfile.TemporaryDirectory() as directory:
+            args = HostTests().args(directory)
+            args.repo = Path(os.environ['R4_TEST_REPO'])
+            args.image = os.environ.get('R4_TEST_IMAGE', 'php-upgrade-preflight-r4:8.3')
+            args.overall_timeout = 90
+            args.scenario_timeout = 5
+            args.diagnostic_timeout = 5
+            args.analysis_mode = 'full'
+            args.source_cache_dir = Path(directory) / 'source-facts'
+            manifest = {'name': 'fixture/source-facts', 'require': {'php': '^8.0'}, 'repositories': [{'packagist.org': False}]}
+            lock = {'content-hash': '0' * 32, 'packages': [], 'packages-dev': [], 'platform': {'php': '^8.0'}}
+            (args.app / 'composer.json').write_text(json.dumps(manifest))
+            (args.app / 'composer.lock').write_text(json.dumps(lock))
+            (args.app / 'src').mkdir()
+            (args.app / 'src/Example.php').write_text('<?php namespace Example; final class Service { public function run(): \\DateTimeImmutable { return new \\DateTimeImmutable(); } }')
+            result = run.run(args)
+            first = run.read_json(args.output / 'run.json')
+            collector = first['collector']
+            if collector['source_cache_supported'] is False:
+                self.assertEqual(result, 1)
+                self.assertEqual(collector['status'], 'failed')
+                self.assertEqual(first['composer']['started_count'], 0)
+                self.assertFalse((args.source_cache_dir / 'facts').exists())
+            else:
+                self.assertEqual(result, 0)
+                self.assertTrue((args.source_cache_dir / 'facts').is_dir())
+                self.assertGreater(len(list((args.source_cache_dir / 'facts').glob('*.json'))), 0)
+                original = run.read_json(args.output / 'report.json')
+                self.assertGreater(len(original['source_inventory']), 0)
+                args.output = Path(directory) / 'repeat-output'
+                self.assertEqual(run.run(args), 0)
+                repeated = run.read_json(args.output / 'report.json')
+                self.assertEqual(original['source_inventory'], repeated['source_inventory'])
+                self.assertEqual(original['source_impact'], repeated['source_impact'])
+                self.assertEqual(first['source_cache_after'], run.read_json(args.output / 'run.json')['source_cache_before'])
+            self.assertTrue(first['immutable'])
+            self.assertTrue(first['cleanup']['container_removed'])
+            self.assertTrue(first['cleanup']['host_scratch_removed'])
+
+    def test_comparison_controls_preserve_reports_and_measure_existing_phases(self):
+        with tempfile.TemporaryDirectory() as directory:
+            args = HostTests().args(directory)
+            args.repo = Path(os.environ['R4_TEST_REPO'])
+            args.image = os.environ.get('R4_TEST_IMAGE', 'php-upgrade-preflight-r4:8.3')
+            args.overall_timeout = 30
+            args.analysis_mode = 'full'
+            args.disable_source_cache = True
+            (args.app / 'composer.json').write_text('invalid JSON')
+            self.assertEqual(run.run(args), 0)
+            record = run.read_json(args.output / 'run.json')
+            collector = record['collector']
+            self.assertEqual(collector['analysis_mode_effective'], 'full')
+            self.assertIn(collector['source_cache_policy'], ('disabled', 'unavailable_in_baseline'))
+            self.assertEqual(collector['report_states']['resolution'], 'unknown')
+            self.assertEqual(record['composer']['started_count'], 0)
+            self.assertGreaterEqual(collector['phase_seconds']['project-loading'], 0)
+            self.assertGreaterEqual(collector['phase_seconds']['report-assembly'], 0)
+            self.assertGreater(collector['heap_peak_through_analysis_bytes'], 0)
+            self.assertGreaterEqual(collector['full_report_render_seconds'], 0)
+            if (args.output / 'summary.txt').exists():
+                self.assertGreaterEqual(collector['human_summary_ready_seconds'], collector['analysis_seconds'])
+                self.assertEqual(collector['summary_bytes'], (args.output / 'summary.txt').stat().st_size)
+            else:
+                self.assertIsNone(collector['human_summary_ready_seconds'])
+            self.assertTrue(record['immutable'])
+            self.assertTrue(record['cleanup']['container_removed'])
+            self.assertTrue(record['cleanup']['host_scratch_removed'])
+
     def test_real_runner_kill_recovery_at_setup_create_and_cleanup(self):
         script = '''import json, sys, time
 from pathlib import Path
@@ -323,7 +392,10 @@ sys.exit(run.run(args))
                 (args.app / 'composer.json').write_text('invalid JSON')
                 argv = []
                 for key, value in vars(args).items():
-                    if key != 'calibrate' and value is not None:
+                    if key != 'calibrate' and isinstance(value, bool):
+                        if value:
+                            argv.append('--' + key.replace('_', '-'))
+                    elif key != 'calibrate' and value is not None:
                         argv.extend(['--' + key.replace('_', '-'), str(value)])
                 if args.calibrate:
                     argv.append('--calibrate')

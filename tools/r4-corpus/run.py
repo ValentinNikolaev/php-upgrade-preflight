@@ -36,6 +36,10 @@ def arguments(argv=None):
         parser.add_argument("--" + name, type=Path, required=True)
     parser.add_argument('--cache-seed', type=Path, help='read-only cold cache; v2 warm runs only')
     parser.add_argument('--cache-seed-proof', type=Path, help='frozen cold receipt hash and expected inventory JSON')
+    parser.add_argument('--analysis-mode', choices=('standard', 'full'), help='optimization comparison; omitted uses the selected tool default')
+    source_cache = parser.add_mutually_exclusive_group()
+    source_cache.add_argument('--source-cache-dir', type=Path, help='dedicated analyzer-owned source-fact cache outside all input/output mounts')
+    source_cache.add_argument('--disable-source-cache', action='store_true', help='disable source-fact reuse in tools supporting it')
     parser.add_argument("--target-major", type=int, choices=range(8, 14), required=True)
     parser.add_argument("--from-php", type=exact_php, required=True)
     parser.add_argument("--target-php", type=exact_php, required=True)
@@ -64,6 +68,12 @@ def validate(args):
     if args.output.exists():
         raise ValueError("output must be a fresh nonexistent directory")
     paths = [args.app, args.output, args.cache, args.repo]
+    source_cache = getattr(args, 'source_cache_dir', None)
+    if source_cache is not None:
+        if source_cache.is_symlink() or source_cache.exists() and not source_cache.is_dir():
+            raise ValueError('source cache must be a real dedicated directory')
+        args.source_cache_dir = source_cache.resolve()
+        paths.append(args.source_cache_dir)
     seed, proof = getattr(args, 'cache_seed', None), getattr(args, 'cache_seed_proof', None)
     if (seed is None) != (proof is None):
         raise ValueError('cache seed and proof must be supplied together')
@@ -401,7 +411,7 @@ def run(args):
     owner = {'version': 1, 'task_token': token, 'container_name': name, 'state_path': str(state), 'host_pid': os.getpid(), 'creation_started': False, 'create_settled': False, 'cleanup': {'container_removed': False, 'host_scratch_removed': False}}
     ownership_update(ownership_path, owner, 'prepared')
     scratch, home = state / "scratch", state / "composer-home"
-    record = {"harness_version": 1, "status": "incomplete", "source_digest_scope": "full host tree before/after; outside analysis and container wall timers", "input_before": None, "input_after": None, "immutable": None, "container_exit_code": None, "container_wall_seconds": None, "watchdog": False, "request": {key: value for key, value in vars(args).items() if key not in ("app", "repo", "output", "cache", "cache_seed", "cache_seed_proof")}, "container_memory_limit_bytes": 2147483648, "composer_home": "isolated empty" if args.github_transport == "default" else "isolated public HTTPS configuration", "cleanup": {}}
+    record = {"harness_version": 1, "status": "incomplete", "source_digest_scope": "full host tree before/after; outside analysis and container wall timers", "input_before": None, "input_after": None, "immutable": None, "container_exit_code": None, "container_wall_seconds": None, "watchdog": False, "request": {key: value for key, value in vars(args).items() if key not in ("app", "repo", "output", "cache", "cache_seed", "cache_seed_proof", "source_cache_dir")}, "container_memory_limit_bytes": 2147483648, "composer_home": "isolated empty" if args.github_transport == "default" else "isolated public HTTPS configuration", "cleanup": {}}
     try:
         state.mkdir()
         scratch.mkdir()
@@ -424,6 +434,16 @@ def run(args):
             for source, destination in ((seed, '/cache-seed'), (args.cache_seed_proof, '/cache-seed-proof.json')):
                 command += ['--mount', f'type=bind,source={source},target={destination},readonly']
             command += ['--env', 'R4_CACHE_SEED_POLICY=runtime-user-copy-v1']
+        source_cache = getattr(args, 'source_cache_dir', None)
+        if source_cache is not None:
+            source_cache.mkdir(parents=True, exist_ok=True)
+            record['source_cache_before'] = snapshot(source_cache)
+            command += ['--mount', f'type=bind,source={source_cache},target=/source-cache', '--env', 'R4_SOURCE_CACHE_DIR=/source-cache']
+        if getattr(args, 'disable_source_cache', False):
+            command += ['--env', 'R4_DISABLE_SOURCE_CACHE=1']
+        analysis_mode = getattr(args, 'analysis_mode', None)
+        if analysis_mode is not None:
+            command += ['--env', 'R4_ANALYSIS_MODE=' + analysis_mode]
         for key in ("target_major", "from_php", "target_php", "memory_limit", "composer_memory_limit", "scenario_timeout", "diagnostic_timeout", "probe", "github_transport"):
             command += ["--env", "R4_" + key.upper() + "=" + str(getattr(args, key))]
         if args.network == "none":
@@ -488,6 +508,14 @@ def run(args):
             record['cleanup']['inspection_failed'] = True
             cleanup_unknown(ownership_path, owner, failure)
         record['cleanup'].update(owner['cleanup'])
+        source_cache = getattr(args, 'source_cache_dir', None)
+        if source_cache is not None and source_cache.is_dir():
+            try:
+                record['source_cache_after'] = snapshot(source_cache)
+            except (OSError, ValueError):
+                record['source_cache_after'] = None
+                record['source_cache_inspection_failed'] = True
+                record['status'] = 'failed'
         # Preserve every observed start even if Docker inspection or setup failed.
         record['composer'] = composer_records(args.output)
         if getattr(args, 'cache_seed', None) is not None:
