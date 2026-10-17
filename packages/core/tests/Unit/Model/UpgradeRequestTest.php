@@ -12,6 +12,23 @@ use PHPUnit\Framework\TestCase;
 
 final class UpgradeRequestTest extends TestCase
 {
+    /** @dataProvider invalidSourceCacheDirectories */
+    public function testItRejectsInvalidSourceCachePathsWithoutDisclosingTheInput(string $directory): void
+    {
+        try {
+            new UpgradeRequest(__DIR__, [], targetPhp: '8.3', sourceCacheDirectory: $directory);
+            self::fail('Invalid source cache path was accepted.');
+        } catch (\InvalidArgumentException $exception) {
+            self::assertSame('Source cache directory must be a non-empty filesystem path.', $exception->getMessage());
+        }
+    }
+
+    /** @return list<array{string}> */
+    public function invalidSourceCacheDirectories(): array
+    {
+        return [[''], [" \t\n"], ["/private/cache-secret\0suffix"]];
+    }
+
     public function testAnalysisModeDefaultsToStandardAndPreservesTheSerializedRequestContract(): void
     {
         $standard = new UpgradeRequest(__DIR__, [], targetPhp: '8.3');

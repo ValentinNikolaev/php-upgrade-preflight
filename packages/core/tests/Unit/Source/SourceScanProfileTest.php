@@ -35,6 +35,49 @@ final class SourceScanProfileTest extends TestCase
         (new Filesystem())->remove($this->temporary);
     }
 
+    public function testUnknownPhaseIsRejectedWithoutChangingTheSnapshot(): void
+    {
+        $profile = new SourceScanProfile();
+        $profile->record('read', hrtime(true));
+        $profile->count('selected_files', 2);
+        $profile->finish(hrtime(true));
+        $before = $profile->snapshot();
+
+        try {
+            $profile->record('/private/unknown-phase', hrtime(true));
+            self::fail('Unknown profile phase was accepted.');
+        } catch (\InvalidArgumentException $exception) {
+            self::assertSame('Unknown source profile phase.', $exception->getMessage());
+        }
+
+        self::assertSame($before, $profile->snapshot());
+    }
+
+    /** @dataProvider invalidCounterUpdates */
+    public function testInvalidCounterUpdatesAreRejectedWithoutChangingTheSnapshot(string $counter, int $amount): void
+    {
+        $profile = new SourceScanProfile();
+        $profile->record('read', hrtime(true));
+        $profile->count('selected_files', 2);
+        $profile->finish(hrtime(true));
+        $before = $profile->snapshot();
+
+        try {
+            $profile->count($counter, $amount);
+            self::fail('Invalid profile counter update was accepted.');
+        } catch (\InvalidArgumentException $exception) {
+            self::assertSame('Invalid source profile counter.', $exception->getMessage());
+        }
+
+        self::assertSame($before, $profile->snapshot());
+    }
+
+    /** @return list<array{string, int}> */
+    public function invalidCounterUpdates(): array
+    {
+        return [['/private/unknown-counter', 1], ['selected_files', -1]];
+    }
+
     public function testColdAndWarmCountersReflectOperationsAndResetWithIdenticalFacts(): void
     {
         $profile = new SourceScanProfile();
