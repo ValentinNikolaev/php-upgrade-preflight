@@ -2,6 +2,27 @@
 
 This is explicitly invoked experimental evaluation tooling. Its PHP files participate in normal static analysis and lint; Docker experiments do not run under `composer check`. It never boots the target application. The coordinator owns corpus acquisition, campaigns, interpretation, and published results.
 
+Optimization comparisons may explicitly select `--analysis-mode=standard|full`,
+`--disable-source-cache`, or a dedicated `--source-cache-dir=PATH`. The cache must
+be separate from every project, tool, output and Composer-cache mount. It is
+retained for repeat measurements and must be managed as a private diagnostic:
+derived source symbols can be sensitive. The historical tool can accept `full`
+as its exhaustive baseline behavior; it rejects a requested `standard` mode or
+source cache it cannot implement. Omitted controls use the selected tool defaults.
+Existing frozen campaigns and their reports are not rewritten by these options.
+
+The collector also measures existing analyzer phase boundaries and full-report
+rendering separately. Where the selected tool supports the compact summary, it
+renders that first and records summary bytes, lines and analysis-plus-summary
+time; this excludes bootstrap, cache preparation, file writing and container
+startup. `human_summary_ready_seconds=null` means no compact summary is supported,
+not a zero-duration result or measured user comprehension. Phase scopes are not
+pure parser/Composer profiles, and uninstrumented work remains unattributed.
+`heap_peak_through_analysis_bytes` and `heap_peak_through_summary_bytes` are
+cumulative analyzer-PHP heap peaks up to those boundaries, including bootstrap;
+they exclude Composer child memory. The existing shutdown peak also includes
+full diagnostic rendering and must not be presented as ordinary-summary memory.
+
 Build the measurement image from the existing development image:
 
 ```powershell
