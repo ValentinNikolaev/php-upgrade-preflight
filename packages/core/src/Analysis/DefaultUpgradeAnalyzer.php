@@ -45,6 +45,7 @@ final class DefaultUpgradeAnalyzer implements UpgradeAnalyzer
     private StagedUpgradeOrchestrator $stagedUpgradeOrchestrator;
     private StageAssessmentBuilder $stageAssessmentBuilder;
     private AnalysisProgressReporter $progressReporter;
+    private ?AnalysisTimings $timings;
     /** @var array<string, float|int> */
     private array $phaseStartedAt = [];
 
@@ -65,7 +66,8 @@ final class DefaultUpgradeAnalyzer implements UpgradeAnalyzer
         ?SourceImpactBuilder $sourceImpactBuilder = null,
         ?StagedUpgradeOrchestrator $stagedUpgradeOrchestrator = null,
         ?StageAssessmentBuilder $stageAssessmentBuilder = null,
-        ?AnalysisProgressReporter $progressReporter = null
+        ?AnalysisProgressReporter $progressReporter = null,
+        ?AnalysisTimings $timings = null
     ) {
         $this->projectStateBuilder = $projectStateBuilder ?? new ProjectStateBuilder();
         $this->scenarioRunner = $scenarioRunner ?? new ComposerScenarioRunner();
@@ -84,21 +86,25 @@ final class DefaultUpgradeAnalyzer implements UpgradeAnalyzer
         $this->stageAssessmentBuilder = $stageAssessmentBuilder
             ?? new StageAssessmentBuilder($this->sourceImpactBuilder, $this->riskAndEffortEstimator);
         $this->progressReporter = $progressReporter ?? new NoOpAnalysisProgressReporter();
+        $this->timings = $timings;
     }
 
     public function analyzeUpgrade(UpgradeRequest $request): UpgradeReport
     {
         $startedAt = hrtime(true);
+        $this->timings?->reset();
         $this->phaseStartedAt = [];
         $this->scenarioRunner->resetAnalysisCaches();
         $this->reportProgress(AnalysisProgressEvent::analysisStarted());
 
         try {
             $report = $this->performAnalysis($request);
+            $this->timings?->complete(true);
             $this->reportProgress(AnalysisProgressEvent::analysisCompleted($report, (hrtime(true) - $startedAt) / 1000000));
 
             return $report;
         } catch (\Throwable $failure) {
+            $this->timings?->complete(false);
             $this->reportProgress(AnalysisProgressEvent::analysisFailed((hrtime(true) - $startedAt) / 1000000));
 
             throw $failure;
@@ -140,7 +146,9 @@ final class DefaultUpgradeAnalyzer implements UpgradeAnalyzer
             $evidence,
             $analysisUncertainties
         );
+        $this->timings?->begin('source_capture');
         $inputConsistency->captureSource($this->sourceUsageScanner, $project, array_values($sourcePaths), $request->sourcePaths() === []);
+        $this->timings?->end('source_capture');
         $scenarios = $this->scenarioSelector->select(
             $targets,
             $request->fromPhp(),
@@ -227,7 +235,9 @@ final class DefaultUpgradeAnalyzer implements UpgradeAnalyzer
             $readDigests,
             $request->sourcePaths() === []
         );
+        $this->timings?->begin('source_recheck_after_scan');
         $inputConsistency->checkSource($this->sourceUsageScanner, $project, array_values($sourcePaths), $readDigests, $request->sourcePaths() === []);
+        $this->timings?->end('source_recheck_after_scan');
         $this->phaseCompleted(AnalysisPhase::SOURCE_SCAN);
         $this->phaseStarted(AnalysisPhase::FRAMEWORK_EVALUATION);
         $frameworkGuidance = $this->frameworkRuleEngine->assessTransitions(
@@ -253,11 +263,14 @@ final class DefaultUpgradeAnalyzer implements UpgradeAnalyzer
         );
         $this->phaseCompleted(AnalysisPhase::FRAMEWORK_EVALUATION);
         $this->phaseStarted(AnalysisPhase::REPORT_ASSEMBLY);
+        $this->timings?->begin('ownership');
         $ownershipIndex = $this->ownershipIndexBuilder->build(
             $project,
             $sourceUncertainties,
             array_map(static fn ($usage): string => $usage->symbol(), $sourceInventory)
         );
+        $this->timings?->end('ownership');
+        $this->timings?->begin('source_impact');
         $actionableSourceImpact = $this->sourceImpactBuilder->build(
             $sourceInventory,
             $frameworkFindings,
@@ -265,6 +278,8 @@ final class DefaultUpgradeAnalyzer implements UpgradeAnalyzer
             $ownershipIndex,
             $evidence
         );
+        $this->timings?->end('source_impact');
+        $this->timings?->begin('stage_assessment');
         $stagedResolution = $this->stageAssessmentBuilder->build(
             $stagedResolution,
             $sourceInventory,
@@ -274,6 +289,8 @@ final class DefaultUpgradeAnalyzer implements UpgradeAnalyzer
             $project,
             $request
         );
+        $this->timings?->end('stage_assessment');
+        $this->timings?->begin('risk_effort');
         $risk = $this->riskAndEffortEstimator->estimateAggregateRisk(
             $blockers,
             $lockDiff->packageChanges(),
@@ -289,10 +306,14 @@ final class DefaultUpgradeAnalyzer implements UpgradeAnalyzer
             $stagedResolution
         );
 
+        $this->timings?->end('risk_effort');
+        $this->timings?->begin('input_recheck_final');
         $inputConsistency->checkComposer();
         $inputConsistency->checkSource($this->sourceUsageScanner, $project, array_values($sourcePaths), $readDigests, $request->sourcePaths() === []);
         $sourceUncertainties = array_merge($sourceUncertainties, $inputConsistency->uncertainties());
+        $this->timings?->end('input_recheck_final');
 
+        $this->timings?->begin('assembly');
         $report = $this->reportAssembler->assemble(
             $request,
             $project,
@@ -310,6 +331,7 @@ final class DefaultUpgradeAnalyzer implements UpgradeAnalyzer
             $platform,
             $stagedResolution
         );
+        $this->timings?->end('assembly');
         $this->phaseCompleted(AnalysisPhase::REPORT_ASSEMBLY);
 
         return $report;
