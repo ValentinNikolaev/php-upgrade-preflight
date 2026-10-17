@@ -36,6 +36,10 @@ class OptimizationControls(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             args = test_harness.HostTests().args(directory)
             args.analysis_mode = 'full'
+            args.source_profile = True
+            args.runtime_vendor = Path(directory) / 'dependencies'
+            args.runtime_vendor.mkdir()
+            (args.runtime_vendor / 'autoload.php').touch()
             args.source_cache_dir = Path(directory) / 'source-facts'
             commands = []
 
@@ -54,6 +58,8 @@ class OptimizationControls(unittest.TestCase):
                 self.assertEqual(run.run(args), 0)
             create = next(command for command in commands if command[0] == 'create')
             self.assertIn('R4_ANALYSIS_MODE=full', create)
+            self.assertIn('R4_SOURCE_PROFILE=1', create)
+            self.assertIn(f'type=bind,source={args.runtime_vendor.resolve()},target=/app/vendor,readonly', create)
             self.assertIn('R4_SOURCE_CACHE_DIR=/source-cache', create)
             self.assertIn(f'type=bind,source={args.source_cache_dir.resolve()},target=/source-cache', create)
             self.assertNotIn('R4_DISABLE_SOURCE_CACHE=1', create)
@@ -62,6 +68,17 @@ class OptimizationControls(unittest.TestCase):
             self.assertTrue(receipt['cleanup']['container_removed'])
             self.assertEqual(receipt['source_cache_before'], receipt['source_cache_after'])
             self.assertNotIn(str(args.source_cache_dir), json.dumps(receipt['request']))
+            self.assertNotIn(str(args.runtime_vendor), json.dumps(receipt['request']))
+
+    def test_runtime_vendor_cannot_overlap_a_writable_cache(self):
+        with tempfile.TemporaryDirectory() as directory:
+            args = test_harness.HostTests().args(directory)
+            args.runtime_vendor = args.cache
+            args.cache.mkdir(exist_ok=True)
+            (args.cache / 'autoload.php').touch()
+            with self.assertRaisesRegex(ValueError, 'non-nested'):
+                run.validate(args)
+            self.assertFalse(args.output.exists())
 
     def test_disabled_source_cache_does_not_create_a_shared_mount(self):
         with tempfile.TemporaryDirectory() as directory:

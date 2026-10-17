@@ -34,9 +34,11 @@ def arguments(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     for name in ("app", "output", "cache", "repo"):
         parser.add_argument("--" + name, type=Path, required=True)
+    parser.add_argument('--runtime-vendor', type=Path, help='read-only dependency overlay for a frozen checkout; never installed or modified')
     parser.add_argument('--cache-seed', type=Path, help='read-only cold cache; v2 warm runs only')
     parser.add_argument('--cache-seed-proof', type=Path, help='frozen cold receipt hash and expected inventory JSON')
     parser.add_argument('--analysis-mode', choices=('standard', 'full'), help='optimization comparison; omitted uses the selected tool default')
+    parser.add_argument('--source-profile', action='store_true', help='opt-in instrumented source profile; unsupported APIs fail before analysis')
     source_cache = parser.add_mutually_exclusive_group()
     source_cache.add_argument('--source-cache-dir', type=Path, help='dedicated analyzer-owned source-fact cache outside all input/output mounts')
     source_cache.add_argument('--disable-source-cache', action='store_true', help='disable source-fact reuse in tools supporting it')
@@ -63,11 +65,17 @@ def inside(child, parent):
 def validate(args):
     for name in ("app", "output", "cache", "repo"):
         setattr(args, name, getattr(args, name).resolve())
-    if not args.app.is_dir() or not (args.repo / "vendor/autoload.php").is_file():
+    vendor = getattr(args, 'runtime_vendor', None) or args.repo / 'vendor'
+    if not args.app.is_dir() or not (vendor / 'autoload.php').is_file():
         raise ValueError("app directory and repo vendor/autoload.php must exist")
     if args.output.exists():
         raise ValueError("output must be a fresh nonexistent directory")
     paths = [args.app, args.output, args.cache, args.repo]
+    if getattr(args, 'runtime_vendor', None) is not None:
+        args.runtime_vendor = args.runtime_vendor.resolve()
+        if not (args.runtime_vendor / 'autoload.php').is_file():
+            raise ValueError('external runtime vendor autoload unavailable')
+        paths.append(args.runtime_vendor)
     source_cache = getattr(args, 'source_cache_dir', None)
     if source_cache is not None:
         if source_cache.is_symlink() or source_cache.exists() and not source_cache.is_dir():
@@ -384,15 +392,15 @@ def prepare_composer_home(home, policy):
     return {"policy": policy, "composer_config": config, "git_environment": git_config, "home_before_policy": before, "home_after_policy": snapshot(home)}
 
 
-def provenance(repo, harness, image):
+def provenance(repo, harness, image, runtime_vendor=None):
     def git(*command):
         completed = subprocess.run(["git", "-C", str(repo), *command], capture_output=True, timeout=30)
         return completed.stdout.decode("utf-8", "replace").strip() if completed.returncode == 0 else None
     hashes = {}
-    for directory in (repo / "packages", repo / "vendor"):
+    for prefix, directory in (('packages', repo / 'packages'), ('vendor', runtime_vendor or repo / 'vendor')):
         for path in sorted(directory.rglob("*")):
             if path.is_file():
-                hashes[path.relative_to(repo).as_posix()] = hashlib.sha256(path.read_bytes()).hexdigest()
+                hashes[prefix + '/' + path.relative_to(directory).as_posix()] = hashlib.sha256(path.read_bytes()).hexdigest()
     tool_digest = hashlib.sha256(json.dumps(hashes, sort_keys=True).encode()).hexdigest()
     image_result = subprocess.run(["docker", "image", "inspect", "--format", "{{.Id}}", image], capture_output=True, timeout=30)
     if image_result.returncode != 0:
@@ -411,7 +419,7 @@ def run(args):
     owner = {'version': 1, 'task_token': token, 'container_name': name, 'state_path': str(state), 'host_pid': os.getpid(), 'creation_started': False, 'create_settled': False, 'cleanup': {'container_removed': False, 'host_scratch_removed': False}}
     ownership_update(ownership_path, owner, 'prepared')
     scratch, home = state / "scratch", state / "composer-home"
-    record = {"harness_version": 1, "status": "incomplete", "source_digest_scope": "full host tree before/after; outside analysis and container wall timers", "input_before": None, "input_after": None, "immutable": None, "container_exit_code": None, "container_wall_seconds": None, "watchdog": False, "request": {key: value for key, value in vars(args).items() if key not in ("app", "repo", "output", "cache", "cache_seed", "cache_seed_proof", "source_cache_dir")}, "container_memory_limit_bytes": 2147483648, "composer_home": "isolated empty" if args.github_transport == "default" else "isolated public HTTPS configuration", "cleanup": {}}
+    record = {"harness_version": 1, "status": "incomplete", "source_digest_scope": "full host tree before/after; outside analysis and container wall timers", "input_before": None, "input_after": None, "immutable": None, "container_exit_code": None, "container_wall_seconds": None, "watchdog": False, "request": {key: value for key, value in vars(args).items() if key not in ("app", "repo", "output", "cache", "cache_seed", "cache_seed_proof", "source_cache_dir", "runtime_vendor")}, "container_memory_limit_bytes": 2147483648, "composer_home": "isolated empty" if args.github_transport == "default" else "isolated public HTTPS configuration", "cleanup": {}}
     try:
         state.mkdir()
         scratch.mkdir()
@@ -422,7 +430,7 @@ def run(args):
             record['calibration'] = calibrate(args.image, ownership_path, owner)
         record["input_before"] = snapshot(args.app)
         record["github_transport"] = prepare_composer_home(home, args.github_transport)
-        record["provenance"] = provenance(args.repo, Path(__file__).resolve().parent, args.image)
+        record["provenance"] = provenance(args.repo, Path(__file__).resolve().parent, args.image, args.runtime_vendor) if args.runtime_vendor is not None else provenance(args.repo, Path(__file__).resolve().parent, args.image)
         seed = getattr(args, 'cache_seed', None)
         if seed is not None:
             record['cache_seed_expected_sha256'] = hashlib.sha256(args.cache_seed_proof.read_bytes()).hexdigest()
@@ -430,6 +438,8 @@ def run(args):
         harness = Path(__file__).resolve().parent
         for source, destination, readonly in ((args.app, "/target", True), (args.repo, "/app", True), (harness, "/harness", True), (args.output, "/output", False), (args.cache, "/composer-cache", False), (home, "/composer-home", False), (scratch, "/scratch", False)):
             command += ["--mount", f"type=bind,source={source},target={destination}" + (",readonly" if readonly else "")]
+        if args.runtime_vendor is not None:
+            command += ['--mount', f'type=bind,source={args.runtime_vendor},target=/app/vendor,readonly']
         if seed is not None:
             for source, destination in ((seed, '/cache-seed'), (args.cache_seed_proof, '/cache-seed-proof.json')):
                 command += ['--mount', f'type=bind,source={source},target={destination},readonly']
@@ -441,6 +451,8 @@ def run(args):
             command += ['--mount', f'type=bind,source={source_cache},target=/source-cache', '--env', 'R4_SOURCE_CACHE_DIR=/source-cache']
         if getattr(args, 'disable_source_cache', False):
             command += ['--env', 'R4_DISABLE_SOURCE_CACHE=1']
+        if getattr(args, 'source_profile', False):
+            command += ['--env', 'R4_SOURCE_PROFILE=1']
         analysis_mode = getattr(args, 'analysis_mode', None)
         if analysis_mode is not None:
             command += ['--env', 'R4_ANALYSIS_MODE=' + analysis_mode]

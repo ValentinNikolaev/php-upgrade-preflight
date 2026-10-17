@@ -2,6 +2,10 @@
 
 This is explicitly invoked experimental evaluation tooling. Its PHP files participate in normal static analysis and lint; Docker experiments do not run under `composer check`. It never boots the target application. The coordinator owns corpus acquisition, campaigns, interpretation, and published results.
 
+The [staged PHP follow-up protocol](PERFORMANCE.md) and `performance.py` prepare
+review-gated cache-off controls, separate optional source profiles and bounded
+repeated comparisons. They do not execute automatically or modify frozen R4 data.
+
 Optimization comparisons may explicitly select `--analysis-mode=standard|full`,
 `--disable-source-cache`, or a dedicated `--source-cache-dir=PATH`. The cache must
 be separate from every project, tool, output and Composer-cache mount. It is
