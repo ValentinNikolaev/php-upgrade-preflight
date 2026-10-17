@@ -95,6 +95,14 @@ new timings can describe the final implementation.
 The separate task-owned controller is approved at SHA-256
 `0fd6cd4c1048ef86178b08245e16cc71c9f8edbd59e40bee90789284522938a4`.
 Its 34 synthetic controls establish binding/rejection behavior, not performance.
+The derived-statistics helper was separately corrected after review exposed
+acceptance of self-sealed foreign receipts and omission of source byte-limit
+warnings. The approved helper SHA-256 is
+`7044c0dd39ea01e8049308d2c9ce553ab9109182c2923a163c9cfd5149b2aca8`.
+Its independent 46 synthetic checks exercised the actual controller and report
+validators, exact 43-slot membership, source/runtime/request/seed bindings,
+positive cleanup, strict numeric admission, both distinct median formulas and
+retained source qualifications. No real timing entered those controls.
 The planned comparison has 40 paired first/repeat invocations and three full-mode
 controls, using ten pinned sources, one fixed Docker image, no network, and
 identical historical post-cold Composer metadata seeds. First-run source caches
