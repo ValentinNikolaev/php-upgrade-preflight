@@ -1,5 +1,7 @@
 # CLI reference
 
+This reference describes the development checkout. Its summary and standard-mode defaults are unreleased intentional migrations; published v0.3.5 keeps the preceding JSON (CLI/Artisan), Markdown (wizard) and exhaustive-execution defaults. No release is prepared. See [the migration contract](optimization/actionable-summary.md).
+
 The standalone executable provides a non-interactive analysis command and an explicit interactive wizard:
 
 ```text
@@ -26,7 +28,7 @@ The wizard:
 - supports PHP-only, package-only, and combined target selection;
 - lists root `require` and `require-dev` packages and validates every selected target constraint;
 - reviews the complete plan and equivalent command before analysis starts;
-- defaults to Markdown in the terminal, supports explicit JSON, and can save an identical optional copy outside the project.
+- defaults to a short summary in the terminal, supports explicit full JSON or Markdown, and can save an identical optional copy outside the project.
 
 Package metadata lookup is selected once before package targets are entered:
 
@@ -38,7 +40,7 @@ The lookup distinguishes an invalid target, a package found with matching releas
 
 The metadata lookup source does not silently determine how the analysis itself runs. The wizard separately requires `restricted` or `compatible` Composer execution, offers no default for that security-sensitive choice, explains whether network access and inherited credentials may be used, and includes the selected `--composer-mode` in both the confirmation plan and equivalent command.
 
-Prompts and other human interaction go to stderr. The wizard always keeps the selected canonical report on stdout and uses `--save-report` when an additional file copy is requested. EOF stops before analysis with code `2`; entering `cancel`, `quit`, or `q` stops before analysis with code `130`. When stdin or stderr is not a terminal, the wizard refuses to prompt and directs the caller to `analyze`.
+Prompts and other human interaction go to stderr. The wizard keeps the selected presentation on stdout and uses `--save-report` when an additional file copy is requested. EOF stops before analysis with code `2`; entering `cancel`, `quit`, or `q` stops before analysis with code `130`. When stdin or stderr is not a terminal, the wizard refuses to prompt and directs the caller to `analyze`.
 
 ## Options
 
@@ -51,9 +53,10 @@ Prompts and other human interaction go to stderr. The wizard always keeps the se
 | `--from-php=VERSION` | Known current PHP version used for staging analysis. |
 | `--with-extension=EXT[:VERSION]` | Assume `ext-name` is present, optionally at an exact version. Repeat as needed. |
 | `--without-extension=EXT` | Assume `ext-name` is absent. Repeat as needed. |
-| `--source=PATH` | File or directory to scan inside the project. Repeat as needed. |
+| `--source=PATH` | File or directory to scan inside the project. Repeat as needed; explicit selection replaces automatic root-autoload discovery. |
 | `--framework=NAME` | Installed framework adapter to enable. Repeat as needed. |
-| `--format=json\|markdown` | Report format. Defaults to `json`. |
+| `--format=summary\|json\|markdown` | Presentation. Defaults to `summary`; JSON and Markdown contain the full report. |
+| `--analysis-mode=standard\|full` | Composer probe policy. Defaults to `standard`; independent of presentation and Composer isolation policy. |
 | `--output=PATH` | Write the report only to a file outside the analyzed project. |
 | `--save-report=PATH` | Keep the report on stdout and save an identical file copy outside the project. |
 | `--composer-mode=compatible\|restricted` | Composer execution policy. Defaults to `compatible`. |
@@ -134,7 +137,11 @@ For a terminal-attached stderr, the default analyzer also emits durable phase an
 | `2` | Invalid command syntax, paths, targets, format, framework, or output destination. |
 | `130` | The interactive wizard was cancelled before analysis. |
 
-A solver-blocked upgrade is valid analysis output and returns `0`.
+A solver-blocked upgrade is valid analysis output and returns `0`. Automation must select `--format=json` explicitly and inspect its statuses; summary text is not a machine contract. Summary uses the canonical JSON request format internally, preserving schema `0.8`'s two-value format enum.
+
+Standard mode runs the baseline and exact full-target check, retaining the dependency-expansion `-W` attempt when needed. It qualifies omitted minimal-change and ordering comparisons; requested staged execution still runs. Full mode runs the exhaustive alternatives. Neither mode proves application runtime compatibility. See [execution details](optimization/composer-execution.md).
+
+Default source selection includes bounded static root `autoload` and `autoload-dev` paths. Successful parser-derived facts are reused in a private operating-system temporary cache; every scan still reads and hashes current bytes and rebuilds evidence. The [cache contract](optimization/source-facts-cache.md) documents scope, privacy, limits and the library opt-out. There is no new product CLI cache flag; the corpus harness controls are measurement-only.
 
 ## Examples
 

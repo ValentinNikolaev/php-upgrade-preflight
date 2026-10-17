@@ -1,5 +1,11 @@
 # Composer execution policy
 
+## Unreleased analysis mode
+
+The development checkout defaults to `--analysis-mode=standard`, independently of `--composer-mode` and report formatting. It validates the baseline, runs the exact full target, and keeps the `-W` dependency-expansion attempt when necessary; exact failure cannot establish the result of that attempt. Minimal-change and partial-ordering alternatives are omitted with uncertainty. Requested staged execution continues to run real Composer attempts. `--analysis-mode=full` retains exhaustive alternatives; `--format=json` or `markdown` alone does not select it.
+
+Usable locked diagnostics may be reused only inside one analysis with matching effective inputs, executable/configuration, platform and environment context. Solver results are not persisted across runs. See [implementation and evidence](optimization/composer-execution.md). Published v0.3.5 keeps its preceding exhaustive default; this change requires a deliberate future minor-release migration.
+
 Every schema 0.8 report records the Composer executable selection mode, detected version, expected version constraint, timeout policy, environment and network modes, repository-source mode, global-state inheritance, and disabled side effects under `composer_execution`. Exact executable paths and environment values are never serialized.
 
 ## Compatible mode
