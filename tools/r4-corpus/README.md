@@ -60,3 +60,16 @@ python -B -m unittest discover -s tools/r4-corpus -p test_harness.py -v
 ```
 
 `--calibrate` runs a separate offline container before analysis. It creates synthetic manifests with Packagist disabled, executes real successful and failed Composer updates through the wrapper, then exercises GNU timeout TERM behavior as a basic control. It verifies three starts, two shutdown resource records, real command success/failure, signal exit 124 and immutable read-only input, prints its JSON result, and removes its dedicated container and scratch. Installed Symfony cancellation is tested separately; GNU timeout is not proof of Symfony's per-PID behavior. Opt-in tests also kill a real runner during setup, after create acceptance and during cleanup, then recover through the public CLI. Calibration does not execute target application code; its output is separate from measured analyzer invocations.
+
+## Publish portable evidence
+
+After the campaign is frozen and its controller has stopped, publish to a fresh directory from this checkout:
+
+```powershell
+python -B tools/r4-corpus/publish_evidence.py --campaign C:/study/frozen-campaign --output C:/publication/new-bundle
+python -B -m unittest discover -s tools/r4-corpus/tests -p 'test_*.py' -v
+```
+
+Use `--tools` when invoking from outside the checkout. Optional repeatable `--diagnostics LABEL=RAW_DIRECTORY` inputs remain unverified legacy extras excluded from campaign slots. The publisher reuses `summarize.summarize`, rejects validation/hash errors and active controller leases, and exports allowlisted provenance, dispositions, metrics CSV and Markdown. Included canonical report bytes are unchanged in deterministic gzip with original/compressed hashes and sizes; identical compression assumes the same zlib implementation. Malformed unsealed reports are omitted with explicit unavailable dispositions and original byte hashes/sizes; intact partial evidence stays available. A detected common host path or known private input/temp prefix blocks publication without rewriting reports. This path scan is not a general secrets detector. Existing output is refused; an interrupted write leaves `INCOMPLETE.txt` and must not be published.
+
+The bundle is a publisher-verified portable projection/attestation. Public file/gzip hashes and original hashes of included reports can be verified from the bundle. Private plan, receipt, invocation, cache-lineage and host-cleanup checks cannot be independently rerun because their metadata and private paths are excluded; omitted report hashes also remain attestations when their bytes are unavailable. Missing metrics remain null and per-invocation Composer RSS scope is retained. Canonical diagnostic counts include reused/cached entries; Composer starts and command categories are a separate process inventory.
