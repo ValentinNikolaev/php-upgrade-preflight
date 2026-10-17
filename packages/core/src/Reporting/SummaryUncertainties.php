@@ -15,6 +15,12 @@ final class SummaryUncertainties
     {
         $patterns = [
             'input' => '/input|drift|changed during|inconsisten|lock.*(?:invalid|missing|skip|unusable)/i',
+            // Keep source caps' exact counts and evidence separate from ordinary source warnings.
+            'source/usage cap' => '/^Source scanning reached the [0-9]+-usage safety limit;/i',
+            'source/file cap' => '/^Source scanning reached the [0-9]+-file safety limit;/i',
+            'source/per-file bytes' => '/^Source scanning reached the [0-9]+-byte per-file byte limit;/i',
+            'source/aggregate bytes' => '/^Source scanning reached the [0-9]+-byte aggregate byte limit;/i',
+            'source/discovery paths' => '/^Composer source root "autoload" was not discovered: the [0-9]+-path metadata safety limit was reached;/i',
             'source' => '/source|scan|pars(?:e|er)|syntax|usage/i',
             'operational' => '/timeout|workspace|cleanup|process|repository.*(?:fail|unavailable)|Composer.*(?:missing|unavailable|not found)/i',
             'stage/coverage' => '/stage|hop|framework|rule.?pack|unsupported/i',
