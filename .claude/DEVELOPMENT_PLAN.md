@@ -4,7 +4,7 @@ Last updated: 2026-10-17
 
 - Released baseline: `0.3.5` (published 2026-10-07 Europe/Rome; 2026-10-06 at 23:03:05 UTC)
 - Released report schema: `0.8`
-- Immediate work: finish R3/R4 empirical gates after R5's `VALIDATE_FIRST` scope decision; the bounded Laravel completion milestone remains complete
+- Immediate work: implement the user-authorized PHP-only usability/performance optimization, then continue the remaining R3/R4 empirical gates; the bounded Laravel completion milestone remains complete
 - Active published line: `0.3.x`; a v0.4 theme and implementation are unapproved
 - Candidate future report schema: `0.9`, conditional on a new contract decision
 
@@ -15,6 +15,16 @@ v0.3 made the analyzer honest about *how* an upgrade would be reached: staged Co
 The [2026-10-10 product and engineering review](audits/2026-10-10-product-engineering-review.md) added Readiness Milestone R before contract migration. R5 now records [`VALIDATE_FIRST`](../docs/readiness/release-direction.md): defer Symfony while reader benefit and sustainable maintenance consumption remain unmeasured; the 2026-10-17 corpus now supplies bounded live engineering cost evidence. R3/R4 empirical gates remain open. Milestones 0–6 below preserve the candidate Symfony contract and its acceptance gates as a conditional outline; none authorizes implementation until a later evidence-backed scope decision.
 
 ## How to Use This Plan
+
+The user explicitly authorized the [PHP-only optimization execution plan](../docs/optimization/php-optimization.md)
+on 2026-10-17 after reviewing the corpus results. O1/O2 (compact actionable output),
+O3/O4 (adaptive Composer execution and reuse), and O5 (source-fact caching) are
+active; O6 measurement follows integration. This bounded authorization takes
+precedence over the old patch-only sequencing for these changes, including the
+intentional human-output default change. It does not approve a v0.4 identity,
+schema migration, Symfony, release/tag preparation, or a final main merge. Resolve
+publication compatibility explicitly when a future release is requested. R3/R4
+completion and user demand must still be supported by actual observations.
 
 - Continue the first unchecked item in the earliest incomplete milestone unless repository evidence requires a safer order.
 - Complete R3/R4 empirical gates and reconfirm the release direction before Milestone 0 or any Symfony implementation. Preserve existing milestone numbers and completed historical evidence; R5's conservative decision is not a new version or release authorization.
