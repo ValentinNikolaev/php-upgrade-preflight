@@ -165,9 +165,10 @@ final class ComposerBlockerAttributionTest extends TestCase
         ];
     }
 
-    public function testUnparseableIncomingConflictRetainsFailedEvidenceWithoutInventingPackageBlame(): void
+    /** @dataProvider unparseableConflictPackageProvider */
+    public function testUnparseableIncomingConflictRetainsFailedEvidenceWithoutInventingPackageBlame(string $sourcePackage): void
     {
-        $output = 'fixture/blocker 1.0.0 conflicts with fixture/target (not-a-version)';
+        $output = $sourcePackage . ' 1.0.0 conflicts with fixture/target (not-a-version)';
         $result = $this->result('fixture/target', '^2.0', $output, true);
         $evidence = new EvidenceLedger();
         $blockers = (new BlockerGrouper())->group([$result], $evidence);
@@ -190,6 +191,12 @@ final class ComposerBlockerAttributionTest extends TestCase
         self::assertSame('fixture/target', $context['diagnostics'][0]['package']);
         self::assertSame('^2.0', $context['diagnostics'][0]['constraint']);
         self::assertSame($output, $context['diagnostics'][0]['stdout_excerpt']);
+    }
+
+    /** @return list<array{string}> */
+    public function unparseableConflictPackageProvider(): array
+    {
+        return [['fixture/blocker'], ['fixture/target']];
     }
 
     public function testAmbiguousOrConflictingAncestorsDoNotInventARequirementPath(): void
