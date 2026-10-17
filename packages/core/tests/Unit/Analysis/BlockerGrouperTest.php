@@ -162,7 +162,7 @@ final class BlockerGrouperTest extends TestCase
                     'requestedConstraint' => '^2.0',
                     'blocker' => 'vendor/locked',
                     'lockedVersion' => '1.2.3',
-                    'dependencyPath' => ['vendor/package', 'vendor/locked'],
+                    'dependencyPath' => ['vendor/locked'],
                 ],
             ],
             [
