@@ -61,6 +61,7 @@ final class ThirdPartyAdapterDiscoveryTest extends TestCase
             '--path=' . dirname(__DIR__) . '/fixtures/projects/third-party-adapter',
             '--target=test-vendor/framework:^2.0',
             '--target-php=8.1.0',
+            '--format=json',
         ]);
 
         $stderr = $this->streamContents($this->stderr);
@@ -149,6 +150,7 @@ final class ThirdPartyAdapterDiscoveryTest extends TestCase
             '--path=' . dirname(__DIR__) . '/fixtures/projects/legacy-third-party-adapter',
             '--target=legacy-vendor/framework:^2.0',
             '--target-php=8.1.0',
+            '--format=json',
         ]);
 
         $stderr = $this->streamContents($this->stderr);

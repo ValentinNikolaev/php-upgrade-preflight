@@ -112,6 +112,11 @@ final class StageBlockerEntry
         return $this->blocker->summary();
     }
 
+    public function blocker(): Blocker
+    {
+        return $this->blocker;
+    }
+
     /** @return list<string> */
     public function options(): array
     {
