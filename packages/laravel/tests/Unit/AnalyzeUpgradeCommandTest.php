@@ -60,6 +60,19 @@ final class AnalyzeUpgradeCommandTest extends TestCase
         self::assertNull($analyzer->request);
     }
 
+    public function testSourceCacheIsExplicitAndItsOperationalPathIsNotRendered(): void
+    {
+        $analyzer = new RecordingUpgradeAnalyzer();
+        $tester = $this->commandTester($analyzer);
+        $arguments = ['--path' => dirname(__DIR__, 4), '--target-php' => '8.2', '--format' => 'json'];
+        self::assertSame(0, $tester->execute($arguments));
+        self::assertNull($analyzer->request->sourceCacheDirectory());
+        self::assertSame(0, $tester->execute($arguments + ['--source-cache' => '/private/cache-secret']));
+        self::assertSame('/private/cache-secret', $analyzer->request->sourceCacheDirectory());
+        self::assertStringNotContainsString('cache-secret', $tester->getDisplay());
+        self::assertArrayNotHasKey('source_cache_directory', $analyzer->request->toArray());
+    }
+
     public function testItDefaultsToTheCurrentProjectAndDelegatesToTheAnalyzer(): void
     {
         $projectPath = dirname(__DIR__, 4) . '/tests/fixtures/laravel-app';

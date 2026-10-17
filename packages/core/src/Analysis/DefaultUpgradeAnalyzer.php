@@ -25,6 +25,7 @@ use PhpUpgradePreflight\Core\Progress\AnalysisProgressReporter;
 use PhpUpgradePreflight\Core\Progress\NoOpAnalysisProgressReporter;
 use PhpUpgradePreflight\Core\Source\AutoloadOwnershipIndexBuilder;
 use PhpUpgradePreflight\Core\Source\SourceUsageScanner;
+use PhpUpgradePreflight\Core\Source\SourceFactsCache;
 use PhpUpgradePreflight\Core\Support\PathExposurePolicy;
 
 final class DefaultUpgradeAnalyzer implements UpgradeAnalyzer
@@ -106,6 +107,9 @@ final class DefaultUpgradeAnalyzer implements UpgradeAnalyzer
 
     private function performAnalysis(UpgradeRequest $request): UpgradeReport
     {
+        $sourceScanner = $request->sourceCacheDirectory() === null
+            ? $this->sourceUsageScanner
+            : $this->sourceUsageScanner->withCache(new SourceFactsCache($request->sourceCacheDirectory()));
         $evidence = new EvidenceLedger();
         $inputConsistency = new InputConsistencyTracker($request->projectPath());
         $this->phaseStarted(AnalysisPhase::PROJECT_LOADING);
@@ -139,7 +143,7 @@ final class DefaultUpgradeAnalyzer implements UpgradeAnalyzer
             $evidence,
             $analysisUncertainties
         );
-        $inputConsistency->captureSource($this->sourceUsageScanner, $project, array_values($sourcePaths), $request->sourcePaths() === []);
+        $inputConsistency->captureSource($sourceScanner, $project, array_values($sourcePaths), $request->sourcePaths() === []);
         $scenarios = $this->scenarioSelector->select(
             $targets,
             $request->fromPhp(),
@@ -210,7 +214,7 @@ final class DefaultUpgradeAnalyzer implements UpgradeAnalyzer
             $this->scenarioRunner->candidateLockUncertainties()
         );
         $readDigests = [];
-        $sourceInventory = $this->sourceUsageScanner->scan(
+        $sourceInventory = $sourceScanner->scan(
             $project,
             array_values($sourcePaths),
             $evidence,
@@ -220,7 +224,7 @@ final class DefaultUpgradeAnalyzer implements UpgradeAnalyzer
             $readDigests,
             $request->sourcePaths() === []
         );
-        $inputConsistency->checkSource($this->sourceUsageScanner, $project, array_values($sourcePaths), $readDigests, $request->sourcePaths() === []);
+        $inputConsistency->checkSource($sourceScanner, $project, array_values($sourcePaths), $readDigests, $request->sourcePaths() === []);
         $this->phaseCompleted(AnalysisPhase::SOURCE_SCAN);
         $this->phaseStarted(AnalysisPhase::FRAMEWORK_EVALUATION);
         $frameworkGuidance = $this->frameworkRuleEngine->assessTransitions(
@@ -283,7 +287,7 @@ final class DefaultUpgradeAnalyzer implements UpgradeAnalyzer
         );
 
         $inputConsistency->checkComposer();
-        $inputConsistency->checkSource($this->sourceUsageScanner, $project, array_values($sourcePaths), $readDigests, $request->sourcePaths() === []);
+        $inputConsistency->checkSource($sourceScanner, $project, array_values($sourcePaths), $readDigests, $request->sourcePaths() === []);
         $sourceUncertainties = array_merge($sourceUncertainties, $inputConsistency->uncertainties());
 
         $report = $this->reportAssembler->assemble(

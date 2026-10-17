@@ -33,7 +33,7 @@ final class SourceUsageScanner
     {
         $this->parser = $parser ?? $this->createParser();
         $this->limits = $limits ?? new SourceScanLimits();
-        $this->cache = $cache ?? new SourceFactsCache();
+        $this->cache = $cache ?? SourceFactsCache::disabled();
         $this->defaultParser = $parser === null;
         $this->parserIdentity = null;
     }
@@ -41,6 +41,14 @@ final class SourceUsageScanner
     public function limits(): SourceScanLimits
     {
         return $this->limits;
+    }
+
+    public function withCache(SourceFactsCache $cache): self
+    {
+        $scanner = clone $this;
+        $scanner->cache = $cache;
+
+        return $scanner;
     }
 
     /**

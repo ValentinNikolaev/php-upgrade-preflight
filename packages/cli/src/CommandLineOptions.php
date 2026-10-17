@@ -73,6 +73,11 @@ final class CommandLineOptions
                 '--source=PATH',
                 'Additional source path to scan; repeatable'
             ),
+            CommandLineOption::optionalValue(
+                'source-cache',
+                '--source-cache=PATH',
+                'Opt into private source facts caching outside the project (default: off)'
+            ),
             CommandLineOption::repeatable(
                 'framework',
                 '--framework=NAME',

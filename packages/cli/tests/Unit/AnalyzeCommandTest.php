@@ -75,6 +75,17 @@ final class AnalyzeCommandTest extends TestCase
         self::assertSame('', $this->streamContents($this->stderr));
     }
 
+    public function testSourceCacheIsExplicitAndItsOperationalPathIsNotRendered(): void
+    {
+        $arguments = ['upgrade-intel', 'analyze', '--path=' . dirname(__DIR__, 4), '--target-php=8.2', '--format=json'];
+        self::assertSame(0, $this->command->run($arguments));
+        self::assertNull($this->analyzer->request->sourceCacheDirectory());
+        self::assertSame(0, $this->command->run(array_merge($arguments, ['--source-cache=/private/cache-secret'])));
+        self::assertSame('/private/cache-secret', $this->analyzer->request->sourceCacheDirectory());
+        self::assertStringNotContainsString('cache-secret', $this->streamContents($this->stdout));
+        self::assertArrayNotHasKey('source_cache_directory', $this->analyzer->request->toArray());
+    }
+
     /** @var resource */
     private $stdout;
     /** @var resource */

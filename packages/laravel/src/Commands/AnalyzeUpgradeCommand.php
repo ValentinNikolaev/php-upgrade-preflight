@@ -32,6 +32,7 @@ final class AnalyzeUpgradeCommand extends Command
         {--with-extension=* : Assume an extension is present, optionally as ext-name:version}
         {--without-extension=* : Assume an extension is absent}
         {--source=* : Additional source path to scan}
+        {--source-cache= : Opt into private source facts caching outside the project (default: off)}
         {--format=summary : summary, json or markdown (full details)}
         {--output= : Report output path}
         {--analysis-mode=standard : standard or full Composer analysis}
@@ -103,7 +104,8 @@ final class AnalyzeUpgradeCommand extends Command
                 $extensionAssumptions,
                 $targetPlatformProfile,
                 $composerExecution,
-                $this->requiredStringOption('analysis-mode')
+                $this->requiredStringOption('analysis-mode'),
+                $this->optionalString('source-cache')
             );
 
             if ($request->outputPath() !== null) {
