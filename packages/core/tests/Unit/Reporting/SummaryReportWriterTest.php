@@ -404,7 +404,77 @@ final class SummaryReportWriterTest extends TestCase
         self::assertStringContainsString('[PROJECT_ROOT]', $summary);
         self::assertStringContainsString('Evidence: cause-1', $summary);
         foreach (explode(PHP_EOL, $summary) as $line) {
-            self::assertLessThanOrEqual(320, mb_strlen($line));
+            self::assertLessThanOrEqual(320, strlen($line));
+        }
+    }
+
+    /** @dataProvider malformedDisplayedText */
+    public function testMalformedDisplayedLocationsAndProseRemainUsefulValidUtf8WithinTheByteBudget(string $path, string $prose, string $expectedPath, string $expectedProse, bool $truncated): void
+    {
+        $usage = new SourceUsage($path, 'Vendor\\Legacy', 'import', ['cause-1'], 42);
+        $finding = new SourceImpactFinding('vendor/legacy', 'exact', 'package_change', $prose, 'high', [$usage], ['cause-1']);
+        $summary = (new SummaryReportWriter())->render($this->report(sourceFindings: [$finding]));
+
+        self::assertSame(1, preg_match('//u', $summary));
+        self::assertStringContainsString('- Source review ' . $expectedPath, $summary);
+        if ($expectedProse !== '') {
+            self::assertStringContainsString($expectedProse, $summary);
+        }
+        self::assertSame($truncated, str_contains($summary, '[TRUNCATED:'));
+        foreach (explode(PHP_EOL, $summary) as $line) {
+            self::assertLessThanOrEqual(320, strlen($line));
+        }
+    }
+
+    /** @return array<string, array{string, string, string, string, bool}> */
+    public static function malformedDisplayedText(): array
+    {
+        return [
+            'short path and prose' => ["app/Legacy\xB1.php", "Review malformed \xC3 prose.", "app/Legacy\u{FFFD}.php:42", "Review malformed \u{FFFD} prose.", false],
+            'long path' => ["app/Legacy\xB1" . str_repeat('é', 200) . '.php', 'Review this API.', "app/Legacy\u{FFFD}é", '', true],
+            'long prose' => ['app/Legacy.php', "Review malformed \xB1 " . str_repeat('é', 200), 'app/Legacy.php:42', "Review malformed \u{FFFD} é", true],
+        ];
+    }
+
+    public function testValidUnicodeIsUnchangedAndTerminalControlsAreRemovedBeforeTheByteBudget(): void
+    {
+        $path = 'app/Été日本.php';
+        $prose = 'Review café 日本 😀.';
+        $usage = new SourceUsage($path, 'Vendor\\Legacy', 'import', ['cause-1'], 42);
+        $finding = new SourceImpactFinding('vendor/legacy', 'exact', 'package_change', $prose, 'high', [$usage], ['cause-1']);
+        $writer = new SummaryReportWriter();
+        $summary = $writer->render($this->report(sourceFindings: [$finding]));
+
+        self::assertStringContainsString($path . ':42', $summary);
+        self::assertStringContainsString($prose, $summary);
+        self::assertStringNotContainsString("\u{FFFD}", $summary);
+        $controlledProse = "Review\u{0085}café\u{009B}日本\x1b[31m\x00\r\n 😀." . str_repeat("\u{0085}", 150) . ' End.';
+        $controlled = new SourceImpactFinding('vendor/legacy', 'exact', 'package_change', $controlledProse, 'high', [$usage], ['cause-1']);
+        $controlledSummary = $writer->render($this->report(sourceFindings: [$controlled]));
+
+        self::assertStringContainsString('Review café 日本 [31m    😀.', $controlledSummary);
+        self::assertStringContainsString('😀.' . str_repeat(' ', 150) . ' End.', $controlledSummary);
+        self::assertStringNotContainsString('[TRUNCATED:', $controlledSummary);
+        foreach (explode(PHP_EOL, $controlledSummary) as $line) {
+            self::assertSame(0, preg_match('/\p{Cc}/u', $line));
+            self::assertLessThanOrEqual(320, strlen($line));
+        }
+    }
+
+    public function testMalformedDisplayedProseRetainsCompleteValuePrivacyBeforeNormalizationAndTruncation(): void
+    {
+        $root = $this->request()->projectPath();
+        $prose = "Review malformed \xB1 " . $root . '/private https://user:password@example.test/repo ' . str_repeat('é', 200);
+        $cause = new Blocker('root-constraint-conflict', 'vendor/legacy', $prose, 'high', ['cause-1']);
+        $summary = (new SummaryReportWriter())->render($this->report([$cause]));
+
+        self::assertSame(1, preg_match('//u', $summary));
+        self::assertStringContainsString("Review malformed \u{FFFD} [PROJECT_ROOT]/private", $summary);
+        self::assertStringNotContainsString($root, $summary);
+        self::assertStringNotContainsString('user:password', $summary);
+        self::assertStringContainsString('[TRUNCATED:', $summary);
+        foreach (explode(PHP_EOL, $summary) as $line) {
+            self::assertLessThanOrEqual(320, strlen($line));
         }
     }
 

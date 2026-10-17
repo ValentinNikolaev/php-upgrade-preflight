@@ -24,11 +24,13 @@ final class SummaryReportWriter implements ReportWriter
         $lines = $safe['lines'];
 
         return implode(PHP_EOL, array_map(static function (string $line): string {
-            $line = OutputExcerpt::bounded($line, 320);
+            // Native JSON substitution preserves valid Unicode without requiring mbstring.
+            /** @var string $line */
+            $line = json_decode(json_encode($line, JSON_INVALID_UTF8_SUBSTITUTE | JSON_THROW_ON_ERROR), true, 512, JSON_THROW_ON_ERROR);
+            $line = preg_replace('/\p{Cc}/u', ' ', $line) ?? '';
 
-            return preg_replace('/\p{Cc}/u', ' ', $line)
-                ?? preg_replace('/[\x00-\x1f\x7f-\x9f]/', ' ', $line)
-                ?? '';
+            // Keep the excerpt's generated truncation marker on the same bounded line.
+            return str_replace(PHP_EOL, ' ', OutputExcerpt::bounded($line, 320));
         }, $lines)) . PHP_EOL;
     }
 }
