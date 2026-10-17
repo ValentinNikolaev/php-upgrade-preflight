@@ -157,12 +157,12 @@ final class BlockerGrouperTest extends TestCase
                 'vendor/locked is locked to version 1.2.3 and an update of this package was not requested.',
                 [new UpgradeTarget('vendor/package', '^2.0')],
                 [
-                    'type' => 'transitive-package-conflict',
+                    'type' => 'unknown-composer-failure',
                     'subject' => 'vendor/package',
                     'requestedConstraint' => '^2.0',
-                    'blocker' => 'vendor/locked',
-                    'lockedVersion' => '1.2.3',
-                    'dependencyPath' => ['vendor/locked'],
+                    'blocker' => null,
+                    'lockedVersion' => null,
+                    'dependencyPath' => ['vendor/package'],
                 ],
             ],
             [

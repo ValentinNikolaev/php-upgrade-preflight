@@ -102,6 +102,28 @@ final class SummaryReportWriterTest extends TestCase
         self::assertStringContainsString('Not checked: application runtime compatibility', $summary);
     }
 
+    /** @dataProvider unknownExplanationVariants */
+    public function testGenericFirstUnknownsDoNotHideSecurityGuidanceEvenWithoutCanonicalGrouping(bool $sameSummary): void
+    {
+        $generic = new Blocker('unknown-composer-failure', 'vendor/legacy', 'Composer resolution failed without an established edge.', 'low', ['cause-1'], '^2.0', dependencyPath: ['vendor/legacy']);
+        $policy = new Blocker('unknown-composer-failure', 'vendor/legacy', $sameSummary ? $generic->summary() : 'Composer rejected candidates because of security advisories.', 'high', ['cause-1'], '^2.0', dependencyPath: ['vendor/legacy'], options: ['Review the recorded security advisories and project security policy.']);
+        $report = $this->report([$generic, $policy, $generic, $policy]);
+        $summary = (new SummaryReportWriter())->render($report);
+
+        self::assertSame(2, substr_count($summary, '- direct blocking [direct]:'));
+        self::assertStringContainsString($generic->summary(), $summary);
+        self::assertStringContainsString($policy->summary(), $summary);
+        self::assertStringContainsString($policy->options()[0], $summary);
+        self::assertSame(2, substr_count($summary, 'Evidence: cause-1'));
+        self::assertSame('blocked', $report->resolutionStatus());
+    }
+
+    /** @return list<array{bool}> */
+    public function unknownExplanationVariants(): array
+    {
+        return [[false], [true]];
+    }
+
     public function testActiveStageAdvisoriesRemainSeparateFromBlockingStageCauses(): void
     {
         $entry = StageBlockerEntry::detected('hop-1-2', 1, 'exact', $this->blocker('vendor/legacy', 'abandoned-package'));
