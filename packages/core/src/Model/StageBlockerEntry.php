@@ -289,6 +289,7 @@ final class StageBlockerEntry
             $blocker->blocker(),
             $blocker->conflict(),
             $blocker->dependencyPath(),
+            ...$blocker->explanationIdentity(),
         ]));
     }
 
@@ -300,6 +301,7 @@ final class StageBlockerEntry
             $blocker->subject(),
             $blocker->blocker(),
             $blocker->dependencyPath(),
+            ...$blocker->explanationIdentity(),
         ]));
     }
 }

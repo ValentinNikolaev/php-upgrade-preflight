@@ -23,7 +23,8 @@ final class SummaryCause
     public static function key(Blocker $blocker, string $scope): string
     {
         return serialize([$scope, $blocker->type(), $blocker->subject(), $blocker->blocker(),
-            $blocker->lockedVersion(), $blocker->requestedConstraint(), $blocker->conflict()]);
+            $blocker->lockedVersion(), $blocker->requestedConstraint(), $blocker->conflict(),
+            ...$blocker->explanationIdentity()]);
     }
 
     /** @param list<string> $references */

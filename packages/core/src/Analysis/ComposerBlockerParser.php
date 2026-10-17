@@ -38,17 +38,17 @@ final class ComposerBlockerParser
         }
 
         $output = trim($result->stdout() . "\n" . $result->stderr());
-        if ($blockers === []) {
-            $blockers = array_map(
-                fn (string $problem): Blocker => $this->fromOutput($problem, $result, $evidenceId, $platform),
-                $this->problemSections($output)
-            );
-        } else {
-            foreach ($this->problemSections($output) as $problem) {
-                $policyFailure = $this->securityPolicyBlocker($problem, $result, $evidenceId);
-                if ($policyFailure !== null) {
-                    $blockers[] = $policyFailure;
+        $needsRawCause = $blockers === [];
+        foreach ($this->problemSections($output) as $problem) {
+            $policyFailure = $this->securityPolicyBlocker($problem, $result, $evidenceId);
+            if ($needsRawCause) {
+                $rawCause = $this->fromOutput($problem, $result, $evidenceId, $platform);
+                if ($policyFailure === null || $rawCause->type() !== BlockerType::UNKNOWN_COMPOSER_FAILURE) {
+                    $blockers[] = $rawCause;
                 }
+            }
+            if ($policyFailure !== null) {
+                $blockers[] = $policyFailure;
             }
         }
 
@@ -236,7 +236,6 @@ final class ComposerBlockerParser
         // Ordered from most to least specific. The first matcher that recognises the
         // output wins, and the unclassified fallback always produces a blocker.
         return $this->abandonedPackageBlocker($output, $result, $evidenceId)
-            ?? $this->securityPolicyBlocker($output, $result, $evidenceId)
             ?? $this->disabledRootExtensionBlocker($output, $result, $evidenceId, $targetPlatform)
             ?? $this->unavailableExtensionBlocker($output, $result, $evidenceId, $targetPlatform)
             ?? $this->phpRequirementBlocker($output, $result, $evidenceId)

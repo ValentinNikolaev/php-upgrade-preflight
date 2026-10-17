@@ -124,6 +124,7 @@ final class BlockerGrouper
             $blocker->lockedVersion(),
             $blocker->conflict(),
             $blocker->dependencyPath(),
+            ...$blocker->explanationIdentity(),
         ]);
     }
 }
