@@ -28,14 +28,16 @@ final class SourceUsageScanner
     private SourceFactsCache $cache;
     private ?string $parserIdentity;
     private bool $defaultParser;
+    private ?SourceScanProfile $profile;
 
-    public function __construct(?Parser $parser = null, ?SourceScanLimits $limits = null, ?SourceFactsCache $cache = null)
+    public function __construct(?Parser $parser = null, ?SourceScanLimits $limits = null, ?SourceFactsCache $cache = null, ?SourceScanProfile $profile = null)
     {
         $this->parser = $parser ?? $this->createParser();
         $this->limits = $limits ?? new SourceScanLimits();
         $this->cache = $cache ?? SourceFactsCache::disabled();
         $this->defaultParser = $parser === null;
         $this->parserIdentity = null;
+        $this->profile = $profile;
     }
 
     public function limits(): SourceScanLimits
@@ -49,6 +51,11 @@ final class SourceUsageScanner
         $scanner->cache = $cache;
 
         return $scanner;
+    }
+
+    public function profile(): ?SourceScanProfile
+    {
+        return $this->profile;
     }
 
     /**
@@ -72,8 +79,37 @@ final class SourceUsageScanner
         array &$readDigests = [],
         bool $discoverAutoload = false
     ): array {
+        $this->profile?->reset();
+        $scanStarted = $this->profile === null ? 0 : hrtime(true);
+        try {
+            return $this->scanFiles($project, $paths, $evidence, $uncertainties, $reportMissingPaths, $frameworks, $readDigests, $discoverAutoload);
+        } finally {
+            $this->profile?->finish($scanStarted);
+        }
+    }
+
+    /**
+     * @param list<string> $paths
+     * @param list<string> $uncertainties
+     * @param list<FrameworkIntegration> $frameworks
+     * @param array<string, string> $readDigests
+     * @return list<SourceUsage>
+     */
+    private function scanFiles(
+        ProjectState $project,
+        array $paths,
+        EvidenceLedger $evidence,
+        array &$uncertainties,
+        bool $reportMissingPaths,
+        array $frameworks,
+        array &$readDigests,
+        bool $discoverAutoload
+    ): array {
+        $profile = $this->profile;
+        $phaseStarted = $profile === null ? 0 : hrtime(true);
         $this->parserIdentity = $this->cache->enabled() ? SourceFactsIdentity::parser($this->parser, $this->defaultParser) : null;
         $cacheContext = $this->cacheContext($frameworks);
+        $profile?->record('hash', $phaseStarted);
         $usages = [];
         /** @var array<string, int> $usageIndexes */
         $usageIndexes = [];
@@ -84,7 +120,10 @@ final class SourceUsageScanner
         $omittedOversizedFiles = 0;
         $omittedAggregateFiles = 0;
         $totalBytes = 0;
+        $phaseStarted = $profile === null ? 0 : hrtime(true);
         $files = $this->selectedPhpFiles($project, $paths, $uncertainties, $reportMissingPaths, $evidence, $discoverAutoload);
+        $profile?->record('discovery', $phaseStarted);
+        $profile?->count('selected_files', count($files));
 
         if ($files === []) {
             $uncertainties[] = 'No PHP source files were scanned.';
@@ -98,15 +137,24 @@ final class SourceUsageScanner
             }
 
             $readLimit = min($this->limits->maxFileBytes(), $remainingBytes);
+            $profile?->count('read_attempts');
+            $phaseStarted = $profile === null ? 0 : hrtime(true);
             $handle = @fopen($file, 'rb');
             $contents = $handle === false ? false : stream_get_contents($handle, $readLimit + 1);
             if (is_resource($handle)) {
                 fclose($handle);
             }
+            $profile?->record('read', $phaseStarted);
             if ($contents === false) {
+                $profile?->count('read_failures');
+                $phaseStarted = $profile === null ? 0 : hrtime(true);
                 $uncertainties[] = sprintf('Source file "%s" could not be read and was not scanned.', $this->relativePath($project->path(), $file));
+                $profile?->record('evidence', $phaseStarted);
                 continue;
             }
+
+            $profile?->count('read_files');
+            $profile?->count('read_bytes', strlen($contents));
 
             $totalBytes += strlen($contents);
             if (strlen($contents) > $readLimit) {
@@ -118,21 +166,50 @@ final class SourceUsageScanner
                 continue;
             }
 
+            $phaseStarted = $profile === null ? 0 : hrtime(true);
             $relative = $this->relativePath($project->path(), $file);
             $readDigests[$file] = hash('sha256', $contents);
             /** @var list<array{provider: string, reason: string}> $providerFailures */
             $providerFailures = [];
             $cacheKey = $skippedProviders === [] && $cacheContext !== null ? $this->cacheKey($project, $relative, $readDigests[$file], $cacheContext) : null;
+            $profile?->record('hash', $phaseStarted);
 
             try {
-                $detectedUsages = $cacheKey === null ? null : $this->cache->get($project->path(), $cacheKey);
+                $detectedUsages = null;
+                if ($cacheKey !== null) {
+                    $statistics = $profile === null ? null : [];
+                    $profile?->count('cache_lookups');
+                    $phaseStarted = $profile === null ? 0 : hrtime(true);
+                    $detectedUsages = $this->cache->get($project->path(), $cacheKey, $statistics);
+                    $profile?->record('cache_get', $phaseStarted);
+                    $this->recordCacheStatistics($statistics);
+                    $profile?->count($detectedUsages === null ? 'cache_misses' : 'cache_hits');
+                } else {
+                    $profile?->count('cache_bypassed_files');
+                }
                 if ($detectedUsages === null) {
-                    $detectedUsages = $this->extractAstUsages($contents, $relative, $frameworks, $skippedProviders, $providerFailures);
+                    $profile?->count('parse_attempts');
+                    $phaseStarted = $profile === null ? 0 : hrtime(true);
+                    try {
+                        $detectedUsages = $this->extractAstUsages($contents, $relative, $frameworks, $skippedProviders, $providerFailures);
+                    } catch (\Throwable $failure) {
+                        $profile?->count('parse_failures');
+                        throw $failure;
+                    } finally {
+                        $profile?->record('parse', $phaseStarted);
+                    }
+                    $profile?->count('parsed_files');
                     if ($cacheKey !== null && $providerFailures === []) {
-                        $this->cache->put($project->path(), $cacheKey, $detectedUsages);
+                        $statistics = $profile === null ? null : [];
+                        $profile?->count('cache_put_attempts');
+                        $phaseStarted = $profile === null ? 0 : hrtime(true);
+                        $this->cache->put($project->path(), $cacheKey, $detectedUsages, $statistics);
+                        $profile?->record('cache_put', $phaseStarted);
+                        $this->recordCacheStatistics($statistics);
                     }
                 }
             } catch (Error $exception) {
+                $phaseStarted = $profile === null ? 0 : hrtime(true);
                 $id = $evidence->add('source', Evidence::E3_PROJECT_SOURCE, sprintf('Unable to parse %s.', $relative), 'high', [
                     'file' => $relative,
                     'line' => $exception->getStartLine(),
@@ -141,9 +218,11 @@ final class SourceUsageScanner
                     'failure_type' => 'parse_error',
                 ])->id();
                 $uncertainties[] = sprintf('Source file "%s" could not be parsed and was not scanned (%s).', $relative, $id);
+                $profile?->record('evidence', $phaseStarted);
                 continue;
             }
 
+            $phaseStarted = $profile === null ? 0 : hrtime(true);
             // A broken adapter degrades one report dimension; it does not end the analysis. The
             // integration stops being consulted after its first failure, so a defect costs exactly
             // one evidence record and one uncertainty however many files remain.
@@ -202,8 +281,10 @@ final class SourceUsageScanner
                     $detectedUsage['line']
                 );
             }
+            $profile?->record('evidence', $phaseStarted);
         }
 
+        $phaseStarted = $profile === null ? 0 : hrtime(true);
         if ($omittedOversizedFiles > 0) {
             $this->reportLimit(
                 $evidence,
@@ -248,8 +329,20 @@ final class SourceUsageScanner
         }
 
         $uncertainties = array_values(array_unique($uncertainties));
+        $profile?->record('evidence', $phaseStarted);
 
         return array_values($usages);
+    }
+
+    /** @param ?array<string, int> $statistics */
+    private function recordCacheStatistics(?array $statistics): void
+    {
+        if ($statistics === null || $this->profile === null) {
+            return;
+        }
+        foreach ($statistics as $counter => $count) {
+            $this->profile->count($counter, $count);
+        }
     }
 
     /**
