@@ -80,7 +80,7 @@ final class ComposerBlockerParser
                 $relation->dependency(),
                 $diagnostic->constraint(),
                 BlockerAttribution::fromRelation($relation),
-                $this->dependencyPath($relations, $relation->dependency()),
+                $this->dependencyPath($relations, $relation),
                 $evidenceId,
                 $this->confidenceForType($type)
             );
@@ -90,8 +90,8 @@ final class ComposerBlockerParser
     }
 
     /**
-     * Relations that may be blamed for the diagnostic subject: every relation pointing at
-     * the subject, otherwise the first relation not explicitly included in the update.
+     * Only incoming relations explain why the diagnostic subject is prohibited.
+     * Its own outgoing relations may describe a candidate rather than a locked blocker.
      *
      * @param list<SolverRelation> $relations
      * @return list<SolverRelation>
@@ -101,21 +101,31 @@ final class ComposerBlockerParser
         $matchingRelations = [];
         foreach ($relations as $candidate) {
             if ($candidate->dependency() === $subject
-                && !$this->isExplicitlyUpdatedBlockingPackage($result, $candidate->package(), $subject)) {
+                && !$this->isExplicitlyUpdatedBlockingPackage($result, $candidate->package(), $subject)
+                && $this->conflictMayBlock($candidate, $this->requestedConstraint($result, $subject))) {
                 $matchingRelations[] = $candidate;
             }
         }
-        if ($matchingRelations !== []) {
-            return $matchingRelations;
+        return $matchingRelations;
+    }
+
+    private function conflictMayBlock(SolverRelation $relation, ?string $requested): bool
+    {
+        if ($relation->operation() !== SolverRelation::CONFLICTS_WITH
+            || $relation->constraint() === null || $requested === null) {
+            return true;
         }
 
-        foreach ($relations as $candidate) {
-            if (!$this->isExplicitlyUpdatedBlockingPackage($result, $candidate->package(), $subject)) {
-                return [$candidate];
-            }
-        }
+        try {
+            $parser = new VersionParser();
 
-        return [];
+            return Intervals::haveIntersections(
+                $parser->parseConstraints($relation->constraint()),
+                $parser->parseConstraints($requested)
+            );
+        } catch (\Throwable) {
+            return false;
+        }
     }
 
     /** Platform relations deduplicate on the requirement alone; package relations also on the requiring package. */
@@ -366,7 +376,7 @@ final class ComposerBlockerParser
                 $relation->dependency(),
                 $this->requestedConstraint($result, $relation->dependency()),
                 BlockerAttribution::fromRelation($relation),
-                $this->dependencyPath($relations, $relation->dependency()),
+                $this->dependencyPath($relations, $relation),
                 $evidenceId,
                 'high'
             );
@@ -390,9 +400,15 @@ final class ComposerBlockerParser
             $relation = $this->relationForDependency($relations, $blockingPackage);
             $subject = $this->onlyPackageTarget($result)
                 ?? ($relation === null ? $blockingPackage : $relation->package());
+            foreach ($relations as $candidate) {
+                if ($candidate->package() === $blockingPackage && $candidate->dependency() === $subject) {
+                    $relation = $candidate;
+                    break;
+                }
+            }
             $path = $relation === null
-                ? array_values(array_unique([$subject, $blockingPackage]))
-                : $this->dependencyPath($relations, $blockingPackage);
+                ? [$blockingPackage]
+                : $this->dependencyPath($relations, $relation);
 
             return $this->blocker(
                 BlockerType::TRANSITIVE_PACKAGE_CONFLICT,
@@ -458,7 +474,7 @@ final class ComposerBlockerParser
             $relation->dependency(),
             $requested,
             BlockerAttribution::fromRelation($relation),
-            $this->dependencyPath($relations, $relation->dependency()),
+            $this->dependencyPath($relations, $relation),
             $evidenceId,
             $this->confidenceForType($type)
         );
@@ -526,22 +542,23 @@ final class ComposerBlockerParser
      * @param list<SolverRelation> $relations
      * @return list<string>
      */
-    private function dependencyPath(array $relations, string $subject): array
+    private function dependencyPath(array $relations, SolverRelation $cause): array
     {
-        $path = [$subject];
-        $current = $subject;
+        $path = [$cause->package(), $cause->dependency()];
+        $current = $cause->package();
 
         while (true) {
-            $parent = null;
+            $parents = [];
             foreach ($relations as $relation) {
-                if ($relation->dependency() === $current && !in_array($relation->package(), $path, true)) {
-                    $parent = $relation->package();
-                    break;
+                if ($relation->operation() === SolverRelation::REQUIRES
+                    && $relation->dependency() === $current && !in_array($relation->package(), $path, true)) {
+                    $parents[$relation->package()] = true;
                 }
             }
-            if ($parent === null) {
+            if (count($parents) !== 1) {
                 break;
             }
+            $parent = array_key_first($parents);
             array_unshift($path, $parent);
             $current = $parent;
         }

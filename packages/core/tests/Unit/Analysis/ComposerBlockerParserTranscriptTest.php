@@ -231,7 +231,7 @@ final class ComposerBlockerParserTranscriptTest extends TestCase
         self::assertSame('unknown-composer-failure', $blockers[0]->type());
     }
 
-    public function testDiagnosticFallbackUsesTheFirstRelationWhenTheSubjectIsNotInTheTranscript(): void
+    public function testDiagnosticDoesNotBlameAnUnrelatedRelationWhenTheSubjectIsAbsent(): void
     {
         $result = $this->diagnosticResult(
             [new UpgradeTarget('fixture/dependency', '^2.0')],
@@ -242,7 +242,8 @@ final class ComposerBlockerParserTranscriptTest extends TestCase
         $blockers = (new ComposerBlockerParser())->parse($result, 'diagnostic-fallback');
 
         self::assertCount(1, $blockers);
-        self::assertSame('fixture/unrelated', $blockers[0]->subject());
+        self::assertSame('unknown-composer-failure', $blockers[0]->type());
+        self::assertNull($blockers[0]->blocker());
     }
 
     public function testDiagnosticDoesNotBlameAPackageExplicitlyIncludedInTheUpdate(): void
@@ -262,7 +263,7 @@ final class ComposerBlockerParserTranscriptTest extends TestCase
         self::assertSame('unknown-composer-failure', $blockers[0]->type());
     }
 
-    public function testDiagnosticMayUseTheSubjectPackageAsTheDependencyRoot(): void
+    public function testDiagnosticDoesNotPromoteTheSubjectsOwnCandidateRequirementToABlocker(): void
     {
         $result = $this->diagnosticResult(
             [new UpgradeTarget('fixture/blocker', '^2.0')],
@@ -273,7 +274,8 @@ final class ComposerBlockerParserTranscriptTest extends TestCase
         $blockers = (new ComposerBlockerParser())->parse($result, 'diagnostic-subject-root');
 
         self::assertCount(1, $blockers);
-        self::assertSame('fixture/blocker', $blockers[0]->blocker());
+        self::assertSame('unknown-composer-failure', $blockers[0]->type());
+        self::assertNull($blockers[0]->blocker());
     }
 
     /** @param list<UpgradeTarget> $targets */
