@@ -34,6 +34,8 @@ def arguments(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     for name in ("app", "output", "cache", "repo"):
         parser.add_argument("--" + name, type=Path, required=True)
+    parser.add_argument('--cache-seed', type=Path, help='read-only cold cache; v2 warm runs only')
+    parser.add_argument('--cache-seed-proof', type=Path, help='frozen cold receipt hash and expected inventory JSON')
     parser.add_argument("--target-major", type=int, choices=range(8, 14), required=True)
     parser.add_argument("--from-php", type=exact_php, required=True)
     parser.add_argument("--target-php", type=exact_php, required=True)
@@ -62,6 +64,14 @@ def validate(args):
     if args.output.exists():
         raise ValueError("output must be a fresh nonexistent directory")
     paths = [args.app, args.output, args.cache, args.repo]
+    seed, proof = getattr(args, 'cache_seed', None), getattr(args, 'cache_seed_proof', None)
+    if (seed is None) != (proof is None):
+        raise ValueError('cache seed and proof must be supplied together')
+    if seed is not None:
+        if seed.is_symlink() or not seed.is_dir() or proof.is_symlink() or not proof.is_file():
+            raise ValueError('cache seed directory and proof file must be real inputs')
+        args.cache_seed, args.cache_seed_proof = seed.resolve(), proof.resolve()
+        paths += [args.cache_seed, args.cache_seed_proof]
     for index, left in enumerate(paths):
         for right in paths[index + 1:]:
             if inside(left, right) or inside(right, left):
@@ -391,7 +401,7 @@ def run(args):
     owner = {'version': 1, 'task_token': token, 'container_name': name, 'state_path': str(state), 'host_pid': os.getpid(), 'creation_started': False, 'create_settled': False, 'cleanup': {'container_removed': False, 'host_scratch_removed': False}}
     ownership_update(ownership_path, owner, 'prepared')
     scratch, home = state / "scratch", state / "composer-home"
-    record = {"harness_version": 1, "status": "incomplete", "source_digest_scope": "full host tree before/after; outside analysis and container wall timers", "input_before": None, "input_after": None, "immutable": None, "container_exit_code": None, "container_wall_seconds": None, "watchdog": False, "request": {key: value for key, value in vars(args).items() if key not in ("app", "repo", "output", "cache")}, "container_memory_limit_bytes": 2147483648, "composer_home": "isolated empty" if args.github_transport == "default" else "isolated public HTTPS configuration", "cleanup": {}}
+    record = {"harness_version": 1, "status": "incomplete", "source_digest_scope": "full host tree before/after; outside analysis and container wall timers", "input_before": None, "input_after": None, "immutable": None, "container_exit_code": None, "container_wall_seconds": None, "watchdog": False, "request": {key: value for key, value in vars(args).items() if key not in ("app", "repo", "output", "cache", "cache_seed", "cache_seed_proof")}, "container_memory_limit_bytes": 2147483648, "composer_home": "isolated empty" if args.github_transport == "default" else "isolated public HTTPS configuration", "cleanup": {}}
     try:
         state.mkdir()
         scratch.mkdir()
@@ -403,10 +413,17 @@ def run(args):
         record["input_before"] = snapshot(args.app)
         record["github_transport"] = prepare_composer_home(home, args.github_transport)
         record["provenance"] = provenance(args.repo, Path(__file__).resolve().parent, args.image)
+        seed = getattr(args, 'cache_seed', None)
+        if seed is not None:
+            record['cache_seed_expected_sha256'] = hashlib.sha256(args.cache_seed_proof.read_bytes()).hexdigest()
         command = ["create", "--name", name, "--label", "preflight.r4.task=" + token, "--init", "--memory", "2g", "--network", args.network, "--cap-drop", "ALL", "--security-opt", "no-new-privileges"]
         harness = Path(__file__).resolve().parent
         for source, destination, readonly in ((args.app, "/target", True), (args.repo, "/app", True), (harness, "/harness", True), (args.output, "/output", False), (args.cache, "/composer-cache", False), (home, "/composer-home", False), (scratch, "/scratch", False)):
             command += ["--mount", f"type=bind,source={source},target={destination}" + (",readonly" if readonly else "")]
+        if seed is not None:
+            for source, destination in ((seed, '/cache-seed'), (args.cache_seed_proof, '/cache-seed-proof.json')):
+                command += ['--mount', f'type=bind,source={source},target={destination},readonly']
+            command += ['--env', 'R4_CACHE_SEED_POLICY=runtime-user-copy-v1']
         for key in ("target_major", "from_php", "target_php", "memory_limit", "composer_memory_limit", "scenario_timeout", "diagnostic_timeout", "probe", "github_transport"):
             command += ["--env", "R4_" + key.upper() + "=" + str(getattr(args, key))]
         if args.network == "none":
@@ -450,9 +467,12 @@ def run(args):
         record["container"] = read_json(args.output / "container.json")
         record["analyzer_resources"] = resource_stats(args.output / "analyzer.time")
         record["composer"] = composer_records(args.output)
+        if seed is not None:
+            record['cache_seed'] = read_json(args.output / 'cache-seed.json')
         record["report_bytes"] = {name: (args.output / name).stat().st_size if (args.output / name).is_file() else None for name in ("report.json", "report.md")}
         if not record["watchdog"]:
-            record["status"] = "completed" if report_evidence(args.output, collector, record['container']) and record["container_exit_code"] == 0 else "failed"
+            seeded = seed is None or isinstance(record.get('cache_seed'), dict) and record['cache_seed'].get('status') == 'completed' and isinstance(collector, dict) and collector.get('cache_seed_verified') is True
+            record["status"] = "completed" if seeded and report_evidence(args.output, collector, record['container']) and record["container_exit_code"] == 0 else "failed"
     except (OSError, ValueError, RuntimeError, subprocess.SubprocessError) as failure:
         record["failure_class"] = type(failure).__name__
         record["status"] = "failed"
@@ -470,6 +490,8 @@ def run(args):
         record['cleanup'].update(owner['cleanup'])
         # Preserve every observed start even if Docker inspection or setup failed.
         record['composer'] = composer_records(args.output)
+        if getattr(args, 'cache_seed', None) is not None:
+            record['cache_seed'] = read_json(args.output / 'cache-seed.json')
         record.setdefault('analyzer_resources', resource_stats(args.output / 'analyzer.time'))
         if record["immutable"] is not True or owner['cleanup'].get('container_removed') is not True or owner['cleanup'].get('host_scratch_removed') is not True:
             record["status"] = "failed"

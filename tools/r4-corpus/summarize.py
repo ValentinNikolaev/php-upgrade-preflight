@@ -7,7 +7,7 @@ from collections import Counter
 from pathlib import Path
 
 from acquire import SOURCE_ALGORITHM, load_json, projects, sha256, source_pin, write_new
-from campaign import attempt_dirs, clean, digest, fingerprint
+from campaign import attempt_dirs, cache_policy, clean, command, digest, fingerprint
 
 
 def numeric(value, name):
@@ -33,6 +33,44 @@ def record_error(record, raw, plan, spec):
     except (ValueError, TypeError, KeyError, AttributeError) as error:
         return str(error)
     return None
+
+
+def valid_cache_inventory(files, directories):
+    return (isinstance(files, dict) and all(isinstance(k, str) and k and isinstance(v, str) and re.fullmatch(r'[0-9a-f]{64}', v) for k, v in files.items())
+            and isinstance(directories, list) and all(isinstance(p, str) and p for p in directories)
+            and directories == sorted(set(directories)))
+
+
+def validate_seed(record, raw, plan, spec):
+    if not cache_policy(plan) or not spec['warm_after']:
+        return
+    expected_path = raw.parent / 'cache-seed-expected.json'
+    expected = load_json(expected_path)
+    if not isinstance(expected, dict) or expected.get('policy') != plan['cache_seed_policy'] or not isinstance(expected.get('cold_receipt_sha256'), str) or not re.fullmatch(r'[0-9a-f]{64}', expected['cold_receipt_sha256']) or not valid_cache_inventory(expected.get('files_sha256'), expected.get('directories')):
+        raise ValueError('invalid frozen cache seed inventory')
+    proof = record.get('cache_seed')
+    if proof != partial_json(raw / 'cache-seed.json'):
+        raise ValueError('cache seed record differs from raw proof')
+    if not isinstance(proof, dict) or proof.get('status') != 'completed':
+        if record['status'] == 'completed':
+            raise ValueError('completed warm run missing verified seed')
+        return
+    expected_hash = sha256(expected_path)
+    if proof.get('policy') != plan['cache_seed_policy'] or proof.get('cold_receipt_sha256') != expected.get('cold_receipt_sha256') or proof.get('expected_proof_sha256') != expected_hash or record.get('cache_seed_expected_sha256') != expected_hash:
+        raise ValueError('cache seed proof differs from frozen declaration')
+    if proof.get('destination_empty') is not True or proof.get('entries_owned') is not True or any(type(proof.get(k)) is not int or proof[k] < 0 for k in ('owner_uid', 'owner_gid')):
+        raise ValueError('cache seed ownership or empty destination unverified')
+    for key in ('source_before_sha256', 'source_after_sha256', 'destination_before_analysis_sha256'):
+        if proof.get(key) != expected.get('files_sha256'):
+            raise ValueError('cache seed byte inventory mismatch')
+    if proof.get('directories') != expected.get('directories'):
+        raise ValueError('cache seed directory inventory mismatch')
+    if numeric(proof.get('elapsed_seconds'), 'cache_seed_seconds') is None:
+        raise ValueError('cache seed preparation time unavailable')
+    collector = record.get('collector') or {}
+    if record['status'] == 'completed' or collector.get('cache_seed_verified') is True:
+        if collector.get('cache_seed_verified') is not True or collector.get('cache_before_analysis_sha256') != expected.get('files_sha256') or numeric(collector.get('cache_seed_verification_seconds'), 'cache_seed_verification_seconds') is None:
+            raise ValueError('collector did not verify cache before analysis')
 
 
 def verify_attempt(attempt, plan, spec):
@@ -69,6 +107,18 @@ def verify_attempt(attempt, plan, spec):
     del actual['completion.json']
     if actual != receipt.get('files_sha256'):
         raise ValueError('artifact hash inventory mismatch: ' + str(attempt))
+    if cache_policy(plan):
+        if numeric(receipt.get('host_preparation_seconds'), 'host_preparation_seconds') is None or receipt['host_preparation_seconds'] != invocation.get('host_preparation_seconds') or receipt['host_preparation_seconds'] > receipt['external_wall_seconds']:
+            raise ValueError('v2 host preparation time unverified')
+        seed = invocation.get('cache_seed')
+        if spec['warm_after']:
+            proof_path = attempt / 'cache-seed-expected.json'
+            if not isinstance(seed, dict) or seed.get('policy') != plan['cache_seed_policy'] or seed.get('proof_path') != str(proof_path.resolve()) or seed.get('proof_sha256') != sha256(proof_path) or seed.get('cold_receipt_sha256') != invocation.get('cold_receipt_sha256') or invocation.get('cache_before_sha256') != {}:
+                raise ValueError('v2 warm seed invocation mismatch')
+        elif seed is not None:
+            raise ValueError('cold run cannot declare warm seed')
+        if invocation.get('argv') != command(plan, spec, attempt / 'raw', Path(invocation['cache_path']), seed):
+            raise ValueError('v2 invocation command differs from frozen declaration')
     if receipt.get('cache_path') != invocation.get('cache_path'):
         raise ValueError('completion cache differs from invocation')
     raw = attempt / 'raw' / 'run.json'
@@ -86,6 +136,8 @@ def verify_attempt(attempt, plan, spec):
     safe = (recovery.get('returncode') == 0 and clean(recovery)) if recovery else clean(record)
     if receipt.get('cleanup_verified') is not safe or (not safe and receipt.get('cache_after_sha256') is not None):
         raise ValueError('unverified cleanup or unsafe cache inspection')
+    if cache_policy(plan) and safe and not valid_cache_inventory(receipt.get('cache_after_sha256'), receipt.get('cache_after_directories')):
+        raise ValueError('invalid v2 completion cache inventory')
     if receipt['status'] == 'completed':
         if not record or record.get('status') != 'completed' or record.get('immutable') is not True or receipt.get('exit_code') != 0 or receipt.get('external_timeout'):
             raise ValueError('false completed attempt')
@@ -103,6 +155,7 @@ def validate_record(record, raw, plan, spec):
         raise ValueError('invalid harness record object')
     if record.get('status') not in ('completed', 'failed', 'watchdog_timeout', 'incomplete'):
         raise ValueError('unknown harness status')
+    validate_seed(record, raw, plan, spec)
     expected = {**spec['request'], 'memory_limit': spec['memory_limit'], 'network': spec['network'],
                 'probe': spec['probe'], 'image': plan['image'],
                 'composer_memory_limit': plan['composer_memory_limit'],
@@ -258,6 +311,10 @@ def row_for(attempt, plan, spec):
                'container_memory_v1_peak_bytes': container.get('container_memory_v1_peak_bytes'),
                'composer_starts': composer.get('started_count'), 'composer_timed_completions': composer.get('timed_count'),
                'report_json_bytes': record.get('report_bytes', {}).get('report.json')}
+    if cache_policy(plan):
+        metrics['host_preparation_seconds'] = receipt.get('host_preparation_seconds')
+        metrics['cache_seed_seconds'] = (record.get('cache_seed') or {}).get('elapsed_seconds')
+        metrics['cache_seed_verification_seconds'] = collector.get('cache_seed_verification_seconds')
     for key, value in metrics.items():
         if key != 'composer_rss_complete':
             numeric(value, key)
@@ -271,7 +328,7 @@ def row_for(attempt, plan, spec):
             probe_observed = record.get('request', {}).get('network') == 'none' and record.get('input_before') is not None and composer.get('started_count', 0) > 0
         else:
             probe_observed = collector.get('collector_memory_limit') == spec['memory_limit']
-    return {'run_id': spec['id'], 'project': spec['project'], 'category': spec['category'],
+    result = {'run_id': spec['id'], 'project': spec['project'], 'category': spec['category'],
             'attempt': attempt.name, 'status': receipt['status'] if receipt else 'interrupted',
             'harness_status': record.get('status'), 'probe_observed': probe_observed,
             'probe_outcome': 'observed' if probe_observed is True else ('unavailable' if probe_observed is False else None),
@@ -284,11 +341,15 @@ def row_for(attempt, plan, spec):
             'provenance': record.get('provenance'),
             'run_record_sha256': sha256(record_path) if record_path.exists() else None,
             'completion_sha256': sha256(attempt / 'completion.json') if receipt else None}
+    if cache_policy(plan):
+        result['cache_seed'] = record.get('cache_seed')
+    return result
 
 
 def summarize(root):
     root = Path(root)
     plan = load_json(root / 'plan.json')
+    policy = cache_policy(plan)
     if len({spec['id'] for spec in plan['runs']}) != len(plan['runs']):
         raise ValueError('duplicate declared run')
     known = {spec['id'] for spec in plan['runs']}
@@ -319,10 +380,20 @@ def summarize(root):
                 if len(matches) != 1:
                     raise ValueError('warm run missing cold predecessor evidence')
                 predecessor = load_json(matches[0] / 'completion.json')
-                if predecessor.get('status') != 'completed' or predecessor.get('cache_path') == invocation.get('cache_path') or predecessor.get('cache_after_sha256') != invocation.get('cache_before_sha256'):
+                if predecessor.get('status') != 'completed' or predecessor.get('cache_path') == invocation.get('cache_path'):
+                    raise ValueError('warm cache lineage mismatch')
+                if policy:
+                    seed = invocation['cache_seed']
+                    expected = load_json(attempt / 'cache-seed-expected.json')
+                    receipt = load_json(attempt / 'completion.json')
+                    if seed.get('source_path') != predecessor['cache_path'] or expected.get('policy') != policy or expected.get('cold_receipt_sha256') != sha256(matches[0] / 'completion.json') or expected.get('files_sha256') != predecessor.get('cache_after_sha256') or expected.get('directories') != predecessor.get('cache_after_directories'):
+                        raise ValueError('v2 seed differs from frozen cold receipt')
+                    if receipt.get('cleanup_verified') is True and (receipt.get('cold_cache_after_sha256') != predecessor.get('cache_after_sha256') or receipt.get('cold_cache_after_directories') != predecessor.get('cache_after_directories')):
+                        raise ValueError('v2 cold cache changed during warm run')
+                elif predecessor.get('cache_after_sha256') != invocation.get('cache_before_sha256'):
                     raise ValueError('warm cache lineage mismatch')
     complete = all(r['status'] == 'completed' and r.get('probe_observed') is not False for r in latest)
-    return {'summary_version': 1, 'status': 'completed' if complete else 'partial',
+    result = {'summary_version': 1, 'status': 'completed' if complete else 'partial',
             'plan_sha256': digest(plan), 'projects_sha256': plan['projects_sha256'],
             'planned': {category: sum(s['category'] == category for s in plan['runs'])
                         for category in ('primary', 'probe', 'supplemental')},
@@ -338,6 +409,13 @@ def summarize(root):
                                                                   'absent scope = unknown (including legacy); not concurrent sum',
                                'container_memory_v1_peak_bytes': 'cgroup v1 peak; null where unavailable'},
             'latest': latest, 'attempts': rows}
+    if policy:
+        result.update(summary_version=2, campaign_version=2, cache_seed_policy=policy)
+        result['metric_methods'].update(cache_seed_seconds='runtime-user cold copy and integrity/UID checks before collector; included in container/external wall time',
+                                        cache_seed_verification_seconds='collector cache integrity/UID gate before analysis timer; included in container/external wall time')
+        result['metric_methods']['host_preparation_seconds'] = 'host source/cache preflight and receipt-derived seed declaration; included in v2 external wall time'
+        result['metric_methods']['external_wall_seconds'] = 'v2 host preflight through harness startup, runtime-user cache seeding, analysis and verified cleanup'
+    return result
 
 
 def markdown(summary):
