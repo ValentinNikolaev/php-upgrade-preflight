@@ -73,15 +73,17 @@ final class SourceFactsCache
         if (!is_array($facts) || ($facts !== [] && array_keys($facts) !== range(0, count($facts) - 1))) {
             return null;
         }
+        $validated = [];
         foreach ($facts as $fact) {
             if (!is_array($fact) || count($fact) !== 3 || !is_string($fact['symbol'] ?? null)
                 || !is_string($fact['usage_type'] ?? null) || !is_int($fact['line'] ?? null)
                 || $fact['symbol'] === '' || $fact['usage_type'] === '' || $fact['line'] < 1) {
                 return null;
             }
+            $validated[] = ['symbol' => $fact['symbol'], 'usage_type' => $fact['usage_type'], 'line' => $fact['line']];
         }
 
-        return $facts;
+        return $validated;
     }
 
     /** @param list<array{symbol: string, usage_type: string, line: int}> $facts */
