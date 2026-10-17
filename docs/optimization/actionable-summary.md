@@ -14,7 +14,9 @@ The summary reads typed report objects without calling `UpgradeReport::toArray()
 It does not serialize raw source usages, evidence contexts, candidate lockfiles or
 Composer output. It shows the independent direct and staged results, grouped
 recorded dependency causes, blocking versus advisory status, recorded versions,
-package provenance, inline evidence references and suggested next actions. These
+package provenance, inline evidence references and suggested next actions. A
+missing cause version stays unverified; a known installed version is separate
+project-lock context and never inherits an unverified candidate constraint. These
 suggestions come from existing blocker options; the summary does not choose new
 versions or infer Composer success. A selected successful stage attempt may
 identify its root changes as dependency-checked candidates. Source edits and

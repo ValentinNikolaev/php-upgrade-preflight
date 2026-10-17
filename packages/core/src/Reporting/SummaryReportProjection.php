@@ -172,21 +172,27 @@ final class SummaryReportProjection
             $blocker = $cause->blocker();
             $package = $blocker->blocker() ?? $blocker->subject();
             $locked = $report->projectState()->composerLock()->package($package);
-            $version = $blocker->lockedVersion() ?? ($locked === null ? null : $locked->version() . ' (project lock)');
+            $version = $blocker->lockedVersion() === null
+                ? '(cause version unverified)'
+                : $blocker->lockedVersion() . ' (reported cause version)';
+            $installedContext = $locked !== null && $locked->version() !== $blocker->lockedVersion()
+                ? '; installed context: ' . $locked->version() . ' (project lock)'
+                : '';
             $this->lines[] = sprintf(
-                '- %s [%s]: %s %s%s; requested %s.',
+                '- %s [%s]: %s %s%s; requested %s%s.',
                 $label,
                 $cause->scope(),
                 $package,
-                $version ?? 'version not recorded',
+                $version,
                 $blocker->subject() === $package ? '' : '; target ' . $blocker->subject(),
-                $blocker->requestedConstraint() ?? 'not recorded'
+                $blocker->requestedConstraint() ?? 'not recorded',
+                $installedContext
             );
             $this->lines[] = sprintf(
                 '  Evidence: %s; why (%s; %s): %s%s',
                 $cause->references(),
                 $blocker->type(),
-                $locked === null ? 'package provenance not recorded' : 'project lock, ' . ($locked->isDirect() ? 'root dependency' : 'transitive dependency'),
+                $locked === null ? 'package provenance not recorded' : 'installed context, project lock, ' . ($locked->isDirect() ? 'root dependency' : 'transitive dependency'),
                 $blocker->summary(),
                 $blocker->conflict() === null ? '' : ' Constraint: ' . $blocker->conflict()
             );

@@ -62,7 +62,8 @@ final class SummaryReportWriterTest extends TestCase
         $summary = (new SummaryReportWriter())->render($report);
 
         self::assertLessThanOrEqual(15, substr_count($summary, PHP_EOL));
-        self::assertStringContainsString('vendor/legacy 1.4.0 (project lock)', $summary);
+        self::assertStringContainsString('vendor/legacy (cause version unverified)', $summary);
+        self::assertStringContainsString('installed context: 1.4.0 (project lock)', $summary);
         self::assertStringContainsString('Suggested next action (not dependency-checked): Verify the constraint', $summary);
         self::assertStringContainsString('No PHP source files were scanned.', $summary);
         self::assertStringContainsString('Composer extension checks used the analyzer runtime', $summary);
@@ -177,8 +178,61 @@ final class SummaryReportWriterTest extends TestCase
         self::assertStringContainsString('stop: active dependency blockers remain', $summary);
         self::assertStringNotContainsString('blocking_registry_not_cleared', $summary);
         self::assertSame('blocking_registry_not_cleared', $report->toArray()['staged_resolution']['stop_reason']);
-        self::assertStringContainsString('vendor/legacy 1.4.0 (project lock)', $summary);
+        self::assertStringContainsString('vendor/legacy (cause version unverified)', $summary);
+        self::assertStringContainsString('installed context: 1.4.0 (project lock)', $summary);
         self::assertStringNotContainsString('observation(s)', $summary);
+    }
+
+    /** @dataProvider candidateRelationVersions */
+    public function testCandidateRelationsCannotBeAttributedToTheInstalledVersion(?string $reportedVersion, string $expectedVersion): void
+    {
+        $state = new ProjectState(
+            $this->request()->projectPath(),
+            new ComposerJson(['require' => ['vendor/legacy' => '^1.0']]),
+            new ComposerLock(['packages' => [['name' => 'vendor/legacy', 'version' => '1.4.0', 'require' => ['fixture/framework' => '^7.0']]]], ['vendor/legacy'])
+        );
+        $cause = new Blocker(
+            'transitive-package-conflict',
+            'fixture/framework',
+            'A candidate requires a conflicting framework range.',
+            'high',
+            ['cause-1'],
+            '^9.0',
+            'vendor/legacy',
+            $reportedVersion,
+            '^8.0',
+            [],
+            ['Check a solver-backed vendor/legacy candidate before changing constraints.']
+        );
+        $report = new UpgradeReport(
+            $this->request(),
+            $state,
+            [],
+            new LockDiff([]),
+            [$cause],
+            [],
+            [],
+            new RiskSummary('high', []),
+            new EffortEstimate([0, 0], 'low', [], []),
+            [],
+            [new Evidence('cause-1', Evidence::E1_SOLVER, 'Recorded candidate relation.')]
+        );
+        $summary = (new SummaryReportWriter())->render($report);
+
+        self::assertStringContainsString($expectedVersion, $summary);
+        self::assertStringContainsString('installed context: 1.4.0 (project lock)', $summary);
+        self::assertStringContainsString('Constraint: ^8.0', $summary);
+        self::assertStringNotContainsString('vendor/legacy 1.4.0', $summary);
+        $installed = $state->composerLock()->package('vendor/legacy');
+        self::assertNotNull($installed);
+        self::assertSame('^7.0', $installed->requirements()['fixture/framework']);
+        self::assertSame('^8.0', $report->blockers()[0]->conflict());
+    }
+
+    /** @return list<array{?string, string}> */
+    public static function candidateRelationVersions(): array
+    {
+        return [[null, '(cause version unverified)'], ['2.0.0', '2.0.0 (reported cause version)']];
     }
 
     public function testUnknownAndBaselineFailureRemainVisibleWithoutTranscripts(): void
