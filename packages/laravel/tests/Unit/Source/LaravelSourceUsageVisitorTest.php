@@ -4,11 +4,16 @@ declare(strict_types=1);
 
 namespace PhpUpgradePreflight\Laravel\Tests\Unit\Source;
 
+use PhpParser\ErrorHandler;
+use PhpParser\Parser;
+use PhpParser\ParserFactory;
 use PhpUpgradePreflight\Core\Composer\ProjectStateBuilder;
 use PhpUpgradePreflight\Core\Model\EvidenceLedger;
 use PhpUpgradePreflight\Core\Model\ProjectState;
 use PhpUpgradePreflight\Core\Model\SourceUsage;
 use PhpUpgradePreflight\Core\Source\SourceUsageScanner;
+use PhpUpgradePreflight\Core\Source\SourceFactsCache;
+use PhpUpgradePreflight\Core\Source\SourceUsageCacheKeyProvider;
 use PhpUpgradePreflight\Laravel\LaravelFrameworkIntegration;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Filesystem\Filesystem;
@@ -21,6 +26,63 @@ use Symfony\Component\Filesystem\Filesystem;
  */
 final class LaravelSourceUsageVisitorTest extends TestCase
 {
+    public function testCachePreservesLaravelFactsAndRelativeFileContext(): void
+    {
+        $projectPath = $this->createProject('<?php return ["providers" => [Acme\\Provider::class]];');
+        $cachePath = sys_get_temp_dir() . '/laravel-source-cache-' . bin2hex(random_bytes(8));
+        mkdir($projectPath . '/config', 0700);
+        copy($projectPath . '/src/Example.php', $projectPath . '/config/app.php');
+        $parser = new class () implements Parser, SourceUsageCacheKeyProvider {
+            public int $calls = 0;
+            private Parser $parser;
+
+            public function __construct()
+            {
+                $factory = new ParserFactory();
+                $reflection = new \ReflectionObject($factory);
+                $this->parser = $reflection->hasMethod('createForNewestSupportedVersion')
+                    ? $reflection->getMethod('createForNewestSupportedVersion')->invoke($factory)
+                    : $reflection->getMethod('create')->invoke($factory, constant(ParserFactory::class . '::PREFER_PHP7'));
+            }
+
+            public function parse(string $code, ?ErrorHandler $errorHandler = null): ?array
+            {
+                ++$this->calls;
+
+                return $this->parser->parse($code, $errorHandler);
+            }
+
+            public function getTokens(): array
+            {
+                return [];
+            }
+
+            public function sourceUsageCacheKey(): string
+            {
+                return 'laravel-cache-counting-parser-v1';
+            }
+        };
+
+        try {
+            $project = (new ProjectStateBuilder())->build($projectPath);
+            $outputs = [];
+            foreach ([new SourceFactsCache($cachePath), new SourceFactsCache($cachePath), SourceFactsCache::disabled()] as $cache) {
+                $ledger = new EvidenceLedger();
+                $uncertainties = [];
+                $usages = (new SourceUsageScanner($parser, null, $cache))->scan($project, ['src', 'config'], $ledger, $uncertainties, true, [new LaravelFrameworkIntegration()]);
+                $outputs[] = [array_map(static fn (SourceUsage $usage): array => $usage->toArray(), $usages), array_map(static fn ($entry): array => $entry->toArray(), $ledger->all()), $uncertainties];
+            }
+            self::assertSame($outputs[0], $outputs[1]);
+            self::assertSame($outputs[0], $outputs[2]);
+            self::assertSame(4, $parser->calls, 'The warm Laravel scan must avoid both parses.');
+            $registrations = array_values(array_filter($outputs[0][0], static fn (array $usage): bool => $usage['usage_type'] === 'service_provider'));
+            self::assertNotEmpty($registrations);
+            self::assertSame(['config/app.php'], array_values(array_unique(array_column($registrations, 'file'))));
+        } finally {
+            (new Filesystem())->remove([$projectPath, $cachePath]);
+        }
+    }
+
     public function testPhp86PlaceholdersDoNotShiftContextualArgumentPositions(): void
     {
         $projectPath = $this->createProject(<<<'PHP'
