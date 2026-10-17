@@ -74,11 +74,13 @@ final class AutoloadSourceDiscovery
         if ($comparisonResolved !== $comparisonRoot && !str_starts_with($comparisonResolved, $comparisonRoot . '/')) {
             return 'the path resolves outside the analyzed project';
         }
-        $relative = strtolower(Path::makeRelative($resolved, $root));
-        $vendor = strtolower(trim(Path::canonicalize($project->composerJson()->vendorDirectory()), '/'));
-        if ($relative === $vendor || str_starts_with($relative, $vendor . '/')) {
+        $vendor = Path::makeAbsolute($project->composerJson()->vendorDirectory(), $root);
+        $vendor = rtrim(Path::canonicalize((string) (realpath($vendor) ?: $vendor)), '/');
+        $comparisonVendor = DIRECTORY_SEPARATOR === '\\' ? strtolower($vendor) : $vendor;
+        if ($comparisonResolved === $comparisonVendor || str_starts_with($comparisonResolved, $comparisonVendor . '/')) {
             return 'the path is in the dependency directory';
         }
+        $relative = strtolower(Path::makeRelative($resolved, $root));
         $segments = explode('/', $relative);
         if (array_intersect($segments, ['.git', '.cache', 'generated', 'node_modules', 'vendor']) !== []) {
             return 'the path is in an excluded dependency or generated directory';

@@ -57,7 +57,10 @@ This covers modular application sources outside conventional `app` and `src`
 directories. Discovery does not execute Composer loaders, inspect path-repository
 manifests, follow wildcard mappings or read outside the project. Dependency and
 generated roots, including a custom Composer `vendor-dir`, remain excluded from
-automatic discovery. Excluded metadata roots and the metadata-path limit produce
+automatic discovery. Relative, absolute and symlinked vendor-directory settings
+are compared using their resolved absolute paths and platform case rules, for
+both mapped roots/files and descendants of a broad source root.
+Excluded metadata roots and the metadata-path limit produce
 linked uncertainty/evidence using existing schema 0.8 fields.
 
 The final optional `discoverAutoload` parameter on scanner selection/scanning and

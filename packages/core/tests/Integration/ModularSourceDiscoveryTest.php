@@ -121,6 +121,59 @@ final class ModularSourceDiscoveryTest extends TestCase
         self::assertStringContainsString('composer.json', $tracker->uncertainties()[0]);
     }
 
+    /** @dataProvider configuredVendorPaths */
+    public function testCanonicalVendorMappingsAndBroadRootsCannotAddDependencyFacts(string $configuration): void
+    {
+        $vendor = 'dependencies';
+        if ($configuration === 'absolute') {
+            $vendor = $this->projectPath . '/dependencies';
+        } elseif ($configuration === 'symlink') {
+            if (DIRECTORY_SEPARATOR === '\\') {
+                self::markTestSkipped('Requires unprivileged Unix directory symlinks.');
+            }
+            symlink($this->projectPath . '/dependencies', $this->projectPath . '/deps-link');
+            $vendor = 'deps-link';
+        }
+        $scanner = new SourceUsageScanner(null, null, SourceFactsCache::disabled());
+        foreach ([false, true] as $broad) {
+            $roots = ['dependencies', 'dependencies/acme/package'];
+            if ($broad) {
+                $roots[] = '.';
+            }
+            $project = $this->project([
+                'config' => ['vendor-dir' => $vendor],
+                'autoload' => ['classmap' => $roots, 'files' => ['dependencies/acme/package/Dependency.php']],
+            ]);
+            $before = $this->treeDigests();
+            $result = $this->scan($scanner, $project, true);
+            self::assertCount($broad ? 6 : 1, $result['usages']);
+            self::assertNotContains('dependencies/acme/package/Dependency.php', array_column($result['usages'], 'file'));
+            self::assertCount(3, $result['uncertainties']);
+            $omissions = array_values(array_filter($result['evidence'], static fn (array $entry): bool => str_starts_with($entry['id'], 'source-discovery-')));
+            self::assertCount(3, $omissions);
+            foreach ($omissions as $entry) {
+                self::assertSame('the path is in the dependency directory', $entry['context']['reason']);
+                self::assertStringContainsString($entry['id'], implode(' ', $result['uncertainties']));
+            }
+            foreach (['dependencies/acme/package', 'dependencies/acme/package/Dependency.php'] as $explicitPath) {
+                $uncertainties = [];
+                $usages = $scanner->scan($project, [$explicitPath], new EvidenceLedger(), $uncertainties);
+                self::assertCount(1, $usages, 'Explicit dependency directory/file requests retain their existing scope.');
+                self::assertSame('dependencies/acme/package/Dependency.php', $usages[0]->file());
+                self::assertSame([], $uncertainties);
+            }
+            self::assertSame($before, $this->treeDigests());
+        }
+    }
+
+    /** @return iterable<string, array{string}> */
+    public function configuredVendorPaths(): iterable
+    {
+        yield 'relative working control' => ['relative'];
+        yield 'absolute vendor directory' => ['absolute'];
+        yield 'symlink-resolved vendor directory' => ['symlink'];
+    }
+
     /** @param array<string, mixed> $metadata */
     private function project(array $metadata): ProjectState
     {
@@ -157,7 +210,9 @@ final class ModularSourceDiscoveryTest extends TestCase
     {
         $digests = [];
         foreach (new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($this->projectPath, \FilesystemIterator::SKIP_DOTS)) as $file) {
-            $digests[$file->getPathname()] = (string) hash_file('sha256', $file->getPathname());
+            $digests[$file->getPathname()] = $file->isLink()
+                ? 'link:' . (string) readlink($file->getPathname())
+                : (string) hash_file('sha256', $file->getPathname());
         }
 
         return $digests;

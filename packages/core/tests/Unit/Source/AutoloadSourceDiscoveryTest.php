@@ -88,6 +88,62 @@ final class AutoloadSourceDiscoveryTest extends TestCase
         self::assertStringContainsString('256-path metadata safety limit', $uncertainties[0]);
     }
 
+    /** @dataProvider configuredVendorPaths */
+    public function testCanonicalVendorRootDirectoryAndFileMappingsAreExcludedWithEvidence(string $configuration): void
+    {
+        $vendor = 'dependencies';
+        if ($configuration === 'absolute') {
+            $vendor = $this->projectPath . '/dependencies';
+        } elseif ($configuration === 'symlink') {
+            if (DIRECTORY_SEPARATOR === '\\') {
+                self::markTestSkipped('Requires unprivileged Unix directory symlinks.');
+            }
+            symlink($this->projectPath . '/dependencies', $this->projectPath . '/deps-link');
+            $vendor = 'deps-link';
+        }
+        file_put_contents($this->projectPath . '/dependencies/acme/Dependency.php', '<?php Acme\\Dependency::run();');
+        $project = $this->project([
+            'config' => ['vendor-dir' => $vendor],
+            'autoload' => [
+                'psr-4' => ['App\\' => 'modules/admin', 'Dependency\\' => 'dependencies/acme'],
+                'classmap' => ['dependencies'],
+                'files' => ['dependencies/acme/Dependency.php'],
+            ],
+        ]);
+        $uncertainties = [];
+        $ledger = new EvidenceLedger();
+        self::assertSame(['modules/admin'], (new AutoloadSourceDiscovery())->paths($project, $uncertainties, $ledger));
+        self::assertCount(3, $uncertainties);
+        self::assertCount(3, $ledger->all());
+        foreach ($ledger->all() as $evidence) {
+            self::assertSame('the path is in the dependency directory', $evidence->context()['reason']);
+            self::assertSame('E2', $evidence->evidenceClass());
+            self::assertStringContainsString($evidence->id(), implode(' ', $uncertainties));
+        }
+    }
+
+    public function testVendorComparisonFollowsPlatformCaseRules(): void
+    {
+        $vendor = strtoupper($this->projectPath . '/dependencies');
+        if (DIRECTORY_SEPARATOR !== '\\') {
+            mkdir($this->projectPath . '/Dependencies', 0700);
+            $vendor = 'Dependencies';
+        }
+        $project = $this->project(['config' => ['vendor-dir' => $vendor], 'autoload' => ['classmap' => ['dependencies/acme']]]);
+        $uncertainties = [];
+        $paths = (new AutoloadSourceDiscovery())->paths($project, $uncertainties, null);
+        self::assertSame(DIRECTORY_SEPARATOR === '\\' ? [] : ['dependencies/acme'], $paths);
+        self::assertCount(DIRECTORY_SEPARATOR === '\\' ? 1 : 0, $uncertainties);
+    }
+
+    /** @return iterable<string, array{string}> */
+    public function configuredVendorPaths(): iterable
+    {
+        yield 'relative working control' => ['relative'];
+        yield 'absolute vendor directory' => ['absolute'];
+        yield 'symlink-resolved vendor directory' => ['symlink'];
+    }
+
     /** @param array<string, mixed> $metadata */
     private function project(array $metadata): ProjectState
     {

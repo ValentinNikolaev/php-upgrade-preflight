@@ -262,7 +262,7 @@ final class SourceUsageScanner
         if ($discoverAutoload) {
             $paths = array_values(array_unique(array_merge($paths, (new AutoloadSourceDiscovery())->paths($project, $uncertainties, $evidence))));
         }
-        $vendorPath = $discoverAutoload ? $this->canonicalExistingPath(Path::join($project->path(), $project->composerJson()->vendorDirectory())) : null;
+        $vendorPath = $discoverAutoload ? $this->canonicalExistingPath(Path::makeAbsolute($project->composerJson()->vendorDirectory(), $this->canonicalExistingPath($project->path()))) : null;
         $files = $this->phpFiles($project->path(), $paths, $uncertainties, $reportMissingPaths, $vendorPath);
         $omitted = count($files) - $this->limits->maxFiles();
         if ($omitted <= 0) {
