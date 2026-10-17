@@ -13,12 +13,33 @@ use PhpUpgradePreflight\Core\Model\ComposerDiagnostic;
 use PhpUpgradePreflight\Core\Model\EvidenceLedger;
 use PhpUpgradePreflight\Core\Model\Scenario;
 use PhpUpgradePreflight\Core\Model\ScenarioResult;
+use PhpUpgradePreflight\Core\Model\StageBlockerEntry;
 use PhpUpgradePreflight\Core\Model\UpgradeTarget;
 use PhpUpgradePreflight\Core\Model\UpgradeTargetSet;
 use PHPUnit\Framework\TestCase;
 
 final class ComposerBlockerExplanationTest extends TestCase
 {
+    /** @dataProvider establishedGenericIdentities */
+    public function testDefaultUnknownRetainsItsEstablishedStageIdentity(string $subject, string $requested, string $expectedId): void
+    {
+        $type = BlockerType::fromString(BlockerType::UNKNOWN_COMPOSER_FAILURE);
+        $blocker = new Blocker($type->value(), $subject, $type->summary(), 'low', ['solver-1'], $requested, dependencyPath: [$subject], options: $type->options($subject));
+        $entry = StageBlockerEntry::detected('laravel-7-to-8', 1, 'exact', $blocker);
+
+        self::assertSame($expectedId, $entry->id());
+    }
+
+    /** @return list<array{string, string, string}> */
+    public function establishedGenericIdentities(): array
+    {
+        // Existing frozen ignition/package-matrix fixtures identify these generic causes.
+        return [
+            ['laravel/framework', '^8.0', 'stage-blocker-2b714eef51f2e8e8d649'],
+            ['facade/ignition', '>=2.3.6 <3.0', 'stage-blocker-4314dc8954f6e4383b54'],
+        ];
+    }
+
     /** @dataProvider unusableDiagnostics */
     public function testOneRawProblemRetainsBothAProvedEdgeAndPolicyWithoutBlamingCompatibleParticipants(bool $withDiagnostic): void
     {
