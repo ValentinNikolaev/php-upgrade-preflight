@@ -22,15 +22,22 @@ application compatibility always require separate review and tests.
 
 The display budgets are two direct blocking groups, six active staged groups and
 one advisory group, with one representative per stage before additional causes
-from the same stage. Resolved or superseded stage entries are excluded. Each
-category reports its total and the number available in full details. Manual work
-counts cover direct source groups, staged source groups and framework findings;
-up to two findings are shown. Coverage qualifications include framework support,
-the original source snapshot, and one representative per recorded uncertainty
-category (source, input, operational, stage/coverage, platform and other), with
-omissions prioritized within each and counts of additional uncertainties. No
-inventory, transcripts or heuristic effort hours appear by default. Lines are limited to 320 bytes
-after complete-value credential/path redaction and terminal-control removal.
+from the same stage. Resolved or superseded stage entries are excluded. Additional
+groups are counted only when some are hidden. Empty dependency categories,
+checked-candidate rows and manual-work sections are omitted, as is PHP provenance
+when no PHP change was requested. A simple blocked case fits in about 10–15 lines.
+
+When manual work exists, up to two findings include representative source
+locations and framework guidance, with one of each when both are present. The
+original source snapshot remains explicit. Incomplete framework coverage, source
+omissions, input drift, real operational failures and unmodeled platform limits
+remain visible. Recorded uncertainty categories each retain a representative
+and discovery of additional entries. Routine Composer execution policy stays in
+full details; one application-compatibility qualification ends the summary.
+No inventory, transcripts or heuristic effort hours appear by default. Lines are
+limited to 320 bytes after complete-value credential/path redaction and
+terminal-control removal. Known internal stage stop reasons use plain wording;
+their canonical codes remain in full reports.
 
 `--output` and `--save-report` retain their existing routing policies and write
 the selected projection. Noninteractive output needs no color or terminal

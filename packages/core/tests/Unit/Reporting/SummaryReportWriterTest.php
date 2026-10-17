@@ -7,9 +7,12 @@ namespace PhpUpgradePreflight\Core\Tests\Unit\Reporting;
 use PhpUpgradePreflight\Core\Model\Blocker;
 use PhpUpgradePreflight\Core\Model\ComposerJson;
 use PhpUpgradePreflight\Core\Model\ComposerLock;
+use PhpUpgradePreflight\Core\Model\CompatibilityFinding;
 use PhpUpgradePreflight\Core\Model\EffortEstimate;
 use PhpUpgradePreflight\Core\Model\Evidence;
 use PhpUpgradePreflight\Core\Model\FrameworkStageTarget;
+use PhpUpgradePreflight\Core\Model\FrameworkGuidance;
+use PhpUpgradePreflight\Core\Model\FrameworkHop;
 use PhpUpgradePreflight\Core\Model\LockDiff;
 use PhpUpgradePreflight\Core\Model\ProjectState;
 use PhpUpgradePreflight\Core\Model\ProjectStateFingerprint;
@@ -34,6 +37,42 @@ use PHPUnit\Framework\TestCase;
 
 final class SummaryReportWriterTest extends TestCase
 {
+    public function testOnePackageCauseUsesAShortFirstScreenWithoutEmptySectionsOrRoutinePolicies(): void
+    {
+        $request = new UpgradeRequest(dirname(__DIR__, 5), [new UpgradeTarget('vendor/legacy', '^3.0')]);
+        $cause = new Blocker('package-not-found', 'vendor/legacy', 'Composer could not find the requested version.', 'high', ['cause-1'], '^3.0', options: ['Verify the constraint and configured repositories for vendor/legacy.']);
+        $report = new UpgradeReport(
+            $request,
+            $this->state(),
+            [],
+            new LockDiff([]),
+            [$cause],
+            [],
+            [],
+            new RiskSummary('low', []),
+            new EffortEstimate([0, 0], 'low', [], []),
+            [
+                'No PHP source files were scanned.',
+                'Composer extension checks used the analyzer runtime because no complete explicit extension platform was supplied.',
+                'Dependency resolution does not prove application runtime compatibility; the project test suite must run on the target runtime.',
+                'Restricted Composer execution uses sanitized analyzer-owned Composer state and best-effort offline behavior; it is not a process or OS network sandbox, and user-selected executables plus Git/SSH helpers remain residual boundaries.',
+            ],
+            [new Evidence('cause-1', Evidence::E1_SOLVER, 'Recorded package lookup failure.')]
+        );
+        $summary = (new SummaryReportWriter())->render($report);
+
+        self::assertLessThanOrEqual(15, substr_count($summary, PHP_EOL));
+        self::assertStringContainsString('vendor/legacy 1.4.0 (project lock)', $summary);
+        self::assertStringContainsString('Suggested next action (not dependency-checked): Verify the constraint', $summary);
+        self::assertStringContainsString('No PHP source files were scanned.', $summary);
+        self::assertStringContainsString('Composer extension checks used the analyzer runtime', $summary);
+        self::assertSame(1, substr_count($summary, 'application runtime compatibility'));
+        foreach (['Manual work:', '0 checked', '0 shown', 'Staged path:', 'PHP: current', 'Restricted Composer execution', 'Compatible Composer execution'] as $emptyOrRoutine) {
+            self::assertStringNotContainsString($emptyOrRoutine, $summary);
+        }
+        self::assertStringContainsString('Compatible Composer execution may inherit', (new JsonReportWriter())->render($report));
+    }
+
     public function testBlockedOutputGroupsRealCausesWithVersionsProvenanceAndUnverifiedActions(): void
     {
         $cause = $this->blocker();
@@ -43,10 +82,10 @@ final class SummaryReportWriterTest extends TestCase
         self::assertStringContainsString('Direct target: blocked', $summary);
         self::assertStringContainsString('vendor/legacy 1.4.0', $summary);
         self::assertStringContainsString('project lock, root dependency', $summary);
-        self::assertStringContainsString('2 observation(s)', $summary);
         self::assertStringContainsString('Evidence: cause-1', $summary);
         self::assertStringContainsString('Suggested next action (not dependency-checked): Review vendor/legacy requirements.', $summary);
-        self::assertStringContainsString('direct blocking groups: 1 shown of 1', $summary);
+        self::assertSame(1, substr_count($summary, '- direct blocking [direct]:'));
+        self::assertStringNotContainsString('Additional direct blocking groups', $summary);
         self::assertStringNotContainsString('hours', $summary);
     }
 
@@ -58,8 +97,88 @@ final class SummaryReportWriterTest extends TestCase
 
         self::assertStringContainsString('Direct target: feasible', $summary);
         self::assertStringContainsString('advisory (does not block resolution)', $summary);
-        self::assertStringContainsString('direct blocking groups: 0 shown of 0', $summary);
-        self::assertStringContainsString('Dependency resolution does not prove application compatibility.', $summary);
+        self::assertStringNotContainsString('- direct blocking', $summary);
+        self::assertStringContainsString('Not checked: application runtime compatibility', $summary);
+    }
+
+    public function testActiveStageAdvisoriesRemainSeparateFromBlockingStageCauses(): void
+    {
+        $entry = StageBlockerEntry::detected('hop-1-2', 1, 'exact', $this->blocker('vendor/legacy', 'abandoned-package'));
+        $staged = new StagedResolution('evaluated', 'feasible', 'fixture', [], [$entry]);
+        $summary = (new SummaryReportWriter())->render($this->report([], [$this->scenario(true)], $staged));
+
+        self::assertStringContainsString('Direct target: feasible', $summary);
+        self::assertStringContainsString('[hop-1-2 advisory]: vendor/legacy 1.4.0', $summary);
+        self::assertStringNotContainsString('- active staged blocking', $summary);
+        self::assertSame(1, substr_count($summary, '- advisory (does not block resolution)'));
+    }
+
+    public function testFrameworkReviewsAreBoundedAndLateUnsupportedCoverageRemainsVisible(): void
+    {
+        $findings = [];
+        foreach (['Review bootstrap changes.', 'Review service registration.', 'Review additional framework work.'] as $message) {
+            $findings[] = new CompatibilityFinding('fixture-0', 'high', $message, ['cause-1'], [['from_major' => 1, 'to_major' => 2]]);
+        }
+        $guidance = [];
+        for ($index = 0; $index < 4; ++$index) {
+            $guidance[] = $this->guidance('fixture-' . $index);
+        }
+        $guidance[] = new FrameworkGuidance(
+            'unsupported-fixture',
+            1,
+            2,
+            'unsupported',
+            [new FrameworkHop(1, 2, 'unsupported', null, ['cause-1'])],
+            ['This hop is unsupported.'],
+            ['cause-1']
+        );
+        $summary = (new SummaryReportWriter())->render($this->report(frameworkFindings: $findings, frameworkGuidance: $guidance));
+
+        self::assertStringContainsString('Review bootstrap changes.', $summary);
+        self::assertStringContainsString('Review service registration.', $summary);
+        self::assertStringNotContainsString('Review additional framework work.', $summary);
+        self::assertStringContainsString('3 framework findings', $summary);
+        self::assertStringContainsString('Incomplete framework guidance: unsupported: 1', $summary);
+    }
+
+    public function testManySourceGroupsStayBoundedWhileFrameworkWorkRemainsDiscoverable(): void
+    {
+        $findings = [];
+        foreach (range(1, 3) as $index) {
+            $usage = new SourceUsage('app/Review' . $index . '.php', 'Vendor\\Legacy', 'import', ['cause-1'], $index);
+            $findings[] = new SourceImpactFinding(
+                'vendor/legacy',
+                'exact',
+                'package_change',
+                'Review changed API ' . $index,
+                'high',
+                [$usage],
+                ['cause-1']
+            );
+        }
+        $framework = new CompatibilityFinding('fixture-0', 'high', 'Additional framework work.', ['cause-1'], [['from_major' => 1, 'to_major' => 2]]);
+        $summary = (new SummaryReportWriter())->render($this->report(frameworkFindings: [$framework], frameworkGuidance: [$this->guidance('fixture-0')], sourceFindings: $findings));
+
+        self::assertStringContainsString('Manual work: 3 direct source groups, 0 staged source groups, 1 framework findings', $summary);
+        self::assertStringContainsString('app/Review1.php:1', $summary);
+        self::assertStringNotContainsString('app/Review2.php', $summary);
+        self::assertStringNotContainsString('app/Review3.php', $summary);
+        self::assertStringContainsString('Additional framework work.', $summary);
+        self::assertStringContainsString('Additional manual-review entries in full details: 2.', $summary);
+    }
+
+    public function testHumanStopExplanationPreservesTheCanonicalReasonAndKnownLockedVersion(): void
+    {
+        $staged = new StagedResolution('evaluated', 'blocked', 'fixture', [], [], 'blocking_registry_not_cleared');
+        $cause = new Blocker('package-not-found', 'vendor/legacy', 'Requested package version was not found.', 'high', ['cause-1'], '^2.0');
+        $report = $this->report([$cause], [], $staged);
+        $summary = (new SummaryReportWriter())->render($report);
+
+        self::assertStringContainsString('stop: active dependency blockers remain', $summary);
+        self::assertStringNotContainsString('blocking_registry_not_cleared', $summary);
+        self::assertSame('blocking_registry_not_cleared', $report->toArray()['staged_resolution']['stop_reason']);
+        self::assertStringContainsString('vendor/legacy 1.4.0 (project lock)', $summary);
+        self::assertStringNotContainsString('observation(s)', $summary);
     }
 
     public function testUnknownAndBaselineFailureRemainVisibleWithoutTranscripts(): void
@@ -91,7 +210,7 @@ final class SummaryReportWriterTest extends TestCase
         self::assertStringContainsString('Staged path: evaluated / blocked', $summary);
         self::assertStringContainsString('vendor/later-active', $summary);
         self::assertStringNotContainsString('vendor/resolved', $summary);
-        self::assertStringContainsString('active staged blocking groups: 6 shown of 21; 15 additional', $summary);
+        self::assertStringContainsString('Additional active staged blocking groups in full details: 15 (6 of 21 shown)', $summary);
         self::assertLessThanOrEqual(60, substr_count($summary, PHP_EOL));
     }
 
@@ -111,8 +230,11 @@ final class SummaryReportWriterTest extends TestCase
         $fingerprint = ProjectStateFingerprint::fromState($state, TargetPlatform::fromRequest($request, $state), '8.3.0', []);
         $change = new RootConstraintChange('vendor/legacy', 'update', '^1.0', '^2.0', 'Recorded repair.', ['cause-1']);
         $attempts = [
-            new StageAttempt(1, 'suggested', [$change], $this->scenario(false), $fingerprint, null, [], ['cause-1'], false),
-            new StageAttempt(2, 'repair', [$change], $this->scenario(true), $fingerprint, $fingerprint, [], ['cause-1'], true),
+            new StageAttempt(1, 'suggested', [new RootConstraintChange('vendor/unverified', 'update', '^1.0', '^9.0', 'Unverified suggestion.', ['cause-1'])], $this->scenario(false), $fingerprint, null, [], ['cause-1'], false),
+            new StageAttempt(2, 'repair', [$change,
+                new RootConstraintChange('vendor/test-tools', 'update', '^1.0', '^3.0', 'Recorded repair.', ['cause-1']),
+                new RootConstraintChange('vendor/optional', 'update', '^1.0', '^4.0', 'Recorded repair.', ['cause-1']),
+            ], $this->scenario(true), $fingerprint, $fingerprint, [], ['cause-1'], true),
         ];
         $targets = $request->targets();
         $target = new FrameworkStageTarget('hop-1-2', 'fixture', 1, 2, $targets, '8.3.0', [], [], ['cause-1']);
@@ -121,8 +243,11 @@ final class SummaryReportWriterTest extends TestCase
         $summary = (new SummaryReportWriter())->render($this->report([], [$this->scenario(true)], $staged));
 
         self::assertStringContainsString('Dependency-checked stage candidate [hop-1-2]: vendor/legacy ^1.0 -> ^2.0', $summary);
-        self::assertStringContainsString('contain 1 checked root changes', $summary);
-        self::assertStringContainsString('application/source repairs remain unverified', $summary);
+        self::assertSame(2, substr_count($summary, 'Dependency-checked stage candidate'));
+        self::assertStringNotContainsString('vendor/unverified', $summary);
+        self::assertStringNotContainsString('vendor/optional', $summary);
+        self::assertStringContainsString('Additional dependency-checked root changes in full details: 1.', $summary);
+        self::assertStringContainsString('Not checked: application runtime compatibility', $summary);
     }
 
     public function testHugeInventoryAndEvidenceContextsAreNotMaterializedBySummary(): void
@@ -132,15 +257,17 @@ final class SummaryReportWriterTest extends TestCase
         $usage = new SourceUsage('app/Hidden.php', "UNSERIALIZED\xB1", 'import', ['cause-1']);
         $large = $this->report([$this->blocker()], [], null, array_fill(0, 50000, $usage));
         $before = memory_get_usage();
+        $peakBefore = memory_get_peak_usage(true);
         $summary = $writer->render($large);
 
         self::assertSame($writer->render($small), $summary);
         self::assertLessThan(2 * 1024 * 1024, memory_get_usage() - $before);
+        self::assertLessThan(4 * 1024 * 1024, memory_get_peak_usage(true) - $peakBefore);
         self::assertLessThanOrEqual(60, substr_count($summary, PHP_EOL));
         self::assertStringNotContainsString('Hidden.php', $summary);
         self::assertStringNotContainsString('UNSERIALIZED', $summary);
         $this->expectException(\JsonException::class);
-        (new JsonReportWriter())->render($large);
+        (new JsonReportWriter())->render($this->report([$this->blocker()], [], null, [$usage]));
     }
 
     public function testCriticalSourceOmissionsPrecedeAmbientUncertaintyAndAllOthersAreDiscoverable(): void
@@ -151,7 +278,7 @@ final class SummaryReportWriterTest extends TestCase
 
         self::assertStringContainsString('Source scan omitted oversized files (cause-1)', $summary);
         self::assertStringContainsString('Additional uncertainties in full details:', $summary);
-        self::assertStringContainsString('zero findings does not establish compatibility', $summary);
+        self::assertStringContainsString('Not checked: application runtime compatibility', $summary);
     }
 
     public function testSkippedAlternativeFloodCannotHideCriticalUncertaintyCategories(): void
@@ -168,7 +295,7 @@ final class SummaryReportWriterTest extends TestCase
 
         self::assertStringContainsString('5 files were not scanned', $lines);
         self::assertStringContainsString('Composer process timed out', $lines);
-        self::assertStringContainsString('Limit [input; 1 recorded]: Project input changed during analysis', $lines);
+        self::assertStringContainsString('Limit [input]: Project input changed during analysis', $lines);
         self::assertStringContainsString('Framework hop unsupported', $lines);
         self::assertStringContainsString('stage/coverage; 31 recorded', $lines);
         self::assertStringContainsString('Additional uncertainties in full details: 30', $lines);
@@ -182,7 +309,7 @@ final class SummaryReportWriterTest extends TestCase
             'Composer extension checks used the analyzer runtime.',
             'Composer process timed out.',
         ]))->lines());
-        self::assertStringContainsString('Limit [platform; 1 recorded]: Composer extension checks used the analyzer runtime.', $lines);
+        self::assertStringContainsString('Limit [platform]: Composer extension checks used the analyzer runtime.', $lines);
         self::assertStringContainsString('Limit [operational; 2 recorded]: Composer process timed out.', $lines);
     }
 
@@ -259,13 +386,29 @@ final class SummaryReportWriterTest extends TestCase
         );
     }
 
+    private function guidance(string $framework): FrameworkGuidance
+    {
+        return new FrameworkGuidance(
+            $framework,
+            1,
+            2,
+            'supported',
+            [new FrameworkHop(1, 2, 'supported', 'fixture-rules', ['cause-1'])],
+            [],
+            ['cause-1']
+        );
+    }
+
     /**
      * @param list<Blocker> $blockers
      * @param list<ScenarioResult> $scenarios
      * @param list<SourceUsage> $inventory
      * @param list<string> $uncertainties
+     * @param list<CompatibilityFinding> $frameworkFindings
+     * @param list<FrameworkGuidance> $frameworkGuidance
+     * @param list<SourceImpactFinding> $sourceFindings
      */
-    private function report(array $blockers = [], array $scenarios = [], ?StagedResolution $staged = null, array $inventory = [], array $uncertainties = []): UpgradeReport
+    private function report(array $blockers = [], array $scenarios = [], ?StagedResolution $staged = null, array $inventory = [], array $uncertainties = [], array $frameworkFindings = [], array $frameworkGuidance = [], array $sourceFindings = []): UpgradeReport
     {
         return new UpgradeReport(
             $this->request(),
@@ -274,11 +417,13 @@ final class SummaryReportWriterTest extends TestCase
             new LockDiff([]),
             $blockers,
             $inventory,
-            [],
+            $frameworkFindings,
             new RiskSummary('low', []),
             new EffortEstimate([0, 0], 'low', [], []),
             array_merge($uncertainties, ['Recorded evidence cause-1.']),
             [new Evidence('cause-1', Evidence::E1_SOLVER, 'Recorded fixture cause.')],
+            actionableSourceImpact: $sourceFindings,
+            frameworkGuidance: $frameworkGuidance,
             stagedResolution: $staged
         );
     }

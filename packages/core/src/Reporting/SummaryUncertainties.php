@@ -22,7 +22,14 @@ final class SummaryUncertainties
         ];
         /** @var array<string, list<string>> $groups */
         $groups = [];
+        $recorded = 0;
         foreach ($uncertainties as $uncertainty) {
+            if (str_starts_with($uncertainty, 'Restricted Composer execution uses sanitized analyzer-owned Composer state')
+                || str_starts_with($uncertainty, 'Compatible Composer execution may inherit')
+                || str_starts_with($uncertainty, 'Dependency resolution does not prove application runtime compatibility')) {
+                continue;
+            }
+            ++$recorded;
             $category = 'other';
             foreach ($patterns as $label => $pattern) {
                 if (preg_match($pattern, $uncertainty) === 1) {
@@ -44,9 +51,12 @@ final class SummaryUncertainties
                     break;
                 }
             }
-            $this->lines[] = sprintf('- Limit [%s; %d recorded]: %s', $category, count($group), $representative);
+            $this->lines[] = sprintf('- Limit [%s%s]: %s', $category, count($group) > 1 ? '; ' . count($group) . ' recorded' : '', $representative);
         }
-        $this->lines[] = sprintf('Additional uncertainties in full details: %d.', count($uncertainties) - count($this->lines));
+        $hidden = $recorded - count($this->lines);
+        if ($hidden > 0) {
+            $this->lines[] = sprintf('Additional uncertainties in full details: %d.', $hidden);
+        }
     }
 
     /** @return list<string> */

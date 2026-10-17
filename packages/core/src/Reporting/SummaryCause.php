@@ -11,7 +11,6 @@ final class SummaryCause
 {
     private Blocker $blocker;
     private string $scope;
-    private int $count = 0;
     /** @var array<string, true> */
     private array $references = [];
 
@@ -30,7 +29,6 @@ final class SummaryCause
     /** @param list<string> $references */
     public function observe(array $references): void
     {
-        ++$this->count;
         foreach ($references as $reference) {
             $this->references[$reference] = true;
         }
@@ -44,11 +42,6 @@ final class SummaryCause
     public function scope(): string
     {
         return $this->scope;
-    }
-
-    public function count(): int
-    {
-        return $this->count;
     }
 
     public function references(): string
