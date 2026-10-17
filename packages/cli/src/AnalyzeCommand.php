@@ -98,7 +98,8 @@ final class AnalyzeCommand implements CommandRunner
                 $options['extension-assumptions'] ?? [],
                 $targetPlatformProfile,
                 $composerExecution,
-                $options['analysis-mode'] ?? 'standard'
+                $options['analysis-mode'] ?? 'standard',
+                $options['source-cache'] ?? null
             );
             $this->frameworkIntegrations->assertAvailable($request->frameworks());
 

@@ -9,6 +9,8 @@ use PhpParser\Node;
 use PhpParser\NodeVisitorAbstract;
 use PhpParser\Parser;
 use PhpParser\ParserFactory;
+use PhpUpgradePreflight\Core\Analysis\DefaultUpgradeAnalyzer;
+use PhpUpgradePreflight\Core\Composer\ComposerScenarioRunner;
 use PhpUpgradePreflight\Core\Analysis\InputConsistencyTracker;
 use PhpUpgradePreflight\Core\Composer\ProjectStateBuilder;
 use PhpUpgradePreflight\Core\Framework\FrameworkDetection;
@@ -17,6 +19,7 @@ use PhpUpgradePreflight\Core\Framework\SourceUsageVisitorProvider;
 use PhpUpgradePreflight\Core\Model\EvidenceLedger;
 use PhpUpgradePreflight\Core\Model\Evidence;
 use PhpUpgradePreflight\Core\Model\ProjectState;
+use PhpUpgradePreflight\Core\Model\UpgradeRequest;
 use PhpUpgradePreflight\Core\Source\SourceFactsCache;
 use PhpUpgradePreflight\Core\Source\SourceUsageCacheKeyProvider;
 use PhpUpgradePreflight\Core\Source\SourceUsageCollector;
@@ -60,6 +63,33 @@ final class SourceUsageCacheTest extends TestCase
         self::assertSame($cold, $this->scan());
         self::assertSame(2, $this->parser->calls);
         self::assertSame($before, $this->treeDigests(), 'Neither cache state nor scanning may modify the target.');
+    }
+
+    public function testDefaultScannerDoesNotPersistOrReuseFacts(): void
+    {
+        $scanner = new SourceUsageScanner($this->parser);
+        $first = $scanner->scan($this->project, ['src'], new EvidenceLedger());
+        $second = $scanner->scan($this->project, ['src'], new EvidenceLedger());
+        self::assertEquals($first, $second);
+        self::assertSame(2, $this->parser->calls, 'Caching requires explicit opt-in.');
+    }
+
+    public function testRequestOptInReusesFactsWithoutLeakingIntoTheNextRequestOrCanonicalData(): void
+    {
+        $runner = new ComposerScenarioRunner(null, null, static fn (): array => ['exit_code' => 0, 'stdout' => 'Resolved.', 'stderr' => '']);
+        $scanner = new SourceUsageScanner($this->parser);
+        $analyzer = new DefaultUpgradeAnalyzer(scenarioRunner: $runner, sourceUsageScanner: $scanner);
+        $directory = $this->temporary . '/opt-in';
+        $request = new UpgradeRequest($this->project->path(), [], null, '8.2', ['src']);
+        $cached = new UpgradeRequest($this->project->path(), [], null, '8.2', ['src'], sourceCacheDirectory: $directory);
+        self::assertSame($request->toArray(), $cached->toArray());
+        $first = $analyzer->analyzeUpgrade($cached);
+        $second = $analyzer->analyzeUpgrade($cached);
+        self::assertEquals($first->sourceInventory(), $second->sourceInventory());
+        self::assertSame(1, $this->parser->calls);
+        self::assertNotEmpty(glob($directory . '/*.json'));
+        $analyzer->analyzeUpgrade($request);
+        self::assertSame(2, $this->parser->calls, 'An opt-in request must not enable the analyzer cache for later default requests.');
     }
 
     public function testExactByteEditsAdditionsDeletionsAndRelativePathsAreObserved(): void

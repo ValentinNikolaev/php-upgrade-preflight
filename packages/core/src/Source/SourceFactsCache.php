@@ -35,15 +35,24 @@ final class SourceFactsCache
         return $this->directory !== null;
     }
 
-    /** @return ?list<array{symbol: string, usage_type: string, line: int}> */
-    public function get(string $projectPath, string $key): ?array
+    /**
+     * @param ?array<string, int> $statistics Pass [] to collect this call's counters; null avoids instrumentation.
+     * @return ?list<array{symbol: string, usage_type: string, line: int}>
+     */
+    public function get(string $projectPath, string $key, ?array &$statistics = null): ?array
     {
+        if ($statistics !== null) {
+            $statistics = ['cache_rejected_entries' => 0, 'cache_read_oversized_entries' => 0, 'cache_unavailable_lookups' => 0];
+        }
         $directory = $this->safeDirectory($projectPath, false);
         if ($directory === null) {
+            if ($statistics !== null) {
+                ++$statistics['cache_unavailable_lookups'];
+            }
             return null;
         }
         foreach ($this->slots($key) as $slot) {
-            $facts = $this->readFacts($directory . '/' . $slot . '.json', $key);
+            $facts = $this->readFacts($directory . '/' . $slot . '.json', $key, $statistics);
             if ($facts !== null) {
                 return $facts;
             }
@@ -52,36 +61,42 @@ final class SourceFactsCache
         return null;
     }
 
-    /** @return ?list<array{symbol: string, usage_type: string, line: int}> */
-    private function readFacts(string $path, string $key): ?array
+    /**
+     * @param ?array<string, int> $statistics
+     * @return ?list<array{symbol: string, usage_type: string, line: int}>
+     */
+    private function readFacts(string $path, string $key, ?array &$statistics): ?array
     {
         if (!$this->privatePath($path) || is_link($path)) {
+            if ($statistics !== null && @lstat($path) !== false) {
+                return $this->rejectedEntry($statistics);
+            }
             return null;
         }
         $handle = @fopen($path, 'rb');
         if ($handle === false) {
-            return null;
+            return $this->rejectedEntry($statistics);
         }
         $contents = @stream_get_contents($handle, self::MAX_ENTRY_BYTES + 1);
         fclose($handle);
         if ($contents === false || strlen($contents) > self::MAX_ENTRY_BYTES) {
-            return null;
+            return $this->rejectedEntry($statistics, $contents !== false);
         }
         $entry = json_decode($contents, true, 32);
         if (!is_array($entry) || ($entry['key'] ?? null) !== $key || !is_string($entry['facts'] ?? null)
             || !is_string($entry['sha256'] ?? null) || !hash_equals($entry['sha256'], hash('sha256', $entry['facts']))) {
-            return null;
+            return $this->rejectedEntry($statistics);
         }
         $facts = json_decode($entry['facts'], true, 8);
         if (!is_array($facts) || ($facts !== [] && array_keys($facts) !== range(0, count($facts) - 1))) {
-            return null;
+            return $this->rejectedEntry($statistics);
         }
         $validated = [];
         foreach ($facts as $fact) {
             if (!is_array($fact) || count($fact) !== 3 || !is_string($fact['symbol'] ?? null)
                 || !is_string($fact['usage_type'] ?? null) || !is_int($fact['line'] ?? null)
                 || $fact['symbol'] === '' || $fact['usage_type'] === '' || $fact['line'] < 1) {
-                return null;
+                return $this->rejectedEntry($statistics);
             }
             $validated[] = ['symbol' => $fact['symbol'], 'usage_type' => $fact['usage_type'], 'line' => $fact['line']];
         }
@@ -89,15 +104,40 @@ final class SourceFactsCache
         return $validated;
     }
 
-    /** @param list<array{symbol: string, usage_type: string, line: int}> $facts */
-    public function put(string $projectPath, string $key, array $facts): void
+    /**
+     * @param ?array<string, int> $statistics
+     * @return null
+     */
+    private function rejectedEntry(?array &$statistics, bool $oversized = false): mixed
     {
+        if ($statistics !== null) {
+            ++$statistics['cache_rejected_entries'];
+            if ($oversized) {
+                ++$statistics['cache_read_oversized_entries'];
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @param list<array{symbol: string, usage_type: string, line: int}> $facts
+     * @param ?array<string, int> $statistics Pass [] to collect this call's counters.
+     */
+    public function put(string $projectPath, string $key, array $facts, ?array &$statistics = null): void
+    {
+        if ($statistics !== null) {
+            $statistics = ['cache_stored_entries' => 0, 'cache_put_failures' => 1, 'cache_write_oversized_entries' => 0];
+        }
         $encoded = json_encode($facts, JSON_UNESCAPED_SLASHES);
         if ($encoded === false) {
             return;
         }
         $entry = json_encode(['key' => $key, 'facts' => $encoded, 'sha256' => hash('sha256', $encoded)], JSON_UNESCAPED_SLASHES);
         if ($entry === false || strlen($entry) > self::MAX_ENTRY_BYTES) {
+            if ($entry !== false && $statistics !== null) {
+                ++$statistics['cache_write_oversized_entries'];
+            }
             return;
         }
         $directory = $this->safeDirectory($projectPath, true);
@@ -135,7 +175,10 @@ final class SourceFactsCache
                 $written = @fwrite($handle, $entry);
                 fclose($handle);
                 if ($written === strlen($entry)) {
-                    @rename($temporary, $destination);
+                    if (@rename($temporary, $destination) && $statistics !== null) {
+                        ++$statistics['cache_stored_entries'];
+                        $statistics['cache_put_failures'] = 0;
+                    }
                 }
                 if (is_file($temporary)) {
                     @unlink($temporary);

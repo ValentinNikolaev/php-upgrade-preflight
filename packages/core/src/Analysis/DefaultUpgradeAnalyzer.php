@@ -26,6 +26,7 @@ use PhpUpgradePreflight\Core\Progress\DirectFinding;
 use PhpUpgradePreflight\Core\Progress\NoOpAnalysisProgressReporter;
 use PhpUpgradePreflight\Core\Source\AutoloadOwnershipIndexBuilder;
 use PhpUpgradePreflight\Core\Source\SourceUsageScanner;
+use PhpUpgradePreflight\Core\Source\SourceFactsCache;
 use PhpUpgradePreflight\Core\Support\PathExposurePolicy;
 
 final class DefaultUpgradeAnalyzer implements UpgradeAnalyzer
@@ -113,6 +114,9 @@ final class DefaultUpgradeAnalyzer implements UpgradeAnalyzer
 
     private function performAnalysis(UpgradeRequest $request): UpgradeReport
     {
+        $sourceScanner = $request->sourceCacheDirectory() === null
+            ? $this->sourceUsageScanner
+            : $this->sourceUsageScanner->withCache(new SourceFactsCache($request->sourceCacheDirectory()));
         $evidence = new EvidenceLedger();
         $inputConsistency = new InputConsistencyTracker($request->projectPath());
         $this->phaseStarted(AnalysisPhase::PROJECT_LOADING);
@@ -147,7 +151,7 @@ final class DefaultUpgradeAnalyzer implements UpgradeAnalyzer
             $analysisUncertainties
         );
         $this->timings?->begin('source_capture');
-        $inputConsistency->captureSource($this->sourceUsageScanner, $project, array_values($sourcePaths), $request->sourcePaths() === []);
+        $inputConsistency->captureSource($sourceScanner, $project, array_values($sourcePaths), $request->sourcePaths() === []);
         $this->timings?->end('source_capture');
         $scenarios = $this->scenarioSelector->select(
             $targets,
@@ -225,7 +229,7 @@ final class DefaultUpgradeAnalyzer implements UpgradeAnalyzer
             $this->scenarioRunner->candidateLockUncertainties()
         );
         $readDigests = [];
-        $sourceInventory = $this->sourceUsageScanner->scan(
+        $sourceInventory = $sourceScanner->scan(
             $project,
             array_values($sourcePaths),
             $evidence,
@@ -236,7 +240,7 @@ final class DefaultUpgradeAnalyzer implements UpgradeAnalyzer
             $request->sourcePaths() === []
         );
         $this->timings?->begin('source_recheck_after_scan');
-        $inputConsistency->checkSource($this->sourceUsageScanner, $project, array_values($sourcePaths), $readDigests, $request->sourcePaths() === []);
+        $inputConsistency->checkSource($sourceScanner, $project, array_values($sourcePaths), $readDigests, $request->sourcePaths() === []);
         $this->timings?->end('source_recheck_after_scan');
         $this->phaseCompleted(AnalysisPhase::SOURCE_SCAN);
         $this->phaseStarted(AnalysisPhase::FRAMEWORK_EVALUATION);
@@ -309,7 +313,7 @@ final class DefaultUpgradeAnalyzer implements UpgradeAnalyzer
         $this->timings?->end('risk_effort');
         $this->timings?->begin('input_recheck_final');
         $inputConsistency->checkComposer();
-        $inputConsistency->checkSource($this->sourceUsageScanner, $project, array_values($sourcePaths), $readDigests, $request->sourcePaths() === []);
+        $inputConsistency->checkSource($sourceScanner, $project, array_values($sourcePaths), $readDigests, $request->sourcePaths() === []);
         $sourceUncertainties = array_merge($sourceUncertainties, $inputConsistency->uncertainties());
         $this->timings?->end('input_recheck_final');
 
