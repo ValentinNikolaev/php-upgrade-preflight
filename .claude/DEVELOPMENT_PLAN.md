@@ -4,7 +4,7 @@ Last updated: 2026-10-17
 
 - Released baseline: `0.3.5` (published 2026-10-07 Europe/Rome; 2026-10-06 at 23:03:05 UTC)
 - Released report schema: `0.8`
-- Immediate work: finish aggregate review and controlled measurement of the implemented PHP-only optimization, then continue the remaining R3/R4 empirical gates; the bounded Laravel completion milestone remains complete
+- Immediate work: correct the semantic corpus-review findings in package-cause attribution and visible source caps, then finish fresh controlled measurement and aggregate review of the PHP-only optimization; remaining R3/R4 empirical gates stay open
 - Active published line: `0.3.x`; a v0.4 theme and implementation are unapproved
 - Candidate future report schema: `0.9`, conditional on a new contract decision
 
@@ -19,7 +19,9 @@ The [2026-10-10 product and engineering review](audits/2026-10-10-product-engine
 The user explicitly authorized the [PHP-only optimization execution plan](../docs/optimization/php-optimization.md)
 on 2026-10-17 after reviewing the corpus results. O1/O2 (compact actionable output),
 O3/O4 (adaptive Composer execution and reuse), and O5 (source-fact caching) are
-active; O6 measurement follows integration. This bounded authorization takes
+active; semantic corpus review reopened O2 and O5 after the initial combined
+gates passed. The partial pre-fix measurement series is diagnostic only; O6
+requires a fresh final-runtime series. This bounded authorization takes
 precedence over the old patch-only sequencing for these changes, including the
 intentional human-output default change. It does not approve a v0.4 identity,
 schema migration, Symfony, release/tag preparation, or a final main merge. Resolve

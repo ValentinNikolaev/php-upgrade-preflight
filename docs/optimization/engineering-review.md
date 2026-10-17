@@ -1,8 +1,10 @@
 # Optimization verification and review
 
-Integration status: all four components reviewed, green and merged into the
-optimization branch; combined local gates passed. Combined review and controlled
-measurements are pending. No release or main merge is authorized here.
+Integration status: all four initial components reviewed, green and merged into
+the optimization branch; combined local gates and independent code review passed.
+A subsequent semantic review of actual public-case reports found two remaining
+correctness defects. Corrections, independent reassessment and fresh measurements
+are in progress. No release or main merge is authorized here.
 
 ## Component acceptance
 
@@ -72,6 +74,23 @@ phases, immutable input and complete cleanup. These are functional controls, not
 public-project timings.
 
 ## Measurement boundary
+
+The partial `cohort-v3` series at `b685b5d9486b3d55ada17cec98437f14d5eb045d`
+was deliberately stopped between invocations after 25 completed runs. All 25
+recorded successful input/cleanup checks, but they are pre-fix diagnostics and
+are excluded from final comparison statistics. No receipt was invented for the
+unexecuted stopping slot. Raw records and the explicit abort receipt remain in
+task-owned temporary storage.
+
+The semantic review found that a package's participation in a failed Composer
+problem was sometimes presented as proof that its constraint excluded the target:
+Crater's Pest plugin, BookStack's Socialite and Snipe-IT's Google2FA. The last
+case instead records a security-advisory policy rejection. It also found that
+Lychee's 8,672 and Snipe-IT's 8,284 omitted unique source usages were hidden behind
+other source-warning representatives. Passing structural/code checks had not
+established the truth or completeness of these user-facing explanations. Both
+defects require runtime corrections and independent regression review before
+new timings can describe the final implementation.
 
 The separate task-owned controller is approved at SHA-256
 `0fd6cd4c1048ef86178b08245e16cc71c9f8edbd59e40bee90789284522938a4`.
