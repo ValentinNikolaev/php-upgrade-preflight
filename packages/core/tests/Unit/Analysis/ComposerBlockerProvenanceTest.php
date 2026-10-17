@@ -17,12 +17,12 @@ use PHPUnit\Framework\TestCase;
 
 final class ComposerBlockerProvenanceTest extends TestCase
 {
-    public function testFireflyCandidateDoesNotBecomeTheDifferentLockedVersion(): void
+    public function testCandidateDoesNotBecomeTheDifferentLockedVersion(): void
     {
         $lock = $this->lock('v2.0.8', '>=5.4.36');
         $original = $lock->data();
         $evidence = new EvidenceLedger();
-        $result = $this->fireflyResult();
+        $result = $this->candidateRequirementResult();
         $blockers = (new BlockerGrouper())->group([$result], $evidence, $lock);
 
         self::assertCount(1, $blockers);
@@ -32,14 +32,14 @@ final class ComposerBlockerProvenanceTest extends TestCase
         self::assertSame(['jc5/google2fa-laravel', 'laravel/framework'], $blockers[0]->dependencyPath());
         self::assertSame(['solver-1'], $blockers[0]->evidence());
         self::assertSame($result->stderr(), $evidence->all()[0]->context()['output_excerpt']);
-        self::assertStringContainsString('affected by security advisories', $evidence->all()[0]->context()['output_excerpt']);
+        self::assertStringContainsString('conflicts with your root composer.json require (^13.0)', $evidence->all()[0]->context()['output_excerpt']);
         self::assertSame($original, $lock->data());
     }
 
     public function testEachAttemptUsesItsOwnSuppliedLockInsteadOfAnOriginalOrPreviousLock(): void
     {
         $grouper = new BlockerGrouper();
-        $result = $this->fireflyResult();
+        $result = $this->candidateRequirementResult();
         $originalLock = $this->lock('v2.0.8', '>=5.4.36');
         $candidateStateLock = $this->lock('v2.0.10', '^11.0|^12.0');
 
@@ -55,7 +55,7 @@ final class ComposerBlockerProvenanceTest extends TestCase
 
     public function testAnUnscopedPublicParserDoesNotAssertThatACandidateWasLocked(): void
     {
-        $blockers = (new ComposerBlockerParser())->parse($this->fireflyResult(), 'candidate-evidence');
+        $blockers = (new ComposerBlockerParser())->parse($this->candidateRequirementResult(), 'candidate-evidence');
 
         self::assertCount(1, $blockers);
         self::assertNull($blockers[0]->lockedVersion());
@@ -64,7 +64,7 @@ final class ComposerBlockerProvenanceTest extends TestCase
 
     public function testAPackageAbsentFromTheSuppliedLockHasNoKnownLockedVersion(): void
     {
-        $blockers = (new BlockerGrouper())->group([$this->fireflyResult()], new EvidenceLedger(), new ComposerLock([]));
+        $blockers = (new BlockerGrouper())->group([$this->candidateRequirementResult()], new EvidenceLedger(), new ComposerLock([]));
 
         self::assertCount(1, $blockers);
         self::assertNull($blockers[0]->lockedVersion());
@@ -160,9 +160,10 @@ final class ComposerBlockerProvenanceTest extends TestCase
         $blockers = (new BlockerGrouper())->group([$result], new EvidenceLedger());
 
         self::assertCount(1, $blockers);
-        self::assertSame('1.0.0', $blockers[0]->lockedVersion());
-        self::assertNull($blockers[0]->conflict());
-        self::assertSame(['fixture/blocker'], $blockers[0]->dependencyPath());
+        self::assertNull($blockers[0]->lockedVersion());
+        self::assertSame('^3.0', $blockers[0]->conflict());
+        self::assertSame('fixture/blocker', $blockers[0]->blocker());
+        self::assertSame(['fixture/blocker', 'fixture/target'], $blockers[0]->dependencyPath());
     }
 
     private function lock(string $version, string $requirement): ComposerLock
@@ -174,15 +175,15 @@ final class ComposerBlockerProvenanceTest extends TestCase
         ]]]);
     }
 
-    private function fireflyResult(): ScenarioResult
+    private function candidateRequirementResult(): ScenarioResult
     {
-        // Bounded Problem 4 from the sealed Firefly run: candidate metadata, not a locked-version assertion.
+        // Candidate-version provenance with a demonstrated incompatible edge, independently of advisory policy.
         $output = implode("\n", [
             'Problem 4',
             '- Root composer.json requires jc5/google2fa-laravel ^2.0 -> satisfiable by jc5/google2fa-laravel[2.0.0, ..., v2.0.14].',
-            '- jc5/google2fa-laravel 2.0.10 requires laravel/framework ^11.0|^12.0 -> found laravel/framework[v11.0.0, ..., v11.57.0, v12.0.0, ..., v12.70.0] but these were not loaded, because they are affected by security advisories.',
+            '- jc5/google2fa-laravel 2.0.10 requires laravel/framework ^11.0|^12.0 -> found laravel/framework[v11.0.0, ..., v12.70.0] but it conflicts with your root composer.json require (^13.0).',
         ]);
-        $scenario = new Scenario('target-platform-only', new UpgradeTargetSet([new UpgradeTarget('php', '8.4')]), true, false, false, false);
+        $scenario = new Scenario('candidate-edge', new UpgradeTargetSet([new UpgradeTarget('laravel/framework', '^13.0'), new UpgradeTarget('php', '8.4')]));
 
         return new ScenarioResult($scenario, 2, '', $output, null, null, ScenarioResult::FAILURE_SOLVER);
     }

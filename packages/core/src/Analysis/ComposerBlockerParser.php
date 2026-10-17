@@ -37,12 +37,19 @@ final class ComposerBlockerParser
             }
         }
 
+        $output = trim($result->stdout() . "\n" . $result->stderr());
         if ($blockers === []) {
-            $output = trim($result->stdout() . "\n" . $result->stderr());
             $blockers = array_map(
                 fn (string $problem): Blocker => $this->fromOutput($problem, $result, $evidenceId, $platform),
                 $this->problemSections($output)
             );
+        } else {
+            foreach ($this->problemSections($output) as $problem) {
+                $policyFailure = $this->securityPolicyBlocker($problem, $result, $evidenceId);
+                if ($policyFailure !== null) {
+                    $blockers[] = $policyFailure;
+                }
+            }
         }
 
         return array_map(
@@ -110,7 +117,7 @@ final class ComposerBlockerParser
             return [];
         }
 
-        $matchingRelations = $this->relationsBlaming($result, $relations, strtolower($diagnostic->package()));
+        $matchingRelations = $this->relationsBlaming($result, $relations, strtolower($diagnostic->package()), $diagnostic->constraint());
         if ($matchingRelations === []) {
             return [];
         }
@@ -145,33 +152,40 @@ final class ComposerBlockerParser
      * @param list<SolverRelation> $relations
      * @return list<SolverRelation>
      */
-    private function relationsBlaming(ScenarioResult $result, array $relations, string $subject): array
+    private function relationsBlaming(ScenarioResult $result, array $relations, string $subject, string $requested): array
     {
         $matchingRelations = [];
         foreach ($relations as $candidate) {
             if ($candidate->dependency() === $subject
                 && !$this->isExplicitlyUpdatedBlockingPackage($result, $candidate->package(), $subject)
-                && $this->conflictMayBlock($candidate, $this->requestedConstraint($result, $subject))) {
+                && $this->relationMayBlock($candidate, $requested)) {
                 $matchingRelations[] = $candidate;
             }
         }
         return $matchingRelations;
     }
 
-    private function conflictMayBlock(SolverRelation $relation, ?string $requested): bool
+    private function relationMayBlock(SolverRelation $relation, ?string $requested): bool
     {
-        if ($relation->operation() !== SolverRelation::CONFLICTS_WITH
-            || $relation->constraint() === null || $requested === null) {
+        if (!in_array($relation->operation(), [SolverRelation::REQUIRES, SolverRelation::CONFLICTS_WITH], true)) {
+            return false;
+        }
+        if ($requested === null && preg_match('~^' . self::PLATFORM_PATTERN . '$~i', $relation->dependency()) === 1) {
+            // Existing platform diagnostics also describe the modeled/runtime inventory,
+            // which need not be an explicit package target.
             return true;
+        }
+        if ($relation->constraint() === null || $requested === null) {
+            return false;
         }
 
         try {
             $parser = new VersionParser();
-
-            return Intervals::haveIntersections(
-                $parser->parseConstraints($relation->constraint()),
-                $parser->parseConstraints($requested)
-            );
+            $edge = $parser->parseConstraints($relation->constraint());
+            $target = $parser->parseConstraints($requested);
+            return $relation->operation() === SolverRelation::REQUIRES
+                ? !Intervals::haveIntersections($edge, $target)
+                : Intervals::isSubsetOf($target, $edge);
         } catch (\Throwable) {
             return false;
         }
@@ -222,6 +236,7 @@ final class ComposerBlockerParser
         // Ordered from most to least specific. The first matcher that recognises the
         // output wins, and the unclassified fallback always produces a blocker.
         return $this->abandonedPackageBlocker($output, $result, $evidenceId)
+            ?? $this->securityPolicyBlocker($output, $result, $evidenceId)
             ?? $this->disabledRootExtensionBlocker($output, $result, $evidenceId, $targetPlatform)
             ?? $this->unavailableExtensionBlocker($output, $result, $evidenceId, $targetPlatform)
             ?? $this->phpRequirementBlocker($output, $result, $evidenceId)
@@ -231,8 +246,29 @@ final class ComposerBlockerParser
             ?? $this->replaceProvideBlocker($result, $evidenceId, $relations)
             ?? $this->lockedPackageBlocker($output, $result, $evidenceId, $relations)
             ?? $this->rootConstraintBlocker($output, $result, $evidenceId)
-            ?? $this->leadingRelationBlocker($result, $evidenceId, $targetPlatform, $relations)
+            ?? $this->leadingRelationBlocker($result, $evidenceId, $targetPlatform, $relations, $output)
             ?? $this->unclassifiedFailureBlocker($result, $evidenceId);
+    }
+
+    private function securityPolicyBlocker(string $output, ScenarioResult $result, string $evidenceId): ?Blocker
+    {
+        if (preg_match('/(?:affected by|blocked by) security advisories/i', $output) !== 1) {
+            return null;
+        }
+        $subject = $this->firstPackageTarget($result) ?? 'composer';
+        return new Blocker(
+            BlockerType::UNKNOWN_COMPOSER_FAILURE,
+            $subject,
+            'Composer rejected candidate packages because of security advisories; this does not establish an incompatible package requirement.',
+            'high',
+            [$evidenceId],
+            $this->requestedConstraint($result, $subject),
+            null,
+            null,
+            null,
+            [$subject],
+            ['Review the recorded security advisories and the project Composer security policy before rerunning the isolated solve.']
+        );
     }
 
     private function abandonedPackageBlocker(string $output, ScenarioResult $result, string $evidenceId): ?Blocker
@@ -419,6 +455,10 @@ final class ComposerBlockerParser
             if (!$relation->isIncompatibilityRule()) {
                 continue;
             }
+            if ($relation->operation() === SolverRelation::CONFLICTS_WITH
+                && !$this->relationMayBlock($relation, $this->requestedConstraint($result, $relation->dependency()))) {
+                continue;
+            }
 
             return $this->blocker(
                 BlockerType::REPLACE_PROVIDE_CONFLICT,
@@ -446,19 +486,39 @@ final class ComposerBlockerParser
         if (preg_match('~(' . $package . ')\s+is locked to version\s+([^\s,]+)~i', $output, $matches) === 1
             || preg_match('~(' . $package . ')\s+is fixed to\s+([^\s,]+).*?lock file version~i', $output, $matches) === 1) {
             $blockingPackage = strtolower($matches[1]);
+            $lockedTarget = $this->requestedConstraint($result, $blockingPackage);
+            if ($lockedTarget !== null && $this->relationMayBlock(
+                new SolverRelation($blockingPackage, null, SolverRelation::REQUIRES, $blockingPackage, $matches[2]),
+                $lockedTarget
+            )) {
+                return $this->blocker(
+                    BlockerType::TRANSITIVE_PACKAGE_CONFLICT,
+                    $blockingPackage,
+                    $lockedTarget,
+                    new BlockerAttribution($blockingPackage, $matches[2], null),
+                    [$blockingPackage],
+                    $evidenceId,
+                    'high'
+                );
+            }
             $relation = $this->relationForDependency($relations, $blockingPackage);
+            if ($relation !== null && !$this->relationMayBlock($relation, $matches[2])) {
+                $relation = null;
+            }
             $subject = $this->onlyPackageTarget($result)
                 ?? ($relation === null ? $blockingPackage : $relation->package());
             foreach ($relations as $candidate) {
                 if ($candidate->package() === $blockingPackage && $candidate->dependency() === $subject
-                    && $candidate->version() !== null && $this->sameVersion($candidate->version(), $matches[2])) {
+                    && $candidate->version() !== null && $this->sameVersion($candidate->version(), $matches[2])
+                    && $this->relationMayBlock($candidate, $this->requestedConstraint($result, $subject))) {
                     $relation = $candidate;
                     break;
                 }
             }
-            $path = $relation === null
-                ? [$blockingPackage]
-                : $this->dependencyPath($relations, $relation);
+            if ($relation === null) {
+                return null;
+            }
+            $path = $this->dependencyPath($relations, $relation);
 
             return $this->blocker(
                 BlockerType::TRANSITIVE_PACKAGE_CONFLICT,
@@ -467,7 +527,7 @@ final class ComposerBlockerParser
                 new BlockerAttribution(
                     $blockingPackage,
                     $matches[2],
-                    $relation === null ? null : $relation->constraint()
+                    $relation->constraint()
                 ),
                 $path,
                 $evidenceId,
@@ -509,13 +569,38 @@ final class ComposerBlockerParser
         ScenarioResult $result,
         string $evidenceId,
         ?TargetPlatform $targetPlatform,
-        array $relations
+        array $relations,
+        string $output
     ): ?Blocker {
         if ($relations === []) {
             return null;
         }
 
-        $relation = $relations[0];
+        $relation = null;
+        foreach ($relations as $candidate) {
+            $requested = $this->requestedConstraint($result, $candidate->dependency());
+            if ($this->relationMayBlock($candidate, $requested)
+                || ($requested === null && $this->explicitRequirementRejection($output, $candidate))) {
+                $relation = $candidate;
+                break;
+            }
+        }
+        if ($relation === null) {
+            $participant = $relations[0];
+            return new Blocker(
+                BlockerType::UNKNOWN_COMPOSER_FAILURE,
+                $participant->dependency(),
+                'Composer could not resolve the recorded dependency chain; an incompatible package edge was not established.',
+                'low',
+                [$evidenceId],
+                $this->requestedConstraint($result, $participant->dependency()),
+                null,
+                null,
+                null,
+                $this->dependencyPath($relations, $participant),
+                ['Review the linked Composer problem and dependency chain before selecting any package changes.']
+            );
+        }
         $requested = $this->requestedConstraint($result, $relation->dependency());
         $type = $this->relationType($relation, $requested, $targetPlatform);
 
@@ -528,6 +613,16 @@ final class ComposerBlockerParser
             $evidenceId,
             $this->confidenceForType($type)
         );
+    }
+
+    private function explicitRequirementRejection(string $output, SolverRelation $relation): bool
+    {
+        $edge = preg_quote($relation->package(), '~') . '\s+' . preg_quote($relation->version() ?? '', '~')
+            . '\s+requires\s+' . preg_quote($relation->dependency(), '~') . '\s+';
+        return preg_match(
+            '~' . $edge . '[^\r\n]*?->[^\r\n]*?conflicts with (?:your root composer\.json require|the requested [^\r\n]+ target)~i',
+            $output
+        ) === 1;
     }
 
     private function unclassifiedFailureBlocker(ScenarioResult $result, string $evidenceId): Blocker
