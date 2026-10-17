@@ -46,6 +46,11 @@ $scanner = new SourceUsageScanner(null, null, new SourceFactsCache('/private/sou
 $uncached = new SourceUsageScanner(null, null, SourceFactsCache::disabled());
 ```
 
+The cache accepts an optional existing-path resolver with `realpath` semantics
+for deterministic filesystem-failure tests. The internal parser fingerprint
+helper similarly accepts a file-digest reader and parser-file provenance. Default
+callers use the real filesystem; no runtime CLI or environment settings are added.
+
 Default source selection can additionally discover up to 256 static root
 `autoload` and `autoload-dev` paths from PSR-4, PSR-0, classmap and files metadata.
 This covers modular application sources outside conventional `app` and `src`

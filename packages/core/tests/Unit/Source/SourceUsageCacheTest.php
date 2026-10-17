@@ -170,6 +170,63 @@ final class SourceUsageCacheTest extends TestCase
         self::assertSame(2, $this->parser->calls);
     }
 
+    public function testUnrelatedFrameworkDoesNotPreventSafeCoreFactReuse(): void
+    {
+        $framework = new class () implements FrameworkIntegration {
+            public function name(): string
+            {
+                return 'without-source-collectors';
+            }
+
+            public function detect(ProjectState $project): FrameworkDetection
+            {
+                return new FrameworkDetection($this->name(), true);
+            }
+
+            public function rules(): iterable
+            {
+                return [];
+            }
+
+            public function defaultSourcePaths(ProjectState $project): array
+            {
+                return ['src'];
+            }
+        };
+        self::assertSame($this->scan([$framework]), $this->scan([$framework]));
+        self::assertSame(1, $this->parser->calls);
+    }
+
+    public function testFailingOptionalProviderIdentityBypassesReuseWithoutLosingFacts(): void
+    {
+        $provider = new CacheAwareFactsProvider();
+        $provider->failIdentity = true;
+        $first = $this->scan([$provider]);
+        self::assertSame($first, $this->scan([$provider]));
+        self::assertCount(2, $first['usages']);
+        self::assertSame([], $first['uncertainties']);
+        self::assertSame(2, $this->parser->calls);
+    }
+
+    public function testScannerIncludesAndCachesAnAutoloadModuleOutsideConventionalPaths(): void
+    {
+        $module = $this->project->path() . '/modules/Webkul/Shop';
+        mkdir($module, 0700, true);
+        file_put_contents($module . '/Controller.php', '<?php Acme\\Shop::run();');
+        file_put_contents($this->project->path() . '/composer.json', '{"autoload":{"psr-4":{"Webkul\\\\Shop\\\\":"modules/Webkul/Shop"}}}');
+        $project = (new ProjectStateBuilder())->build($this->project->path());
+        $scanner = new SourceUsageScanner($this->parser, null, $this->cache);
+        $uncertainties = [];
+        $digests = [];
+        foreach ([1, 2] as $run) {
+            $usages = $scanner->scan($project, ['app'], new EvidenceLedger(), $uncertainties, false, [], $digests, true);
+            self::assertCount(1, $usages);
+            self::assertSame('modules/Webkul/Shop/Controller.php', $usages[0]->file());
+        }
+        self::assertSame([], $uncertainties);
+        self::assertSame(1, $this->parser->calls);
+    }
+
     public function testProviderFailureIsNotCachedOrHiddenOnLaterScans(): void
     {
         $provider = new CacheAwareFactsProvider();
@@ -310,8 +367,13 @@ class UnknownFactsProvider implements FrameworkIntegration, SourceUsageVisitorPr
 
 final class CacheAwareFactsProvider extends UnknownFactsProvider implements SourceUsageCacheKeyProvider
 {
+    public bool $failIdentity = false;
+
     public function sourceUsageCacheKey(): ?string
     {
+        if ($this->failIdentity) {
+            throw new \RuntimeException('The provider cannot identify its source implementation.');
+        }
         return $this->configuration;
     }
 }

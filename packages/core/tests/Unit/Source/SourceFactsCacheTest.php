@@ -153,6 +153,65 @@ final class SourceFactsCacheTest extends TestCase
         self::assertCount(2, glob($this->directory . '/*.json') ?: []);
     }
 
+    public function testUnreadableEntriesAndInvalidFactListsAreMisses(): void
+    {
+        $cache = new SourceFactsCache($this->directory);
+        $cache->put($this->project, 'key', []);
+        if (DIRECTORY_SEPARATOR !== '\\') {
+            chmod($this->entryPath('key'), 0200);
+            self::assertNull($cache->get($this->project, 'key'));
+            chmod($this->entryPath('key'), 0600);
+        }
+        $encoded = '{"not":"a list of facts"}';
+        file_put_contents($this->entryPath('key'), (string) json_encode(['key' => 'key', 'facts' => $encoded, 'sha256' => hash('sha256', $encoded)]));
+        self::assertNull($cache->get($this->project, 'key'));
+        $cache->put($this->project, 'invalid-utf8', [['symbol' => "\xff", 'usage_type' => 'static_call', 'line' => 1]]);
+        self::assertNull($cache->get($this->project, 'invalid-utf8'));
+    }
+
+    public function testUnavailableOrBusyWriterLockNeverBlocksOrPublishesPartialFacts(): void
+    {
+        mkdir($this->directory, 0700);
+        mkdir($this->directory . '/writer.lock', 0700);
+        $cache = new SourceFactsCache($this->directory);
+        $cache->put($this->project, 'key', []);
+        self::assertNull($cache->get($this->project, 'key'));
+        rmdir($this->directory . '/writer.lock');
+        $lock = fopen($this->directory . '/writer.lock', 'c');
+        chmod($this->directory . '/writer.lock', 0600);
+        flock($lock, LOCK_EX);
+        try {
+            $cache->put($this->project, 'key', []);
+            self::assertNull($cache->get($this->project, 'key'));
+            self::assertFileDoesNotExist($this->directory . '/pending.json');
+        } finally {
+            flock($lock, LOCK_UN);
+            fclose($lock);
+        }
+        $cache->put($this->project, 'key', []);
+        self::assertSame([], $cache->get($this->project, 'key'));
+    }
+
+    public function testFailedAtomicReplacementCleansOnlyItsPendingFile(): void
+    {
+        mkdir($this->directory, 0700);
+        $hash = hash('sha256', 'key');
+        foreach ([substr($hash, 0, 4), substr($hash, 4, 4)] as $slot) {
+            mkdir($this->directory . '/' . $slot . '.json', 0700);
+        }
+        (new SourceFactsCache($this->directory))->put($this->project, 'key', []);
+        self::assertFileDoesNotExist($this->directory . '/pending.json');
+        self::assertDirectoryExists($this->entryPath('key'));
+    }
+
+    public function testUnresolvableFilesystemDisablesWrites(): void
+    {
+        $cache = new SourceFactsCache($this->directory, static fn (string $path) => false);
+        $cache->put($this->project, 'key', []);
+        self::assertNull($cache->get($this->project, 'key'));
+        self::assertDirectoryDoesNotExist($this->directory);
+    }
+
     private function entryPath(string $key): string
     {
         return $this->directory . '/' . substr(hash('sha256', $key), 0, 4) . '.json';

@@ -12,11 +12,14 @@ final class SourceFactsCache
     private const MAX_ENTRY_BYTES = 8192;
 
     private ?string $directory;
+    private \Closure $resolvePath;
 
-    public function __construct(?string $directory = null)
+    /** @param null|callable(string): (string|false) $resolvePath existing-ancestor resolver with the same contract as realpath */
+    public function __construct(?string $directory = null, ?callable $resolvePath = null)
     {
         $user = function_exists('posix_geteuid') ? (string) posix_geteuid() : (string) getenv('USERNAME');
         $this->directory = $directory ?? sys_get_temp_dir() . '/php-upgrade-preflight-source-cache-' . substr(hash('sha256', $user), 0, 16);
+        $this->resolvePath = \Closure::fromCallable($resolvePath ?? 'realpath');
     }
 
     public static function disabled(): self
@@ -164,7 +167,7 @@ final class SourceFactsCache
         while (!file_exists($ancestor) && dirname($ancestor) !== $ancestor) {
             $ancestor = dirname($ancestor);
         }
-        $resolved = realpath($ancestor);
+        $resolved = ($this->resolvePath)($ancestor);
         if ($resolved === false) {
             return null;
         }
