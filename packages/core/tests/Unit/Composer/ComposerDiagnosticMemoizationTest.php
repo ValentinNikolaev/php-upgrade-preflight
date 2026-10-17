@@ -138,6 +138,53 @@ final class ComposerDiagnosticMemoizationTest extends TestCase
         }
     }
 
+    public function testDiagnosticMemoizationIsBoundedForWideRequests(): void
+    {
+        $this->withFixture(function (string $path): void {
+            $runner = $this->runner();
+            $project = (new ProjectStateBuilder())->build($path);
+            $targets = [];
+            for ($index = 0; $index < 257; ++$index) {
+                $targets[] = new UpgradeTarget(sprintf('fixture/item-%03d', $index), '^2.0');
+            }
+            $request = new UpgradeRequest($path, $targets);
+            $scenario = new Scenario('wide', $request->targets());
+            self::assertCount(257, $runner->run($project, $request, $scenario)->diagnostics());
+            self::assertSame(257, $runner->measurements()['process_counts']['diagnostic']);
+            // With 257 keys and a 256-entry FIFO, revisiting the ordered request
+            // evicts the next key each time; an unbounded cache would hit all 257.
+            self::assertCount(257, $runner->run($project, $request, $scenario)->diagnostics());
+            self::assertSame(514, $runner->measurements()['process_counts']['diagnostic']);
+            self::assertSame(0, $runner->measurements()['diagnostic_cache_hits']);
+        });
+    }
+
+    /** @dataProvider unavailableEffectiveFiles */
+    public function testUnreadableEffectiveInputsBypassMemoizationWithoutSuppressingDiagnostics(string $file): void
+    {
+        $this->withFixture(function (string $path) use ($file): void {
+            $runner = $this->runner(static function (string $directory) use ($file): void {
+                unlink($directory . '/' . $file);
+            });
+            $project = (new ProjectStateBuilder())->build($path);
+            $request = new UpgradeRequest($path, [new UpgradeTarget('fixture/dependency', '^2.0')]);
+            foreach (['direct', 'stage'] as $name) {
+                $result = $runner->run($project, $request, new Scenario($name, $request->targets()));
+                self::assertTrue($result->isSolverFailure());
+                self::assertCount(1, $result->diagnostics());
+                self::assertSame(ScenarioResult::OUTCOME_SUCCESS, $result->diagnostics()[0]->outcome());
+            }
+            self::assertSame(2, $runner->measurements()['process_counts']['diagnostic']);
+            self::assertSame(0, $runner->measurements()['diagnostic_cache_hits']);
+        });
+    }
+
+    /** @return list<array{string}> */
+    public function unavailableEffectiveFiles(): array
+    {
+        return [['composer.json'], ['composer.lock']];
+    }
+
     /** @param null|callable(string): void $beforeFailure */
     private function runner(?callable $beforeFailure = null): ComposerScenarioRunner
     {
