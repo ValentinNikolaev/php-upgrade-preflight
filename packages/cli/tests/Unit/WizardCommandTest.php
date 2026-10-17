@@ -88,7 +88,7 @@ final class WizardCommandTest extends TestCase
             '--path=' . $this->resolvedProjectPath(),
             '--from-php=8.1.0',
             '--target-php=8.3.0',
-            '--format=markdown',
+            '--format=summary',
             '--composer-mode=restricted',
         ]], $this->analyze->calls);
 
@@ -125,7 +125,7 @@ final class WizardCommandTest extends TestCase
             '--path=' . $this->resolvedProjectPath(),
             '--from-php=8.1.0',
             '--target=vendor/package:^2.0',
-            '--format=markdown',
+            '--format=summary',
             '--composer-mode=restricted',
         ]], $this->analyze->calls);
         self::assertStringContainsString(
@@ -157,7 +157,7 @@ final class WizardCommandTest extends TestCase
             'analyze',
             '--path=' . $this->resolvedProjectPath(),
             '--target-php=' . $this->normalizedRuntimePhp(),
-            '--format=markdown',
+            '--format=summary',
             '--composer-mode=restricted',
         ]], $this->analyze->calls);
         self::assertStringContainsString(
@@ -378,6 +378,14 @@ final class WizardCommandTest extends TestCase
         self::assertStringContainsString('Report: terminal (json)', $this->contents($this->stderr));
     }
 
+    public function testItCanSelectFullMarkdownExplicitly(): void
+    {
+        $this->supplyInput([$this->projectPath, '1', '1', '8.3', '3', '', '']);
+        self::assertSame(0, $this->interactiveCommand()->run(['upgrade-intel', 'wizard']));
+        self::assertContains('--format=markdown', $this->analyze->calls[0]);
+        self::assertStringContainsString('Report: terminal (markdown)', $this->contents($this->stderr));
+    }
+
     public function testComposerExecutionPolicyHasNoImplicitDefaultAndAppearsInTheReviewedCommand(): void
     {
         $this->supplyInput([
@@ -459,7 +467,7 @@ final class WizardCommandTest extends TestCase
         self::assertContains('--save-report=' . $validatedCopyPath, $this->analyze->calls[0]);
         self::assertNotContains('--output=' . $validatedCopyPath, $this->analyze->calls[0]);
         $humanOutput = $this->contents($this->stderr);
-        self::assertStringContainsString('Report: terminal (markdown)', $humanOutput);
+        self::assertStringContainsString('Report: terminal (summary)', $humanOutput);
         self::assertStringContainsString('Saved copy: ' . $validatedCopyPath, $humanOutput);
         self::assertStringContainsString('outside the analyzed project', $humanOutput);
     }
@@ -594,7 +602,7 @@ final class WizardCommandTest extends TestCase
         self::assertStringContainsString('Choose 1, 2, or 3.', $humanOutput);
         self::assertStringContainsString('... and 1 more', $humanOutput);
         self::assertStringContainsString('Enter yes or no.', $humanOutput);
-        self::assertStringContainsString('Choose markdown or json.', $humanOutput);
+        self::assertStringContainsString('Choose summary, json, or markdown.', $humanOutput);
     }
 
     public function testDiscoveryFailureSelectsAnotherPackageAndANumberedCandidate(): void

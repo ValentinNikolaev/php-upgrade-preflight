@@ -12,6 +12,31 @@ use PHPUnit\Framework\TestCase;
 
 final class UpgradeRequestTest extends TestCase
 {
+    public function testAnalysisModeDefaultsToStandardAndPreservesTheSerializedRequestContract(): void
+    {
+        $standard = new UpgradeRequest(__DIR__, [], targetPhp: '8.3');
+        $full = new UpgradeRequest(__DIR__, [], targetPhp: '8.3', analysisMode: 'full');
+
+        self::assertSame('standard', $standard->analysisMode());
+        self::assertSame('full', $full->analysisMode());
+        self::assertSame($standard->toArray(), $full->toArray());
+        self::assertSame('full', $full->withComposerExecution($standard->composerExecution())->analysisMode());
+    }
+
+    /** @dataProvider invalidAnalysisModes */
+    public function testItRejectsInvalidAnalysisModes(string $mode): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Analysis mode must be standard or full.');
+        new UpgradeRequest(__DIR__, [], targetPhp: '8.3', analysisMode: $mode);
+    }
+
+    /** @return list<array{string}> */
+    public function invalidAnalysisModes(): array
+    {
+        return [[''], ['FULL'], ['quick'], [' standard ']];
+    }
+
     public function testItDerivesTargetPhpFromTheOptionalProfileAndSerializesOnlySafeMetadata(): void
     {
         $profile = TargetPlatformProfile::fromArray([
