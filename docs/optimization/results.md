@@ -1,5 +1,10 @@
 # PHP optimization results
 
+This is the historical `2a0b01ad` → `6fe3249` series. The subsequent
+[performance follow-up](performance-followup.md) records the cache-off control,
+detailed profiles and current comparison status. The measurements below are
+preserved as that earlier checkpoint's evidence.
+
 The ordinary result is now a short explanation of the blockers, next actions and
 remaining uncertainty. **The performance targets were not met** in the controlled
 Windows Docker Desktop comparison. First analyses often became slower; repeated
@@ -151,15 +156,15 @@ times and shutdown heap are not normal summary-command costs. Blank CSV cells
 mean unavailable instrumentation. Full gate/review details and local receipt
 identities are in the [engineering record](engineering-review.md).
 
-The next performance work should separate source discovery/read/hash/parser/cache
-costs and report assembly, compare matched source scope, and require a measured
-win over disabled caching before promoting the cache as an acceleration. Early
-delivery of evidenced blockers remains separate work. Existing correctness,
-coverage, privacy and mutation checks must remain.
+This checkpoint motivated separating source discovery/read/hash/parser/cache
+costs and report assembly, comparing matched source scope, and requiring a
+measured win over disabled caching before promoting the cache as an acceleration.
+Earlier delivery of evidenced blockers was also left for the follow-up. Existing
+correctness, coverage, privacy and mutation checks remain requirements.
 
 The [R3 user comparison](../readiness/decision-study.md) still needs real
 participants: smaller output and passing engineering checks do not demonstrate
 better decisions, planning-time savings, voluntary reuse or demand. Retain
 `VALIDATE_FIRST`, defer Symfony and release expansion, and leave the final
-`main` merge to the maintainer. The optimization implementation is reviewable;
-its performance acceptance remains unmet.
+`main` merge to the maintainer. This series missed its performance targets;
+subsequent comparisons use another baseline and are documented separately.

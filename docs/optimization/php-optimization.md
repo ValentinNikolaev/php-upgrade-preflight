@@ -1,9 +1,11 @@
 # PHP optimization: execution and acceptance
 
-Status: implementation, corrective reviews and combined local gates passed.
-Controlled measurement completed on ten projects: 43 primary executions and three
-exploratory controls. **Performance targets were not met.** See the readable
-[outcome and next work](results.md). Authorized 2026-10-17; no release is prepared.
+The initial implementation, corrective reviews and combined local gates passed.
+Its ten-project series contained 43 primary executions and three exploratory
+controls; **its performance targets were not met**. The [historical outcome](results.md)
+is preserved. The [performance follow-up](performance-followup.md) records the
+subsequent cache-off control, profiles and current comparison/review status.
+Authorized 2026-10-17; no release is prepared.
 
 The ordinary result must answer three questions: what prevents the requested
 upgrade, what the owner can do next, and which parts of that answer remain
@@ -83,19 +85,19 @@ alone do not establish correctness.
 
 ## Performance follow-up (authorized 2026-10-17)
 
-The next comparison starts at `6fe3249686866e0b9764ceb7eb2b51c89aad88e6`.
+The follow-up starts at `6fe3249686866e0b9764ceb7eb2b51c89aad88e6`.
 It preserves the expanded source selection, safety limits, and ordinary standard
 analysis. The previous measurements and their failed targets remain historical
 evidence; they will not be overwritten.
 
-| Order | Deliverable | Acceptance |
-| --- | --- | --- |
-| P1 | Disable persistent source caching by default; explicit CLI, Artisan and API opt-in | No default cache writes; identical source facts and conclusions on the ten pinned projects; matched cache-off timing comparison |
-| P2 | Optional source subphase profile and actual cache/parse counters | Discovery, reads, hashing, cache lookup, parsing, cache writes and evidence construction distinguishable; counters reset per scan and reflect real operations; no paths or source contents in metrics |
-| P3 | Reduce cache filesystem transactions only if profiling justifies it | Preserve privacy, current-byte invalidation and conservative fallback; measured whole-analysis win over disabled caching before any default promotion |
-| P4 | Reduce report construction cost without losing canonical detail | Equivalent evidence, ordering, uncertainty and full JSON/Markdown; measured representative-project improvement |
-| P5 | Show an evidenced direct Composer cause before remaining checks finish | Terminal diagnostic stream only; clearly preliminary, repair unverified, no early overall verdict; later checks still execute |
-| P6 | Freeze, independently review, compare and report the complete result | Controlled scope, exact heads, cleanup/input-integrity evidence, concise human conclusions and CSV; green component and aggregate checks; maintainer performs the main merge |
+| Order | Deliverable | Acceptance | Follow-up status |
+| --- | --- | --- | --- |
+| P1 | Disable persistent source caching by default; explicit CLI, Artisan and API opt-in | No default cache writes; identical source facts and conclusions on the ten pinned projects; matched cache-off timing comparison | Implemented; 40 controlled calls admitted |
+| P2 | Optional source subphase profile and actual cache/parse counters | Discovery, reads, hashing, cache lookup, parsing, cache writes and evidence construction distinguishable; counters reset per scan and reflect real operations; no paths or source contents in metrics | Implemented; three full profiles and nine scanner-only controls admitted |
+| P3 | Reduce cache filesystem transactions only if profiling justifies it | Preserve privacy, current-byte invalidation and conservative fallback; measured whole-analysis win over disabled caching before any default promotion | Decision: retain cache-off default and opt-in; all three warm scanner controls were slower than disabled; no storage-format redesign selected |
+| P4 | Reduce report construction cost without losing canonical detail | Equivalent evidence, ordering, uncertainty and full JSON/Markdown; measured representative-project improvement | Implemented; parity/replay checks passed; whole-analysis effect reported separately |
+| P5 | Show an evidenced direct Composer cause before remaining checks finish | Terminal diagnostic stream only; clearly preliminary, repair unverified, no early overall verdict; later checks still execute | Implemented; eligible events observed in the fixed corpus, with unsupported cases remaining silent |
+| P6 | Freeze, independently review, compare and report the complete result | Controlled scope, exact heads, cleanup/input-integrity evidence, concise human conclusions and CSV; green component and aggregate checks; maintainer performs the main merge | Measurements complete: 40 cache-off controls, 60 final comparisons, three full profiles and nine scanner controls; report/CSV published here; aggregate checks and review recorded on PR 44; main merge remains with the maintainer |
 
 P1/P2, P4 and measurement tooling use separate checkouts. Cache storage redesign
 depends on P2 measurements. Heavy measurements run without concurrent test or
