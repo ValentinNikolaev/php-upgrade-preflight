@@ -25,11 +25,17 @@ final class SourceUsageScanner
 
     private Parser $parser;
     private SourceScanLimits $limits;
+    private SourceFactsCache $cache;
+    private ?string $parserIdentity;
+    private bool $defaultParser;
 
-    public function __construct(?Parser $parser = null, ?SourceScanLimits $limits = null)
+    public function __construct(?Parser $parser = null, ?SourceScanLimits $limits = null, ?SourceFactsCache $cache = null)
     {
         $this->parser = $parser ?? $this->createParser();
         $this->limits = $limits ?? new SourceScanLimits();
+        $this->cache = $cache ?? new SourceFactsCache();
+        $this->defaultParser = $parser === null;
+        $this->parserIdentity = null;
     }
 
     public function limits(): SourceScanLimits
@@ -58,6 +64,8 @@ final class SourceUsageScanner
         array &$readDigests = [],
         bool $discoverAutoload = false
     ): array {
+        $this->parserIdentity = $this->cache->enabled() ? SourceFactsIdentity::parser($this->parser, $this->defaultParser) : null;
+        $cacheContext = $this->cacheContext($frameworks);
         $usages = [];
         /** @var array<string, int> $usageIndexes */
         $usageIndexes = [];
@@ -106,9 +114,16 @@ final class SourceUsageScanner
             $readDigests[$file] = hash('sha256', $contents);
             /** @var list<array{provider: string, reason: string}> $providerFailures */
             $providerFailures = [];
+            $cacheKey = $skippedProviders === [] && $cacheContext !== null ? $this->cacheKey($project, $relative, $readDigests[$file], $cacheContext) : null;
 
             try {
-                $detectedUsages = $this->extractAstUsages($contents, $relative, $frameworks, $skippedProviders, $providerFailures);
+                $detectedUsages = $cacheKey === null ? null : $this->cache->get($project->path(), $cacheKey);
+                if ($detectedUsages === null) {
+                    $detectedUsages = $this->extractAstUsages($contents, $relative, $frameworks, $skippedProviders, $providerFailures);
+                    if ($cacheKey !== null && $providerFailures === []) {
+                        $this->cache->put($project->path(), $cacheKey, $detectedUsages);
+                    }
+                }
             } catch (Error $exception) {
                 $id = $evidence->add('source', Evidence::E3_PROJECT_SOURCE, sprintf('Unable to parse %s.', $relative), 'high', [
                     'file' => $relative,
@@ -244,7 +259,11 @@ final class SourceUsageScanner
         ?EvidenceLedger $evidence = null,
         bool $discoverAutoload = false
     ): array {
-        $files = $this->phpFiles($project->path(), $paths, $uncertainties, $reportMissingPaths);
+        if ($discoverAutoload) {
+            $paths = array_values(array_unique(array_merge($paths, (new AutoloadSourceDiscovery())->paths($project, $uncertainties, $evidence))));
+        }
+        $vendorPath = $discoverAutoload ? $this->canonicalExistingPath(Path::makeAbsolute($project->composerJson()->vendorDirectory(), $this->canonicalExistingPath($project->path()))) : null;
+        $files = $this->phpFiles($project->path(), $paths, $uncertainties, $reportMissingPaths, $vendorPath);
         $omitted = count($files) - $this->limits->maxFiles();
         if ($omitted <= 0) {
             return $files;
@@ -286,7 +305,7 @@ final class SourceUsageScanner
      * @param list<string> $uncertainties
      * @return list<string>
      */
-    private function phpFiles(string $projectPath, array $paths, array &$uncertainties, bool $reportMissingPaths): array
+    private function phpFiles(string $projectPath, array $paths, array &$uncertainties, bool $reportMissingPaths, ?string $vendorPath): array
     {
         $files = [];
         $projectPath = $this->canonicalExistingPath($projectPath);
@@ -316,7 +335,7 @@ final class SourceUsageScanner
 
             if (is_file($resolved)) {
                 if (strtolower(substr($resolved, -4)) === '.php') {
-                    $files[$resolved] = $resolved;
+                    $this->retainPhpFile($files, $resolved, $vendorPath);
                 }
 
                 continue;
@@ -327,7 +346,7 @@ final class SourceUsageScanner
             }
 
             try {
-                $this->collectDirectoryFiles($projectPath, $resolved, $files, $uncertainties);
+                $this->collectDirectoryFiles($projectPath, $resolved, $files, $uncertainties, $vendorPath);
             } catch (\UnexpectedValueException $exception) {
                 $uncertainties[] = sprintf('Source path "%s" could not be traversed: %s', $path, $exception->getMessage());
             }
@@ -345,13 +364,14 @@ final class SourceUsageScanner
      *
      * @throws \UnexpectedValueException when the directory cannot be traversed
      */
-    private function collectDirectoryFiles(string $projectPath, string $resolved, array &$files, array &$uncertainties): void
+    private function collectDirectoryFiles(string $projectPath, string $resolved, array &$files, array &$uncertainties, ?string $vendorPath): void
     {
         $directory = new \RecursiveDirectoryIterator($resolved, \FilesystemIterator::SKIP_DOTS);
         $filter = new \RecursiveCallbackFilterIterator(
             $directory,
             fn (\SplFileInfo $entry): bool => !$entry->isDir()
-                || !$this->isDefaultExcludedDirectory($resolved, $entry->getPathname())
+                || (!$this->isDefaultExcludedDirectory($resolved, $entry->getPathname())
+                    && ($vendorPath === null || !$this->isWithinProject($vendorPath, $entry->getPathname())))
         );
         $iterator = new \RecursiveIteratorIterator($filter);
 
@@ -383,9 +403,18 @@ final class SourceUsageScanner
                     continue;
                 }
 
-                $files[$resolvedFile] = $resolvedFile;
+                $this->retainPhpFile($files, $resolvedFile, $vendorPath);
             }
         }
+    }
+
+    /** @param array<string, string> $files */
+    private function retainPhpFile(array &$files, string $resolvedFile, ?string $vendorPath): void
+    {
+        if ($vendorPath !== null && $this->isWithinProject($vendorPath, $resolvedFile)) {
+            return;
+        }
+        $files[$resolvedFile] = $resolvedFile;
     }
 
     /**
@@ -487,6 +516,39 @@ final class SourceUsageScanner
         $traverser->traverse($nodes);
 
         return $collector->usages();
+    }
+
+    /** @param list<FrameworkIntegration> $frameworks */
+    private function cacheContext(array $frameworks): ?string
+    {
+        if ($this->parserIdentity === null || $this->parserIdentity === '') {
+            return null;
+        }
+        $identities = [];
+        foreach ($frameworks as $framework) {
+            if (!$framework instanceof SourceUsageVisitorProvider) {
+                continue;
+            }
+            if (!$framework instanceof SourceUsageCacheKeyProvider) {
+                return null;
+            }
+            try {
+                $identity = $framework->sourceUsageCacheKey();
+            } catch (\Throwable) {
+                return null;
+            }
+            if ($identity === null || $identity === '') {
+                return null;
+            }
+            $identities[] = [get_class($framework), $identity];
+        }
+
+        return hash('sha256', serialize(['source-facts-v1', $this->parserIdentity, $identities]));
+    }
+
+    private function cacheKey(ProjectState $project, string $relative, string $digest, string $context): string
+    {
+        return hash('sha256', serialize([$this->canonicalExistingPath($project->path()), $relative, $digest, $context]));
     }
 
     /**
