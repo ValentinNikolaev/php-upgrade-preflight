@@ -1,6 +1,7 @@
 # PHP optimization: execution and acceptance
 
-Status: implementation in progress, authorized 2026-10-17. No release is prepared.
+Status: implementation and combined local gates complete; aggregate review and
+controlled measurement pending. Authorized 2026-10-17. No release is prepared.
 
 The ordinary result must answer three questions: what prevents the requested
 upgrade, what the owner can do next, and which parts of that answer remain
@@ -34,12 +35,12 @@ of the changed default. R3 participant benefit and demand remain unmeasured.
 
 | Step | Deliverable | Acceptance evidence | Status |
 | --- | --- | --- | --- |
-| O1 | Bounded human summary by default in CLI, Artisan and the normal wizard flow; full JSON/Markdown requested explicitly | Correct actions and qualifications for blocked, feasible, unknown, advisory-only, partial-source and direct/staged disagreement; no entire inventory serialization for summary | In progress |
-| O2 | Grouped explanations with specific safe actions and accurate verification status | Every material recommendation has supporting evidence; hypothetical candidates are not represented as checked repairs; maintenance advisories do not become blockers | In progress with O1 |
-| O3 | Adaptive standard execution and an explicit exhaustive alternative | Exact-target failure cannot suppress a successful dependency-expansion path; requested stage chains and honest unknowns remain; executed work is inspectable | In progress |
-| O4 | Measured phases and equivalent Composer-result reuse | Fewer actual subprocesses in deterministic cases; relevant state/configuration changes prevent reuse; cached and uncached semantic conclusions agree | In progress with O3 |
-| O5 | Persistent source-fact reuse, safe source discovery and visible omissions | Unchanged files avoid reparsing; edits/additions/deletions and changed collectors invalidate appropriately; corrupt/unavailable cache falls back; source coverage and mutation checks remain | In progress |
-| O6 | Controlled before/after measurement and a readable outcome | Corrected baseline and candidate identified separately; results explain improvements, regressions, remaining limitations and failed targets | Pending O1–O5 |
+| O1 | Bounded human summary by default in CLI, Artisan and the normal wizard flow; full JSON/Markdown requested explicitly | Correct actions and qualifications for blocked, feasible, unknown, advisory-only, partial-source and direct/staged disagreement; no entire inventory serialization for summary | Implemented; component review/CI and combined local gate passed |
+| O2 | Grouped explanations with specific safe actions and accurate verification status | Every material recommendation has supporting evidence; hypothetical candidates are not represented as checked repairs; maintenance advisories do not become blockers | Implemented with O1; same gates passed |
+| O3 | Adaptive standard execution and an explicit exhaustive alternative | Exact-target failure cannot suppress a successful dependency-expansion path; requested stage chains and honest unknowns remain; executed work is inspectable | Implemented; component review/CI and combined local gate passed |
+| O4 | Measured phases and equivalent Composer-result reuse | Fewer actual subprocesses in deterministic cases; relevant state/configuration changes prevent reuse; cached and uncached semantic conclusions agree | Implemented with O3; same gates passed |
+| O5 | Persistent source-fact reuse, safe source discovery and visible omissions | Unchanged files avoid reparsing; edits/additions/deletions and changed collectors invalidate appropriately; corrupt/unavailable cache falls back; source coverage and mutation checks remain | Implemented; component review/CI and combined local gate passed |
+| O6 | Controlled before/after measurement and a readable outcome | Corrected baseline and candidate identified separately; results explain improvements, regressions, remaining limitations and failed targets | Ten verified inputs prepared; aggregate review and 43 invocations pending |
 
 O1/O2, O3/O4 and O5 may proceed independently in separate checkouts. Integration
 must reconcile their public interfaces before running the complete gate. Each

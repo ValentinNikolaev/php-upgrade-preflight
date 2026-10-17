@@ -1,8 +1,8 @@
 # Optimization verification and review
 
 Integration status: all four components reviewed, green and merged into the
-optimization branch; combined verification pending. No release or main merge is
-authorized here.
+optimization branch; combined local gates passed. Combined review and controlled
+measurements are pending. No release or main merge is authorized here.
 
 ## Component acceptance
 
@@ -49,12 +49,27 @@ The only manual merge conflict was the new optional collector-key interface:
 PR51's reviewed superset adds its per-scan stability documentation to PR50's
 identical runtime declaration. The reviewed PR51 file was retained verbatim.
 
-Before branch integration, a read-only Docker overlay of the final component
-code passed `OptimizationCompositionTest`: one test / 200 assertions with real
-offline Composer. It checks default modular discovery, cold/warm/full fact
-equivalence, fewer standard scenarios, explicit path selection, current edits,
-bounded presentation and target immutability. Formatting passed. This preview
-does not replace the forthcoming exact integrated-head full gate or final review.
+At integrated runtime head `b6f24fe3a98c1d0e3d87a3885a738bf4e3454c7b`, Docker
+PHP 8.5 `composer check` passed: 1,538 unit tests / 11,687 assertions, 112 integration
+tests / 6,305 assertions, two smoke tests / five assertions, all manifests, Wiki
+checks, both PHPStan configurations and formatting across 392 files. A separate
+PHP 8.3 PCOV run passed the unchanged ratchet at 12,912 / 13,370 executable lines,
+with the same 1,538 unit tests / 11,687 assertions. Clover output lived only in its
+disposable container; readable gate logs remain in task-owned temporary storage.
+
+The integration suite includes `OptimizationCompositionTest`: real offline
+Composer checks default modular discovery, cold/warm/full fact equivalence,
+fewer standard scenarios, explicit path selection, current edits, bounded
+presentation and target immutability. Its earlier read-only overlay preview was
+only preliminary evidence; the integrated gate covers the final vendor fixes.
+Final combined review and provider CI remain separate requirements.
+
+The actual Docker harness also passed its two selected controls against this
+combined runtime: private source facts persisted across two containers with
+identical source inventory/impact, and the full-mode/disabled-cache invalid-input
+control produced an honest unknown report with zero Composer starts, measured
+phases, immutable input and complete cleanup. These are functional controls, not
+public-project timings.
 
 ## Measurement boundary
 

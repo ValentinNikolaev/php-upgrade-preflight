@@ -4,7 +4,7 @@ Last updated: 2026-10-17
 
 - Released baseline: `0.3.5` (published 2026-10-07 Europe/Rome; 2026-10-06 at 23:03:05 UTC)
 - Released report schema: `0.8`
-- Immediate work: implement the user-authorized PHP-only usability/performance optimization, then continue the remaining R3/R4 empirical gates; the bounded Laravel completion milestone remains complete
+- Immediate work: finish aggregate review and controlled measurement of the implemented PHP-only optimization, then continue the remaining R3/R4 empirical gates; the bounded Laravel completion milestone remains complete
 - Active published line: `0.3.x`; a v0.4 theme and implementation are unapproved
 - Candidate future report schema: `0.9`, conditional on a new contract decision
 
