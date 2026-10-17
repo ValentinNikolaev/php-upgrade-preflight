@@ -46,7 +46,8 @@ final class DefaultUpgradeAnalyzerIsolationTest extends TestCase
             [new UpgradeTarget('fixture/dependency', '^2.0')],
             '8.0',
             '8.1',
-            ['src']
+            ['src'],
+            analysisMode: 'full'
         );
 
         $report = $analyzer->analyzeUpgrade($request);

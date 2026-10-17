@@ -6,12 +6,38 @@ namespace PhpUpgradePreflight\Core\Tests\Unit\Analysis;
 
 use PhpUpgradePreflight\Core\Analysis\ScenarioSelector;
 use PhpUpgradePreflight\Core\Model\Scenario;
+use PhpUpgradePreflight\Core\Model\ScenarioResult;
+use PhpUpgradePreflight\Core\Model\ComposerLock;
 use PhpUpgradePreflight\Core\Model\UpgradeTarget;
 use PhpUpgradePreflight\Core\Model\UpgradeTargetSet;
 use PHPUnit\Framework\TestCase;
 
 final class ScenarioSelectorTest extends TestCase
 {
+    public function testAdaptiveSuccessOnlySkipsAlternativesForTheSameFullTarget(): void
+    {
+        $selector = new ScenarioSelector();
+        $targets = new UpgradeTargetSet([new UpgradeTarget('vendor/package', '^2.0')]);
+        $differentTargets = new UpgradeTargetSet([new UpgradeTarget('vendor/package', '^3.0')]);
+        $baseline = new Scenario('baseline-validation', $targets, false, false, true);
+        $exact = new Scenario('exact-target', $targets, false);
+        $relaxed = new Scenario('target-with-all-dependencies', $targets, true);
+        $minimal = new Scenario('minimal-changes', $targets, true, true);
+        $partial = new Scenario('partial', $targets, true, false, false, false);
+        $success = new ScenarioResult($exact, 0, '', '', new ComposerLock([]));
+        $partialSuccess = new ScenarioResult($partial, 0, '', '', new ComposerLock([]));
+
+        self::assertTrue($selector->shouldExecute($baseline, 'standard', [$success]));
+        self::assertTrue($selector->shouldExecute($relaxed, 'standard', [$partialSuccess]));
+        self::assertFalse($selector->shouldExecute($relaxed, 'standard', [$success]));
+        self::assertTrue($selector->shouldExecute(new Scenario('different', $differentTargets), 'standard', [$success]));
+        self::assertFalse($selector->shouldExecute($minimal, 'standard', []));
+        self::assertFalse($selector->shouldExecute($partial, 'standard', []));
+        foreach ([$baseline, $exact, $relaxed, $minimal, $partial] as $scenario) {
+            self::assertTrue($selector->shouldExecute($scenario, 'full', [$success]));
+        }
+    }
+
     public function testPackageOnlyTargetsUseEveryPartialUpdateStrategyInStableOrder(): void
     {
         $uncertainties = [];

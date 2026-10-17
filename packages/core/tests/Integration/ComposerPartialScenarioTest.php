@@ -25,7 +25,8 @@ final class ComposerPartialScenarioTest extends TestCase
             $projectPath,
             [new UpgradeTarget('fixture/dependency', '^1.0')],
             '8.0',
-            '8.1'
+            '8.1',
+            analysisMode: 'full'
         );
 
         $report = (new DefaultUpgradeAnalyzer())->analyzeUpgrade($request);

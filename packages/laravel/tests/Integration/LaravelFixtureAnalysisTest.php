@@ -18,9 +18,53 @@ use PhpUpgradePreflight\Laravel\LaravelFrameworkIntegration;
 use PhpUpgradePreflight\Tests\Support\FixtureSnapshot;
 use PhpUpgradePreflight\Tests\Support\JsonSnapshotNormalizer;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Filesystem\Filesystem;
 
 final class LaravelFixtureAnalysisTest extends TestCase
 {
+    public function testStandardRetainsFrameworkFindingsAndTheCandidateStageChain(): void
+    {
+        $path = sys_get_temp_dir() . '/laravel-adaptive-' . bin2hex(random_bytes(8));
+        $filesystem = new Filesystem();
+        $filesystem->mirror($this->fixturePath('laravel-7-to-8'), $path);
+        $snapshot = FixtureSnapshot::capture($path);
+        try {
+            $reports = [];
+            foreach (['standard', 'full'] as $mode) {
+                $reports[$mode] = (new DefaultUpgradeAnalyzer(
+                    [new LaravelFrameworkIntegration()],
+                    scenarioRunner: $this->fixtureRunner()
+                ))->analyzeUpgrade(new UpgradeRequest(
+                    $path,
+                    [new UpgradeTarget('laravel/framework', '^8.0')],
+                    '7.4',
+                    '8.0',
+                    analysisMode: $mode
+                ));
+                $this->assertAllReferencesExist($reports[$mode]);
+            }
+            self::assertCount(2, $reports['standard']->scenarios());
+            self::assertCount(6, $reports['full']->scenarios());
+            self::assertSame($reports['full']->resolutionStatus(), $reports['standard']->resolutionStatus());
+            self::assertSame($reports['full']->lockDiff()->toArray(), $reports['standard']->lockDiff()->toArray());
+            self::assertSame($reports['full']->stagedResolution()->status(), $reports['standard']->stagedResolution()->status());
+            self::assertCount(count($reports['full']->stagedResolution()->stages()), $reports['standard']->stagedResolution()->stages());
+            foreach ($reports['standard']->stagedResolution()->stages() as $index => $stage) {
+                $fullStage = $reports['full']->stagedResolution()->stages()[$index];
+                self::assertSame($fullStage->toArray()['output_state'], $stage->toArray()['output_state']);
+                self::assertSame($fullStage->toArray()['predecessor_state'], $stage->toArray()['predecessor_state']);
+            }
+            self::assertSame(
+                array_map(static fn ($finding): string => $finding->summary(), $reports['full']->frameworkFindings()),
+                array_map(static fn ($finding): string => $finding->summary(), $reports['standard']->frameworkFindings())
+            );
+            self::assertStringContainsString('No outcome is inferred', implode(' ', $reports['standard']->uncertainties()));
+            $snapshot->assertUnchanged($this);
+        } finally {
+            $filesystem->remove($path);
+        }
+    }
+
     public function testLaravel7To8FixtureProducesOnlyEncodedConstraintFindings(): void
     {
         $report = $this->analyze('laravel-7-to-8', '^8.0', '8.0');
@@ -159,7 +203,8 @@ final class LaravelFixtureAnalysisTest extends TestCase
             $phpTarget,
             [],
             [],
-            $format
+            $format,
+            analysisMode: 'full'
         ));
     }
 

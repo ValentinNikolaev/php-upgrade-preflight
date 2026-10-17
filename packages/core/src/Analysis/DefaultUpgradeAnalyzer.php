@@ -44,6 +44,8 @@ final class DefaultUpgradeAnalyzer implements UpgradeAnalyzer
     private StagedUpgradeOrchestrator $stagedUpgradeOrchestrator;
     private StageAssessmentBuilder $stageAssessmentBuilder;
     private AnalysisProgressReporter $progressReporter;
+    /** @var array<string, float|int> */
+    private array $phaseStartedAt = [];
 
     /** @param list<FrameworkIntegration> $frameworks */
     public function __construct(
@@ -85,15 +87,18 @@ final class DefaultUpgradeAnalyzer implements UpgradeAnalyzer
 
     public function analyzeUpgrade(UpgradeRequest $request): UpgradeReport
     {
+        $startedAt = hrtime(true);
+        $this->phaseStartedAt = [];
+        $this->scenarioRunner->resetAnalysisCaches();
         $this->reportProgress(AnalysisProgressEvent::analysisStarted());
 
         try {
             $report = $this->performAnalysis($request);
-            $this->reportProgress(AnalysisProgressEvent::analysisCompleted($report));
+            $this->reportProgress(AnalysisProgressEvent::analysisCompleted($report, (hrtime(true) - $startedAt) / 1000000));
 
             return $report;
         } catch (\Throwable $failure) {
-            $this->reportProgress(AnalysisProgressEvent::analysisFailed());
+            $this->reportProgress(AnalysisProgressEvent::analysisFailed((hrtime(true) - $startedAt) / 1000000));
 
             throw $failure;
         }
@@ -134,7 +139,7 @@ final class DefaultUpgradeAnalyzer implements UpgradeAnalyzer
             $evidence,
             $analysisUncertainties
         );
-        $inputConsistency->captureSource($this->sourceUsageScanner, $project, array_values($sourcePaths));
+        $inputConsistency->captureSource($this->sourceUsageScanner, $project, array_values($sourcePaths), $request->sourcePaths() === []);
         $scenarios = $this->scenarioSelector->select(
             $targets,
             $request->fromPhp(),
@@ -143,9 +148,15 @@ final class DefaultUpgradeAnalyzer implements UpgradeAnalyzer
         );
 
         $this->phaseStarted(AnalysisPhase::COMPOSER_FEASIBILITY);
-        $this->scenarioRunner->resetAnalysisCaches();
         $scenarioResults = [];
         foreach ($scenarios as $scenario) {
+            if (!$this->scenarioSelector->shouldExecute($scenario, $request->analysisMode(), $scenarioResults)) {
+                $analysisUncertainties[] = sprintf(
+                    'Standard analysis skipped Composer alternative "%s"; alternative candidate locks, smallest-change solutions and partial-target ordering diagnostics were not fully compared. No outcome is inferred for skipped alternatives. Use full analysis to execute all alternatives.',
+                    $scenario->name()
+                );
+                continue;
+            }
             $this->reportProgress(AnalysisProgressEvent::scenarioStarted($scenario));
             $scenarioResult = $this->scenarioRunner->run($project, $request, $scenario, $platform);
             $scenarioResults[] = $scenarioResult;
@@ -206,9 +217,10 @@ final class DefaultUpgradeAnalyzer implements UpgradeAnalyzer
             $sourceUncertainties,
             $request->sourcePaths() !== [],
             $activeFrameworks,
-            $readDigests
+            $readDigests,
+            $request->sourcePaths() === []
         );
-        $inputConsistency->checkSource($this->sourceUsageScanner, $project, array_values($sourcePaths), $readDigests);
+        $inputConsistency->checkSource($this->sourceUsageScanner, $project, array_values($sourcePaths), $readDigests, $request->sourcePaths() === []);
         $this->phaseCompleted(AnalysisPhase::SOURCE_SCAN);
         $this->phaseStarted(AnalysisPhase::FRAMEWORK_EVALUATION);
         $frameworkGuidance = $this->frameworkRuleEngine->assessTransitions(
@@ -271,7 +283,7 @@ final class DefaultUpgradeAnalyzer implements UpgradeAnalyzer
         );
 
         $inputConsistency->checkComposer();
-        $inputConsistency->checkSource($this->sourceUsageScanner, $project, array_values($sourcePaths), $readDigests);
+        $inputConsistency->checkSource($this->sourceUsageScanner, $project, array_values($sourcePaths), $readDigests, $request->sourcePaths() === []);
         $sourceUncertainties = array_merge($sourceUncertainties, $inputConsistency->uncertainties());
 
         $report = $this->reportAssembler->assemble(
@@ -298,6 +310,7 @@ final class DefaultUpgradeAnalyzer implements UpgradeAnalyzer
 
     private function phaseStarted(string $phase): void
     {
+        $this->phaseStartedAt[$phase] = hrtime(true);
         $this->reportProgress(AnalysisProgressEvent::phaseStarted($phase));
     }
 
@@ -305,7 +318,8 @@ final class DefaultUpgradeAnalyzer implements UpgradeAnalyzer
         string $phase,
         string $status = AnalysisProgressEvent::STATUS_SUCCEEDED
     ): void {
-        $this->reportProgress(AnalysisProgressEvent::phaseCompleted($phase, $status));
+        $startedAt = $this->phaseStartedAt[$phase] ?? hrtime(true);
+        $this->reportProgress(AnalysisProgressEvent::phaseCompleted($phase, $status, (hrtime(true) - $startedAt) / 1000000));
     }
 
     private function reportProgress(AnalysisProgressEvent $event): void

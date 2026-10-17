@@ -45,7 +45,7 @@ final class DefaultUpgradeAnalyzerTest extends TestCase
 
         try {
             $report = (new DefaultUpgradeAnalyzer(scenarioRunner: $runner))->analyzeUpgrade(
-                new UpgradeRequest($projectPath, [new UpgradeTarget('fixture/dependency', '^2.0')], null, null, ['src'])
+                new UpgradeRequest($projectPath, [new UpgradeTarget('fixture/dependency', '^2.0')], null, null, ['src'], analysisMode: 'full')
             );
 
             self::assertTrue($mutated);
@@ -73,7 +73,7 @@ final class DefaultUpgradeAnalyzerTest extends TestCase
 
         try {
             $report = (new DefaultUpgradeAnalyzer(scenarioRunner: $runner))->analyzeUpgrade(
-                new UpgradeRequest($projectPath, [new UpgradeTarget('fixture/dependency', '^2.0')])
+                new UpgradeRequest($projectPath, [new UpgradeTarget('fixture/dependency', '^2.0')], analysisMode: 'full')
             );
 
             self::assertTrue($mutated);
@@ -100,7 +100,7 @@ final class DefaultUpgradeAnalyzerTest extends TestCase
 
         try {
             $report = (new DefaultUpgradeAnalyzer(scenarioRunner: $runner))->analyzeUpgrade(
-                new UpgradeRequest($projectPath, [new UpgradeTarget('fixture/dependency', '^2.0')], null, null, ['src'])
+                new UpgradeRequest($projectPath, [new UpgradeTarget('fixture/dependency', '^2.0')], null, null, ['src'], analysisMode: 'full')
             );
 
             self::assertTrue($mutated);
@@ -119,7 +119,7 @@ final class DefaultUpgradeAnalyzerTest extends TestCase
             throw new \LogicException('Composer must not run for invalid project input.');
         });
         $projectPath = $this->createInputProject('{invalid', '{"packages":[]}');
-        $request = new UpgradeRequest($projectPath, [new UpgradeTarget('fixture/dependency', '^2.0')]);
+        $request = new UpgradeRequest($projectPath, [new UpgradeTarget('fixture/dependency', '^2.0')], analysisMode: 'full');
 
         try {
             $report = (new DefaultUpgradeAnalyzer([], null, $runner))->analyzeUpgrade($request);
@@ -159,7 +159,7 @@ final class DefaultUpgradeAnalyzerTest extends TestCase
         $projectPath = $this->createInputProject(json_encode([
             'require' => ['fixture/dependency' => '^1.0'],
         ], JSON_THROW_ON_ERROR));
-        $request = new UpgradeRequest($projectPath, [new UpgradeTarget('fixture/dependency', '^2.0')]);
+        $request = new UpgradeRequest($projectPath, [new UpgradeTarget('fixture/dependency', '^2.0')], analysisMode: 'full');
 
         try {
             $report = (new DefaultUpgradeAnalyzer([], null, $runner))->analyzeUpgrade($request);
@@ -194,7 +194,7 @@ final class DefaultUpgradeAnalyzerTest extends TestCase
             return ['exit_code' => 0, 'stdout' => 'Resolved.', 'stderr' => ''];
         });
         $projectPath = dirname(__DIR__, 5) . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'fixtures' . DIRECTORY_SEPARATOR . 'project-isolation';
-        $request = new UpgradeRequest($projectPath, [new UpgradeTarget('fixture/dependency', '^2.0')], '8.0', '8.1');
+        $request = new UpgradeRequest($projectPath, [new UpgradeTarget('fixture/dependency', '^2.0')], '8.0', '8.1', analysisMode: 'full');
 
         $report = (new DefaultUpgradeAnalyzer([], null, $runner))->analyzeUpgrade($request);
 
@@ -255,7 +255,7 @@ final class DefaultUpgradeAnalyzerTest extends TestCase
             ];
         });
         $projectPath = dirname(__DIR__, 5) . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'fixtures' . DIRECTORY_SEPARATOR . 'project-isolation';
-        $request = new UpgradeRequest($projectPath, [new UpgradeTarget('fixture/dependency', '^2.0')], '8.0', '8.1');
+        $request = new UpgradeRequest($projectPath, [new UpgradeTarget('fixture/dependency', '^2.0')], '8.0', '8.1', analysisMode: 'full');
 
         $report = (new DefaultUpgradeAnalyzer([], null, $runner))->analyzeUpgrade($request);
 
@@ -275,7 +275,7 @@ final class DefaultUpgradeAnalyzerTest extends TestCase
             'stderr' => '',
         ]);
         $projectPath = dirname(__DIR__, 5) . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'fixtures' . DIRECTORY_SEPARATOR . 'project-isolation';
-        $request = new UpgradeRequest($projectPath, [new UpgradeTarget('php', '8.1')], '8.0');
+        $request = new UpgradeRequest($projectPath, [new UpgradeTarget('php', '8.1')], '8.0', analysisMode: 'full');
 
         $report = (new DefaultUpgradeAnalyzer([], null, $runner))->analyzeUpgrade($request);
 
@@ -293,7 +293,7 @@ final class DefaultUpgradeAnalyzerTest extends TestCase
             'stderr' => '',
         ]);
         $projectPath = dirname(__DIR__, 5) . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'fixtures' . DIRECTORY_SEPARATOR . 'project-isolation';
-        $request = new UpgradeRequest($projectPath, [new UpgradeTarget('fixture/dependency', '^2.0')], null, '8.1');
+        $request = new UpgradeRequest($projectPath, [new UpgradeTarget('fixture/dependency', '^2.0')], null, '8.1', analysisMode: 'full');
 
         $report = (new DefaultUpgradeAnalyzer([], null, $runner))->analyzeUpgrade($request);
         $scenarioNames = array_map(
@@ -317,7 +317,7 @@ final class DefaultUpgradeAnalyzerTest extends TestCase
             'stderr' => '',
         ]);
         $projectPath = dirname(__DIR__, 5);
-        $request = new UpgradeRequest($projectPath, [new UpgradeTarget('fixture/dependency', '^2.0')], null, '8.1');
+        $request = new UpgradeRequest($projectPath, [new UpgradeTarget('fixture/dependency', '^2.0')], null, '8.1', analysisMode: 'full');
 
         $report = (new DefaultUpgradeAnalyzer([], null, $runner))->analyzeUpgrade($request);
         $staged = array_values(array_filter(
@@ -343,7 +343,7 @@ final class DefaultUpgradeAnalyzerTest extends TestCase
             ];
         });
         $projectPath = dirname(__DIR__, 5) . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'fixtures' . DIRECTORY_SEPARATOR . 'project-isolation';
-        $request = new UpgradeRequest($projectPath, [new UpgradeTarget('fixture/dependency', '^2.0')]);
+        $request = new UpgradeRequest($projectPath, [new UpgradeTarget('fixture/dependency', '^2.0')], analysisMode: 'full');
 
         $report = (new DefaultUpgradeAnalyzer([], null, $runner))->analyzeUpgrade($request);
 
@@ -382,7 +382,7 @@ final class DefaultUpgradeAnalyzerTest extends TestCase
             return ['exit_code' => 0, 'stdout' => 'Resolved.', 'stderr' => ''];
         });
         $projectPath = dirname(__DIR__, 5) . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'fixtures' . DIRECTORY_SEPARATOR . 'project-isolation';
-        $request = new UpgradeRequest($projectPath, [new UpgradeTarget('fixture/dependency', '^2.0')], null, null, ['src']);
+        $request = new UpgradeRequest($projectPath, [new UpgradeTarget('fixture/dependency', '^2.0')], null, null, ['src'], analysisMode: 'full');
 
         $framework = new AnalyzerFixtureFrameworkIntegration();
         $report = (new DefaultUpgradeAnalyzer([$framework], null, $runner))->analyzeUpgrade($request);
@@ -433,7 +433,7 @@ final class DefaultUpgradeAnalyzerTest extends TestCase
             return ['exit_code' => 0, 'stdout' => 'Resolved.', 'stderr' => ''];
         });
         $projectPath = dirname(__DIR__, 5) . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'fixtures' . DIRECTORY_SEPARATOR . 'project-isolation';
-        $request = new UpgradeRequest($projectPath, [new UpgradeTarget('fixture/dependency', '^2.0')]);
+        $request = new UpgradeRequest($projectPath, [new UpgradeTarget('fixture/dependency', '^2.0')], analysisMode: 'full');
 
         $report = (new DefaultUpgradeAnalyzer([], null, $runner))->analyzeUpgrade($request);
 
@@ -488,7 +488,7 @@ final class DefaultUpgradeAnalyzerTest extends TestCase
 
         try {
             $report = (new DefaultUpgradeAnalyzer([], null, $runner))->analyzeUpgrade(
-                new UpgradeRequest($projectPath, [new UpgradeTarget('fixture/dependency', '^2.0')])
+                new UpgradeRequest($projectPath, [new UpgradeTarget('fixture/dependency', '^2.0')], analysisMode: 'full')
             );
             $abandoned = array_values(array_filter(
                 $report->blockers(),
@@ -535,7 +535,7 @@ final class DefaultUpgradeAnalyzerTest extends TestCase
 
         try {
             $report = (new DefaultUpgradeAnalyzer([], null, $runner))->analyzeUpgrade(
-                new UpgradeRequest($projectPath, [new UpgradeTarget('fixture/dependency', '^2.0')])
+                new UpgradeRequest($projectPath, [new UpgradeTarget('fixture/dependency', '^2.0')], analysisMode: 'full')
             );
 
             self::assertSame('feasible_with_changes', $report->resolutionStatus());
@@ -554,7 +554,7 @@ final class DefaultUpgradeAnalyzerTest extends TestCase
             throw new \RuntimeException('Composer executable is unavailable.');
         });
         $projectPath = dirname(__DIR__, 5) . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'fixtures' . DIRECTORY_SEPARATOR . 'project-isolation';
-        $request = new UpgradeRequest($projectPath, [new UpgradeTarget('fixture/dependency', '^2.0')], null, null, ['src']);
+        $request = new UpgradeRequest($projectPath, [new UpgradeTarget('fixture/dependency', '^2.0')], null, null, ['src'], analysisMode: 'full');
 
         $report = (new DefaultUpgradeAnalyzer([], null, $runner))->analyzeUpgrade($request);
 
@@ -586,7 +586,7 @@ final class DefaultUpgradeAnalyzerTest extends TestCase
             ];
         });
         $projectPath = dirname(__DIR__, 5) . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'fixtures' . DIRECTORY_SEPARATOR . 'project-isolation';
-        $request = new UpgradeRequest($projectPath, [new UpgradeTarget('fixture/dependency', '^2.0')], null, null, ['src']);
+        $request = new UpgradeRequest($projectPath, [new UpgradeTarget('fixture/dependency', '^2.0')], null, null, ['src'], analysisMode: 'full');
 
         $report = (new DefaultUpgradeAnalyzer([], null, $runner))->analyzeUpgrade($request);
 
@@ -622,7 +622,7 @@ final class DefaultUpgradeAnalyzerTest extends TestCase
             ];
         });
         $projectPath = dirname(__DIR__, 5) . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'fixtures' . DIRECTORY_SEPARATOR . 'project-isolation';
-        $request = new UpgradeRequest($projectPath, [new UpgradeTarget('fixture/dependency', '^2.0')]);
+        $request = new UpgradeRequest($projectPath, [new UpgradeTarget('fixture/dependency', '^2.0')], analysisMode: 'full');
         $analyzer = new DefaultUpgradeAnalyzer([], null, $runner);
 
         $firstReport = $analyzer->analyzeUpgrade($request);
@@ -655,7 +655,7 @@ final class DefaultUpgradeAnalyzerTest extends TestCase
             ];
         });
         $projectPath = dirname(__DIR__, 5) . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'fixtures' . DIRECTORY_SEPARATOR . 'project-isolation';
-        $request = new UpgradeRequest($projectPath, [new UpgradeTarget('fixture/dependency', '^2.0')], null, null, ['src']);
+        $request = new UpgradeRequest($projectPath, [new UpgradeTarget('fixture/dependency', '^2.0')], null, null, ['src'], analysisMode: 'full');
 
         $report = (new DefaultUpgradeAnalyzer([], null, $runner))->analyzeUpgrade($request);
         $dependencyActions = $report->planStages()[1]->actions();
@@ -682,7 +682,7 @@ final class DefaultUpgradeAnalyzerTest extends TestCase
             throw new \RuntimeException('Composer could not complete the fallback scenario.');
         });
         $projectPath = dirname(__DIR__, 5) . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'fixtures' . DIRECTORY_SEPARATOR . 'project-isolation';
-        $request = new UpgradeRequest($projectPath, [new UpgradeTarget('fixture/dependency', '^2.0')], null, null, ['src']);
+        $request = new UpgradeRequest($projectPath, [new UpgradeTarget('fixture/dependency', '^2.0')], null, null, ['src'], analysisMode: 'full');
 
         $report = (new DefaultUpgradeAnalyzer([], null, $runner))->analyzeUpgrade($request);
 
@@ -704,7 +704,8 @@ final class DefaultUpgradeAnalyzerTest extends TestCase
             null,
             null,
             ['src'],
-            ['missing-framework']
+            ['missing-framework'],
+            analysisMode: 'full'
         );
 
         $this->expectException(\InvalidArgumentException::class);
@@ -719,7 +720,7 @@ final class DefaultUpgradeAnalyzerTest extends TestCase
             return ['exit_code' => 0, 'stdout' => 'Resolved.', 'stderr' => ''];
         });
         $projectPath = dirname(__DIR__, 5) . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'fixtures' . DIRECTORY_SEPARATOR . 'project-isolation';
-        $request = new UpgradeRequest($projectPath, [new UpgradeTarget('fixture/dependency', '^2.0')]);
+        $request = new UpgradeRequest($projectPath, [new UpgradeTarget('fixture/dependency', '^2.0')], analysisMode: 'full');
         $framework = new AnalyzerFixtureFrameworkIntegration();
 
         $report = (new DefaultUpgradeAnalyzer([$framework], null, $runner))->analyzeUpgrade($request);
@@ -777,7 +778,7 @@ final class DefaultUpgradeAnalyzerTest extends TestCase
 
         try {
             $report = (new DefaultUpgradeAnalyzer([], null, $runner))->analyzeUpgrade(
-                new UpgradeRequest($projectPath, [new UpgradeTarget('fixture/dependency', '^2.0')], null, null, ['src'])
+                new UpgradeRequest($projectPath, [new UpgradeTarget('fixture/dependency', '^2.0')], null, null, ['src'], analysisMode: 'full')
             );
 
             self::assertCount(1, $report->sourceInventory());
