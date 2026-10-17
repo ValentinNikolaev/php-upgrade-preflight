@@ -117,7 +117,7 @@ final class DefaultUpgradeAnalyzerProgressTest extends TestCase
 
         try {
             $report = (new DefaultUpgradeAnalyzer(progressReporter: $reporter))->analyzeUpgrade(
-                new UpgradeRequest($invalidProject, [new UpgradeTarget('fixture/dependency', '^2.0')])
+                new UpgradeRequest($invalidProject, [new UpgradeTarget('fixture/dependency', '^2.0')], analysisMode: 'full')
             );
 
             self::assertSame('unknown', $report->resolutionStatus());
@@ -144,7 +144,8 @@ final class DefaultUpgradeAnalyzerProgressTest extends TestCase
             null,
             null,
             [],
-            ['missing-framework']
+            ['missing-framework'],
+            analysisMode: 'full'
         );
 
         try {
@@ -172,7 +173,8 @@ final class DefaultUpgradeAnalyzerProgressTest extends TestCase
             null,
             null,
             [],
-            ['missing-framework']
+            ['missing-framework'],
+            analysisMode: 'full'
         );
 
         try {
@@ -214,7 +216,7 @@ final class DefaultUpgradeAnalyzerProgressTest extends TestCase
             . DIRECTORY_SEPARATOR . 'fixtures'
             . DIRECTORY_SEPARATOR . 'project-isolation';
 
-        return new UpgradeRequest($projectPath, [new UpgradeTarget('fixture/dependency', '^2.0')]);
+        return new UpgradeRequest($projectPath, [new UpgradeTarget('fixture/dependency', '^2.0')], analysisMode: 'full');
     }
 }
 

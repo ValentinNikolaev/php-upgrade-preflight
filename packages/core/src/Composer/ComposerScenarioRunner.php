@@ -26,6 +26,7 @@ final class ComposerScenarioRunner
 {
     private const COMPLETE_PLATFORM_MIN_COMPOSER_VERSION = '2.2.0';
     private const LOCKED_DIAGNOSTIC_MIN_COMPOSER_VERSION = '2.4.0';
+    private const MAX_DIAGNOSTIC_CACHE_ENTRIES = 256;
     /**
      * Composer metadata probes (`--version`, `show --platform`) are short local
      * commands and are not covered by the configured scenario or diagnostic
@@ -58,6 +59,12 @@ final class ComposerScenarioRunner
     private ?string $platformPackagesConfigurationKey = null;
     /** @var array<string, ComposerDiagnostic> */
     private array $diagnosticCache = [];
+    /** @var array<string, int> */
+    private array $processCounts = ['scenario' => 0, 'diagnostic' => 0, 'metadata' => 0];
+    /** @var array<string, int> */
+    private array $processNanoseconds = ['scenario' => 0, 'diagnostic' => 0, 'metadata' => 0];
+    private int $workspaceNanoseconds = 0;
+    private int $diagnosticCacheHits = 0;
     /** @var list<string> */
     private array $probeCleanupUncertainties = [];
     /** @var list<string> */
@@ -167,29 +174,29 @@ final class ComposerScenarioRunner
         $cleanupFailedDuringCreation = false;
 
         try {
-            $tempPath = $this->workspaces->createFromProject($project->path());
-            $this->preparer->seedProjectState($tempPath, $project);
+            $tempPath = $this->measureWorkspace(fn (): string => $this->workspaces->createFromProject($project->path()));
+            $this->measureWorkspace(fn () => $this->preparer->seedProjectState($tempPath, $project));
             $phase = ScenarioOutcomeClassifier::PHASE_PREPARATION;
             $candidateManifest = $project->composerJson();
             if (!$scenario->isBaselineValidation()) {
-                $candidateManifest = $this->preparer->applyTemporaryComposerChanges(
+                $candidateManifest = $this->measureWorkspace(fn (): ComposerJson => $this->preparer->applyTemporaryComposerChanges(
                     $tempPath,
                     $project,
                     $scenario,
                     $platform,
                     $analyzerPlatformPackages
-                );
+                ));
             }
             // The restricted Composer state is analyzer-owned workspace preparation:
             // a failure here happens before any Composer process exists.
-            $environment = $this->preparer->processEnvironment($execution, $tempPath);
+            $environment = $this->measureWorkspace(fn (): array => $this->preparer->processEnvironment($execution, $tempPath));
             $phase = ScenarioOutcomeClassifier::PHASE_PROCESS;
-            $process = ($this->processRunner)(
+            $process = $this->measureProcess('scenario', fn (): array => ($this->processRunner)(
                 $command,
                 $tempPath,
                 $environment,
                 $execution->scenarioTimeoutSeconds()
-            );
+            ));
             $process = $this->sanitizeProcessResult(
                 $process,
                 $project->path(),
@@ -288,6 +295,10 @@ final class ComposerScenarioRunner
     public function resetAnalysisCaches(): void
     {
         $this->resetDiagnosticCache();
+        $this->processCounts = ['scenario' => 0, 'diagnostic' => 0, 'metadata' => 0];
+        $this->processNanoseconds = ['scenario' => 0, 'diagnostic' => 0, 'metadata' => 0];
+        $this->workspaceNanoseconds = 0;
+        $this->diagnosticCacheHits = 0;
         $this->composerVersionResolved = false;
         $this->composerVersion = null;
         $this->composerVersionConfigurationKey = null;
@@ -296,6 +307,54 @@ final class ComposerScenarioRunner
         $this->platformPackagesConfigurationKey = null;
         $this->probeCleanupUncertainties = [];
         $this->candidateLockUncertainties = [];
+    }
+
+    /**
+     * Observational measurements for the current analysis, never report schema data.
+     * Process time covers child-process adapters (including failed starts); workspace
+     * time covers creation, seeding, preparation and cleanup, excluding process work.
+     * Injected metadata resolvers do not count as child processes.
+     *
+     * @return array{process_counts: array<string, int>, process_ms: array<string, float>, workspace_ms: float, diagnostic_cache_hits: int}
+     */
+    public function measurements(): array
+    {
+        return [
+            'process_counts' => $this->processCounts,
+            'process_ms' => array_map(static fn (int $value): float => $value / 1000000, $this->processNanoseconds),
+            'workspace_ms' => $this->workspaceNanoseconds / 1000000,
+            'diagnostic_cache_hits' => $this->diagnosticCacheHits,
+        ];
+    }
+
+    /**
+     * @template T
+     * @param callable(): T $operation
+     * @return T
+     */
+    private function measureWorkspace(callable $operation): mixed
+    {
+        $started = hrtime(true);
+        try {
+            return $operation();
+        } finally {
+            $this->workspaceNanoseconds += hrtime(true) - $started;
+        }
+    }
+
+    /**
+     * @param callable(): array{exit_code: int, stdout: string, stderr: string} $operation
+     * @return array{exit_code: int, stdout: string, stderr: string}
+     */
+    private function measureProcess(string $kind, callable $operation): array
+    {
+        $started = hrtime(true);
+        ++$this->processCounts[$kind];
+        try {
+            return $operation();
+        } finally {
+            $this->processNanoseconds[$kind] += hrtime(true) - $started;
+        }
     }
 
     /**
@@ -557,20 +616,20 @@ final class ComposerScenarioRunner
         array $command,
         ComposerExecutionConfiguration $execution
     ): array {
-        $workingDirectory = $this->createComposerProbeDirectory();
+        $workingDirectory = $this->measureWorkspace(fn (): string => $this->createComposerProbeDirectory());
 
         try {
-            $environment = $this->preparer->processEnvironment($execution, $workingDirectory);
+            $environment = $this->measureWorkspace(fn (): array => $this->preparer->processEnvironment($execution, $workingDirectory));
             if (!$execution->isRestricted()) {
                 $environment['COMPOSER'] = false;
                 $environment['COMPOSER_HOME'] = $workingDirectory;
             }
 
-            return ($this->composerVersionProcessRunner)(
+            return $this->measureProcess('metadata', fn (): array => ($this->composerVersionProcessRunner)(
                 $command,
                 $workingDirectory,
                 $environment
-            );
+            ));
         } finally {
             $this->removeComposerProbeDirectory($workingDirectory);
         }
@@ -587,7 +646,7 @@ final class ComposerScenarioRunner
     private function removeComposerProbeDirectory(string $path): void
     {
         try {
-            $this->workspaces->remove($path);
+            $this->measureWorkspace(fn () => $this->workspaces->remove($path));
         } catch (\Throwable $exception) {
             $this->probeCleanupUncertainties[] = sprintf(
                 'Composer metadata probe workspace cleanup failed, so analyzer-owned temporary state was left behind: %s',
@@ -735,7 +794,7 @@ final class ComposerScenarioRunner
         bool $debug
     ): ScenarioResult {
         try {
-            $this->workspaces->remove($tempPath);
+            $this->measureWorkspace(fn () => $this->workspaces->remove($tempPath));
 
             return $result;
         } catch (\Throwable $exception) {
@@ -821,12 +880,15 @@ final class ComposerScenarioRunner
 
             $cacheKey = $this->diagnosticCacheKey(
                 $project,
-                $scenario,
+                $workingDirectory,
                 $target->package(),
                 $target->constraint(),
-                $platform
+                $platform,
+                $execution,
+                $environment
             );
-            if (isset($this->diagnosticCache[$cacheKey])) {
+            if ($cacheKey !== null && isset($this->diagnosticCache[$cacheKey])) {
+                ++$this->diagnosticCacheHits;
                 $diagnostics[] = $this->diagnosticCache[$cacheKey];
                 continue;
             }
@@ -841,7 +903,12 @@ final class ComposerScenarioRunner
                 $execution,
                 $environment
             );
-            $this->diagnosticCache[$cacheKey] = $diagnostic;
+            if ($cacheKey !== null && $diagnostic->outcome() === ScenarioResult::OUTCOME_SUCCESS) {
+                if (count($this->diagnosticCache) >= self::MAX_DIAGNOSTIC_CACHE_ENTRIES) {
+                    array_shift($this->diagnosticCache);
+                }
+                $this->diagnosticCache[$cacheKey] = $diagnostic;
+            }
             $diagnostics[] = $diagnostic;
         }
 
@@ -889,12 +956,12 @@ final class ComposerScenarioRunner
         $command = array_merge($command, self::COMPOSER_SAFETY_OPTIONS, ['--no-interaction']);
 
         try {
-            $process = ($this->processRunner)(
+            $process = $this->measureProcess('diagnostic', fn (): array => ($this->processRunner)(
                 $command,
                 $workingDirectory,
                 $environment,
                 $execution->diagnosticTimeoutSeconds()
-            );
+            ));
             $process = $this->sanitizeProcessResult(
                 $process,
                 $projectPath,
@@ -991,18 +1058,35 @@ final class ComposerScenarioRunner
         );
     }
 
+    /** @param array<string, string|false> $environment */
     private function diagnosticCacheKey(
         ProjectState $project,
-        Scenario $scenario,
+        string $workingDirectory,
         string $package,
         string $constraint,
-        TargetPlatform $platform
-    ): string {
+        TargetPlatform $platform,
+        ComposerExecutionConfiguration $execution,
+        array $environment
+    ): ?string {
+        $manifestHash = @hash_file('sha256', $workingDirectory . DIRECTORY_SEPARATOR . 'composer.json');
+        $lockHash = @hash_file('sha256', $workingDirectory . DIRECTORY_SEPARATOR . 'composer.lock');
+        if ($manifestHash === false || $lockHash === false) {
+            return null;
+        }
+        // Restricted homes differ only by their disposable workspace root. Ambient
+        // configuration and credentials remain part of the in-memory identity.
+        $environment = array_map(
+            static fn ($value) => is_string($value) ? str_replace($workingDirectory, '[WORKSPACE]', $value) : $value,
+            $environment
+        );
         return hash('sha256', serialize([
             $project->path(),
-            $project->composerJson()->data(),
-            $project->composerLock()->data(),
-            $scenario->targets()->toArray(),
+            $manifestHash,
+            $lockHash,
+            $execution->runtimeCacheKey(),
+            $this->composerVersion,
+            $environment,
+            getenv(),
             $package,
             $constraint,
             array_map(
