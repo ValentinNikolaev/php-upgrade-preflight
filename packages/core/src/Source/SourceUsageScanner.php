@@ -335,7 +335,7 @@ final class SourceUsageScanner
 
             if (is_file($resolved)) {
                 if (strtolower(substr($resolved, -4)) === '.php') {
-                    $files[$resolved] = $resolved;
+                    $this->retainPhpFile($files, $resolved, $vendorPath);
                 }
 
                 continue;
@@ -403,9 +403,18 @@ final class SourceUsageScanner
                     continue;
                 }
 
-                $files[$resolvedFile] = $resolvedFile;
+                $this->retainPhpFile($files, $resolvedFile, $vendorPath);
             }
         }
+    }
+
+    /** @param array<string, string> $files */
+    private function retainPhpFile(array &$files, string $resolvedFile, ?string $vendorPath): void
+    {
+        if ($vendorPath !== null && $this->isWithinProject($vendorPath, $resolvedFile)) {
+            return;
+        }
+        $files[$resolvedFile] = $resolvedFile;
     }
 
     /**

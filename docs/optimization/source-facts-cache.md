@@ -59,7 +59,10 @@ manifests, follow wildcard mappings or read outside the project. Dependency and
 generated roots, including a custom Composer `vendor-dir`, remain excluded from
 automatic discovery. Relative, absolute and symlinked vendor-directory settings
 are compared using their resolved absolute paths and platform case rules, for
-both mapped roots/files and descendants of a broad source root.
+both mapped roots/files and descendants of a broad source root. Every resolved
+file passes this vendor boundary before retention, including nested application
+file symlinks and files reached through ordinary default/fallback source paths.
+Discovery-disabled explicit requests retain their existing scope.
 Excluded metadata roots and the metadata-path limit produce
 linked uncertainty/evidence using existing schema 0.8 fields.
 
