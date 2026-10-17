@@ -1,10 +1,10 @@
 # PHP Upgrade Preflight Development Plan
 
-Last updated: 2026-10-10
+Last updated: 2026-10-17
 
 - Released baseline: `0.3.5` (published 2026-10-07 Europe/Rome; 2026-10-06 at 23:03:05 UTC)
 - Released report schema: `0.8`
-- Immediate work: finish R3/R4 empirical gates after R5's `VALIDATE_FIRST` scope decision; the bounded Laravel completion milestone remains complete
+- Immediate work: review the measured PHP optimization outcome on PR44; speed targets remain unmet, so profile source/cache and report-assembly costs before making acceleration claims. R3/R4 empirical gates stay open
 - Active published line: `0.3.x`; a v0.4 theme and implementation are unapproved
 - Candidate future report schema: `0.9`, conditional on a new contract decision
 
@@ -12,9 +12,24 @@ This roadmap supersedes the archived [v0.3.0 implementation plan](DEVELOPMENT_PL
 
 v0.3 made the analyzer honest about *how* an upgrade would be reached: staged Composer evidence, candidate-state chaining, blocker lifecycles, closed-world platform profiles. It did all of that with one framework adapter.
 
-The [2026-10-10 product and engineering review](audits/2026-10-10-product-engineering-review.md) added Readiness Milestone R before contract migration. R5 now records [`VALIDATE_FIRST`](../docs/readiness/release-direction.md): defer Symfony while reader benefit, real-project operating cost and maintainer capacity are unmeasured. R3/R4 empirical gates remain open. Milestones 0–6 below preserve the candidate Symfony contract and its acceptance gates as a conditional outline; none authorizes implementation until a later evidence-backed scope decision.
+The [2026-10-10 product and engineering review](audits/2026-10-10-product-engineering-review.md) added Readiness Milestone R before contract migration. R5 now records [`VALIDATE_FIRST`](../docs/readiness/release-direction.md): defer Symfony while reader benefit and sustainable maintenance consumption remain unmeasured; the 2026-10-17 corpus now supplies bounded live engineering cost evidence. R3/R4 empirical gates remain open. Milestones 0–6 below preserve the candidate Symfony contract and its acceptance gates as a conditional outline; none authorizes implementation until a later evidence-backed scope decision.
 
 ## How to Use This Plan
+
+The user explicitly authorized the [PHP-only optimization execution plan](../docs/optimization/php-optimization.md)
+on 2026-10-17 after reviewing the corpus results. O1/O2 (compact actionable output),
+O3/O4 (adaptive Composer execution and reuse), and O5 (source-fact caching) are
+implemented; semantic corpus review reopened O2 and O5 after the initial combined
+gates passed. Their corrections have independent approval, green final-head CI
+and a passing corrected integrated gate. O6 now has 43 validated primary runs,
+three exploratory controls and [readable results](../docs/optimization/results.md).
+Speed targets were not met; performance acceptance remains open. The partial
+pre-fix series is diagnostic only. This bounded authorization takes
+precedence over the old patch-only sequencing for these changes, including the
+intentional human-output default change. It does not approve a v0.4 identity,
+schema migration, Symfony, release/tag preparation, or a final main merge. Resolve
+publication compatibility explicitly when a future release is requested. R3/R4
+completion and user demand must still be supported by actual observations.
 
 - Continue the first unchecked item in the earliest incomplete milestone unless repository evidence requires a safer order.
 - Complete R3/R4 empirical gates and reconfirm the release direction before Milestone 0 or any Symfony implementation. Preserve existing milestone numbers and completed historical evidence; R5's conservative decision is not a new version or release authorization.
@@ -310,14 +325,28 @@ Acceptance: a sanitized study record supports or rejects the value hypothesis ag
 
 Depends on R0; baseline measurement can proceed alongside R2/R3 after R1.
 
-- [ ] Measure representative small/large and worst-stage runs with declared inputs and toolchain: direct versus staged process count, wall time, peak memory, JSON/Markdown bytes, timeout/unknown outcomes and cleanup. Keep live network/cache drift separate from offline regressions. Investigate the recorded Lychee 128 MiB exhaustion; do not label the 256 MiB advisory target as a runtime guarantee.
+- [~] Measure representative small/large and worst-stage runs with declared inputs and toolchain: direct versus staged process count, wall time, peak memory, JSON/Markdown bytes, timeout/unknown outcomes and cleanup. Keep live network/cache drift separate from offline regressions. Investigate the recorded Lychee 128 MiB exhaustion; do not label the 256 MiB advisory target as a runtime guarantee. The [2026-10 public-application campaign](../docs/readiness/corpus-2026-10/protocol.md) predeclares ten pinned independent applications, thirty primary runs and six focused probes; all 37 frozen slots (30 primary, six probes, one supplemental) completed with verified input/cleanup checks on measured baseline `6a2251901725321d4206e008ac42205b32ddfa8d`. Direct/staged results were 30 blocked and seven unknown, not successful application upgrades. Both Lychee memory probes produced reports; the historical exhaustion cause remains unknown. The first R4 item stays partial because successful worst-chain evidence and broader coverage remain open.
 - [ ] Compare measured planning benefit with setup/run/read time. Record CI duration and total runner cost for the existing three packages; estimate the incremental fourth package, host matrix, catalog upkeep and Wiki publication burden. Use ranges and assumptions rather than a fabricated revenue forecast.
-- [ ] Fix a demonstrated budget/usability blocker with the smallest safe change before breadth expansion; otherwise retain the existing caps and defer optimization. Require equivalent resolution, evidence and immutability with any optimization enabled/disabled.
+- [x] Fix a demonstrated budget/usability blocker with the smallest safe change before breadth expansion; otherwise retain the existing caps and defer optimization. Require equivalent resolution, evidence and immutability with any optimization enabled/disabled.
 - [ ] Decide the minimum supported Symfony application/component shape and whether family staging is necessary for the collected cases. Compare full generic multi-adapter machinery with deterministic selection of one stage provider and honest conflict refusal. Preserve attribution/ownership safety whichever slice is chosen.
 
 Acceptance: observed operational cost and maintenance capacity are recorded; required caps remain enforced; advisory targets are identified; every proposed performance or contract expansion has a measured/user-case justification.
 
-The [bounded operational-cost record](../docs/readiness/operational-cost.md) now gives real offline Composer timings and process counts for the committed small path fixture and three-stage demo, input immutability/cleanup hashes, analyzer-process PHP peaks, report bytes, and separate Quality/Compatibility CI step-time baselines. It explicitly labels the six-hop Composer substitute as synthetic. Child-process RSS, large real-project and live-network cost, the Lychee 128 MiB failure cause, maintainer capacity, user setup/read time and planning benefit remain unavailable. Therefore the first two items have partial evidence but stay unchecked; the existing caps remain in place, and neither a performance change nor a Symfony application/family target has been justified.
+The [operational-cost follow-up](../docs/readiness/operational-cost.md#2026-10-17-bounded-live-corpus-follow-up) and [corpus record](../docs/readiness/corpus-2026-10/README.md) retain the earlier offline observations alongside 37 completed frozen slots and three extra diagnostic attempts (40 public-application attempts total). The 37 external invocation envelopes sum to 4103.6932044 seconds, excluding acquisition/install/controller preflight/cache copying/review/pauses. All 37 JSON schema and exact Markdown projection checks passed; 364,505 explicit evidence-array references have no duplicate/dangling IDs, a structural check that does not prove attribution truth. Independent case reviews cover ten applications plus supplemental Monica7 and identify four defect families: copied ancestry, candidate-conflict promotion, diagnostic target identity, and candidate-as-locked provenance. Bagisto's 598 retained usages exclude all 31 Webkul source roots under documented conventional defaults; no path repository or automatic autoload coverage was promised. This is not full-application performance or recall evidence.
+
+The R3 [engineering packet](../docs/readiness/corpus-2026-10/exercise-answers.md) binds original A-D cards, controlled U and supplements; all participant outcomes remain UNAVAILABLE. Known-defect baseline reports require a separately frozen, reviewed fixed-report cohort before ordinary live study use. PR45/PR47 repair the four attribution/provenance families, and PR48 repairs warm-cache ownership without a Git trust exception. All three plus publisher PR46 have independent approval and all 19 respective final-head Quality jobs passed before integration-only merges. The full prepared-composition `composer check` passed (1,437 unit, 99 integration, two smoke tests, both static configurations and lint); merged source equivalence is verified. Offline regression checks passed all 26 harness cases and 54/55 combined cases with one existing Windows symlink privilege skip. That earlier repair composition introduced no performance optimization or cap relaxation. These changes close the demonstrated repair item, while all human and remaining R4 gates stay open. Final aggregate review/CI are separate requirements on PR44, whose main merge belongs to the maintainer. User capacity >5 hours/week is a stated lower bound, not observed consumption/allocation; actual upkeep, net benefit, Symfony owner cases and a successful six-hop chain remain unavailable. Existing caps, VALIDATE_FIRST and deferred schema/package/release scope remain unchanged.
+
+The later [PHP-only optimization](../docs/optimization/results.md) adds compact
+default summaries, adaptive execution and source-fact caching/discovery. Its
+corrected runtime passed the combined gate (1,585 unit, 112 integration and two
+smoke tests), and bounded semantic review covered all ten displayed summaries.
+The 43-run controlled series plus three exploratory controls are complete, but
+the 30% first / 50% repeat acceleration goals remain unmet. Five projects were
+blocked and five unknown from offline metadata retrieval; none demonstrates a
+successful real upgrade or a full chain. Bagisto's broader module selection and
+cap displacement qualify source comparisons. Investigate source/cache IO and
+report assembly under matched scope; smaller output, unchanged retained facts
+and passing tests do not establish faster useful decisions or demand.
 
 ### R5: Select the next release and hand off
 
@@ -331,7 +360,7 @@ R5 decision acceptance: the R1 safety proof and accepted R2 engineering changes 
 
 Planning estimate: 8–18 person-days for a lean implementation/evaluation cycle, typically spread over 2–4 calendar weeks plus recruitment delays. This is a low-confidence capacity assumption for one experienced maintainer, not an estimate of a full application upgrade; substantive newly discovered defects may require a revised range.
 
-Status: R0–R2 and the R5 decision/reconciliation are complete in the development tree. R1's real Composer regression proved the inherited-manifest redirect and its repair, and R2's report semantics passed independent review with composed verification recorded in the [decision baseline](../docs/readiness/decision-baseline.md). R3's [study materials](../docs/readiness/decision-study.md) are prepared, but no participant, reuse, timing or Symfony-owner case evidence is available. R4's bounded offline and CI measurements are recorded, while real-project, capacity, benefit and owner-case gates remain open. The full R milestone is incomplete. Next: voluntary participant study and pinned Lychee/large-run profiling, then maintainer-capacity assessment. Engineering checks do not substitute for reader observations.
+Status: R0–R2 and the R5 decision/reconciliation are complete in the development tree. R1's real Composer regression proved the inherited-manifest redirect and its repair, and R2's report semantics passed independent review with composed verification recorded in the [decision baseline](../docs/readiness/decision-baseline.md). R3's [study materials](../docs/readiness/decision-study.md) are prepared, but no participant, reuse, timing or Symfony-owner case evidence is available. R4's bounded offline, public-project and CI measurements are recorded, while performance acceptance, successful-chain, capacity, benefit and owner-case gates remain open. The full R milestone is incomplete. Next: voluntary participant study and matched-scope source/cache/report profiling, then maintainer-capacity assessment. Lychee's historical OOM cause remains unresolved. Engineering checks do not substitute for reader observations.
 
 ## Milestone 0: Confirm the Theme, Freeze v0.3.x, Lock the v0.4 Contract
 
@@ -507,7 +536,7 @@ These are collected with rationale in [the revised v0.5 proposal](DEVELOPMENT_PL
 
 ## Recommended Next Work Session
 
-Readiness Milestone R has [R0's decision baseline and R2 acceptance record](../docs/readiness/decision-baseline.md) and an explicit [R5 `VALIDATE_FIRST` decision](../docs/readiness/release-direction.md), grounded in the published v0.3.5 contracts and [point-in-time review](audits/2026-10-10-product-engineering-review.md). R1 repaired the inherited-manifest boundary with a real offline Composer regression; R2 qualified report completeness, estimate scope, next actions and budget language without changing schema `0.8`. Arrange R3's participant study, pinned Lychee/large-project profiling and maintainer-capacity assessment for R4. Then revisit release scope and, only if justified, let Milestone 0 own a coordinated contract/branch/schema migration. Symfony remains deferred. The separate JavaScript-action audit remains open.
+Readiness Milestone R has [R0's decision baseline and R2 acceptance record](../docs/readiness/decision-baseline.md) and an explicit [R5 `VALIDATE_FIRST` decision](../docs/readiness/release-direction.md), grounded in the published v0.3.5 contracts and [point-in-time review](audits/2026-10-10-product-engineering-review.md). R1 repaired the inherited-manifest boundary with a real offline Composer regression; R2 qualified report completeness, estimate scope, next actions and budget language without changing schema `0.8`. Review and merge the final aggregation PR as maintainer, preserve the corpus evidence, then arrange R3's separately frozen reviewed fixed-report cohort and measure actual maintenance consumption. Lychee's historical OOM cause and successful worst-chain evidence remain open. Then revisit release scope and, only if justified, let Milestone 0 own a coordinated contract/branch/schema migration. Symfony remains deferred. The separate JavaScript-action audit remains open.
 
 Operational notes carried forward:
 

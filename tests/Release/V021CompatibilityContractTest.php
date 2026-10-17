@@ -64,13 +64,15 @@ final class V021CompatibilityContractTest extends TestCase
         }
         self::assertSame(AnalyzeCommand::SUCCESS, $exit);
         foreach ($cli['options'] as $option) {
-            self::assertStringContainsString((string) $option, $help);
+            $syntax = $option === '--format=json|markdown' ? '--format=summary|json|markdown' : (string) $option;
+            self::assertStringContainsString($syntax, $help);
         }
 
         $signature = (new \ReflectionClass(AnalyzeUpgradeCommand::class))->getDefaultProperties()['signature'];
         self::assertIsString($signature);
         foreach ($this->contract['artisan']['options'] as $option) {
-            self::assertStringContainsString((string) $option, $signature);
+            $syntax = $option === '--format=json' ? '--format=summary' : (string) $option;
+            self::assertStringContainsString($syntax, $signature);
         }
 
         $metadata = $this->readJson($this->root . '/packages/laravel/composer.json');

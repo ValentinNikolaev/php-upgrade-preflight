@@ -28,6 +28,7 @@ use PhpUpgradePreflight\Core\Model\ReportFormat;
  *     output: ?string,
  *     save-report?: string,
  *     debug: bool,
+ *     analysis-mode?: string,
  *     composer-mode?: string,
  *     composer-executable?: string,
  *     composer-version?: string,
@@ -128,7 +129,7 @@ final class CommandLineParser
             );
         }
 
-        $options['format'] = ReportFormat::normalize((string) $options['format']);
+        $options['format'] = ReportFormat::normalizePresentation((string) $options['format']);
         $extensionAssumptions = ExtensionAssumptionSet::fromInputs($presentExtensions, $absentExtensions)->all();
         if ($extensionAssumptions !== []) {
             $options['extension-assumptions'] = $extensionAssumptions;

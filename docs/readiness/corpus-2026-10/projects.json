@@ -1,0 +1,433 @@
+{
+  "protocol_version": 1,
+  "frozen_at": "2026-10-17",
+  "baseline_commit": "0329c5a32adeb10cb48a1e93e81c0249864270cf",
+  "selection": "Preselected convenience sample; ten independent repositories, locked Laravel 8-12; no representative-market claim.",
+  "projects": [
+    {
+      "id": "crater",
+      "repository": "crater-invoice-inc/crater",
+      "requested_ref": "05d5ce26fdd8d9466009163444e944259bc0cc2a",
+      "kind": "invoicing",
+      "commit": "05d5ce26fdd8d9466009163444e944259bc0cc2a",
+      "eligible": true,
+      "locked_framework": "v8.83.16",
+      "php_constraint": "^7.4 || ^8.0",
+      "locked_packages": 167,
+      "lock_bytes": 433753,
+      "source_url": "https://github.com/crater-invoice-inc/crater/tree/05d5ce26fdd8d9466009163444e944259bc0cc2a",
+      "archive_sha256": "e8684acf9a0887647965386e6e0e2243742a1bd8e11b1021d678480e61abf1cd",
+      "composer_json_sha256": "48c7dfaac40fccefd0339f48e334f4a4422fcedcfc94b0c0eb39938437fea6e0",
+      "composer_lock_sha256": "4c68160268b7ec9e5f9cf188c1ad7c47ac6149a0d7b9d128b8e5ce6347515f8d",
+      "acquired": true,
+      "file_count": 1406,
+      "php_files": 733,
+      "source_bytes": 22236008,
+      "skipped_archive_links": [],
+      "requests": {
+        "nearest": {
+          "target_major": 9,
+          "from_php": "7.4.0",
+          "target_php": "8.1.0"
+        },
+        "longest": {
+          "target_major": 13,
+          "from_php": "7.4.0",
+          "target_php": "8.3.0"
+        }
+      },
+      "snapshot_policy": "Archive regular files; symlinks omitted and listed explicitly; no application dependency installation or execution.",
+      "source_snapshot_sha256": "52378705ac710e9a3d5c5c1712a67a0c05101617bb8944772452896b71866bf2",
+      "source_snapshot_algorithm": "r4-tree-v1",
+      "source_verification": "Full extracted regular-file bytes and directory shape rechecked against the original pinned archive digest before final campaign; listed symlinks omitted.",
+      "initial_extraction_file_count": 1406
+    },
+    {
+      "id": "bookstack",
+      "repository": "BookStackApp/BookStack",
+      "requested_ref": "v24.10.3",
+      "kind": "knowledge-base",
+      "commit": "07e45a20e55fc955e9ef252d0653f23193a71a77",
+      "eligible": true,
+      "locked_framework": "v10.48.25",
+      "php_constraint": "^8.1.0",
+      "locked_packages": 147,
+      "lock_bytes": 385846,
+      "source_url": "https://github.com/BookStackApp/BookStack/tree/07e45a20e55fc955e9ef252d0653f23193a71a77",
+      "archive_sha256": "310436800e46d03bac549abdc8cea7708dd75709160c799948bdfac0e7e1be13",
+      "composer_json_sha256": "26db99dfdf473f92eda9222102e325ef594b1f96c46556c77b75f7bf861a4c17",
+      "composer_lock_sha256": "49f353a87081f949c39b5433cd8416f0120b479846fab5b9698f4f880ff94876",
+      "acquired": true,
+      "file_count": 2214,
+      "php_files": 1516,
+      "source_bytes": 15285633,
+      "skipped_archive_links": [],
+      "requests": {
+        "nearest": {
+          "target_major": 11,
+          "from_php": "8.1.0",
+          "target_php": "8.2.0"
+        },
+        "longest": {
+          "target_major": 13,
+          "from_php": "8.1.0",
+          "target_php": "8.3.0"
+        }
+      },
+      "snapshot_policy": "Archive regular files; symlinks omitted and listed explicitly; no application dependency installation or execution.",
+      "source_snapshot_sha256": "7956ae679cdb12723fd1d70ee122b16a2a25ba2243b7606a11646275efc1c654",
+      "source_snapshot_algorithm": "r4-tree-v1",
+      "source_verification": "Full extracted regular-file bytes and directory shape rechecked against the original pinned archive digest before final campaign; listed symlinks omitted.",
+      "initial_extraction_file_count": 2214
+    },
+    {
+      "id": "lychee",
+      "repository": "LycheeOrg/Lychee",
+      "requested_ref": "bf5495c706a9971ebfcd03a88c36e336fc0261d5",
+      "kind": "photo-gallery",
+      "commit": "bf5495c706a9971ebfcd03a88c36e336fc0261d5",
+      "eligible": true,
+      "locked_framework": "v12.36.1",
+      "php_constraint": "^8.3",
+      "locked_packages": 243,
+      "lock_bytes": 644714,
+      "source_url": "https://github.com/LycheeOrg/Lychee/tree/bf5495c706a9971ebfcd03a88c36e336fc0261d5",
+      "archive_sha256": "4d35a4cb6a04ff69491bc3336c99fc1293d00b98c532880571a532b1f23740cf",
+      "composer_json_sha256": "9c612439775fb6e95681079570057e8523e42c9707186cb15531c35988836737",
+      "composer_lock_sha256": "058009aa8b35d3f0b0a78bb7e3a4ea27dd8c6c0167bd672437431e57cb5d5998",
+      "acquired": true,
+      "file_count": 2377,
+      "php_files": 1926,
+      "source_bytes": 9525106,
+      "skipped_archive_links": [
+        "bootstrap/cache",
+        "public/storage"
+      ],
+      "requests": {
+        "nearest": {
+          "target_major": 13,
+          "from_php": "8.3.0",
+          "target_php": "8.3.0"
+        },
+        "longest": {
+          "target_major": 13,
+          "from_php": "8.3.0",
+          "target_php": "8.3.0"
+        }
+      },
+      "snapshot_policy": "Archive regular files; symlinks omitted and listed explicitly; no application dependency installation or execution.",
+      "source_snapshot_sha256": "1bc0805d4cd631d132eeda4072cbf0d5c62161187da8fb298fbbec05d5b4a1d6",
+      "source_snapshot_algorithm": "r4-tree-v1",
+      "source_verification": "Full extracted regular-file bytes and directory shape rechecked against the original pinned archive digest before final campaign; listed symlinks omitted.",
+      "initial_extraction_file_count": 2377
+    },
+    {
+      "id": "snipeit",
+      "repository": "grokability/snipe-it",
+      "requested_ref": "v7.0.0",
+      "kind": "asset-management",
+      "commit": "91a423e60eca0e5f96a1564e0c1fae8d360c4f15",
+      "eligible": true,
+      "locked_framework": "v10.48.4",
+      "php_constraint": "^8.1",
+      "locked_packages": 227,
+      "lock_bytes": 593756,
+      "source_url": "https://github.com/grokability/snipe-it/tree/91a423e60eca0e5f96a1564e0c1fae8d360c4f15",
+      "archive_sha256": "2c3ab93763f3a67d6e7f10bb1466de0b11c9b0ed802a0b636cea9fd18146ea4f",
+      "composer_json_sha256": "eb4394fdbc72f1097b9faa1519dfe48203224bef05cc28fe1505d502c10217d0",
+      "composer_lock_sha256": "fc9d15ed7058a16bd6b2325d8da021ec1d698a5b14fb37a2110c8ca8dae0e36a",
+      "acquired": true,
+      "file_count": 6994,
+      "php_files": 6168,
+      "source_bytes": 42746641,
+      "skipped_archive_links": [],
+      "requests": {
+        "nearest": {
+          "target_major": 11,
+          "from_php": "8.1.0",
+          "target_php": "8.2.0"
+        },
+        "longest": {
+          "target_major": 13,
+          "from_php": "8.1.0",
+          "target_php": "8.3.0"
+        }
+      },
+      "snapshot_policy": "Archive regular files; symlinks omitted and listed explicitly; no application dependency installation or execution.",
+      "source_snapshot_sha256": "4cf51d49a7362f683178932c4471e085b9ba6d8526ecc49f018b056f5577bee2",
+      "source_snapshot_algorithm": "r4-tree-v1",
+      "source_verification": "Full extracted regular-file bytes and directory shape rechecked against the original pinned archive digest before final campaign; listed symlinks omitted.",
+      "initial_extraction_file_count": 6994
+    },
+    {
+      "id": "invoiceninja",
+      "repository": "invoiceninja/invoiceninja",
+      "requested_ref": "v5.10.0",
+      "kind": "billing",
+      "commit": "c064f1c3e9163ca0758eb36df5d7947b5c8e19c6",
+      "eligible": true,
+      "locked_framework": "v11.11.1",
+      "php_constraint": "^8.2",
+      "locked_packages": 282,
+      "lock_bytes": 722903,
+      "source_url": "https://github.com/invoiceninja/invoiceninja/tree/c064f1c3e9163ca0758eb36df5d7947b5c8e19c6",
+      "archive_sha256": "329c8a6d1dff563ed47ffec33c204f2e273f6a3d8e7a43b1ab0c088e62a05bf3",
+      "composer_json_sha256": "1bc82a5930f43c5747f25d10716b3b97f92fc5bd90d556c10965a50d0603b522",
+      "composer_lock_sha256": "683e42ba74c3911ac136470f33435fff282b563991123c472403e4ceab8fe68a",
+      "acquired": true,
+      "file_count": 4029,
+      "php_files": 3137,
+      "source_bytes": 213662779,
+      "skipped_archive_links": [],
+      "requests": {
+        "nearest": {
+          "target_major": 12,
+          "from_php": "8.2.0",
+          "target_php": "8.2.0"
+        },
+        "longest": {
+          "target_major": 13,
+          "from_php": "8.2.0",
+          "target_php": "8.3.0"
+        }
+      },
+      "snapshot_policy": "Archive regular files; symlinks omitted and listed explicitly; no application dependency installation or execution.",
+      "source_snapshot_sha256": "3cfa36b145dd24ce337ff9916ffd13b98a71868c1f96c77d59280d00bcaf274e",
+      "source_snapshot_algorithm": "r4-tree-v1",
+      "source_verification": "Full extracted regular-file bytes and directory shape rechecked against the original pinned archive digest before final campaign; listed symlinks omitted.",
+      "initial_extraction_file_count": 4029
+    },
+    {
+      "id": "akaunting",
+      "repository": "akaunting/akaunting",
+      "requested_ref": "3.1.0",
+      "kind": "accounting",
+      "commit": "465656fa69ab39ccd22a6aab93014f7e1aa81db8",
+      "eligible": true,
+      "locked_framework": "v10.25.2",
+      "php_constraint": "^8.1",
+      "locked_packages": 227,
+      "lock_bytes": 585811,
+      "source_url": "https://github.com/akaunting/akaunting/tree/465656fa69ab39ccd22a6aab93014f7e1aa81db8",
+      "archive_sha256": "01832d3e2ffd142b2b6315668698ca0a69574c81a56f4d511aa2c1b1ded2727f",
+      "composer_json_sha256": "3adce0abf547a515adba53d53a30cce1a4b203db78a7fa9369a003f471b97b94",
+      "composer_lock_sha256": "f417f4eb983a81f7c822d2a5c770bb7f7681ffa447e5ea7d5c80df5c99e8e630",
+      "acquired": true,
+      "file_count": 4119,
+      "php_files": 3734,
+      "source_bytes": 47449089,
+      "skipped_archive_links": [],
+      "requests": {
+        "nearest": {
+          "target_major": 11,
+          "from_php": "8.1.0",
+          "target_php": "8.2.0"
+        },
+        "longest": {
+          "target_major": 13,
+          "from_php": "8.1.0",
+          "target_php": "8.3.0"
+        }
+      },
+      "snapshot_policy": "Archive regular files; symlinks omitted and listed explicitly; no application dependency installation or execution.",
+      "source_snapshot_sha256": "e9da4cdb15378206626eca9eedf9172b4d0b0ac096a94f52d6d78d9f35cfa7ef",
+      "source_snapshot_algorithm": "r4-tree-v1",
+      "source_verification": "Full extracted regular-file bytes and directory shape rechecked against the original pinned archive digest before final campaign; listed symlinks omitted.",
+      "initial_extraction_file_count": 4119
+    },
+    {
+      "id": "monica",
+      "repository": "monicahq/monica",
+      "requested_ref": "v4.1.2",
+      "kind": "personal-crm",
+      "commit": "32028ce3ce79cef38df5d27a297e5b20680f0065",
+      "eligible": true,
+      "locked_framework": "v9.52.16",
+      "php_constraint": "^8.1",
+      "locked_packages": 264,
+      "lock_bytes": 745556,
+      "source_url": "https://github.com/monicahq/monica/tree/32028ce3ce79cef38df5d27a297e5b20680f0065",
+      "archive_sha256": "04eda71708df20cc6571d4021f90374c687b50af8d0af1f498d694e4dc0c57d3",
+      "composer_json_sha256": "dfe407f70715acbfde4a14c117e57656b2d0dd57abae4382cf576c746ba45427",
+      "composer_lock_sha256": "ef75658812f358512f3de7a7562249926749a8b51f0a445829f30dcc7c3d95fa",
+      "acquired": true,
+      "file_count": 1792,
+      "php_files": 1453,
+      "source_bytes": 10771941,
+      "skipped_archive_links": [],
+      "requests": {
+        "nearest": {
+          "target_major": 10,
+          "from_php": "8.1.0",
+          "target_php": "8.1.0"
+        },
+        "longest": {
+          "target_major": 13,
+          "from_php": "8.1.0",
+          "target_php": "8.3.0"
+        }
+      },
+      "snapshot_policy": "Archive regular files; symlinks omitted and listed explicitly; no application dependency installation or execution.",
+      "source_snapshot_sha256": "345ebdb85042bcfe7b6ef4f5a699f8e11a983b2ba02563eb129e0470d7a78622",
+      "source_snapshot_algorithm": "r4-tree-v1",
+      "source_verification": "Full extracted regular-file bytes and directory shape rechecked against the original pinned archive digest before final campaign; listed symlinks omitted.",
+      "initial_extraction_file_count": 1792
+    },
+    {
+      "id": "koel",
+      "repository": "koel/koel",
+      "requested_ref": "v7.0.0",
+      "kind": "music-streaming",
+      "commit": "ad9d1b57e15f1e14d915ac5c7ada7206bf9a3b71",
+      "eligible": true,
+      "locked_framework": "v10.48.8",
+      "php_constraint": ">=8.1",
+      "locked_packages": 178,
+      "lock_bytes": 474224,
+      "source_url": "https://github.com/koel/koel/tree/ad9d1b57e15f1e14d915ac5c7ada7206bf9a3b71",
+      "archive_sha256": "56694abb8c0d22d76181b8c584b61eb4526079b48f3030358c5bdeafac5bf43d",
+      "composer_json_sha256": "28ab0296fa28203739fb2db496c338d213c1147071209fc8726e15d0d8c1af63",
+      "composer_lock_sha256": "4de013cd497add4141065df33676c5cc2aca35ef08d8779239a2f68ca48caaf2",
+      "acquired": true,
+      "file_count": 1556,
+      "php_files": 642,
+      "source_bytes": 13935559,
+      "skipped_archive_links": [],
+      "requests": {
+        "nearest": {
+          "target_major": 11,
+          "from_php": "8.1.0",
+          "target_php": "8.2.0"
+        },
+        "longest": {
+          "target_major": 13,
+          "from_php": "8.1.0",
+          "target_php": "8.3.0"
+        }
+      },
+      "snapshot_policy": "Archive regular files; symlinks omitted and listed explicitly; no application dependency installation or execution.",
+      "source_snapshot_sha256": "a38cd344634f566312dbacb7e57ea4e4fe712fb8cc91a6cb43949d91242883d8",
+      "source_snapshot_algorithm": "r4-tree-v1",
+      "source_verification": "Full extracted regular-file bytes and directory shape rechecked against the original pinned archive digest before final campaign; listed symlinks omitted.",
+      "initial_extraction_file_count": 1555,
+      "case_sensitive_directories": [
+        "tests/songs/subdir"
+      ]
+    },
+    {
+      "id": "bagisto",
+      "repository": "bagisto/bagisto",
+      "requested_ref": "v2.2.0",
+      "kind": "ecommerce",
+      "commit": "8c33fbbd89b64043d98697f5590d6de658a9241b",
+      "eligible": true,
+      "locked_framework": "v10.41.0",
+      "php_constraint": "^8.1",
+      "locked_packages": 198,
+      "lock_bytes": 515544,
+      "source_url": "https://github.com/bagisto/bagisto/tree/8c33fbbd89b64043d98697f5590d6de658a9241b",
+      "archive_sha256": "a156553cbf1df7341335fdfeb7c1c3777d973fb602781709e3a3752fe3590b26",
+      "composer_json_sha256": "20e41cc25f4c47f79a3500d07cb60522c1e22f3ea354da8a2c16935b851ef4d5",
+      "composer_lock_sha256": "62d169861caa5a49311cb19f41979efa357f8d944b108d96ca555be4e187a11f",
+      "acquired": true,
+      "file_count": 2399,
+      "php_files": 2050,
+      "source_bytes": 59305132,
+      "skipped_archive_links": [],
+      "requests": {
+        "nearest": {
+          "target_major": 11,
+          "from_php": "8.1.0",
+          "target_php": "8.2.0"
+        },
+        "longest": {
+          "target_major": 13,
+          "from_php": "8.1.0",
+          "target_php": "8.3.0"
+        }
+      },
+      "snapshot_policy": "Archive regular files; symlinks omitted and listed explicitly; no application dependency installation or execution.",
+      "source_snapshot_sha256": "448baa884e7d25493dc83de02be37dc949084ce7b502dd9d97ca9b5998fb44ae",
+      "source_snapshot_algorithm": "r4-tree-v1",
+      "source_verification": "Full extracted regular-file bytes and directory shape rechecked against the original pinned archive digest before final campaign; listed symlinks omitted.",
+      "initial_extraction_file_count": 2399
+    },
+    {
+      "id": "firefly",
+      "repository": "firefly-iii/firefly-iii",
+      "requested_ref": "v6.2.0",
+      "kind": "personal-finance",
+      "commit": "cd0201074c6e2ea4ea6a0353a05c893f7d9655a3",
+      "eligible": true,
+      "locked_framework": "v11.41.3",
+      "php_constraint": ">=8.4",
+      "locked_packages": 180,
+      "lock_bytes": 479285,
+      "source_url": "https://github.com/firefly-iii/firefly-iii/tree/cd0201074c6e2ea4ea6a0353a05c893f7d9655a3",
+      "archive_sha256": "05cb327ed2e716e20e431ad9f023cc8afb64ac0b6b39f3ed4bf9ea674c5989f7",
+      "composer_json_sha256": "5041268bf1e9e980720b4851fbc40426c7e8693df5b97b44c4229bb7b83ef21a",
+      "composer_lock_sha256": "dcd60f00913c6ff6b4234aba4cf479d88af7b2053e811e3775a5b710eaf19082",
+      "acquired": true,
+      "file_count": 2352,
+      "php_files": 1425,
+      "source_bytes": 22017280,
+      "skipped_archive_links": [],
+      "requests": {
+        "nearest": {
+          "target_major": 12,
+          "from_php": "8.4.0",
+          "target_php": "8.4.0"
+        },
+        "longest": {
+          "target_major": 13,
+          "from_php": "8.4.0",
+          "target_php": "8.4.0"
+        }
+      },
+      "snapshot_policy": "Archive regular files; symlinks omitted and listed explicitly; no application dependency installation or execution.",
+      "source_snapshot_sha256": "ad214ffdb75e769804e34e60cc5c33f5683ba603fbe50fe8958df2956da037d4",
+      "source_snapshot_algorithm": "r4-tree-v1",
+      "source_verification": "Full extracted regular-file bytes and directory shape rechecked against the original pinned archive digest before final campaign; listed symlinks omitted.",
+      "initial_extraction_file_count": 2352
+    }
+  ],
+  "supplemental_projects": [
+    {
+      "id": "monica7",
+      "repository": "monicahq/monica",
+      "requested_ref": "v2.19.1",
+      "kind": "supplemental-six-hop-personal-crm",
+      "commit": "6d809fda1d59048521c6d5c7e8c3306039b18d4c",
+      "eligible": true,
+      "locked_framework": "v7.28.1",
+      "php_constraint": "^7.2.5",
+      "locked_packages": 251,
+      "lock_bytes": 606052,
+      "source_url": "https://github.com/monicahq/monica/tree/6d809fda1d59048521c6d5c7e8c3306039b18d4c",
+      "archive_sha256": "70e9c3253a8ba60f5ced254119d3685d556541d6349c0d35c96da40853d15e8e",
+      "composer_json_sha256": "890761dd30d85fc80bbe4e4ed465182a0d5d0e021e0c44bf0892761db64f27cd",
+      "composer_lock_sha256": "3a060aa6703d61c0203a00636d3d1207c8c37c604c5024bbb72f876e510c0014",
+      "acquired": true,
+      "file_count": 1946,
+      "php_files": 1524,
+      "source_bytes": 17487263,
+      "skipped_archive_links": [],
+      "requests": {
+        "longest": {
+          "target_major": 13,
+          "from_php": "7.4.0",
+          "target_php": "8.3.0"
+        }
+      },
+      "supplemental": true,
+      "snapshot_policy": "Archive regular files; symlinks omitted and listed explicitly; no application execution.",
+      "source_snapshot_sha256": "9559094a393c5fb0862f78e646877cddb0ec2f22856aa15f8f4018299f4119a7",
+      "source_snapshot_algorithm": "r4-tree-v1",
+      "source_verification": "Full extracted regular-file bytes and directory shape rechecked against the original pinned archive digest before final campaign; listed symlinks omitted.",
+      "initial_extraction_file_count": 1946,
+      "case_sensitive_directories": [
+        "tests"
+      ]
+    }
+  ]
+}

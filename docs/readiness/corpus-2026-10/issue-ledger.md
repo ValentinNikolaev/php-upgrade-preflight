@@ -1,0 +1,18 @@
+# Corpus issue ledger
+
+The report baseline is `6a2251901725321d4206e008ac42205b32ddfa8d`. Reports remain unchanged after repairs. IDs below point to independent claim reviews; repeated manifestations are not counted as new defect families.
+
+| Finding | Observed consequence | Disposition and evidence |
+| --- | --- | --- |
+| A001: copied blocker ancestry | A displayed dependency path could borrow ancestry from a different cause. | PR 45 restricts paths to the cause and uniquely supported incoming REQUIRES edges. [Review A](case-review-a.md), [engineering review](engineering-review.md). |
+| A002: irrelevant candidate conflict | A candidate conflict not overlapping the requested target could be treated as active. | PR 45 filters disjoint conflicts; uncertain interpretation remains qualified. [Review A](case-review-a.md). |
+| A003: borrowed requested constraint | A diagnostic dependency edge could inherit the parent package's requested constraint. | PR 45 preserves the edge's own subject and constraint. [Review A](case-review-a.md). |
+| C009: candidate presented as locked | Firefly's report called candidate `jc5/google2fa-laravel` 2.0.10 locked; the pinned lock contains v2.0.8. | PR 47 requires matching lock provenance and exact package tokens. Broader candidate/advisory causal interpretation remains outside this repair. [Review C](case-review-c.md). |
+| Warm-cache ownership | Three normal warm runs returned operational unknown after host copying changed Linux ownership of Git mirrors. | Original timings excluded from ordinary warm comparisons. PR 48 provides a separately reviewed versioned runtime-user seeding repair and passing offline regressions; no post-repair public analyses or performance observations. [Results](results.md). |
+| Bagisto source selection | Conventional default paths omitted 31 Webkul source roots; only 598 usages were retained. | Documented selection limitation: callers can repeat `--source=PATH`. No claim of whole-application coverage or recall. [Review C](case-review-c.md), [contract](../../v0.3-contract.md). |
+| Source cap and absent runtime evidence | Many projects reached 10,000 usages; applications, vendor execution and tests were not exercised. | Recall, runtime compatibility and complete upgrade safety remain unknown. [Protocol](protocol.md), [case reviews](README.md#reading-the-artifacts). |
+| Advisory report-size targets exceeded | All 30 primary JSON and Markdown files exceed their respective 512 KiB and 256 KiB advisory targets. | Retain complete evidence and report the exceedance. Reading cost and whether a presentation change improves decisions require actual R3 observations; no enforced cap or measured benefit is claimed. [Results](results.md#observed-memory-and-report-maxima-over-each-primary-triplet). |
+| Historical memory exhaustion | Earlier Lychee 128 MiB exhaustion did not recur under the frozen PHP 8.3 setup. | Both controlled memory probes completed; original cause unresolved, no general 128 MiB guarantee. [Results](results.md#controlled-probes). |
+| Successful longest chain absent | Monica 7 requested six transitions, but the first blocked and five were skipped. | Successful six-hop operational cost remains open. [Results](results.md#supplemental-six-hop-request). |
+
+R3 engineering exercise keys are prepared, but participant comprehension, paired planning benefit and voluntary reuse are UNAVAILABLE. Maintainer capacity above five hours/week is a user statement, not measured consumption. Symfony-owner cases, monetary cost and observed maintenance hours remain unavailable. See [R3 materials](r3-engineering-materials.md), [CI scenarios](ci-cost.md), and the dated [direction](../release-direction.md).

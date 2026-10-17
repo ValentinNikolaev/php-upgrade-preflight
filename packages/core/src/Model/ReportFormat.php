@@ -8,6 +8,7 @@ final class ReportFormat
 {
     public const JSON = 'json';
     public const MARKDOWN = 'markdown';
+    public const SUMMARY = 'summary';
 
     public static function normalize(string $format): string
     {
@@ -18,5 +19,10 @@ final class ReportFormat
         }
 
         return $format;
+    }
+
+    public static function normalizePresentation(string $format): string
+    {
+        return strtolower(trim($format)) === self::SUMMARY ? self::SUMMARY : self::normalize($format);
     }
 }

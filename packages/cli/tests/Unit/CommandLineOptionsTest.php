@@ -18,7 +18,7 @@ final class CommandLineOptionsTest extends TestCase
             array_keys(CommandLineOptions::defaults())
         );
         self::assertSame(
-            [null, [], null, null, [], [], 'json', null, false],
+            [null, [], null, null, [], [], 'summary', null, false],
             array_values(CommandLineOptions::defaults())
         );
     }

@@ -418,19 +418,23 @@ final class WizardCommand implements CommandRunner
     private function chooseReportFormat(): string
     {
         $this->write("\nWhich report format should be printed to the terminal?\n");
-        $this->write("  1) Markdown (default)\n");
+        $this->write("  1) Summary (default)\n");
         $this->write("  2) JSON\n");
+        $this->write("  3) Markdown (full details)\n");
 
         while (true) {
             $answer = strtolower($this->prompt('Choose [1]: '));
-            if ($answer === '' || in_array($answer, ['1', 'markdown', 'md'], true)) {
-                return ReportFormat::MARKDOWN;
+            if ($answer === '' || in_array($answer, ['1', 'summary'], true)) {
+                return ReportFormat::SUMMARY;
             }
             if (in_array($answer, ['2', 'json'], true)) {
                 return ReportFormat::JSON;
             }
+            if (in_array($answer, ['3', 'markdown', 'md'], true)) {
+                return ReportFormat::MARKDOWN;
+            }
 
-            $this->write("Choose markdown or json.\n");
+            $this->write("Choose summary, json, or markdown.\n");
         }
     }
 

@@ -251,6 +251,10 @@ Raw `candidate_lock.sha256` and Composer `content_hash` are workspace-local Comp
 
 Top-level `blockers[]` belongs to direct final-target analysis. A blocker records type, subject, requested constraint, blocking package/version or conflict, dependency path, options, summary, confidence, and evidence.
 
+Dependency paths follow the blocking relation and its observed requirement ancestry. An ambiguous ancestry stops at the known path suffix; a conflict, replace, or provide rule does not establish a parent dependency. Diagnostics containing only candidate requirements or unrelated relations remain unclassified instead of assigning a package blocker. A diagnostic conflict rule must overlap the requested dependency range to identify a blocker.
+
+Unreleased provenance repair: `locked_version` is nullable. A candidate mentioned by Composer is not necessarily locked. The analyzer verifies the version against the current analysis state's lock; without that context it requires an explicit matching package/version lock notice. Later stages use their own candidate-state lock. Unknown provenance stays null, and a candidate's requirements must not be attributed to a different locked version. This does not turn advisory exclusions into proof of a package-constraint contradiction.
+
 This shortened demo blocker uses exact values:
 
 ```json

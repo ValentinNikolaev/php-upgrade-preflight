@@ -60,6 +60,17 @@ final class StageAttempt
         return $this->number;
     }
 
+    public function selected(): bool
+    {
+        return $this->selected;
+    }
+
+    /** @return list<RootConstraintChange> */
+    public function rootConstraintChanges(): array
+    {
+        return $this->rootConstraintChanges;
+    }
+
     public function scenario(): ScenarioResult
     {
         return $this->scenario;

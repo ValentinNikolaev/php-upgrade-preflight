@@ -112,6 +112,11 @@ final class StageBlockerEntry
         return $this->blocker->summary();
     }
 
+    public function blocker(): Blocker
+    {
+        return $this->blocker;
+    }
+
     /** @return list<string> */
     public function options(): array
     {
@@ -284,6 +289,7 @@ final class StageBlockerEntry
             $blocker->blocker(),
             $blocker->conflict(),
             $blocker->dependencyPath(),
+            ...$blocker->explanationIdentity(),
         ]));
     }
 
@@ -295,6 +301,7 @@ final class StageBlockerEntry
             $blocker->subject(),
             $blocker->blocker(),
             $blocker->dependencyPath(),
+            ...$blocker->explanationIdentity(),
         ]));
     }
 }

@@ -48,7 +48,7 @@
               "subject": "php",
               "requested_constraint": "8.2.0",
               "blocker": "vendor/framework",
-              "locked_version": "2.0.0",
+              "locked_version": null,
               "conflict": "^7.4",
               "dependency_path": ["vendor/framework", "php"]
             }
@@ -73,7 +73,7 @@
               "subject": "vendor/dependency",
               "requested_constraint": "^2.0",
               "blocker": "vendor/legacy",
-              "locked_version": "1.5.0",
+              "locked_version": null,
               "conflict": "^1.0",
               "dependency_path": ["vendor/framework", "vendor/legacy", "vendor/dependency"]
             }
@@ -102,7 +102,7 @@
               "subject": "ext-intl",
               "requested_constraint": null,
               "blocker": "vendor/framework",
-              "locked_version": "3.0.0",
+              "locked_version": null,
               "conflict": "*",
               "dependency_path": ["vendor/framework", "ext-intl"]
             }
@@ -127,7 +127,7 @@
               "subject": "php",
               "requested_constraint": "8.2.0",
               "blocker": "root/project",
-              "locked_version": "dev-main",
+              "locked_version": null,
               "conflict": "~8.1.0",
               "dependency_path": ["root/project", "php"]
             }
@@ -181,7 +181,7 @@
               "subject": "fixture/dependency",
               "requested_constraint": "^2.0",
               "blocker": "fixture/blocker",
-              "locked_version": "1.2.3",
+              "locked_version": null,
               "conflict": "^1.0",
               "dependency_path": ["root/project", "fixture/blocker", "fixture/dependency"]
             }
@@ -219,7 +219,7 @@
               "subject": "ext-redis",
               "requested_constraint": null,
               "blocker": "vendor/second",
-              "locked_version": "2.0.0",
+              "locked_version": null,
               "conflict": "^6.0",
               "dependency_path": ["vendor/second", "ext-redis"]
             }
