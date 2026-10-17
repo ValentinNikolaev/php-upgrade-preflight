@@ -23,6 +23,8 @@ This project follows [Semantic Versioning](https://semver.org/). Report schema v
 
 ### Fixed
 
+- Distinguish proven incompatible Composer edges from compatible requirements or locked-package notices in a failed dependency chain. Preserve advisory-policy rejections and unresolved causes instead of attributing them to an unsupported package constraint.
+- Keep material source-retention and discovery caps visible in the compact summary alongside missing-root and parse warnings, with recorded units and evidence references.
 - Keep blocker `locked_version` unknown when a solver relation names an unverified candidate, using the current attempt's lock as provenance and retaining explicit locked-package evidence without borrowing another version's requirements.
 - Anchor Composer blocker paths to the reported blocking relation and follow only unambiguous requirement ancestry. Keep unrelated or candidate-only diagnostics unclassified, and ignore diagnostic conflict ranges that exclude none of the requested dependency versions.
 - Preserve empty and numeric-key JSON objects in temporary Composer manifests and carried candidate states, so valid maps such as `require: {}` are not rewritten as schema-invalid lists.

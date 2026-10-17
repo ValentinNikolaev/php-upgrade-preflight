@@ -14,6 +14,7 @@ PHP Upgrade Preflight is a public-beta planning tool that predicts dependency an
 - Candidate lockfiles produced by direct scenarios and staged attempts report the same omissions separately, because a candidate lock is discarded with its workspace. Their published package counts and the package changes derived from them exclude the skipped entries, while the recorded candidate-lock hash still covers the whole file.
 - Partial platform and staged probes provide ordering evidence. Only full-target scenarios determine combined feasibility, and only a complete profile can support the narrower cross-host platform-decision reproducibility claim.
 - Composer output changes can reduce blocker parsing confidence. The report retains bounded, redacted excerpts and uncertainty. Redaction deliberately removes whole URLs and known credential forms, so diagnostic text may be less specific.
+- A package mentioned in a failed dependency chain or a locked-package notice is not by itself a proven incompatible edge. Compatible recorded requirements can still participate in an unsuccessful solve. Unresolved chains retain an unclassified cause; recorded security-advisory policy rejections remain policy failures, rather than advice to change an unrelated package or bypass the policy.
 
 ## Source inspection
 

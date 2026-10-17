@@ -34,7 +34,11 @@ locations and framework guidance, with one of each when both are present. The
 original source snapshot remains explicit. Incomplete framework coverage, source
 omissions, input drift, real operational failures and unmodeled platform limits
 remain visible. Recorded uncertainty categories each retain a representative
-and discovery of additional entries. Routine Composer execution policy stays in
+and a count of additional entries. Usage, file-count, per-file-byte,
+aggregate-byte and autoload-metadata-path caps each have a separate bounded
+representative, so a missing directory or parse warning cannot hide a material
+cap. Omitted usages are source observations, not measured missed defects.
+Routine Composer execution policy stays in
 full details; one application-compatibility qualification ends the summary.
 No inventory, transcripts or heuristic effort hours appear by default. Lines are
 limited to 320 bytes after complete-value credential/path redaction and
