@@ -15,6 +15,7 @@ use PhpUpgradePreflight\Core\Model\PlanStage;
 use PhpUpgradePreflight\Core\Model\ProjectState;
 use PhpUpgradePreflight\Core\Model\RiskSummary;
 use PhpUpgradePreflight\Core\Model\RootConstraintChange;
+use PhpUpgradePreflight\Core\Model\SourceUsage;
 use PhpUpgradePreflight\Core\Model\UpgradeReport;
 use PhpUpgradePreflight\Core\Model\UpgradeRequest;
 use PhpUpgradePreflight\Core\Model\UpgradeTarget;
@@ -110,6 +111,80 @@ final class UpgradeReportEvidenceTest extends TestCase
         );
     }
 
+    /** @dataProvider uncertaintyReferenceCases */
+    public function testUncertaintyEvidenceMatchingPreservesLiteralAsciiBoundaries(string $id, string $text, bool $matches): void
+    {
+        if (!$matches) {
+            $this->expectException(\LogicException::class);
+            $this->expectExceptionMessage('Orphaned evidence');
+        }
+
+        $report = $this->report([], [new Evidence($id, Evidence::E3_PROJECT_SOURCE, 'Parse failure.')], [$text]);
+
+        self::assertSame($id, $report->evidence()[0]->id());
+        self::assertContains($text, $report->uncertainties());
+    }
+
+    /** @return iterable<string, array{string, string, bool}> */
+    public static function uncertaintyReferenceCases(): iterable
+    {
+        yield 'punctuation boundaries' => ['source-1', 'Parse failure (source-1).', true];
+        yield 'duplicate mentions' => ['source-1', 'source-1; source-1', true];
+        yield 'unicode boundaries' => ['source-1', 'éSource-1; ésource-1文', true];
+        yield 'underscore and hyphen' => ['source_1-2', '[source_1-2]', true];
+        yield 'numeric ID' => ['123', '(123)', true];
+        yield 'suffix is not a boundary' => ['source-1', 'source-10', false];
+        yield 'prefix is not a boundary' => ['source-1', 'xsource-1', false];
+        yield 'underscore is not a boundary' => ['source-1', '_source-1', false];
+        yield 'hyphen is not a boundary' => ['source-1', 'source-1-extra', false];
+        yield 'case remains significant' => ['source-1', 'SOURCE-1', false];
+        yield 'empty text' => ['source-1', '', false];
+        yield 'non-token literal ID' => ['source:1', '(source:1)', true];
+        yield 'non-token ID substring rejected' => ['source:1', '(source:10)', false];
+        yield 'regex syntax is literal' => ['source.+[1]', '(source.+[1])', true];
+        yield 'regex syntax is not a pattern' => ['source.+[1]', 'sourceXX1', false];
+        yield 'unicode ID' => ['source-é', '(source-é)', true];
+        yield 'newline ID' => ["source\n1", "(source\n1)", true];
+    }
+
+    public function testInventoryValidationPreservesEvidenceAndOccurrenceOrderWithoutMutatingInputs(): void
+    {
+        $first = new Evidence('source-2', Evidence::E3_PROJECT_SOURCE, 'Second ID first.');
+        $second = new Evidence('source-1', Evidence::E3_PROJECT_SOURCE, 'First ID second.');
+        $usages = [
+            new SourceUsage('app/B.php', 'App\\B', 'import', ['source-2', 'source-1', 'source-2'], 7),
+            new SourceUsage('app/A.php', 'App\\A', 'import', ['source-1'], 4),
+        ];
+        $expected = array_map(static fn (SourceUsage $usage): array => $usage->toArray(), $usages);
+        $report = $this->report([], [$first, $second], ['References source-1 and source-2.'], sourceInventory: $usages);
+
+        self::assertSame($usages, $report->sourceInventory());
+        self::assertSame([$first, $second], $report->evidence());
+        self::assertSame($expected, $report->toArray()['source_inventory']);
+        self::assertSame(['source-2', 'source-1'], array_column($report->toArray()['evidence'], 'id'));
+        self::assertSame($expected, array_map(static fn (SourceUsage $usage): array => $usage->toArray(), $usages));
+    }
+
+    public function testLaterInventoryReferencesCannotHideMissingEvidence(): void
+    {
+        $this->expectException(\LogicException::class);
+        $this->expectExceptionMessage('missing-1');
+        $this->report([], [new Evidence('source-1', Evidence::E3_PROJECT_SOURCE, 'Usage.')], sourceInventory: [
+            new SourceUsage('app/A.php', 'App\\A', 'import', ['source-1'], 4),
+            new SourceUsage('app/B.php', 'App\\B', 'import', ['missing-1'], 7),
+        ]);
+    }
+
+    public function testEmptyInventoryReferencesAreRejectedAfterEarlierValidReferences(): void
+    {
+        $this->expectException(\LogicException::class);
+        $this->expectExceptionMessage('Source inventory item at index 1 must reference at least one evidence item.');
+        $this->report([], [new Evidence('source-1', Evidence::E3_PROJECT_SOURCE, 'Usage.')], sourceInventory: [
+            new SourceUsage('app/A.php', 'App\\A', 'import', ['source-1'], 4),
+            new SourceUsage('app/B.php', 'App\\B', 'import', [], 7),
+        ]);
+    }
+
     /**
      * @param list<Blocker> $blockers
      * @param list<Evidence> $evidence
@@ -117,6 +192,7 @@ final class UpgradeReportEvidenceTest extends TestCase
      * @param list<RootConstraintChange> $rootConstraintChanges
      * @param list<PlanStage> $planStages
      * @param list<CompatibilityFinding> $frameworkFindings
+     * @param list<SourceUsage> $sourceInventory
      */
     private function report(
         array $blockers,
@@ -124,7 +200,8 @@ final class UpgradeReportEvidenceTest extends TestCase
         array $uncertainties = [],
         array $rootConstraintChanges = [],
         array $planStages = [],
-        array $frameworkFindings = []
+        array $frameworkFindings = [],
+        array $sourceInventory = []
     ): UpgradeReport {
         $projectPath = dirname(__DIR__, 5);
         $request = new UpgradeRequest($projectPath, [new UpgradeTarget('fixture/dependency', '^2.0')]);
@@ -135,7 +212,7 @@ final class UpgradeReportEvidenceTest extends TestCase
             [],
             new LockDiff([]),
             $blockers,
-            [],
+            $sourceInventory,
             $frameworkFindings,
             new RiskSummary('low', []),
             new EffortEstimate([0, 0], 'high', [], []),

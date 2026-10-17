@@ -304,29 +304,29 @@ final class UpgradeReport
         $references = [];
 
         foreach ($this->blockers as $index => $blocker) {
-            $references = $this->appendFindingReferences($references, $blocker->evidence(), sprintf('Blocker at index %d', $index));
+            $this->appendFindingReferences($references, $blocker->evidence(), sprintf('Blocker at index %d', $index));
         }
 
         foreach ($this->sourceImpact as $index => $usage) {
-            $references = $this->appendFindingReferences($references, $usage->evidence(), sprintf('Source inventory item at index %d', $index));
+            $this->appendFindingReferences($references, $usage->evidence(), sprintf('Source inventory item at index %d', $index));
         }
 
         foreach ($this->actionableSourceImpact as $index => $finding) {
-            $references = $this->appendFindingReferences($references, $finding->evidence(), sprintf('Source impact at index %d', $index));
+            $this->appendFindingReferences($references, $finding->evidence(), sprintf('Source impact at index %d', $index));
         }
 
         foreach ($this->frameworkFindings as $index => $finding) {
-            $references = $this->appendFindingReferences($references, $finding->evidence(), sprintf('Framework finding at index %d', $index));
+            $this->appendFindingReferences($references, $finding->evidence(), sprintf('Framework finding at index %d', $index));
         }
 
         foreach ($this->frameworkGuidance as $index => $guidance) {
-            $references = $this->appendFindingReferences(
+            $this->appendFindingReferences(
                 $references,
                 $guidance->evidence(),
                 sprintf('Framework guidance at index %d', $index)
             );
             foreach ($guidance->hops() as $hopIndex => $hop) {
-                $references = $this->appendFindingReferences(
+                $this->appendFindingReferences(
                     $references,
                     $hop->evidence(),
                     sprintf('Framework guidance hop at index %d:%d', $index, $hopIndex)
@@ -335,16 +335,33 @@ final class UpgradeReport
         }
 
         foreach ($this->rootConstraintChanges as $index => $change) {
-            $references = $this->appendFindingReferences($references, $change->evidence(), sprintf('Root constraint change at index %d', $index));
+            $this->appendFindingReferences($references, $change->evidence(), sprintf('Root constraint change at index %d', $index));
         }
 
         $references = array_values(array_merge($references, $this->stagedResolution->evidenceReferences()));
 
         foreach ($this->planStages as $index => $stage) {
-            $references = $this->appendFindingReferences($references, $stage->evidence(), sprintf('Plan stage at index %d', $index));
+            $this->appendFindingReferences($references, $stage->evidence(), sprintf('Plan stage at index %d', $index));
+        }
+
+        $uncertaintyTokens = [];
+        foreach ($this->uncertainties as $uncertainty) {
+            preg_match_all('/[A-Za-z0-9_-]+/', $uncertainty, $matches);
+            foreach ($matches[0] as $token) {
+                $uncertaintyTokens[$token] = true;
+            }
         }
 
         foreach ($this->evidence as $evidence) {
+            // These are exactly the tokens delimited by containsEvidenceReference().
+            // Unusual externally supplied IDs retain the original literal matching.
+            if (preg_match('/\A[A-Za-z0-9_-]+\z/', $evidence->id()) === 1) {
+                if (isset($uncertaintyTokens[$evidence->id()])) {
+                    $references[] = $evidence->id();
+                }
+                continue;
+            }
+
             foreach ($this->uncertainties as $uncertainty) {
                 if ($this->containsEvidenceReference($uncertainty, $evidence->id())) {
                     $references[] = $evidence->id();
@@ -424,9 +441,8 @@ final class UpgradeReport
     /**
      * @param list<string> $references
      * @param list<string> $findingReferences
-     * @return list<string>
      */
-    private function appendFindingReferences(array $references, array $findingReferences, string $description): array
+    private function appendFindingReferences(array &$references, array $findingReferences, string $description): void
     {
         if ($findingReferences === []) {
             throw new \LogicException($description . ' must reference at least one evidence item.');
@@ -435,8 +451,6 @@ final class UpgradeReport
         foreach ($findingReferences as $reference) {
             $references[] = $reference;
         }
-
-        return array_values($references);
     }
 
     private function containsEvidenceReference(string $text, string $id): bool
