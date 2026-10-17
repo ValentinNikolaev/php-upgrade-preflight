@@ -3,9 +3,10 @@
 Integration status: all four initial components reviewed, green and merged into
 the optimization branch; combined local gates and independent code review passed.
 A subsequent semantic review of actual public-case reports found two remaining
-correctness defects. Both corrections now have independent approval; final-head
-CI for PR54, integration and fresh measurements remain. No release or main merge
-is authorized here.
+correctness defects. Both corrections have independent approval, 19/19 final-head
+CI, and signed integration merges; the corrected combined local gate passed.
+Fresh measurements and the final aggregation review/CI remain. No release or
+main merge is authorized here.
 
 ## Component acceptance
 
@@ -23,7 +24,7 @@ and coordinator commits use verified Git signatures.
 | [PR51: source facts and discovery](https://github.com/ValentinNikolaev/php-upgrade-preflight/pull/51) | `f57c37eed8eb0a5091082feb5173c472852dd92e` | APPROVE after both vendor-boundary corrections | [19/19 successful](https://github.com/ValentinNikolaev/php-upgrade-preflight/actions/runs/39028079853) |
 | [PR52: measurement controls](https://github.com/ValentinNikolaev/php-upgrade-preflight/pull/52) | `1ab5fc1b0f36e5619c695b0aa8da322eb50c7859` | APPROVE | [19/19 successful](https://github.com/ValentinNikolaev/php-upgrade-preflight/actions/runs/39026343070) |
 | [PR53: visible source caps](https://github.com/ValentinNikolaev/php-upgrade-preflight/pull/53) | `45e825178f089634a47b1830a6995c0204db7884` | APPROVE; real omitted-usage warnings and five cap kinds verified | [19/19 successful](https://github.com/ValentinNikolaev/php-upgrade-preflight/actions/runs/39032483143) |
-| [PR54: proved causes and retained policy reasons](https://github.com/ValentinNikolaev/php-upgrade-preflight/pull/54) | `45555c245741defed4134b4582978dc048576204` | APPROVE after mixed-cause, grouping and legacy-ID corrections | [Pending](https://github.com/ValentinNikolaev/php-upgrade-preflight/actions/runs/39034323229) |
+| [PR54: proved causes and retained policy reasons](https://github.com/ValentinNikolaev/php-upgrade-preflight/pull/54) | `45555c245741defed4134b4582978dc048576204` | APPROVE after mixed-cause, grouping and legacy-ID corrections | [19/19 successful](https://github.com/ValentinNikolaev/php-upgrade-preflight/actions/runs/39034323229) |
 
 Review receipts and exact scope are recorded in the linked PR comments. Complete
 local reports remain under the task-owned OS temporary directory, not a new
@@ -49,8 +50,8 @@ old-behavior failures and checked the exact Lychee/Snipe-IT cap strings. PR54's
 final reviewer passed 144 tests / 1,617 assertions on PHP 8.3, 13 tests / 139
 assertions on PHP 8.0 and 16 independent probe checks. Its author passed the
 final-head 1,577-unit-test PCOV run / 12,005 assertions, with the unchanged ratchet
-at 12,993 / 13,451 executable lines. These are scoped component checks; the new
-integrated gate remains separate. Review dispositions do not imply GitHub thread
+at 12,993 / 13,451 executable lines. These are scoped component checks; the
+integrated gate below is separate. Review dispositions do not imply GitHub thread
 resolution or application compatibility.
 
 PR50 independently passed 27 unit cases / 501 assertions and four integration
@@ -85,6 +86,19 @@ The independent initial combined code review approved the complete 75-path
 optimization diff against trusted baseline `2a0b01ad`, at `b6f24fe`. The later
 public-case semantic review still exposed the corrections above. That initial
 approval is not substituted for review and verification of the final composition.
+
+PR53 and PR54 were integrated only after both exact heads had independent
+approval and all 19 respective Quality jobs succeeded. Their signed merge
+commits are `a8f814fcec8b0d7610db7baefe59f5b55367767f` and
+`e275f1498b0ea6b4cc7bb97dc253318fb3755bdf`; no merge conflict occurred.
+At the latter corrected runtime, Docker PHP 8.5 `composer check` passed:
+**1,585 unit tests / 12,133 assertions, 112 integration tests / 6,305 assertions,
+two smoke tests / five assertions**, manifests, Wiki checks, both PHPStan
+configurations (394 development / 217 production paths) and formatting across
+395 files. Both previously failing frozen Laravel fixtures pass unchanged.
+The tracked tree stayed clean, and the disposable gate container was removed.
+The gate receipt is retained as OS-temp `final-integration-check.log`; subsequent
+documentation-only acceptance updates do not change this tested runtime.
 
 The actual Docker harness also passed its two selected controls against this
 combined runtime: private source facts persisted across two containers with

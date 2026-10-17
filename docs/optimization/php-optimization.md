@@ -1,9 +1,9 @@
 # PHP optimization: execution and acceptance
 
 Status: initial implementation and combined local gates passed; semantic corpus
-review exposed causal-attribution and summary-limit defects. Corrections now
-have independent approval; final CI, integration and a fresh controlled
-measurement are in progress. Authorized 2026-10-17. No release is prepared.
+review exposed causal-attribution and summary-limit defects. Corrections have
+independent approval, green final-head CI and a passing integrated local gate;
+fresh controlled measurement is next. Authorized 2026-10-17. No release is prepared.
 
 The ordinary result must answer three questions: what prevents the requested
 upgrade, what the owner can do next, and which parts of that answer remain
@@ -38,10 +38,10 @@ of the changed default. R3 participant benefit and demand remain unmeasured.
 | Step | Deliverable | Acceptance evidence | Status |
 | --- | --- | --- | --- |
 | O1 | Bounded human summary by default in CLI, Artisan and the normal wizard flow; full JSON/Markdown requested explicitly | Correct actions and qualifications for blocked, feasible, unknown, advisory-only, partial-source and direct/staged disagreement; no entire inventory serialization for summary | Implemented; component review/CI and combined local gate passed |
-| O2 | Grouped explanations with specific safe actions and accurate verification status | Every material recommendation has supporting evidence; hypothetical candidates are not represented as checked repairs; maintenance advisories do not become blockers | Causal and explanation-retention corrections independently approved; final CI and integration pending |
+| O2 | Grouped explanations with specific safe actions and accurate verification status | Every material recommendation has supporting evidence; hypothetical candidates are not represented as checked repairs; maintenance advisories do not become blockers | Causal and explanation-retention corrections independently approved, CI green and integrated gate passed; fresh corpus validation pending |
 | O3 | Adaptive standard execution and an explicit exhaustive alternative | Exact-target failure cannot suppress a successful dependency-expansion path; requested stage chains and honest unknowns remain; executed work is inspectable | Implemented; component review/CI and combined local gate passed |
 | O4 | Measured phases and equivalent Composer-result reuse | Fewer actual subprocesses in deterministic cases; relevant state/configuration changes prevent reuse; cached and uncached semantic conclusions agree | Implemented with O3; same gates passed |
-| O5 | Persistent source-fact reuse, safe source discovery and visible omissions | Unchanged files avoid reparsing; edits/additions/deletions and changed collectors invalidate appropriately; corrupt/unavailable cache falls back; source coverage and mutation checks remain | Cache/discovery gates passed; cap-summary correction independently approved and CI green; integrated retest pending |
+| O5 | Persistent source-fact reuse, safe source discovery and visible omissions | Unchanged files avoid reparsing; edits/additions/deletions and changed collectors invalidate appropriately; corrupt/unavailable cache falls back; source coverage and mutation checks remain | Cache/discovery and cap-summary corrections reviewed, CI green and integrated gate passed; controlled cache measurements pending |
 | O6 | Controlled before/after measurement and a readable outcome | Corrected baseline and candidate identified separately; results explain improvements, regressions, remaining limitations and failed targets | Partial pre-fix series stopped after 25 completed invocations; retained as diagnostics, excluded from final statistics; fresh 43-invocation series required |
 
 O1/O2, O3/O4 and O5 may proceed independently in separate checkouts. Integration

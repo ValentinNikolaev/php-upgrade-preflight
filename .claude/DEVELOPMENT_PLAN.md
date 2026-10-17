@@ -4,7 +4,7 @@ Last updated: 2026-10-17
 
 - Released baseline: `0.3.5` (published 2026-10-07 Europe/Rome; 2026-10-06 at 23:03:05 UTC)
 - Released report schema: `0.8`
-- Immediate work: finish final CI/integration for the independently reviewed causal-attribution and source-cap corrections, then fresh controlled measurement and aggregate review of the PHP-only optimization; remaining R3/R4 empirical gates stay open
+- Immediate work: run fresh controlled measurements on the reviewed, green and locally verified PHP-only optimization, then finish aggregate review/CI; remaining R3/R4 empirical gates stay open
 - Active published line: `0.3.x`; a v0.4 theme and implementation are unapproved
 - Candidate future report schema: `0.9`, conditional on a new contract decision
 
@@ -20,8 +20,8 @@ The user explicitly authorized the [PHP-only optimization execution plan](../doc
 on 2026-10-17 after reviewing the corpus results. O1/O2 (compact actionable output),
 O3/O4 (adaptive Composer execution and reuse), and O5 (source-fact caching) are
 active; semantic corpus review reopened O2 and O5 after the initial combined
-gates passed. Their corrections have independent approval, with final CI and
-integration still pending. The partial pre-fix series is diagnostic only; O6
+gates passed. Their corrections now have independent approval, green final-head
+CI and a passing corrected integrated gate. The partial pre-fix series is diagnostic only; O6
 requires a fresh final-runtime series. This bounded authorization takes
 precedence over the old patch-only sequencing for these changes, including the
 intentional human-output default change. It does not approve a v0.4 identity,
