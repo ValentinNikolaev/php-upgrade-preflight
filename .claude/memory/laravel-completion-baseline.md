@@ -22,7 +22,7 @@ provenance:
   - kind: file
     locator: docs/readiness/corpus-2026-10/results.json
     retrieved_at: 2026-10-17
-    revision: sha256:6c974f9d50c71a6d7d667ff1346bdc28d9eae7983bdfcc33249a520c39a1c1bf
+    revision: sha256:b31ba53b871c97344f4e7629f43589976d21183d1278e855917a73ffe7eeb5b2
   - kind: conversation
     locator: 2026-10-17-r4-evaluation
     retrieved_at: 2026-10-17
