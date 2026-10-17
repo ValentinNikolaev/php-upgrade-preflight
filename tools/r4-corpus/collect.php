@@ -38,6 +38,13 @@ register_shutdown_function(static function () use (&$reserve, &$record, &$starte
 });
 
 try {
+    if (getenv('R4_CACHE_SEED_POLICY') === 'runtime-user-copy-v1') {
+        require __DIR__ . '/cache-seed.php';
+        $seedCheck = (float) hrtime(true);
+        $record['cache_before_analysis_sha256'] = (object) r4VerifySeedBeforeAnalysis();
+        $record['cache_seed_verification_seconds'] = r4Elapsed($seedCheck);
+        $record['cache_seed_verified'] = true;
+    }
     r4Autoload();
     $record['runtime_php'] = PHP_VERSION;
     $record['collector_memory_limit'] = ini_get('memory_limit');

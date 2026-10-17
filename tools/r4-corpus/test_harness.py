@@ -323,7 +323,7 @@ sys.exit(run.run(args))
                 (args.app / 'composer.json').write_text('invalid JSON')
                 argv = []
                 for key, value in vars(args).items():
-                    if key != 'calibrate':
+                    if key != 'calibrate' and value is not None:
                         argv.extend(['--' + key.replace('_', '-'), str(value)])
                 if args.calibrate:
                     argv.append('--calibrate')
@@ -333,7 +333,10 @@ sys.exit(run.run(args))
                     deadline = time.monotonic() + 45
                     while not (args.output / 'checkpoint').exists() and child.poll() is None and time.monotonic() < deadline:
                         time.sleep(0.05)
-                    self.assertTrue((args.output / 'checkpoint').exists(), 'child failed before checkpoint')
+                    child_stderr = ''
+                    if child.poll() is not None:
+                        child_stderr = child.communicate(timeout=5)[1].decode(errors='replace')[-4096:]
+                    self.assertTrue((args.output / 'checkpoint').exists(), 'child failed before checkpoint: ' + child_stderr)
                     child.kill()
                     child.wait(timeout=5)
                     before = run.read_json(ownership)

@@ -1,6 +1,15 @@
 #!/bin/sh
 set -u
 mkdir -p /output/composer
+case "${R4_CACHE_SEED_POLICY:-none}" in
+    none) ;;
+    runtime-user-copy-v1)
+        php -d memory_limit=128M /harness/cache-seed.php >/dev/null 2>/scratch/cache-seed.stderr
+        seeded=$?
+        if [ "$seeded" -ne 0 ]; then exit "$seeded"; fi
+        ;;
+    *) exit 78 ;;
+esac
 # Copy only our wrapper into writable scratch: source checkout need not have executable bits.
 cp /harness/composer.sh /scratch/composer-r4
 chmod 700 /scratch/composer-r4

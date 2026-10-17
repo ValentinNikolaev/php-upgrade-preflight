@@ -11,6 +11,26 @@ import time
 
 from acquire import SOURCE_ALGORITHM, load_json, projects, sha256, source_pin, verify_app, write_new
 
+SEED_POLICY = 'runtime-user-copy-v1'
+
+
+def cache_policy(plan):
+    if plan['campaign_version'] == 1:
+        return None
+    if plan['campaign_version'] != 2 or plan.get('cache_seed_policy') != SEED_POLICY:
+        raise ValueError('unsupported campaign/cache seed version')
+    return SEED_POLICY
+
+
+def cache_directories(root):
+    result = []
+    for path in sorted(Path(root).rglob('*')):
+        if path.is_symlink():
+            raise ValueError('symlink in cache tree')
+        if path.is_dir():
+            result.append(path.relative_to(root).as_posix())
+    return sorted(result)
+
 
 def fingerprint(root):
     root = Path(root)
@@ -71,7 +91,7 @@ def make_plan(args):
     runtime_files = {p.relative_to(args.repo).as_posix(): sha256(p)
                      for directory in ('packages', 'vendor')
                      for p in sorted((args.repo / directory).rglob('*')) if p.is_file()}
-    return {'campaign_version': 1, 'projects_sha256': sha256(args.projects), 'manifest': manifest,
+    result = {'campaign_version': args.campaign_version, 'projects_sha256': sha256(args.projects), 'manifest': manifest,
             'apps': str(args.apps.resolve()), 'repo': str(args.repo.resolve()),
             'harness': str(args.harness.resolve()), 'harness_files_sha256': tool_files,
             'repo_commit': subprocess.check_output(['git', '-C', str(args.repo), 'rev-parse', 'HEAD'], text=True).strip(),
@@ -83,6 +103,10 @@ def make_plan(args):
             'overall_timeout_seconds': args.overall_timeout,
             'scenario_timeout_seconds': 45, 'diagnostic_timeout_seconds': 15,
             'composer_memory_limit': '1024M', 'runs': matrix(manifest)}
+    if args.campaign_version == 2:
+        result['cache_seed_policy'] = SEED_POLICY
+    cache_policy(result)
+    return result
 
 
 def attempt_dirs(root, identity):
@@ -95,7 +119,7 @@ def attempt_dirs(root, identity):
     return result
 
 
-def command(plan, spec, output, cache):
+def command(plan, spec, output, cache, seed=None):
     result = [sys.executable, plan['harness'], '--app', str(Path(plan['apps']) / spec['project']),
               '--output', str(output), '--cache', str(cache), '--repo', plan['repo'], '--image', plan['image'],
               '--github-transport', plan['github_transport']]
@@ -105,6 +129,10 @@ def command(plan, spec, output, cache):
                        'diagnostic_timeout': plan['diagnostic_timeout_seconds'],
                        'overall_timeout': plan['overall_timeout_seconds']}.items():
         result += ['--' + key.replace('_', '-'), str(value)]
+    if cache_policy(plan) and spec['warm_after']:
+        if seed is None:
+            raise ValueError('v2 warm command requires frozen cache seed inputs')
+        result += ['--cache-seed', seed['source_path'], '--cache-seed-proof', seed['proof_path']]
     return result
 
 
@@ -144,6 +172,7 @@ def execute(root, plan, only=None):
     with lease.open('x'):
         pass
     try:
+        policy = cache_policy(plan)
         for project in projects(plan['manifest']):
             verify_app(Path(plan['apps']) / project['id'], project, require_source=True)
         spent = 0.0
@@ -175,6 +204,7 @@ def execute(root, plan, only=None):
             if spent + plan.get('external_timeout_seconds', 600) + plan.get('recovery_timeout_seconds', 120) > plan['budget_seconds']:
                 print('Campaign partial: remaining aggregate budget is below one run plus cleanup reserve', file=sys.stderr)
                 return 1
+            preflight_started = time.monotonic()
             project = next(p for p in projects(plan['manifest']) if p['id'] == spec['project'])
             verify_app(Path(plan['apps']) / spec['project'], project, require_source=True)
             parent = completed.get(spec['warm_after']) if spec['warm_after'] else None
@@ -189,21 +219,39 @@ def execute(root, plan, only=None):
                 cold_cache = Path(parent[1]['cache_path'])
                 if fingerprint(cold_cache) != parent[1]['cache_after_sha256']:
                     raise ValueError('warm cache changed since cold completion')
-                cache.parent.mkdir(parents=True, exist_ok=True)
-                shutil.copytree(cold_cache, cache)
-                if fingerprint(cache) != parent[1]['cache_after_sha256'] or fingerprint(cold_cache) != parent[1]['cache_after_sha256']:
-                    raise ValueError('warm cache copy differs from cold completion')
+                if policy:
+                    if cache_directories(cold_cache) != parent[1].get('cache_after_directories'):
+                        raise ValueError('cold directory inventory differs from v2 receipt')
+                    cache.mkdir(parents=True, exist_ok=False)
+                else:
+                    cache.parent.mkdir(parents=True, exist_ok=True)
+                    shutil.copytree(cold_cache, cache)
+                    if fingerprint(cache) != parent[1]['cache_after_sha256'] or fingerprint(cold_cache) != parent[1]['cache_after_sha256']:
+                        raise ValueError('warm cache copy differs from cold completion')
             else:
                 cache.mkdir(parents=True, exist_ok=False)
             # Source/cache lineage checks finish before allocating an attempt number.
             attempt.mkdir(parents=True, exist_ok=False)
+            seed = None
+            if policy and parent:
+                proof = {'policy': policy, 'cold_receipt_sha256': sha256(parent[0] / 'completion.json'),
+                         'files_sha256': parent[1]['cache_after_sha256'],
+                         'directories': parent[1]['cache_after_directories']}
+                proof_path = attempt / 'cache-seed-expected.json'
+                write_new(proof_path, proof)
+                seed = {'policy': policy, 'source_path': str(cold_cache.resolve()),
+                        'proof_path': str(proof_path.resolve()), 'proof_sha256': sha256(proof_path),
+                        'cold_receipt_sha256': proof['cold_receipt_sha256']}
             invocation = {'plan_sha256': digest(plan), 'spec': spec, 'cache_path': str(cache.resolve()),
                           'cache_before_sha256': fingerprint(cache),
                           'source_snapshot_algorithm': SOURCE_ALGORITHM, 'source_snapshot_sha256': source_pin(project),
                           'cold_receipt_sha256': sha256(parent[0] / 'completion.json') if parent else None,
-                          'argv': command(plan, spec, attempt / 'raw', cache)}
+                          'argv': command(plan, spec, attempt / 'raw', cache, seed)}
+            if policy:
+                invocation['cache_seed'] = seed
+                invocation['host_preparation_seconds'] = time.monotonic() - preflight_started
             write_new(attempt / 'invocation.json', invocation)
-            started = time.monotonic()
+            started = preflight_started if policy else time.monotonic()
             exit_code, timed_out, failure = None, False, None
             with (attempt / 'stdout.log').open('xb') as stdout, (attempt / 'stderr.log').open('xb') as stderr:
                 try:
@@ -219,12 +267,17 @@ def execute(root, plan, only=None):
             safe = (recovery.get('returncode') == 0 and clean(recovery)) if recovery else clean(record)
             validation_error = record_error(record, attempt / 'raw', plan, spec)
             source_after = None
+            cold_after = None
             if safe:
                 try:
                     verify_app(Path(plan['apps']) / spec['project'], project, require_source=True)
                     source_after = source_pin(project)
                 except (OSError, ValueError) as error:
                     validation_error = validation_error or str(error)
+                if seed:
+                    cold_after = fingerprint(cold_cache)
+                    if cold_after != parent[1]['cache_after_sha256'] or cache_directories(cold_cache) != parent[1]['cache_after_directories']:
+                        validation_error = validation_error or 'cold cache changed during warm attempt'
             status = 'completed' if safe and not validation_error and record.get('status') == 'completed' and exit_code == 0 and not timed_out else 'failed'
             elapsed = time.monotonic() - started
             receipt = {'status': status, 'plan_sha256': digest(plan), 'run_id': spec['id'],
@@ -233,6 +286,11 @@ def execute(root, plan, only=None):
                        'cleanup_verified': safe, 'source_after_sha256': source_after,
                        'cache_path': str(cache.resolve()),
                        'cache_after_sha256': fingerprint(cache) if safe else None, 'files_sha256': fingerprint(attempt)}
+            if policy:
+                receipt['host_preparation_seconds'] = invocation['host_preparation_seconds']
+                receipt['cache_after_directories'] = cache_directories(cache) if safe else None
+                receipt['cold_cache_after_sha256'] = cold_after
+                receipt['cold_cache_after_directories'] = cache_directories(cold_cache) if seed and safe else None
             write_new(attempt / 'completion.json', receipt)
             verify_attempt(attempt, plan, spec)
             spent += elapsed
@@ -256,12 +314,15 @@ def main():
     parser.add_argument('--overall-timeout', type=int, default=540, help='inner watchdog leaves cleanup headroom below external600s')
     parser.add_argument('--execute', action='store_true', help='without this flag only write the complete plan')
     parser.add_argument('--resume', action='store_true')
+    parser.add_argument('--campaign-version', type=int, choices=(1, 2), help='default2; resume inherits its frozen version')
     parser.add_argument('--only', help='comma-separated declared IDs for bounded pilots; full matrix stays declared')
     args = parser.parse_args()
     if not 600 <= args.budget_seconds <= 32400 or not 1 <= args.overall_timeout <= 540:
         parser.error('budget must be600..32400 seconds; inner watchdog1..540 seconds')
     if not args.image.startswith('sha256:') and '@sha256:' not in args.image:
         parser.error('image must be pinned by ID or digest')
+    if args.campaign_version is None:
+        args.campaign_version = load_json(args.output / 'plan.json')['campaign_version'] if args.resume else 2
     plan = make_plan(args)
     if args.resume:
         if load_json(args.output / 'plan.json') != plan:
