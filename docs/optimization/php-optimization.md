@@ -102,6 +102,18 @@ depends on P2 measurements. Heavy measurements run without concurrent test or
 benchmark workloads. Detailed profiles and raw reports stay in task-owned OS
 temporary storage; ordinary users do not receive them by default.
 
+For diagnostic runs, inject an optional `AnalysisTimings` instance as the
+analyzer's `timings` argument and retain its `snapshot()` after analysis. It
+records inclusive analysis milliseconds and separate non-overlapping operation
+times for source capture, the recheck after scanning, the final Composer/source
+recheck, ownership, source correlation, staged assessment, risk/effort and report
+assembly. The existing phase timings still cover Composer and source scanning;
+these operation times are not a complete decomposition of analysis. Snapshots
+contain only fixed metric names, numbers and lifecycle status, reset per analysis,
+and are not part of canonical reports or ordinary output. Without injection the
+extra operation clocks do not run. A completed input-failure report has completed
+status with unexecuted operations at zero; an exception has failed status.
+
 The outcome must state what changed for a user, what became faster under which
 conditions, which targets were missed, and what remains unverified. Repository
 corpus measurements do not complete the [R3 user study](../readiness/decision-study.md).
