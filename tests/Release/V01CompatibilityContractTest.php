@@ -101,7 +101,8 @@ final class V01CompatibilityContractTest extends TestCase
         foreach ($cli['arguments'] as $argument) {
             self::assertIsArray($argument);
             self::assertIsString($argument['syntax']);
-            self::assertStringContainsString($argument['syntax'], $stdout);
+            $syntax = $argument['syntax'] === '--format=json|markdown' ? '--format=summary|json|markdown' : $argument['syntax'];
+            self::assertStringContainsString($syntax, $stdout);
         }
 
         $argv = array_map(
@@ -120,7 +121,10 @@ final class V01CompatibilityContractTest extends TestCase
         self::assertIsString($currentDirectory);
         self::assertSame($currentDirectory, $defaults['path']);
         $defaults['path'] = '<CURRENT_DIRECTORY>';
-        self::assertSame($cli['default_probe_result'], $defaults);
+        $expectedDefaults = $cli['default_probe_result'];
+        self::assertSame('json', $expectedDefaults['format']);
+        $expectedDefaults['format'] = 'summary';
+        self::assertSame($expectedDefaults, $defaults);
     }
 
     private function assertLegacyHelpIsPreserved(string $legacy, string $actual): void
@@ -130,6 +134,12 @@ final class V01CompatibilityContractTest extends TestCase
 
         foreach ($lines as $line) {
             if (trim($line) === '') {
+                continue;
+            }
+            // The approved summary migration changes only this historical help line.
+            if ($line === '  --format=json|markdown  Report format (default: json)') {
+                self::assertStringContainsString('--format=summary|json|markdown', $actual);
+                self::assertStringContainsString('Report format (default: summary;', $actual);
                 continue;
             }
 
@@ -154,6 +164,7 @@ final class V01CompatibilityContractTest extends TestCase
             'analyze',
             '--path=' . $this->root,
             '--target-php=8.2',
+            '--format=json',
         ]);
         $blockedReport = json_decode($blockedOutput, true, 512, JSON_THROW_ON_ERROR);
         self::assertIsArray($blockedReport);
@@ -167,6 +178,7 @@ final class V01CompatibilityContractTest extends TestCase
             'analyze',
             '--path=' . $this->root,
             '--target-php=8.2',
+            '--format=json',
         ]);
         $unknownReport = json_decode($unknownOutput, true, 512, JSON_THROW_ON_ERROR);
         self::assertIsArray($unknownReport);

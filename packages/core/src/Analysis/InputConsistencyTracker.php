@@ -35,11 +35,11 @@ final class InputConsistencyTracker
     }
 
     /** @param list<string> $paths */
-    public function captureSource(SourceUsageScanner $scanner, ProjectState $project, array $paths): void
+    public function captureSource(SourceUsageScanner $scanner, ProjectState $project, array $paths, bool $discoverAutoload = false): void
     {
         $selectionUncertainties = [];
         $this->sourceDigests = $this->sourceDigests(
-            $scanner->selectedPhpFiles($project, $paths, $selectionUncertainties, false),
+            $scanner->selectedPhpFiles($project, $paths, $selectionUncertainties, false, null, $discoverAutoload),
             $scanner->limits()
         );
     }
@@ -48,7 +48,7 @@ final class InputConsistencyTracker
      * @param list<string> $paths
      * @param array<string, string> $readDigests
      */
-    public function checkSource(SourceUsageScanner $scanner, ProjectState $project, array $paths, array $readDigests): void
+    public function checkSource(SourceUsageScanner $scanner, ProjectState $project, array $paths, array $readDigests, bool $discoverAutoload = false): void
     {
         foreach ($readDigests as $path => $digest) {
             if (!array_key_exists($path, $this->sourceDigests) || $this->sourceDigests[$path] !== $digest) {
@@ -57,7 +57,7 @@ final class InputConsistencyTracker
         }
         $selectionUncertainties = [];
         $current = $this->sourceDigests(
-            $scanner->selectedPhpFiles($project, $paths, $selectionUncertainties, false),
+            $scanner->selectedPhpFiles($project, $paths, $selectionUncertainties, false, null, $discoverAutoload),
             $scanner->limits()
         );
         $this->recordChanges($this->sourceDigests, $current);

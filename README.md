@@ -3,7 +3,7 @@
 > [!IMPORTANT]
 > **Project status: Public beta.** PHP Upgrade Preflight is open source under the [MIT License](LICENSE), free for commercial and noncommercial use.
 
-PHP Upgrade Preflight checks a planned PHP upgrade before you change your project. It works with Composer-based projects, copies `composer.json` and `composer.lock` into temporary workspaces, and runs Composer checks there. It also scans your source files. You get a JSON report, or a Markdown version of that report.
+PHP Upgrade Preflight checks a planned PHP upgrade before you change your project. It works with Composer-based projects, copies `composer.json` and `composer.lock` into temporary workspaces, and runs Composer checks there. It also scans your source files. The development checkout prints a short summary of blockers, next actions and assessment limits; full JSON and Markdown reports are explicit options.
 
 v0.3 runs on PHP `^8.0`, from PHP 8.0 through PHP 8.x. The Laravel adapter gives upgrade guidance for Laravel 7 to 8, direct 7 to 9, and every upgrade from one major version to the next, from 8 to 9 through 12 to 13.
 
@@ -51,13 +51,13 @@ vendor/bin/upgrade-intel wizard
 
 ![Interactive `upgrade-intel wizard` demo](docs/assets/upgrade-intel-wizard-demo.gif)
 
-You answer the wizard's prompts one line at a time. By default, it shows a Markdown report in the terminal. You can also save an identical copy outside the project you're checking.
+You answer the wizard's prompts one line at a time. The development wizard defaults to the short summary. You can select full JSON or Markdown and save an identical copy outside the project you're checking. The recorded demo shows the published v0.3.x Markdown workflow.
 
 The wizard first looks for packages in your local `composer.json`. You can choose to look in the local cache or configured repositories too. Before a repository lookup, it warns that the lookup may use the network or credentials from your environment.
 
 Before running the analysis, you must choose restricted or compatible Composer execution. The wizard shows what that choice means for network access and credentials in the plan you review. It also adds the matching `--composer-mode` option to the command you can reuse.
 
-For scripts and CI, use the non-interactive command and set the options explicitly. `--save-report=PATH` saves a copy and still prints the report to stdout. `--output=PATH` writes the report only to a file:
+For scripts and CI, use the non-interactive command and set `--format=json` explicitly. `--save-report=PATH` saves the selected presentation and still prints it to stdout. `--output=PATH` writes it only to a file:
 
 ```bash
 vendor/bin/upgrade-intel analyze \
@@ -113,6 +113,17 @@ Source file paths in the report stay relative to your project.
 Use `--debug` when you need to inspect the temporary workspaces. It keeps them and includes exact `temp_path` values in the report, so don't share debug reports or those workspaces. Without `--debug`, errors during workspace cleanup show only `[ANALYZER_WORKSPACE]`. Secret redaction stays active in every mode.
 
 ## Reports
+
+**Unreleased default migration:** CLI, Artisan and the wizard select `--format=summary` and `--analysis-mode=standard` in this checkout. Published v0.3.5 keeps its previous defaults. Automation must request `--format=json`; use `--analysis-mode=full` to retain exhaustive alternative Composer probes. Formatting and execution mode are independent. The [migration and summary contract](docs/optimization/actionable-summary.md), [execution policy](docs/optimization/composer-execution.md) and [source cache contract](docs/optimization/source-facts-cache.md) describe the changes. No new release is prepared; publication requires a deliberate minor-release migration.
+
+In this checkout, persistent source-fact caching is off by default. CLI and Artisan can opt in with
+`--source-cache=PATH` using a private directory outside the analyzed project.
+
+The [performance follow-up](docs/optimization/performance-followup.md) explains
+the measured cache-off effect, remaining costs and early Composer findings. The
+[earlier ten-project series](docs/optimization/results.md) records slower first
+analyses and missed targets before that mitigation. These are bounded offline
+Windows/Docker Desktop measurements, not a general performance guarantee.
 
 JSON defines the report data. The Markdown version is generated from it. The published v0.3.x line uses schema `0.8`. v0.2.1 used schema `0.7`, and v0.1 used schema `0.6`. Reports include:
 

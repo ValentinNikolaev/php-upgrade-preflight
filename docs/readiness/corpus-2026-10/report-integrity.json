@@ -1,0 +1,342 @@
+{
+  "scope": "Unique root evidence IDs and explicit evidence-array references outside the arbitrary root ledger contexts; no semantic claim truth or application compatibility proof",
+  "negative_controls": {
+    "missing_reference_detected": true,
+    "duplicate_id_detected": true
+  },
+  "reports": [
+    {
+      "report": "campaign/akaunting-longest-cold/attempt-0001/report.json",
+      "json_sha256": "a38e72636fc6277fd09bfc5ae41588dd3d1425f622a4968db627d458f2fb9707",
+      "ledger_entries": 10233,
+      "unique_ids": 10233,
+      "explicit_array_references": 10737,
+      "duplicate_ids": [],
+      "dangling_references": []
+    },
+    {
+      "report": "campaign/akaunting-nearest-cold/attempt-0001/report.json",
+      "json_sha256": "03ddd0995e8aff3fc0aaa14065c285ccdbd48a817731f9a1806efef0e85c2345",
+      "ledger_entries": 10204,
+      "unique_ids": 10204,
+      "explicit_array_references": 10633,
+      "duplicate_ids": [],
+      "dangling_references": []
+    },
+    {
+      "report": "campaign/akaunting-nearest-warm/attempt-0001/report.json",
+      "json_sha256": "41d120529e19bbea50f327ab8fd80f38e874f8c434cddb08ec19c441d0f00078",
+      "ledger_entries": 10204,
+      "unique_ids": 10204,
+      "explicit_array_references": 10633,
+      "duplicate_ids": [],
+      "dangling_references": []
+    },
+    {
+      "report": "campaign/bagisto-longest-cold/attempt-0001/report.json",
+      "json_sha256": "5cfd490080904343919522fc69501458314520d2ba55fb8178396486bd05a8f7",
+      "ledger_entries": 688,
+      "unique_ids": 688,
+      "explicit_array_references": 944,
+      "duplicate_ids": [],
+      "dangling_references": []
+    },
+    {
+      "report": "campaign/bagisto-nearest-cold/attempt-0001/report.json",
+      "json_sha256": "53d9b28713b4f47b0d32b6f882ab5c593bedb7f6e6fc4030b28466d695c2d801",
+      "ledger_entries": 652,
+      "unique_ids": 652,
+      "explicit_array_references": 842,
+      "duplicate_ids": [],
+      "dangling_references": []
+    },
+    {
+      "report": "campaign/bagisto-nearest-warm/attempt-0001/report.json",
+      "json_sha256": "ac86b21219a13385c8669d2d4b94e4bfb8efa2347eed4250424f4f31b76bc580",
+      "ledger_entries": 652,
+      "unique_ids": 652,
+      "explicit_array_references": 842,
+      "duplicate_ids": [],
+      "dangling_references": []
+    },
+    {
+      "report": "campaign/bookstack-longest-cold/attempt-0001/report.json",
+      "json_sha256": "c1d45afc06abc42058fe28e4086a7bb9641c6b43a79ac1c64d0c07c62be7d63e",
+      "ledger_entries": 10156,
+      "unique_ids": 10156,
+      "explicit_array_references": 10265,
+      "duplicate_ids": [],
+      "dangling_references": []
+    },
+    {
+      "report": "campaign/bookstack-nearest-cold/attempt-0001/report.json",
+      "json_sha256": "a9a96b959c18d2ade102d87decc5754903effde7e4f73bc3e51fe4cac96dbab4",
+      "ledger_entries": 10130,
+      "unique_ids": 10130,
+      "explicit_array_references": 10195,
+      "duplicate_ids": [],
+      "dangling_references": []
+    },
+    {
+      "report": "campaign/bookstack-nearest-warm/attempt-0001/report.json",
+      "json_sha256": "d44fd5b7f21927e0dbe8fef6fa7364d0af2916998f0496bc7781f8b2aed90a2c",
+      "ledger_entries": 10130,
+      "unique_ids": 10130,
+      "explicit_array_references": 10195,
+      "duplicate_ids": [],
+      "dangling_references": []
+    },
+    {
+      "report": "campaign/crater-longest-cold/attempt-0001/report.json",
+      "json_sha256": "97e3377d30e045963249eff30b403f0e6df9fc5d4d83af5c9186a8c7eb1979dc",
+      "ledger_entries": 8159,
+      "unique_ids": 8159,
+      "explicit_array_references": 8419,
+      "duplicate_ids": [],
+      "dangling_references": []
+    },
+    {
+      "report": "campaign/crater-nearest-cold/attempt-0001/report.json",
+      "json_sha256": "efbf1944065636667248e2ac014a3b0800cb03a34b08ff8afce810505f16ab9a",
+      "ledger_entries": 8089,
+      "unique_ids": 8089,
+      "explicit_array_references": 8201,
+      "duplicate_ids": [],
+      "dangling_references": []
+    },
+    {
+      "report": "campaign/crater-nearest-warm/attempt-0001/report.json",
+      "json_sha256": "13d5880c43ab37090eaa28e9f40717666ab2a63824b8c855fffa65a2dffecaed",
+      "ledger_entries": 8089,
+      "unique_ids": 8089,
+      "explicit_array_references": 8201,
+      "duplicate_ids": [],
+      "dangling_references": []
+    },
+    {
+      "report": "campaign/firefly-longest-cold/attempt-0001/report.json",
+      "json_sha256": "713cc3981df1433424f066b369a8ebfc3a15e61881ce7c00dd0115c9f4d35f09",
+      "ledger_entries": 10169,
+      "unique_ids": 10169,
+      "explicit_array_references": 10239,
+      "duplicate_ids": [],
+      "dangling_references": []
+    },
+    {
+      "report": "campaign/firefly-nearest-cold/attempt-0001/report.json",
+      "json_sha256": "e01f6d60160663b787fe1b43d4f15606e0ede2e2ff792df92f3059fbca6bd4d6",
+      "ledger_entries": 10161,
+      "unique_ids": 10161,
+      "explicit_array_references": 10219,
+      "duplicate_ids": [],
+      "dangling_references": []
+    },
+    {
+      "report": "campaign/firefly-nearest-warm/attempt-0001/report.json",
+      "json_sha256": "e85fc7071a43ab93665037832978b26293c730a396ba172b47b60c86a39d70c9",
+      "ledger_entries": 10161,
+      "unique_ids": 10161,
+      "explicit_array_references": 10219,
+      "duplicate_ids": [],
+      "dangling_references": []
+    },
+    {
+      "report": "campaign/invoiceninja-longest-cold/attempt-0001/report.json",
+      "json_sha256": "1febf8efe6b475ce4268ba4b5af92aa8fc57f497a09b822f3312fdcc6932faa1",
+      "ledger_entries": 10264,
+      "unique_ids": 10264,
+      "explicit_array_references": 10420,
+      "duplicate_ids": [],
+      "dangling_references": []
+    },
+    {
+      "report": "campaign/invoiceninja-nearest-cold/attempt-0001/report.json",
+      "json_sha256": "e85d4e0da593758d1ad67d977a324be6a9f6eb792a558c8a1feb8ed977a41a01",
+      "ledger_entries": 10249,
+      "unique_ids": 10249,
+      "explicit_array_references": 10388,
+      "duplicate_ids": [],
+      "dangling_references": []
+    },
+    {
+      "report": "campaign/invoiceninja-nearest-warm/attempt-0001/report.json",
+      "json_sha256": "2a61d7c2e3bef2a94eddc6480a728614068959e5a9326e7e07ccd8e58bfbfb81",
+      "ledger_entries": 10234,
+      "unique_ids": 10234,
+      "explicit_array_references": 10315,
+      "duplicate_ids": [],
+      "dangling_references": []
+    },
+    {
+      "report": "campaign/koel-longest-cold/attempt-0001/report.json",
+      "json_sha256": "9733a8bc4b269a308dbf92ba06b30bc2aff21d8a29398551ecff6391fbef3c1a",
+      "ledger_entries": 7824,
+      "unique_ids": 7824,
+      "explicit_array_references": 7994,
+      "duplicate_ids": [],
+      "dangling_references": []
+    },
+    {
+      "report": "campaign/koel-nearest-cold/attempt-0001/report.json",
+      "json_sha256": "d46a28f210a5fb0a2f5f049f472778f6be16a5c5ca83e5e7a5514088302cc0ad",
+      "ledger_entries": 7788,
+      "unique_ids": 7788,
+      "explicit_array_references": 7896,
+      "duplicate_ids": [],
+      "dangling_references": []
+    },
+    {
+      "report": "campaign/koel-nearest-warm/attempt-0001/report.json",
+      "json_sha256": "3758a38b627f6305a9ba4d1023a82f8856f3fa3838475b4e4572b1c7c1f59fbf",
+      "ledger_entries": 7788,
+      "unique_ids": 7788,
+      "explicit_array_references": 7896,
+      "duplicate_ids": [],
+      "dangling_references": []
+    },
+    {
+      "report": "campaign/lychee-longest-cold/attempt-0001/report.json",
+      "json_sha256": "d99e29d813c7ba248f273f06b193e5218f587e6c99bfdbd3fa3a1e1c16eb7896",
+      "ledger_entries": 10168,
+      "unique_ids": 10168,
+      "explicit_array_references": 10302,
+      "duplicate_ids": [],
+      "dangling_references": []
+    },
+    {
+      "report": "campaign/lychee-nearest-cold/attempt-0001/report.json",
+      "json_sha256": "9dc6878e05b2f77e22fc4c3662db7d9cca7aa157c9c10b7c9f9bff260333c425",
+      "ledger_entries": 10168,
+      "unique_ids": 10168,
+      "explicit_array_references": 10302,
+      "duplicate_ids": [],
+      "dangling_references": []
+    },
+    {
+      "report": "campaign/lychee-nearest-warm/attempt-0001/report.json",
+      "json_sha256": "d8bcb819ea2d5c618838e7e861d952c195166e75cd2675f33cf9a072ed290d28",
+      "ledger_entries": 10154,
+      "unique_ids": 10154,
+      "explicit_array_references": 10220,
+      "duplicate_ids": [],
+      "dangling_references": []
+    },
+    {
+      "report": "campaign/monica-longest-cold/attempt-0001/report.json",
+      "json_sha256": "7175b6d98aa2ed1118d5edd0216f41efc6c83d0aa69cda2632dfad4f1efa27ae",
+      "ledger_entries": 10311,
+      "unique_ids": 10311,
+      "explicit_array_references": 10627,
+      "duplicate_ids": [],
+      "dangling_references": []
+    },
+    {
+      "report": "campaign/monica-nearest-cold/attempt-0001/report.json",
+      "json_sha256": "1fd55867e9a5bcdb5554d6883ef79c7381302d98912da02b40d78766c5c105c8",
+      "ledger_entries": 10237,
+      "unique_ids": 10237,
+      "explicit_array_references": 10451,
+      "duplicate_ids": [],
+      "dangling_references": []
+    },
+    {
+      "report": "campaign/monica-nearest-warm/attempt-0001/report.json",
+      "json_sha256": "a20561bc92c162347e83d082b277a94c41631962165e965af9b0e0841921aee2",
+      "ledger_entries": 10237,
+      "unique_ids": 10237,
+      "explicit_array_references": 10451,
+      "duplicate_ids": [],
+      "dangling_references": []
+    },
+    {
+      "report": "campaign/monica7-longest-cold/attempt-0001/report.json",
+      "json_sha256": "456e52b6fc306cc364a29be623f6b3e3c8fff23751686ba477474473176a1b41",
+      "ledger_entries": 10407,
+      "unique_ids": 10407,
+      "explicit_array_references": 33967,
+      "duplicate_ids": [],
+      "dangling_references": []
+    },
+    {
+      "report": "campaign/probe-cache-failure/attempt-0001/report.json",
+      "json_sha256": "a4788a118a7537122d957b24824869ab25883052332d50f305f066f040f12918",
+      "ledger_entries": 10154,
+      "unique_ids": 10154,
+      "explicit_array_references": 10220,
+      "duplicate_ids": [],
+      "dangling_references": []
+    },
+    {
+      "report": "campaign/probe-child-failure/attempt-0001/report.json",
+      "json_sha256": "9efc1d8b6cfb41a41fba34fb619f65b7e21f09dac5620e31b3f975552ca36ec0",
+      "ledger_entries": 10154,
+      "unique_ids": 10154,
+      "explicit_array_references": 10220,
+      "duplicate_ids": [],
+      "dangling_references": []
+    },
+    {
+      "report": "campaign/probe-memory-1024/attempt-0001/report.json",
+      "json_sha256": "2e567c468038dd85636e851aeb5f6dc2fd78d56d1a545e7f6c640de72653fa19",
+      "ledger_entries": 10168,
+      "unique_ids": 10168,
+      "explicit_array_references": 10302,
+      "duplicate_ids": [],
+      "dangling_references": []
+    },
+    {
+      "report": "campaign/probe-memory-128/attempt-0001/report.json",
+      "json_sha256": "36d1fd355dfe08e02fef98c6136a1c2d67c0312518e3838a60537fd14ce4f054",
+      "ledger_entries": 10168,
+      "unique_ids": 10168,
+      "explicit_array_references": 10302,
+      "duplicate_ids": [],
+      "dangling_references": []
+    },
+    {
+      "report": "campaign/probe-network-denied/attempt-0001/report.json",
+      "json_sha256": "8a53aa275dc566ad36df2b043fccd3cc3b57b4e53343d7f97b968bbf24441346",
+      "ledger_entries": 10154,
+      "unique_ids": 10154,
+      "explicit_array_references": 10220,
+      "duplicate_ids": [],
+      "dangling_references": []
+    },
+    {
+      "report": "campaign/probe-short-timeout/attempt-0001/report.json",
+      "json_sha256": "fdf002b77097df4b1104ffd9ec08926a396312b15f9b7485df52626d3a0191d0",
+      "ledger_entries": 10154,
+      "unique_ids": 10154,
+      "explicit_array_references": 10220,
+      "duplicate_ids": [],
+      "dangling_references": []
+    },
+    {
+      "report": "campaign/snipeit-longest-cold/attempt-0001/report.json",
+      "json_sha256": "7cd11385dc7c5253a8f825237e82d95990ed7feeb2180f17c58dfdc2a573eb00",
+      "ledger_entries": 10219,
+      "unique_ids": 10219,
+      "explicit_array_references": 10446,
+      "duplicate_ids": [],
+      "dangling_references": []
+    },
+    {
+      "report": "campaign/snipeit-nearest-cold/attempt-0001/report.json",
+      "json_sha256": "45cb5c7ec3305c47c8ab587dfa22d7d5c528c9b5e819eeb57ebae035fe7823a8",
+      "ledger_entries": 10177,
+      "unique_ids": 10177,
+      "explicit_array_references": 10332,
+      "duplicate_ids": [],
+      "dangling_references": []
+    },
+    {
+      "report": "campaign/snipeit-nearest-warm/attempt-0001/report.json",
+      "json_sha256": "0918c96b6f4928c74e84ca8b64f63f40072fe4058585dd3bfe3db426f46c3e22",
+      "ledger_entries": 10154,
+      "unique_ids": 10154,
+      "explicit_array_references": 10230,
+      "duplicate_ids": [],
+      "dangling_references": []
+    }
+  ]
+}

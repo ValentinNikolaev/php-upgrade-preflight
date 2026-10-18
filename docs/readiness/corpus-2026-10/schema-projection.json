@@ -1,0 +1,325 @@
+{
+  "scope": "Opis schema0.8 and exact canonical JSON-to-Markdown projection, no analyzer rerun; raw relative report identities are grouped below.",
+  "reports": [
+    {
+      "group": "campaign",
+      "report": "akaunting-longest-cold/attempt-0001/raw/report.json",
+      "schema_0_8_valid": true,
+      "markdown_exact_projection": true,
+      "json_sha256": "a38e72636fc6277fd09bfc5ae41588dd3d1425f622a4968db627d458f2fb9707",
+      "markdown_sha256": "1c8a2a1eddcf3ed924d0b2faae2324f2147bc8bfe961cb399e82b40c0ec4277d"
+    },
+    {
+      "group": "campaign",
+      "report": "akaunting-nearest-cold/attempt-0001/raw/report.json",
+      "schema_0_8_valid": true,
+      "markdown_exact_projection": true,
+      "json_sha256": "03ddd0995e8aff3fc0aaa14065c285ccdbd48a817731f9a1806efef0e85c2345",
+      "markdown_sha256": "64d420689e493a51bf4c394d1de38323a66374038c2495a8092780b4450b6ae1"
+    },
+    {
+      "group": "campaign",
+      "report": "akaunting-nearest-warm/attempt-0001/raw/report.json",
+      "schema_0_8_valid": true,
+      "markdown_exact_projection": true,
+      "json_sha256": "41d120529e19bbea50f327ab8fd80f38e874f8c434cddb08ec19c441d0f00078",
+      "markdown_sha256": "4db4effd2fa418909f50daf1dd0aab7da6e767870b8474883348086fe92a1152"
+    },
+    {
+      "group": "campaign",
+      "report": "bagisto-longest-cold/attempt-0001/raw/report.json",
+      "schema_0_8_valid": true,
+      "markdown_exact_projection": true,
+      "json_sha256": "5cfd490080904343919522fc69501458314520d2ba55fb8178396486bd05a8f7",
+      "markdown_sha256": "d14e4a3b6a64d7962a315cc61640deecba6ce6f1e991e17efeb81844270b9df7"
+    },
+    {
+      "group": "campaign",
+      "report": "bagisto-nearest-cold/attempt-0001/raw/report.json",
+      "schema_0_8_valid": true,
+      "markdown_exact_projection": true,
+      "json_sha256": "53d9b28713b4f47b0d32b6f882ab5c593bedb7f6e6fc4030b28466d695c2d801",
+      "markdown_sha256": "e4a093382d3a5ef70d9f8f875f94654935cb5376fe23b6163d1745b7769b5d41"
+    },
+    {
+      "group": "campaign",
+      "report": "bagisto-nearest-warm/attempt-0001/raw/report.json",
+      "schema_0_8_valid": true,
+      "markdown_exact_projection": true,
+      "json_sha256": "ac86b21219a13385c8669d2d4b94e4bfb8efa2347eed4250424f4f31b76bc580",
+      "markdown_sha256": "7f188c9f87b6fc5cb236db47362622d04bd545330be345eb01f7d31ad4e71084"
+    },
+    {
+      "group": "campaign",
+      "report": "bookstack-longest-cold/attempt-0001/raw/report.json",
+      "schema_0_8_valid": true,
+      "markdown_exact_projection": true,
+      "json_sha256": "c1d45afc06abc42058fe28e4086a7bb9641c6b43a79ac1c64d0c07c62be7d63e",
+      "markdown_sha256": "d72ebd7f75a2d92ab3d3760451fb4755d4639c89d2a3d697f9336ba407dc3101"
+    },
+    {
+      "group": "campaign",
+      "report": "bookstack-nearest-cold/attempt-0001/raw/report.json",
+      "schema_0_8_valid": true,
+      "markdown_exact_projection": true,
+      "json_sha256": "a9a96b959c18d2ade102d87decc5754903effde7e4f73bc3e51fe4cac96dbab4",
+      "markdown_sha256": "8c5477673d29f41666a5a5426588bbc0497debe6d5a0a20da8fddfb93c9a9773"
+    },
+    {
+      "group": "campaign",
+      "report": "bookstack-nearest-warm/attempt-0001/raw/report.json",
+      "schema_0_8_valid": true,
+      "markdown_exact_projection": true,
+      "json_sha256": "d44fd5b7f21927e0dbe8fef6fa7364d0af2916998f0496bc7781f8b2aed90a2c",
+      "markdown_sha256": "b808d9b04b6b71a6953a3c7ab50767e4619de892c668b43bd55a497d6edcc2f7"
+    },
+    {
+      "group": "campaign",
+      "report": "crater-longest-cold/attempt-0001/raw/report.json",
+      "schema_0_8_valid": true,
+      "markdown_exact_projection": true,
+      "json_sha256": "97e3377d30e045963249eff30b403f0e6df9fc5d4d83af5c9186a8c7eb1979dc",
+      "markdown_sha256": "7ad73819e8d369ee0922952eaf8a377c36db02cac633bc2295856e662e800354"
+    },
+    {
+      "group": "campaign",
+      "report": "crater-nearest-cold/attempt-0001/raw/report.json",
+      "schema_0_8_valid": true,
+      "markdown_exact_projection": true,
+      "json_sha256": "efbf1944065636667248e2ac014a3b0800cb03a34b08ff8afce810505f16ab9a",
+      "markdown_sha256": "23dbbf4fad3275e305caf16c6587363d1c92353a7ac23186710c085dd9e02c38"
+    },
+    {
+      "group": "campaign",
+      "report": "crater-nearest-warm/attempt-0001/raw/report.json",
+      "schema_0_8_valid": true,
+      "markdown_exact_projection": true,
+      "json_sha256": "13d5880c43ab37090eaa28e9f40717666ab2a63824b8c855fffa65a2dffecaed",
+      "markdown_sha256": "2ada76142fc7019da0076c4f462dd12f85f81be3c43df6881eed97aa89d4dd68"
+    },
+    {
+      "group": "campaign",
+      "report": "firefly-longest-cold/attempt-0001/raw/report.json",
+      "schema_0_8_valid": true,
+      "markdown_exact_projection": true,
+      "json_sha256": "713cc3981df1433424f066b369a8ebfc3a15e61881ce7c00dd0115c9f4d35f09",
+      "markdown_sha256": "fb0819a5e80c6c54ca24dedc94cb4244fa2a8b1ec55d93ac282a1a55bd9230fc"
+    },
+    {
+      "group": "campaign",
+      "report": "firefly-nearest-cold/attempt-0001/raw/report.json",
+      "schema_0_8_valid": true,
+      "markdown_exact_projection": true,
+      "json_sha256": "e01f6d60160663b787fe1b43d4f15606e0ede2e2ff792df92f3059fbca6bd4d6",
+      "markdown_sha256": "c54e9b00127b93516bff329877fd241735ae7de8d77dab081879fc4cb8537f65"
+    },
+    {
+      "group": "campaign",
+      "report": "firefly-nearest-warm/attempt-0001/raw/report.json",
+      "schema_0_8_valid": true,
+      "markdown_exact_projection": true,
+      "json_sha256": "e85fc7071a43ab93665037832978b26293c730a396ba172b47b60c86a39d70c9",
+      "markdown_sha256": "5b9d7da5b3a744a130b6d6c6c60fd17c90a105c0f26bc79e97ce33c89ee0ea42"
+    },
+    {
+      "group": "campaign",
+      "report": "invoiceninja-longest-cold/attempt-0001/raw/report.json",
+      "schema_0_8_valid": true,
+      "markdown_exact_projection": true,
+      "json_sha256": "1febf8efe6b475ce4268ba4b5af92aa8fc57f497a09b822f3312fdcc6932faa1",
+      "markdown_sha256": "5e3f22583af55743c55b83d5c517f575cd83ae907aa7445cee3e53774757064d"
+    },
+    {
+      "group": "campaign",
+      "report": "invoiceninja-nearest-cold/attempt-0001/raw/report.json",
+      "schema_0_8_valid": true,
+      "markdown_exact_projection": true,
+      "json_sha256": "e85d4e0da593758d1ad67d977a324be6a9f6eb792a558c8a1feb8ed977a41a01",
+      "markdown_sha256": "5c3845872c3916e5efb3bac18e09f0fb750cecb9d976f02c85b4367243ea8f52"
+    },
+    {
+      "group": "campaign",
+      "report": "invoiceninja-nearest-warm/attempt-0001/raw/report.json",
+      "schema_0_8_valid": true,
+      "markdown_exact_projection": true,
+      "json_sha256": "2a61d7c2e3bef2a94eddc6480a728614068959e5a9326e7e07ccd8e58bfbfb81",
+      "markdown_sha256": "38c0b09bcbd428066c1a35dad18f13fe3f0c04c7e163b3c5fb034e0b5d13fd48"
+    },
+    {
+      "group": "campaign",
+      "report": "koel-longest-cold/attempt-0001/raw/report.json",
+      "schema_0_8_valid": true,
+      "markdown_exact_projection": true,
+      "json_sha256": "9733a8bc4b269a308dbf92ba06b30bc2aff21d8a29398551ecff6391fbef3c1a",
+      "markdown_sha256": "376e38b9e33c4b5ae538913f955119bee4ce7a4a36276fa6123468f0542e998e"
+    },
+    {
+      "group": "campaign",
+      "report": "koel-nearest-cold/attempt-0001/raw/report.json",
+      "schema_0_8_valid": true,
+      "markdown_exact_projection": true,
+      "json_sha256": "d46a28f210a5fb0a2f5f049f472778f6be16a5c5ca83e5e7a5514088302cc0ad",
+      "markdown_sha256": "98b0ede88a1ba7d0a943069c810b299713fb3ffb3d8d58860a4012ce38c12e24"
+    },
+    {
+      "group": "campaign",
+      "report": "koel-nearest-warm/attempt-0001/raw/report.json",
+      "schema_0_8_valid": true,
+      "markdown_exact_projection": true,
+      "json_sha256": "3758a38b627f6305a9ba4d1023a82f8856f3fa3838475b4e4572b1c7c1f59fbf",
+      "markdown_sha256": "0dae84d983b30372b8370ed567ca0ca54ca19720e6f675ac1c0359b86c04b3d4"
+    },
+    {
+      "group": "campaign",
+      "report": "lychee-longest-cold/attempt-0001/raw/report.json",
+      "schema_0_8_valid": true,
+      "markdown_exact_projection": true,
+      "json_sha256": "d99e29d813c7ba248f273f06b193e5218f587e6c99bfdbd3fa3a1e1c16eb7896",
+      "markdown_sha256": "82ec761506d23258ff39b4f1182359a7e628a9844fde27cbaf99e7c914009fe0"
+    },
+    {
+      "group": "campaign",
+      "report": "lychee-nearest-cold/attempt-0001/raw/report.json",
+      "schema_0_8_valid": true,
+      "markdown_exact_projection": true,
+      "json_sha256": "9dc6878e05b2f77e22fc4c3662db7d9cca7aa157c9c10b7c9f9bff260333c425",
+      "markdown_sha256": "0323f5fe456e532bdaad6b2ad36a964fe948c7141a2c36461e0fd688e33fd4d3"
+    },
+    {
+      "group": "campaign",
+      "report": "lychee-nearest-warm/attempt-0001/raw/report.json",
+      "schema_0_8_valid": true,
+      "markdown_exact_projection": true,
+      "json_sha256": "d8bcb819ea2d5c618838e7e861d952c195166e75cd2675f33cf9a072ed290d28",
+      "markdown_sha256": "10241335047043b4bfd24b1b111d9a79e1af5980d59ab834e2acbdb3c4f027ee"
+    },
+    {
+      "group": "campaign",
+      "report": "monica-longest-cold/attempt-0001/raw/report.json",
+      "schema_0_8_valid": true,
+      "markdown_exact_projection": true,
+      "json_sha256": "7175b6d98aa2ed1118d5edd0216f41efc6c83d0aa69cda2632dfad4f1efa27ae",
+      "markdown_sha256": "1d4573924901a24701e8f18fb11ab8f7bf95cc7b6430248c8cda7895840a38c0"
+    },
+    {
+      "group": "campaign",
+      "report": "monica-nearest-cold/attempt-0001/raw/report.json",
+      "schema_0_8_valid": true,
+      "markdown_exact_projection": true,
+      "json_sha256": "1fd55867e9a5bcdb5554d6883ef79c7381302d98912da02b40d78766c5c105c8",
+      "markdown_sha256": "f57d28f3e372aefa67d6e25993c11efcf76d314d07d139cde47ada0d8d878530"
+    },
+    {
+      "group": "campaign",
+      "report": "monica-nearest-warm/attempt-0001/raw/report.json",
+      "schema_0_8_valid": true,
+      "markdown_exact_projection": true,
+      "json_sha256": "a20561bc92c162347e83d082b277a94c41631962165e965af9b0e0841921aee2",
+      "markdown_sha256": "1266f016a024121aed8f75b62cc2f1b0602921863a36eeef583226d291f21fe4"
+    },
+    {
+      "group": "campaign",
+      "report": "monica7-longest-cold/attempt-0001/raw/report.json",
+      "schema_0_8_valid": true,
+      "markdown_exact_projection": true,
+      "json_sha256": "456e52b6fc306cc364a29be623f6b3e3c8fff23751686ba477474473176a1b41",
+      "markdown_sha256": "f1b1ba6595fd152aa0115d8e7269a6fb2a2396c8e87cbbc548994dc3ee51d4bd"
+    },
+    {
+      "group": "campaign",
+      "report": "probe-cache-failure/attempt-0001/raw/report.json",
+      "schema_0_8_valid": true,
+      "markdown_exact_projection": true,
+      "json_sha256": "a4788a118a7537122d957b24824869ab25883052332d50f305f066f040f12918",
+      "markdown_sha256": "f95ff402ebb65efc5c8f18cf983a49d2451e57e172745203d1954801edaef7a9"
+    },
+    {
+      "group": "campaign",
+      "report": "probe-child-failure/attempt-0001/raw/report.json",
+      "schema_0_8_valid": true,
+      "markdown_exact_projection": true,
+      "json_sha256": "9efc1d8b6cfb41a41fba34fb619f65b7e21f09dac5620e31b3f975552ca36ec0",
+      "markdown_sha256": "e9db887dde2bfdc52dc20125c7d2a930c5363e3f378c7684dabf2b9f0e2cbedf"
+    },
+    {
+      "group": "campaign",
+      "report": "probe-memory-1024/attempt-0001/raw/report.json",
+      "schema_0_8_valid": true,
+      "markdown_exact_projection": true,
+      "json_sha256": "2e567c468038dd85636e851aeb5f6dc2fd78d56d1a545e7f6c640de72653fa19",
+      "markdown_sha256": "c18763bff01516556609fdc4d62d4f2d7920f13491aa72322313c81e9a1b9a13"
+    },
+    {
+      "group": "campaign",
+      "report": "probe-memory-128/attempt-0001/raw/report.json",
+      "schema_0_8_valid": true,
+      "markdown_exact_projection": true,
+      "json_sha256": "36d1fd355dfe08e02fef98c6136a1c2d67c0312518e3838a60537fd14ce4f054",
+      "markdown_sha256": "ce0da5db7f29b7b0cad9123a11eb24b984969ee582e7ac5604eb90609e1eba26"
+    },
+    {
+      "group": "campaign",
+      "report": "probe-network-denied/attempt-0001/raw/report.json",
+      "schema_0_8_valid": true,
+      "markdown_exact_projection": true,
+      "json_sha256": "8a53aa275dc566ad36df2b043fccd3cc3b57b4e53343d7f97b968bbf24441346",
+      "markdown_sha256": "2557ae863f1710e9eb4fce9fcd918cb4599b9732a9db27acfbd2f93b88e2cd5f"
+    },
+    {
+      "group": "campaign",
+      "report": "probe-short-timeout/attempt-0001/raw/report.json",
+      "schema_0_8_valid": true,
+      "markdown_exact_projection": true,
+      "json_sha256": "fdf002b77097df4b1104ffd9ec08926a396312b15f9b7485df52626d3a0191d0",
+      "markdown_sha256": "90e151d56372bc3066c25eb8be24a1e4aac97a633f35fd1028392902d14e01e8"
+    },
+    {
+      "group": "campaign",
+      "report": "snipeit-longest-cold/attempt-0001/raw/report.json",
+      "schema_0_8_valid": true,
+      "markdown_exact_projection": true,
+      "json_sha256": "7cd11385dc7c5253a8f825237e82d95990ed7feeb2180f17c58dfdc2a573eb00",
+      "markdown_sha256": "1d44c79471d4e96714795e4c8c1d7f23a81b126938674e71604f11ac69cf4d55"
+    },
+    {
+      "group": "campaign",
+      "report": "snipeit-nearest-cold/attempt-0001/raw/report.json",
+      "schema_0_8_valid": true,
+      "markdown_exact_projection": true,
+      "json_sha256": "45cb5c7ec3305c47c8ab587dfa22d7d5c528c9b5e819eeb57ebae035fe7823a8",
+      "markdown_sha256": "2c3785dc27b3f2bd252344e31c56096c17f49e3b75e024b5e6d4c6f24ac2ea04"
+    },
+    {
+      "group": "campaign",
+      "report": "snipeit-nearest-warm/attempt-0001/raw/report.json",
+      "schema_0_8_valid": true,
+      "markdown_exact_projection": true,
+      "json_sha256": "0918c96b6f4928c74e84ca8b64f63f40072fe4058585dd3bfe3db426f46c3e22",
+      "markdown_sha256": "40db72b2b9c3d865f8cab374a81695033d106e1a23754ce110ff3f6348143018"
+    },
+    {
+      "group": "default-policy-lychee",
+      "report": "lychee-nearest-v1/report.json",
+      "schema_0_8_valid": true,
+      "markdown_exact_projection": true,
+      "json_sha256": "321f5afc5a70e0de83facd4b8692e000de2a59f9b16deb0174f07d8a14de7fe7",
+      "markdown_sha256": "bfef6a33e2b3293153803d571376a6e92c3623a1f3d16103ccae3559395f9726"
+    },
+    {
+      "group": "old-wrapper",
+      "report": "invoiceninja-nearest-cold/attempt-0001/raw/report.json",
+      "schema_0_8_valid": true,
+      "markdown_exact_projection": true,
+      "json_sha256": "86adb5b3721ac63af006f7fc2eff4481ee9ae1f66491395c99232186d70af226",
+      "markdown_sha256": "0bb18f86c059b08364636e0b65e56819951eb77f3cb3b2ce469bfa167c083e65"
+    },
+    {
+      "group": "old-wrapper",
+      "report": "lychee-nearest-cold/attempt-0001/raw/report.json",
+      "schema_0_8_valid": true,
+      "markdown_exact_projection": true,
+      "json_sha256": "067b33495928d2b72c3cb35556c248c6a63ab4509268bf25eab6f807a426c8a8",
+      "markdown_sha256": "b2cabbbcb7b3aafcec40263739a8afcf64fccbdd715cb357177a2e8d60ef40b9"
+    }
+  ]
+}

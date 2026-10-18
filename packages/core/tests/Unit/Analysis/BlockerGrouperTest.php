@@ -60,7 +60,7 @@ final class BlockerGrouperTest extends TestCase
                     'subject' => 'php',
                     'requestedConstraint' => '8.1.0',
                     'blocker' => 'vendor/package',
-                    'lockedVersion' => '2.0.0',
+                    'lockedVersion' => null,
                     'conflict' => '>=8.2',
                     'dependencyPath' => ['vendor/package', 'php'],
                     'confidence' => 'high',
@@ -74,7 +74,7 @@ final class BlockerGrouperTest extends TestCase
                     'subject' => 'php',
                     'requestedConstraint' => '8.2.0',
                     'blocker' => 'vendor/legacy',
-                    'lockedVersion' => '1.4.0',
+                    'lockedVersion' => null,
                     'conflict' => '^7.4',
                 ],
             ],
@@ -86,7 +86,7 @@ final class BlockerGrouperTest extends TestCase
                     'subject' => 'php',
                     'requestedConstraint' => '8.2.0',
                     'blocker' => 'vendor/legacy',
-                    'lockedVersion' => '1.4.0',
+                    'lockedVersion' => null,
                     'conflict' => '>=7.2 <8.0',
                 ],
             ],
@@ -107,7 +107,7 @@ final class BlockerGrouperTest extends TestCase
                     'type' => 'extension-missing',
                     'subject' => 'ext-fixture',
                     'blocker' => 'vendor/blocker',
-                    'lockedVersion' => '1.0.0',
+                    'lockedVersion' => null,
                     'conflict' => '*',
                 ],
             ],
@@ -149,7 +149,7 @@ final class BlockerGrouperTest extends TestCase
                     'subject' => 'vendor/subject',
                     'requestedConstraint' => '^2.0',
                     'blocker' => 'vendor/replacer',
-                    'lockedVersion' => '2.0.0',
+                    'lockedVersion' => null,
                     'conflict' => 'self.version',
                 ],
             ],
@@ -157,12 +157,12 @@ final class BlockerGrouperTest extends TestCase
                 'vendor/locked is locked to version 1.2.3 and an update of this package was not requested.',
                 [new UpgradeTarget('vendor/package', '^2.0')],
                 [
-                    'type' => 'transitive-package-conflict',
+                    'type' => 'unknown-composer-failure',
                     'subject' => 'vendor/package',
                     'requestedConstraint' => '^2.0',
-                    'blocker' => 'vendor/locked',
-                    'lockedVersion' => '1.2.3',
-                    'dependencyPath' => ['vendor/package', 'vendor/locked'],
+                    'blocker' => null,
+                    'lockedVersion' => null,
+                    'dependencyPath' => ['vendor/package'],
                 ],
             ],
             [
@@ -212,7 +212,7 @@ final class BlockerGrouperTest extends TestCase
         $evidence = new EvidenceLedger();
         $blockers = (new BlockerGrouper())->group([
             new ScenarioResult($scenario, 2, '', 'Resolution failed.', null, null, ScenarioResult::FAILURE_SOLVER, null, [], 0, null, [$diagnostic]),
-        ], $evidence);
+        ], $evidence, new ComposerLock(['packages' => [['name' => 'fixture/blocker', 'version' => '1.2.3']]]));
 
         self::assertCount(1, $blockers);
         self::assertSame('transitive-package-conflict', $blockers[0]->type());

@@ -5,10 +5,31 @@ declare(strict_types=1);
 namespace PhpUpgradePreflight\Core\Analysis;
 
 use PhpUpgradePreflight\Core\Model\Scenario;
+use PhpUpgradePreflight\Core\Model\ScenarioResult;
 use PhpUpgradePreflight\Core\Model\UpgradeTargetSet;
 
 final class ScenarioSelector
 {
+    /** @param list<ScenarioResult> $results */
+    public function shouldExecute(Scenario $scenario, string $analysisMode, array $results): bool
+    {
+        if ($analysisMode === 'full' || $scenario->isBaselineValidation()) {
+            return true;
+        }
+        if ($scenario->minimalChanges() || $scenario->isPartialTargetProbe()) {
+            return false;
+        }
+
+        foreach ($results as $result) {
+            if ($result->scenario()->determinesTargetFeasibility() && $result->succeeded()
+                && $result->scenario()->targets()->toArray() === $scenario->targets()->toArray()) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     /** @param list<string> $uncertainties @return list<Scenario> */
     public function select(
         UpgradeTargetSet $targets,

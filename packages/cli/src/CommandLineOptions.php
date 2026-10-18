@@ -73,6 +73,11 @@ final class CommandLineOptions
                 '--source=PATH',
                 'Additional source path to scan; repeatable'
             ),
+            CommandLineOption::optionalValue(
+                'source-cache',
+                '--source-cache=PATH',
+                'Opt into private source facts caching outside the project (default: off)'
+            ),
             CommandLineOption::repeatable(
                 'framework',
                 '--framework=NAME',
@@ -80,9 +85,9 @@ final class CommandLineOptions
             ),
             CommandLineOption::value(
                 'format',
-                '--format=json|markdown',
-                'Report format (default: json)',
-                ReportFormat::JSON
+                '--format=summary|json|markdown',
+                'Report format (default: summary; json/markdown include full details)',
+                ReportFormat::SUMMARY
             ),
             CommandLineOption::value(
                 'output',
@@ -94,6 +99,11 @@ final class CommandLineOptions
                 'save-report',
                 '--save-report=PATH',
                 'Also save the stdout report to a file'
+            ),
+            CommandLineOption::optionalValue(
+                'analysis-mode',
+                '--analysis-mode=standard|full',
+                'Composer analysis strategy (default: standard; full runs exhaustive probes)'
             ),
             CommandLineOption::optionalValue(
                 'composer-mode',

@@ -1,5 +1,7 @@
 # JSON schema and compatibility
 
+The unreleased human `summary` presentation does not add a canonical format value or change schema `0.8`. Its backing request uses `format: json`; explicit JSON and Markdown retain their existing serialization. The optional PHP request `analysisMode()` selects execution policy without adding a serialized field. Executed scenarios and existing uncertainties describe the resulting scope. See [default migration](optimization/actionable-summary.md) and [execution policy](optimization/composer-execution.md).
+
 JSON reports use a versioned consumer contract. Tool releases and schema releases move independently:
 
 ```json

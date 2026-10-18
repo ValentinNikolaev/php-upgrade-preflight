@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace PhpUpgradePreflight\Core\Model;
 
+use Symfony\Component\Filesystem\Path;
+
 final class UpgradeRequest
 {
     private string $projectPath;
@@ -21,6 +23,8 @@ final class UpgradeRequest
     private ExtensionAssumptionSet $extensionAssumptions;
     private ?TargetPlatformProfile $targetPlatformProfile;
     private ComposerExecutionConfiguration $composerExecution;
+    private string $analysisMode;
+    private ?string $sourceCacheDirectory;
 
     /**
      * @param list<UpgradeTarget> $targets
@@ -40,7 +44,9 @@ final class UpgradeRequest
         bool $debug = false,
         array $extensionAssumptions = [],
         ?TargetPlatformProfile $targetPlatformProfile = null,
-        ?ComposerExecutionConfiguration $composerExecution = null
+        ?ComposerExecutionConfiguration $composerExecution = null,
+        string $analysisMode = 'standard',
+        ?string $sourceCacheDirectory = null
     ) {
         $resolved = realpath($projectPath);
 
@@ -71,6 +77,14 @@ final class UpgradeRequest
         $this->extensionAssumptions = new ExtensionAssumptionSet($extensionAssumptions);
         $this->targetPlatformProfile = $targetPlatformProfile;
         $this->composerExecution = $composerExecution ?? ComposerExecutionConfiguration::compatible();
+        if (!in_array($analysisMode, ['standard', 'full'], true)) {
+            throw new \InvalidArgumentException('Analysis mode must be standard or full.');
+        }
+        $this->analysisMode = $analysisMode;
+        if ($sourceCacheDirectory !== null && (trim($sourceCacheDirectory) === '' || str_contains($sourceCacheDirectory, "\0"))) {
+            throw new \InvalidArgumentException('Source cache directory must be a non-empty filesystem path.');
+        }
+        $this->sourceCacheDirectory = $sourceCacheDirectory === null ? null : Path::makeAbsolute($sourceCacheDirectory, getcwd() ?: $resolved);
         $this->assertTargetPlatformProfileCompatibility();
     }
 
@@ -140,6 +154,17 @@ final class UpgradeRequest
     public function composerExecution(): ComposerExecutionConfiguration
     {
         return $this->composerExecution;
+    }
+
+    public function analysisMode(): string
+    {
+        return $this->analysisMode;
+    }
+
+    /** Operational configuration, deliberately excluded from canonical request data. */
+    public function sourceCacheDirectory(): ?string
+    {
+        return $this->sourceCacheDirectory;
     }
 
     public function withComposerExecution(ComposerExecutionConfiguration $composerExecution): self

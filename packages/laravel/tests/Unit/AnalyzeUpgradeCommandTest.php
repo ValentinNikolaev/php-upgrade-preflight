@@ -22,6 +22,7 @@ use PhpUpgradePreflight\Core\Reporting\JsonReportWriter;
 use PhpUpgradePreflight\Core\Reporting\MarkdownReportWriter;
 use PhpUpgradePreflight\Core\Reporting\ReportWriter;
 use PhpUpgradePreflight\Core\Reporting\ReportWriterResolver;
+use PhpUpgradePreflight\Core\Reporting\SummaryReportWriter;
 use PhpUpgradePreflight\Laravel\Commands\AnalyzeUpgradeCommand;
 use PhpUpgradePreflight\Laravel\Console\ArtisanAnalysisProgressReporter;
 use PHPUnit\Framework\TestCase;
@@ -31,6 +32,48 @@ use Symfony\Component\Console\Tester\CommandTester;
 
 final class AnalyzeUpgradeCommandTest extends TestCase
 {
+    public function testDefaultSummaryUsesTheSameWriterAsTheCliWithoutColorOrDiagnostics(): void
+    {
+        $analyzer = new RecordingUpgradeAnalyzer();
+        $tester = $this->commandTester($analyzer);
+        self::assertSame(0, $tester->execute(['--path' => dirname(__DIR__, 4), '--target-php' => '8.2'], ['capture_stderr_separately' => true, 'decorated' => false]));
+        self::assertNotNull($analyzer->request);
+        self::assertNotNull($analyzer->report);
+        self::assertSame('json', $analyzer->request->format());
+        self::assertSame('standard', $analyzer->request->analysisMode());
+        self::assertSame($this->canonicalLines((new SummaryReportWriter())->render($analyzer->report)), $this->canonicalLines($tester->getDisplay()));
+        self::assertSame('', $tester->getErrorOutput());
+    }
+
+    public function testExplicitSummaryMatchesDefaultAndFullAnalysisModeReachesTheRequest(): void
+    {
+        $analyzer = new RecordingUpgradeAnalyzer();
+        $display = $this->renderedReport($analyzer, 'summary');
+        self::assertNotNull($analyzer->report);
+        self::assertSame($this->canonicalLines((new SummaryReportWriter())->render($analyzer->report)), $display);
+        $tester = $this->commandTester($analyzer);
+        self::assertSame(0, $tester->execute(['--path' => dirname(__DIR__, 4), '--target-php' => '8.2', '--analysis-mode' => 'full']));
+        self::assertNotNull($analyzer->request);
+        self::assertSame('full', $analyzer->request->analysisMode());
+        $analyzer->request = null;
+        self::assertSame(2, $tester->execute(['--path' => dirname(__DIR__, 4), '--target-php' => '8.2', '--analysis-mode' => 'invalid']));
+        self::assertNull($analyzer->request);
+    }
+
+    public function testSourceCacheIsExplicitAndItsOperationalPathIsNotRendered(): void
+    {
+        $directory = rtrim(str_replace('\\', '/', sys_get_temp_dir()), '/') . '/private-cache-secret';
+        $analyzer = new RecordingUpgradeAnalyzer();
+        $tester = $this->commandTester($analyzer);
+        $arguments = ['--path' => dirname(__DIR__, 4), '--target-php' => '8.2', '--format' => 'json'];
+        self::assertSame(0, $tester->execute($arguments));
+        self::assertNull($analyzer->request->sourceCacheDirectory());
+        self::assertSame(0, $tester->execute($arguments + ['--source-cache' => $directory]));
+        self::assertSame($directory, $analyzer->request->sourceCacheDirectory());
+        self::assertStringNotContainsString('cache-secret', $tester->getDisplay());
+        self::assertArrayNotHasKey('source_cache_directory', $analyzer->request->toArray());
+    }
+
     public function testItDefaultsToTheCurrentProjectAndDelegatesToTheAnalyzer(): void
     {
         $projectPath = dirname(__DIR__, 4) . '/tests/fixtures/laravel-app';

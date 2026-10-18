@@ -29,7 +29,7 @@ final class ComposerScenarioRunnerPathRepositoryTest extends TestCase
 
         $projectPath = dirname(__DIR__, 4) . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'fixtures' . DIRECTORY_SEPARATOR . 'path-repository' . DIRECTORY_SEPARATOR . 'project';
         $snapshot = FixtureSnapshot::capture(dirname($projectPath));
-        $request = new UpgradeRequest($projectPath, [new UpgradeTarget('fixture/dependency', '^2.0')]);
+        $request = new UpgradeRequest($projectPath, [new UpgradeTarget('fixture/dependency', '^2.0')], analysisMode: 'full');
 
         $report = (new DefaultUpgradeAnalyzer())->analyzeUpgrade($request);
         $result = $report->scenarios()[1];
@@ -71,7 +71,7 @@ final class ComposerScenarioRunnerPathRepositoryTest extends TestCase
 
         $projectPath = dirname(__DIR__, 4) . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'fixtures' . DIRECTORY_SEPARATOR . 'path-repository' . DIRECTORY_SEPARATOR . 'project';
         $snapshot = FixtureSnapshot::capture(dirname($projectPath));
-        $request = new UpgradeRequest($projectPath, [new UpgradeTarget('fixture/dependency', '^3.0')]);
+        $request = new UpgradeRequest($projectPath, [new UpgradeTarget('fixture/dependency', '^3.0')], analysisMode: 'full');
 
         $report = (new DefaultUpgradeAnalyzer())->analyzeUpgrade($request);
 
@@ -111,7 +111,8 @@ final class ComposerScenarioRunnerPathRepositoryTest extends TestCase
             'json',
             null,
             false,
-            [ExtensionAssumption::fromPresenceInput('ext-json')]
+            [ExtensionAssumption::fromPresenceInput('ext-json')],
+            analysisMode: 'full'
         );
 
         $report = (new DefaultUpgradeAnalyzer())->analyzeUpgrade($request);
@@ -138,7 +139,7 @@ final class ComposerScenarioRunnerPathRepositoryTest extends TestCase
         $projectPath = dirname(__DIR__, 4) . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'fixtures' . DIRECTORY_SEPARATOR . 'path-repository' . DIRECTORY_SEPARATOR . 'project';
         $snapshot = FixtureSnapshot::capture(dirname($projectPath));
         $project = (new ProjectStateBuilder())->build($projectPath);
-        $request = new UpgradeRequest($projectPath, [new UpgradeTarget('php', '9.0')]);
+        $request = new UpgradeRequest($projectPath, [new UpgradeTarget('php', '9.0')], analysisMode: 'full');
 
         $result = (new ComposerScenarioRunner())->run($project, $request, new Scenario('blocked-php-target', $request->targets(), false));
 

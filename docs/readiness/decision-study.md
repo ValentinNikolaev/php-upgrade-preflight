@@ -71,3 +71,6 @@ Use the two blank forms below only for actual Symfony-owner cases. Blank fields 
 | Sanitization and missing-evidence notes |  |  |
 
 **Current record.** Participant records: **UNAVAILABLE**. Active evaluation start/end and days used: **UNAVAILABLE**. Timing, answer quality, critical-claim observations, second-decision reuse and Symfony-owner cases: **UNAVAILABLE**. The R3 value hypothesis is untested. Carry this status to R4's benefit comparison and the [R5 `VALIDATE_FIRST` decision](release-direction.md) until real evidence is recorded.
+
+
+**Engineering packet, 2026-10-17.** [Exercise cards and withheld report-backed keys](corpus-2026-10/exercise-answers.md) now bind original A-D, controlled timeout U and supplemental tasks. These engineering preparations are not participant observations and change no threshold above. Known-defect baseline reports require a separately frozen, reviewed fixed-report cohort before ordinary live study; keep cohorts/revisions distinct and exclude injected-fault timing from normal workflow comparisons. All actual study and reuse outcomes remain UNAVAILABLE.

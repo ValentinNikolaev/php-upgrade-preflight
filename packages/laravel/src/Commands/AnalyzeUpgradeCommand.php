@@ -32,8 +32,10 @@ final class AnalyzeUpgradeCommand extends Command
         {--with-extension=* : Assume an extension is present, optionally as ext-name:version}
         {--without-extension=* : Assume an extension is absent}
         {--source=* : Additional source path to scan}
-        {--format=json : json or markdown}
+        {--source-cache= : Opt into private source facts caching outside the project (default: off)}
+        {--format=summary : summary, json or markdown (full details)}
         {--output= : Report output path}
+        {--analysis-mode=standard : standard or full Composer analysis}
         {--composer-mode=compatible : compatible or restricted}
         {--composer-executable=composer : Composer command or executable path}
         {--composer-version= : Expected Composer version constraint}
@@ -77,7 +79,7 @@ final class AnalyzeUpgradeCommand extends Command
                 );
             }
 
-            $format = ReportFormat::normalize($this->requiredStringOption('format'));
+            $format = ReportFormat::normalizePresentation($this->requiredStringOption('format'));
             $extensionAssumptions = ExtensionAssumptionSet::fromInputs(
                 array_values((array) $this->option('with-extension')),
                 array_values((array) $this->option('without-extension'))
@@ -96,12 +98,14 @@ final class AnalyzeUpgradeCommand extends Command
                 $targetPhp,
                 array_values((array) $this->option('source')),
                 ['laravel'],
-                $format,
+                $format === ReportFormat::SUMMARY ? ReportFormat::JSON : $format,
                 $this->optionalString('output'),
                 (bool) $this->option('debug'),
                 $extensionAssumptions,
                 $targetPlatformProfile,
-                $composerExecution
+                $composerExecution,
+                $this->requiredStringOption('analysis-mode'),
+                $this->optionalString('source-cache')
             );
 
             if ($request->outputPath() !== null) {

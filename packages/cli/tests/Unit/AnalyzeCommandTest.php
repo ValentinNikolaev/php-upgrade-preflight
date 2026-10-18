@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace PhpUpgradePreflight\Cli\Tests\Unit;
 
+use Opis\JsonSchema\Validator;
 use PhpUpgradePreflight\Cli\AnalyzeCommand;
 use PhpUpgradePreflight\Cli\AnalyzerFactory;
 use PhpUpgradePreflight\Cli\FrameworkIntegrationRegistry;
@@ -23,11 +24,69 @@ use PhpUpgradePreflight\Core\Model\UpgradeReport;
 use PhpUpgradePreflight\Core\Model\UpgradeRequest;
 use PhpUpgradePreflight\Core\Reporting\ReportDestinationFilesystem;
 use PhpUpgradePreflight\Core\Reporting\ReportFileWriter;
+use PhpUpgradePreflight\Core\Reporting\ReportWriterResolver;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Filesystem\Filesystem;
 
 final class AnalyzeCommandTest extends TestCase
 {
+    /** @dataProvider reportFormats */
+    public function testDefaultAndExplicitFormatsRenderTheSharedProjection(?string $format): void
+    {
+        $arguments = ['upgrade-intel', 'analyze', '--path=' . dirname(__DIR__, 4), '--target-php=8.2'];
+        if ($format !== null) {
+            $arguments[] = '--format=' . $format;
+        }
+        self::assertSame(0, $this->command->run($arguments));
+        self::assertNotNull($this->analyzer->request);
+        self::assertSame(in_array($format, [null, 'summary'], true) ? 'json' : $format, $this->analyzer->request->format());
+        self::assertSame('standard', $this->analyzer->request->analysisMode());
+        $report = $this->analyzer->analyzeUpgrade($this->analyzer->request);
+        $schema = file_get_contents(dirname(__DIR__, 4) . '/packages/core/resources/schema/upgrade-report-v0.8.schema.json');
+        self::assertIsString($schema);
+        $canonical = json_decode(json_encode($report->toArray(), JSON_THROW_ON_ERROR), false, 512, JSON_THROW_ON_ERROR);
+        self::assertTrue((new Validator())->validate($canonical, json_decode($schema, false, 512, JSON_THROW_ON_ERROR))->isValid());
+        self::assertSame((new ReportWriterResolver())->resolve($format ?? 'summary')->render($report), $this->streamContents($this->stdout));
+        self::assertSame('', $this->streamContents($this->stderr));
+    }
+
+    /** @return list<array{?string}> */
+    public static function reportFormats(): array
+    {
+        return [[null], ['summary'], ['json'], ['markdown']];
+    }
+
+    public function testItPassesFullAnalysisModeAndRejectsInvalidModeBeforeAnalysis(): void
+    {
+        $arguments = ['upgrade-intel', 'analyze', '--path=' . dirname(__DIR__, 4), '--target-php=8.2'];
+        self::assertSame(0, $this->command->run(array_merge($arguments, ['--analysis-mode=full'])));
+        self::assertNotNull($this->analyzer->request);
+        self::assertSame('full', $this->analyzer->request->analysisMode());
+        $this->analyzer->request = null;
+        self::assertSame(2, $this->command->run(array_merge($arguments, ['--analysis-mode=invalid'])));
+        self::assertNull($this->analyzer->request);
+    }
+
+    public function testCompletedBlockedAnalysisDefaultsToSummaryWithSuccessfulExit(): void
+    {
+        $command = new AnalyzeCommand(new BlockedUpgradeAnalyzer(), $this->stdout, $this->stderr);
+        self::assertSame(0, $command->run(['upgrade-intel', 'analyze', '--path=' . dirname(__DIR__, 4), '--target-php=8.2']));
+        self::assertStringContainsString('Direct target: blocked', $this->streamContents($this->stdout));
+        self::assertSame('', $this->streamContents($this->stderr));
+    }
+
+    public function testSourceCacheIsExplicitAndItsOperationalPathIsNotRendered(): void
+    {
+        $directory = rtrim(str_replace('\\', '/', sys_get_temp_dir()), '/') . '/private-cache-secret';
+        $arguments = ['upgrade-intel', 'analyze', '--path=' . dirname(__DIR__, 4), '--target-php=8.2', '--format=json'];
+        self::assertSame(0, $this->command->run($arguments));
+        self::assertNull($this->analyzer->request->sourceCacheDirectory());
+        self::assertSame(0, $this->command->run(array_merge($arguments, ['--source-cache=' . $directory])));
+        self::assertSame($directory, $this->analyzer->request->sourceCacheDirectory());
+        self::assertStringNotContainsString('cache-secret', $this->streamContents($this->stdout));
+        self::assertArrayNotHasKey('source_cache_directory', $this->analyzer->request->toArray());
+    }
+
     /** @var resource */
     private $stdout;
     /** @var resource */
@@ -275,6 +334,7 @@ final class AnalyzeCommandTest extends TestCase
                 '--path=' . dirname(__DIR__, 4),
                 '--target-php=8.2',
                 '--save-report=' . $copyPath,
+                '--format=json',
             ]);
 
             $stdout = $this->streamContents($this->stdout);
@@ -328,6 +388,7 @@ final class AnalyzeCommandTest extends TestCase
             '--path=' . dirname(__DIR__, 4),
             '--target-php=8.2',
             '--save-report=' . sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'report.json',
+            '--format=json',
         ]);
 
         self::assertSame(AnalyzeCommand::FAILURE, $exitCode);
@@ -351,6 +412,7 @@ final class AnalyzeCommandTest extends TestCase
                 '--path=' . dirname(__DIR__, 4),
                 '--target-php=8.2',
                 '--output=' . $outputPath,
+                '--format=json',
             ]);
 
             self::assertSame(AnalyzeCommand::SUCCESS, $exitCode);
@@ -605,6 +667,7 @@ final class AnalyzeCommandTest extends TestCase
             'analyze',
             '--path=' . dirname(__DIR__, 4),
             '--target-php=8.2',
+            '--format=json',
         ]);
         /** @var array<string, mixed> $report */
         $report = json_decode($this->streamContents($this->stdout), true, 512, JSON_THROW_ON_ERROR);
@@ -629,6 +692,7 @@ final class AnalyzeCommandTest extends TestCase
                 'analyze',
                 '--path=' . $projectPath,
                 '--target=fixture/dependency:^2.0',
+                '--format=json',
             ]);
             /** @var array<string, mixed> $report */
             $report = json_decode($this->streamContents($this->stdout), true, 512, JSON_THROW_ON_ERROR);

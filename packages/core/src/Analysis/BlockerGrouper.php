@@ -71,7 +71,7 @@ final class BlockerGrouper
                 'diagnostics' => array_map(static fn (ComposerDiagnostic $diagnostic): array => $diagnostic->toArray(), $result->diagnostics()),
             ])->id();
 
-            foreach ($this->parser->parse($result, $evidenceId, $platform) as $blocker) {
+            foreach ($this->parser->parse($result, $evidenceId, $platform, $metadataLock) as $blocker) {
                 if ($blocker->type() === BlockerType::ABANDONED_PACKAGE
                     && isset($abandonedPackageIndexes[$blocker->subject()])) {
                     $index = $abandonedPackageIndexes[$blocker->subject()];
@@ -124,6 +124,7 @@ final class BlockerGrouper
             $blocker->lockedVersion(),
             $blocker->conflict(),
             $blocker->dependencyPath(),
+            ...$blocker->explanationIdentity(),
         ]);
     }
 }

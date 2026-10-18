@@ -17,6 +17,56 @@ use Symfony\Component\Filesystem\Filesystem;
 
 final class DefaultUpgradeAnalyzerProgressTest extends TestCase
 {
+    public function testAnEvidencedDirectFindingAppearsBeforeTheRemainingChecks(): void
+    {
+        $path = sys_get_temp_dir() . '/direct-finding-' . bin2hex(random_bytes(8));
+        mkdir($path, 0700, true);
+        file_put_contents($path . '/composer.json', json_encode([
+            'require' => ['fixture/dependency' => '^1.0', 'vendor/legacy' => '1.0.0'],
+        ], JSON_THROW_ON_ERROR));
+        file_put_contents($path . '/composer.lock', json_encode(['packages' => [
+            ['name' => 'fixture/dependency', 'version' => '1.0.0'],
+            ['name' => 'vendor/legacy', 'version' => '1.0.0', 'require' => ['fixture/dependency' => '^1.0']],
+        ], 'packages-dev' => []], JSON_THROW_ON_ERROR));
+        $reporter = new class () implements AnalysisProgressReporter {
+            /** @var list<AnalysisProgressEvent> */
+            public array $events = [];
+
+            public function report(AnalysisProgressEvent $event): void
+            {
+                $this->events[] = $event;
+            }
+        };
+        $runner = new ComposerScenarioRunner(processRunner: static function (array $command): array {
+            if ($command[1] === 'validate') {
+                return ['exit_code' => 0, 'stdout' => 'Valid.', 'stderr' => ''];
+            }
+            if ($command[1] === 'prohibits') {
+                return ['exit_code' => 1, 'stdout' => 'vendor/legacy 1.0.0 requires fixture/dependency (^1.0)', 'stderr' => ''];
+            }
+
+            return ['exit_code' => 2, 'stdout' => '', 'stderr' => 'Your requirements could not be resolved to an installable set of packages.'];
+        });
+        try {
+            $report = (new DefaultUpgradeAnalyzer(scenarioRunner: $runner, progressReporter: $reporter))->analyzeUpgrade(
+                new UpgradeRequest($path, [new UpgradeTarget('fixture/dependency', '^2.0')])
+            );
+            $events = $reporter->events;
+            $previews = array_values(array_filter($events, static fn (AnalysisProgressEvent $event): bool => $event->type() === AnalysisProgressEvent::DIRECT_FINDING));
+            self::assertCount(1, $previews);
+            self::assertNotNull($previews[0]->finding());
+            self::assertStringContainsString('vendor/legacy', implode(' ', $previews[0]->finding()->lines()));
+            $previewIndex = array_search($previews[0], $events, true);
+            self::assertIsInt($previewIndex);
+            self::assertSame(AnalysisPhase::STAGED_RESOLUTION, $events[$previewIndex + 1]->phase());
+            self::assertSame(AnalysisProgressEvent::PHASE_STARTED, $events[$previewIndex + 1]->type());
+            self::assertSame('blocked', $report->resolutionStatus());
+            self::assertSame(AnalysisProgressEvent::ANALYSIS_COMPLETED, $events[count($events) - 1]->type());
+        } finally {
+            (new Filesystem())->remove($path);
+        }
+    }
+
     public function testReportsStablePhaseAndScenarioOrdering(): void
     {
         $reporter = new RecordingAnalysisProgressReporter();
@@ -117,7 +167,7 @@ final class DefaultUpgradeAnalyzerProgressTest extends TestCase
 
         try {
             $report = (new DefaultUpgradeAnalyzer(progressReporter: $reporter))->analyzeUpgrade(
-                new UpgradeRequest($invalidProject, [new UpgradeTarget('fixture/dependency', '^2.0')])
+                new UpgradeRequest($invalidProject, [new UpgradeTarget('fixture/dependency', '^2.0')], analysisMode: 'full')
             );
 
             self::assertSame('unknown', $report->resolutionStatus());
@@ -144,7 +194,8 @@ final class DefaultUpgradeAnalyzerProgressTest extends TestCase
             null,
             null,
             [],
-            ['missing-framework']
+            ['missing-framework'],
+            analysisMode: 'full'
         );
 
         try {
@@ -172,7 +223,8 @@ final class DefaultUpgradeAnalyzerProgressTest extends TestCase
             null,
             null,
             [],
-            ['missing-framework']
+            ['missing-framework'],
+            analysisMode: 'full'
         );
 
         try {
@@ -214,7 +266,7 @@ final class DefaultUpgradeAnalyzerProgressTest extends TestCase
             . DIRECTORY_SEPARATOR . 'fixtures'
             . DIRECTORY_SEPARATOR . 'project-isolation';
 
-        return new UpgradeRequest($projectPath, [new UpgradeTarget('fixture/dependency', '^2.0')]);
+        return new UpgradeRequest($projectPath, [new UpgradeTarget('fixture/dependency', '^2.0')], analysisMode: 'full');
     }
 }
 

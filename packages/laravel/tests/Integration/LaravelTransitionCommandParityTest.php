@@ -276,6 +276,7 @@ final class LaravelTransitionCommandParityTest extends TestCase
                 '--target-php=' . $case['target_php'],
                 '--framework=laravel',
                 '--format=json',
+            '--analysis-mode=full',
                 '--composer-mode=' . ($case['composer_mode'] ?? 'compatible'),
             ];
             if (isset($case['target_platform_profile'])) {
@@ -316,6 +317,7 @@ final class LaravelTransitionCommandParityTest extends TestCase
             '--target' => [$case['target_package'] . ':' . $case['target_constraint']],
             '--target-php' => $case['target_php'],
             '--format' => 'json',
+            '--analysis-mode' => 'full',
             '--composer-mode' => $case['composer_mode'] ?? 'compatible',
         ];
         if (isset($case['target_platform_profile'])) {

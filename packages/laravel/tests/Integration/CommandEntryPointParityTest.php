@@ -61,11 +61,13 @@ final class CommandEntryPointParityTest extends TestCase
             '--target=fixture/dependency:' . $target,
             '--framework=laravel',
             '--format=json',
+            '--analysis-mode=full',
             '--output=' . $cliOutputPath,
         ]);
         $artisan = $this->runArtisan([
             '--target=fixture/dependency:' . $target,
             '--format=json',
+            '--analysis-mode=full',
             '--output=' . $artisanOutputPath,
         ]);
 

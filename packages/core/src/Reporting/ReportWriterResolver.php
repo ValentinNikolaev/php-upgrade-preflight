@@ -9,8 +9,7 @@ use PhpUpgradePreflight\Core\Model\ReportFormat;
 /**
  * Selects the report projection for a normalized {@see ReportFormat} value.
  *
- * JSON is the canonical report, so every format other than Markdown resolves to
- * the canonical writer.
+ * JSON is the canonical report; summary and Markdown project the same facts.
  *
  * This lives in core rather than in an entry-point package because every entry
  * point renders the same {@see \PhpUpgradePreflight\Core\Model\UpgradeReport}:
@@ -21,6 +20,10 @@ final class ReportWriterResolver
 {
     public function resolve(string $format): ReportWriter
     {
+        if ($format === ReportFormat::SUMMARY) {
+            return new SummaryReportWriter();
+        }
+
         return $format === ReportFormat::MARKDOWN
             ? new MarkdownReportWriter()
             : new JsonReportWriter();

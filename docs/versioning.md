@@ -22,6 +22,8 @@ This follows the practical meaning of SemVer's initial-development rule: compati
 
 ## Active release line
 
+The development checkout contains an explicitly authorized, **unreleased** migration to concise default output and adaptive standard execution. This changes invocation behavior even though canonical schema `0.8` remains unchanged. It must not be published as an ordinary v0.3.x patch: publication requires coordinated minor-line identity/policy changes and prominent migration notes. This work creates no tag or release and leaves the published v0.3.5 identity intact. Automation can already preserve full output and exhaustive execution with `--format=json --analysis-mode=full` in the development checkout.
+
 Release automation on `main` publishes the active `0.3.x` release line and requires schema `0.8`, `0.3.x-dev` aliases, and `^0.3` internal constraints. The archival `0.2.x` line is retained on the `0.2.x` maintenance branch and v0.1.x on `0.1.x`; both are historical evidence rather than supported lines. Should an archival line ever need a release, it is prepared from its own branch and verifier policy, never by weakening the active `main` verifier.
 
 The signed v0.1.0 release and its schema `0.6` artifacts remain immutable historical contracts. A security or maintenance release on the retired `0.1.x` line requires an explicit coordinated policy change on its maintenance branch; it is not prepared from `main` and does not weaken the archived compatibility checks.

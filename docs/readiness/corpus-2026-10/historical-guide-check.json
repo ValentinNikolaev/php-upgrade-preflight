@@ -1,0 +1,17 @@
+{
+  "observed_utc": "2026-10-17",
+  "repository": "laravel/docs",
+  "commit": "37e19ec52ec0894e9380fb57f3c5d0dd1f85872a",
+  "file": "upgrade.md",
+  "sha256": "f6244b2566ffabac57df87ba9ed2ed7c654277cb1b12d6abf719a774810d0b04",
+  "lines": [
+    40,
+    217,
+    221,
+    228
+  ],
+  "source_url": "https://github.com/laravel/docs/blob/37e19ec52ec0894e9380fb57f3c5d0dd1f85872a/upgrade.md",
+  "claim": "For the 9-to-10 transition, the guide documents removal of deprecated immediate-dispatch APIs and names synchronous dispatch replacements. This supports reviewing the detected source references; it does not validate application return values, handlers or later skipped stages.",
+  "report": "monica7-longest-cold/attempt-0001",
+  "json_pointer": "/framework_findings/18"
+}

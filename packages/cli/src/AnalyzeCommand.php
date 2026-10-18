@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace PhpUpgradePreflight\Cli;
 
+use PhpUpgradePreflight\Core\Model\ReportFormat;
 use PhpUpgradePreflight\Core\Contracts\UpgradeAnalyzer;
 use PhpUpgradePreflight\Core\Model\ComposerExecutionConfiguration;
 use PhpUpgradePreflight\Core\Model\TargetPlatformProfile;
@@ -91,12 +92,14 @@ final class AnalyzeCommand implements CommandRunner
                 $options['target-php'],
                 $options['source'],
                 $options['framework'],
-                $options['format'],
+                $options['format'] === ReportFormat::SUMMARY ? ReportFormat::JSON : $options['format'],
                 $options['output'],
                 $options['debug'],
                 $options['extension-assumptions'] ?? [],
                 $targetPlatformProfile,
-                $composerExecution
+                $composerExecution,
+                $options['analysis-mode'] ?? 'standard',
+                $options['source-cache'] ?? null
             );
             $this->frameworkIntegrations->assertAvailable($request->frameworks());
 
@@ -123,7 +126,7 @@ final class AnalyzeCommand implements CommandRunner
                 $this->diagnostic($discoveryDiagnostic);
             }
             $report = $analyzer->analyzeUpgrade($request);
-            $rendered = $this->reportWriters->resolve($request->format())->render($report);
+            $rendered = $this->reportWriters->resolve($options['format'])->render($report);
 
             if ($request->outputPath() !== null) {
                 $writtenPath = $this->reportFileWriter->write($request->projectPath(), $request->outputPath(), $rendered);

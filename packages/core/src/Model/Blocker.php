@@ -115,6 +115,27 @@ final class Blocker
         return $this->evidence;
     }
 
+    /**
+     * Unknown causes share a schema category, so their explanation distinguishes
+     * different reasons for failure without making evidence part of identity.
+     * The standard fallback retains its established identity.
+     *
+     * @return list<string>
+     */
+    public function explanationIdentity(): array
+    {
+        if ($this->type !== BlockerType::UNKNOWN_COMPOSER_FAILURE) {
+            return [];
+        }
+
+        $default = BlockerType::fromString($this->type);
+        if ($this->summary === $default->summary() && $this->options === $default->options($this->subject, $this->blocker)) {
+            return [];
+        }
+
+        return array_merge([$this->summary], $this->options);
+    }
+
     /** @param list<string> $evidence */
     public function withAdditionalEvidence(array $evidence): self
     {

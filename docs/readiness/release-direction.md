@@ -22,3 +22,21 @@ Confidence is **high in the decision to defer a new public contract and maintena
 4. Before any schema or adapter implementation, Milestone 0 must approve an exact contract from those cases. Current v0.3 behavior refuses multiple active stage providers, and the Laravel stage planner skips unsupported mixed Laravel-family targets with evidence. Future competing rooted-family ownership and repeated `--framework` selections require an explicit contract. If an owner case requires same-major/minor precision or family staging, define only that case's version, target, attribution and migration rules. Structured completeness, nullability and enforced-versus-advisory budget fields in schema `0.9` are candidates for that contract, not permission to implement them now.
 
 R3 and R4 empirical acceptance remain **open**. This R5 direction closes the immediate scope decision while leaving the broader readiness milestone incomplete. The original [point-in-time audit](../../.claude/audits/2026-10-10-product-engineering-review.md) remains historical evidence; this record states the later decision.
+
+
+## 2026-10-17 follow-up: retain VALIDATE_FIRST
+
+The original 2026-10-10 decision and its evidence table above remain historical. The [bounded live corpus follow-up](operational-cost.md#2026-10-17-bounded-live-corpus-follow-up) now records all 37 frozen slots completed with verified inputs/cleanup, 30 blocked and seven unknown direct/staged outcomes, plus three extra diagnostics. The measured baseline is `6a2251901725321d4206e008ac42205b32ddfa8d`; structural schema/projection/evidence-reference checks do not erase the four independently reviewed attribution/provenance defect families. Both Lychee memory probes produced reports, so the historical OOM is not reproduced; its cause remains unknown. Monica7 provides no successful full chain.
+
+The engineering packet now binds original A-D, controlled timeout U and supplemental tasks. It establishes no consented users, normal-workflow timings, answer quality, comprehension/pass rates, planning benefit, voluntary reuse, demand or Symfony-owner cases: all remain **UNAVAILABLE**. Known-defect baseline reports cannot be ordinary uncorrected live stimuli; separately freeze/review a fixed-report cohort, then collect and score actual intended-user observations under the unchanged [R3 protocol](decision-study.md).
+
+PR45/PR46/PR47/PR48 have independent approval, all 19 respective final-head Quality jobs passed, and integration-only merges. Final aggregate review/CI are separate PR44 requirements, and the maintainer owns the main merge. Nothing here publishes those changes or approves a release. User capacity >5 hours/week is stated capacity, not observed upkeep or a committed allocation. [Conditional CI scenarios](corpus-2026-10/ci-cost.md) do not select OS/PHP/framework cases, price upkeep or establish net benefit. A fourth package/fifth Wiki destination, Symfony, schema `0.9` and any new release remain deferred. Revisit only after the remaining repair, human-study, successful-chain and sustainable-cost gates have reviewable evidence.
+
+The subsequent [PHP optimization outcome](../optimization/results.md) adds 43
+controlled primary executions and three exploratory controls on corrected code.
+It supplies compact human output, more conservative cause explanations and
+bounded modular discovery, while documenting cold-run regressions and missed
+speed targets. Independent review found no material defect in the ten displayed
+candidate-first summaries; no real-user benefit, demand or successful application
+upgrade was observed. Retain `VALIDATE_FIRST`: functional engineering acceptance
+does not close performance, R3, successful-chain or sustainable-cost gates.

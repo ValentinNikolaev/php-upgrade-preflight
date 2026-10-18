@@ -1,0 +1,373 @@
+{
+  "attestation": {
+    "classification": "publisher-verified portable projection/attestation",
+    "private_verification": "Original private plan, receipts, invocations, cache-lineage and host-cleanup checks cannot be independently rerun from this bundle because their metadata and private paths are excluded; these checks are publisher attestations.",
+    "public_verification": "Published file/gzip hashes, original hashes of included reports, and included canonical content can be independently verified.",
+    "unavailable_artifacts": "Hashes and sizes of omitted malformed artifacts attest to privately observed bytes; their contents are unavailable for independent recomputation."
+  },
+  "campaign_status": "completed",
+  "diagnostic_count": 3,
+  "diagnostic_entry_semantics": "diagnostic_calls, direct_diagnostic_calls and staged_diagnostic_calls count canonical diagnostic entries, including reused/cached entries, not unique spawned processes. Composer started_count and invocation kinds (--version, validate, update, prohibits and others) form a separate process inventory; do not derive process starts by summing report diagnostic entries.",
+  "diagnostics_policy": "explicit legacy extras are unverified and excluded from campaign counts",
+  "files": {
+    "README.md": {
+      "bytes": 1347,
+      "sha256": "2547e52d788eaf2cba553584ce9f823f4366017ff5b4c0f90e4e48a5a11f07b8"
+    },
+    "attempts.json": {
+      "bytes": 230612,
+      "sha256": "1ceb4d66526fdf9c70ab5d73a6d56a68672b18d5570b1d13c70c59360e809bf2"
+    },
+    "diagnostics.json": {
+      "bytes": 34648,
+      "sha256": "f844cffdb74f058e2ebeb0afca623e3938987e6ae66a9f0b89545c48d50bd62a"
+    },
+    "metrics.csv": {
+      "bytes": 12925,
+      "sha256": "b1de04e4caa1ba69cf11ea932afd0d7e2e363ef218994ca5b1c035113d0b2938"
+    },
+    "provenance.json": {
+      "bytes": 10582,
+      "sha256": "318e50f192440e91d7e94176e266d29c93cd79343cf71d0b8a1f6443ece1ec46"
+    },
+    "reports.json": {
+      "bytes": 43181,
+      "sha256": "d970c6fddcb09914b5627499cecd80a77a0aca29d7c169b3af08309e4aefceae"
+    },
+    "reports/campaign/akaunting-longest-cold/attempt-0001/report.json.gz": {
+      "bytes": 244115,
+      "sha256": "57a3bbfe45180835b573ce97bf3df0851bbbe68afd933378b02d5db576a5764d"
+    },
+    "reports/campaign/akaunting-longest-cold/attempt-0001/report.md.gz": {
+      "bytes": 216981,
+      "sha256": "97525ce767f3024e98e92df4621564ad3545d91f9873b8524129b76ab2924274"
+    },
+    "reports/campaign/akaunting-nearest-cold/attempt-0001/report.json.gz": {
+      "bytes": 240056,
+      "sha256": "0f5741b72d49c868b8632a5709a34dd0cb6e60e6e2fc2960f5014c39b0ff5575"
+    },
+    "reports/campaign/akaunting-nearest-cold/attempt-0001/report.md.gz": {
+      "bytes": 214185,
+      "sha256": "85392ef9afa5d0416d421da5ad85483c13f4d74ff50d117092d15d261c9aa36d"
+    },
+    "reports/campaign/akaunting-nearest-warm/attempt-0001/report.json.gz": {
+      "bytes": 240057,
+      "sha256": "95fa6a7c654c93e78d037ca08f33ffe212a693872dd35c1d85eb4cf5bc263b0c"
+    },
+    "reports/campaign/akaunting-nearest-warm/attempt-0001/report.md.gz": {
+      "bytes": 214180,
+      "sha256": "ab112dfbd0c39026bc1d18a0fa86f975753b07fb3d052f0fa5121a6b2c0c0f27"
+    },
+    "reports/campaign/bagisto-longest-cold/attempt-0001/report.json.gz": {
+      "bytes": 40950,
+      "sha256": "64731cbf9267a5ec7257a42a1b3e7f32c7f10dfd18e6d45543b51f8c003508f7"
+    },
+    "reports/campaign/bagisto-longest-cold/attempt-0001/report.md.gz": {
+      "bytes": 34512,
+      "sha256": "12f2559007ac9d1c2bd5748253e3ffc777953a7f7a05ab6d946c37fa1103014f"
+    },
+    "reports/campaign/bagisto-nearest-cold/attempt-0001/report.json.gz": {
+      "bytes": 36235,
+      "sha256": "5440780b48e34d9687ab86b19a2fc3f5f69ba07e49ef96a25e7de21acffb486c"
+    },
+    "reports/campaign/bagisto-nearest-cold/attempt-0001/report.md.gz": {
+      "bytes": 31381,
+      "sha256": "53441e3cfd0506d0c99c964f4c25278f4240aa6cb768de036f0f0ad37871ae67"
+    },
+    "reports/campaign/bagisto-nearest-warm/attempt-0001/report.json.gz": {
+      "bytes": 36237,
+      "sha256": "d41aab4ae10cdffb293c2acb14de8ae82fbec1f93436d3e91bcf1469e9fba6a8"
+    },
+    "reports/campaign/bagisto-nearest-warm/attempt-0001/report.md.gz": {
+      "bytes": 31384,
+      "sha256": "7622e0a6bbe7615e3b84e4db3c4511ff3503e226c737bd279889a54701ca2c30"
+    },
+    "reports/campaign/bookstack-longest-cold/attempt-0001/report.json.gz": {
+      "bytes": 245478,
+      "sha256": "75d2dfe00ba0902fe0bb48bbb87534cd11a1268b2b028e49fdba62f656f52cf5"
+    },
+    "reports/campaign/bookstack-longest-cold/attempt-0001/report.md.gz": {
+      "bytes": 219064,
+      "sha256": "2a9415c925d3d3490335fb6ef863e22d90bb010657151efc8e98672d8b97d442"
+    },
+    "reports/campaign/bookstack-nearest-cold/attempt-0001/report.json.gz": {
+      "bytes": 240312,
+      "sha256": "8eb088a5b26729a160fb655bfaa9312fec5b8e404a1d369fccc5eace24188efe"
+    },
+    "reports/campaign/bookstack-nearest-cold/attempt-0001/report.md.gz": {
+      "bytes": 215290,
+      "sha256": "cb465e4c66c32f7ca9104f23bfaa0a465b422c2882669a610e6f19481ba90e68"
+    },
+    "reports/campaign/bookstack-nearest-warm/attempt-0001/report.json.gz": {
+      "bytes": 240311,
+      "sha256": "1eef9a3c1d36a40c5c55423c9885c4a7998beac26d2d6fb6d130f80bbef6b51c"
+    },
+    "reports/campaign/bookstack-nearest-warm/attempt-0001/report.md.gz": {
+      "bytes": 215290,
+      "sha256": "273e1b704e7ee7b86b120bd792214cfdb60d44f62a1e7fc5a7c4d1228af7d2d3"
+    },
+    "reports/campaign/crater-longest-cold/attempt-0001/report.json.gz": {
+      "bytes": 198999,
+      "sha256": "b70e82d8445c6961e5bd0244a76b9cb3e1bf8525a0c211ef0f7bf455a0654b5f"
+    },
+    "reports/campaign/crater-longest-cold/attempt-0001/report.md.gz": {
+      "bytes": 179371,
+      "sha256": "8f2b3a583b62fee4580caad380f4023b5446cf364a33d4a9cb53fb4cb3d1084d"
+    },
+    "reports/campaign/crater-nearest-cold/attempt-0001/report.json.gz": {
+      "bytes": 188468,
+      "sha256": "329d4e43baef77bffa7974075a4dae9d3d6596be8862e6f758d0d6c514553e48"
+    },
+    "reports/campaign/crater-nearest-cold/attempt-0001/report.md.gz": {
+      "bytes": 171807,
+      "sha256": "0e58077f64c599548fc51db2cac8811f7edae9f0ee91299612160411285455a6"
+    },
+    "reports/campaign/crater-nearest-warm/attempt-0001/report.json.gz": {
+      "bytes": 188464,
+      "sha256": "aaf9dbcf4932798d8cee89ed8e51bba2da611e540a763147c18ebb88f76e5013"
+    },
+    "reports/campaign/crater-nearest-warm/attempt-0001/report.md.gz": {
+      "bytes": 171804,
+      "sha256": "9d80d6f0be72c1aca8bf6848dde09db8f379f1e9f0e5da39bf54e6f30bb94e61"
+    },
+    "reports/campaign/firefly-longest-cold/attempt-0001/report.json.gz": {
+      "bytes": 232397,
+      "sha256": "9870afb8cdcfbeba2b8f4d5a5a0a54c7bf5b3a72810bfb5003d13bc99b0781e1"
+    },
+    "reports/campaign/firefly-longest-cold/attempt-0001/report.md.gz": {
+      "bytes": 209974,
+      "sha256": "c569f10673ab753e39a6c1ebe5ffb9be458d46668d7e37eb7ecdb351b4b0d396"
+    },
+    "reports/campaign/firefly-nearest-cold/attempt-0001/report.json.gz": {
+      "bytes": 230235,
+      "sha256": "3b016690701458765d04b9682215fd956f567878fef06ea7f8c20e73073fcc7a"
+    },
+    "reports/campaign/firefly-nearest-cold/attempt-0001/report.md.gz": {
+      "bytes": 208539,
+      "sha256": "d34601394f8a213dd596759ab308a9ffa0d70406856bd202cd16892669e19972"
+    },
+    "reports/campaign/firefly-nearest-warm/attempt-0001/report.json.gz": {
+      "bytes": 230235,
+      "sha256": "1080d3cde14164b4aeacf434eb09c4a991065618467a1e2299ba3ff03ee4bff7"
+    },
+    "reports/campaign/firefly-nearest-warm/attempt-0001/report.md.gz": {
+      "bytes": 208534,
+      "sha256": "1e32732549dcda44b092945c6ca3d5294cc00419123f61e30df0b4a8de13877e"
+    },
+    "reports/campaign/invoiceninja-longest-cold/attempt-0001/report.json.gz": {
+      "bytes": 246595,
+      "sha256": "45ba8878974b69e76bfdf405fe49b5a0af86eb94c365eddc6546b2dd9c07fe19"
+    },
+    "reports/campaign/invoiceninja-longest-cold/attempt-0001/report.md.gz": {
+      "bytes": 219184,
+      "sha256": "ce8784a3a173f513109681c0ab96ee43c7f0938d6905c6f563afe826641578ce"
+    },
+    "reports/campaign/invoiceninja-nearest-cold/attempt-0001/report.json.gz": {
+      "bytes": 243685,
+      "sha256": "71ad3963238aad37f15a5daa455ea723df0b7ee6d651e134b5dcafc102449f8b"
+    },
+    "reports/campaign/invoiceninja-nearest-cold/attempt-0001/report.md.gz": {
+      "bytes": 217389,
+      "sha256": "1c252e1d7879d91ca0dc0f5619137e27d4ba0ece7c1fe1bc44f4a4897d223cf6"
+    },
+    "reports/campaign/invoiceninja-nearest-warm/attempt-0001/report.json.gz": {
+      "bytes": 235446,
+      "sha256": "1d8c4882a8a606b266e1e1530ee42e081773f80a460393b42b1a43bb5f436cff"
+    },
+    "reports/campaign/invoiceninja-nearest-warm/attempt-0001/report.md.gz": {
+      "bytes": 211660,
+      "sha256": "d684e67819c2696c5f2df129b0150c55b9368f47bd9b46f7e4acaaa87be208a4"
+    },
+    "reports/campaign/koel-longest-cold/attempt-0001/report.json.gz": {
+      "bytes": 203207,
+      "sha256": "643e4e8537dd81cf2f88922cbc7f4c800a94cf2f868645c2fa93c2e6aa73ce4b"
+    },
+    "reports/campaign/koel-longest-cold/attempt-0001/report.md.gz": {
+      "bytes": 181510,
+      "sha256": "e30e727ad4af592906fdcc9f95b2a2d20639fd56416302fb6ff54d0b9ae4e466"
+    },
+    "reports/campaign/koel-nearest-cold/attempt-0001/report.json.gz": {
+      "bytes": 197881,
+      "sha256": "27fa1a37cb720bdfd12a39a38dda6260ebd894e9e98fc2129d82e1c482f45913"
+    },
+    "reports/campaign/koel-nearest-cold/attempt-0001/report.md.gz": {
+      "bytes": 178087,
+      "sha256": "aaeea1c01740f48fe5123dffc5c9dcff3a365714d3472ff354f7a04f7b05f7e7"
+    },
+    "reports/campaign/koel-nearest-warm/attempt-0001/report.json.gz": {
+      "bytes": 197882,
+      "sha256": "0b2456d2c8172365b0073ad540031ee7afc3654393a884993cfbc79fb1ae4c71"
+    },
+    "reports/campaign/koel-nearest-warm/attempt-0001/report.md.gz": {
+      "bytes": 178091,
+      "sha256": "8118da7d64cc919c369bdcb31ee409a0feaf6b5438de25b84bd4b1001cfc8b93"
+    },
+    "reports/campaign/lychee-longest-cold/attempt-0001/report.json.gz": {
+      "bytes": 257186,
+      "sha256": "63e144c76f2eea08610cd461f7d09aca7af84ce83e1c353a4d1f243aa087d799"
+    },
+    "reports/campaign/lychee-longest-cold/attempt-0001/report.md.gz": {
+      "bytes": 231173,
+      "sha256": "64c07c1a579f7ceea9d73591f29358820b0294363d1cbbc3eeea1e28e68e149f"
+    },
+    "reports/campaign/lychee-nearest-cold/attempt-0001/report.json.gz": {
+      "bytes": 257187,
+      "sha256": "9362f35eb3c4788aa8893324a74f5e7ee9e6b11f88175cf2576e4c9d1cb72739"
+    },
+    "reports/campaign/lychee-nearest-cold/attempt-0001/report.md.gz": {
+      "bytes": 231173,
+      "sha256": "93fe615c960707b7ff83fa3e216c73bd30312c359a92d8d497414367ccde598b"
+    },
+    "reports/campaign/lychee-nearest-warm/attempt-0001/report.json.gz": {
+      "bytes": 249102,
+      "sha256": "034a4e1b261787b38301979ba703678a8f1dbcf36b270850dcf790a784b3caf7"
+    },
+    "reports/campaign/lychee-nearest-warm/attempt-0001/report.md.gz": {
+      "bytes": 225503,
+      "sha256": "ecf92254e5085b594e0a2e11a2404553cbac9a49da658f1357b2a952d195ab6c"
+    },
+    "reports/campaign/monica-longest-cold/attempt-0001/report.json.gz": {
+      "bytes": 258571,
+      "sha256": "da1c9e75b097e467398a9a0eccf403dec4c0f74cf50b01686d20f863d5fdcb82"
+    },
+    "reports/campaign/monica-longest-cold/attempt-0001/report.md.gz": {
+      "bytes": 231598,
+      "sha256": "afa4a089a9793ffb2ce2f51df4bb50ae7eb08f1eb134dfc8efb9c304485b1c0f"
+    },
+    "reports/campaign/monica-nearest-cold/attempt-0001/report.json.gz": {
+      "bytes": 251362,
+      "sha256": "600ea7912b243d9fb768eb9dcdd32ce4aefb0057ec984aae9a701d6a07cd46fc"
+    },
+    "reports/campaign/monica-nearest-cold/attempt-0001/report.md.gz": {
+      "bytes": 226806,
+      "sha256": "4a56d0f9a450d8feb4f66897a13bcadd846e4dfe24d17b69af1600700e116c56"
+    },
+    "reports/campaign/monica-nearest-warm/attempt-0001/report.json.gz": {
+      "bytes": 251363,
+      "sha256": "e71ca98efa9db9bc102291f41c53ce59df19f9f679fc7b61493ae0e62e36e169"
+    },
+    "reports/campaign/monica-nearest-warm/attempt-0001/report.md.gz": {
+      "bytes": 226807,
+      "sha256": "d5993ede71ef4e4b120208c7822881852c5fd83738d9dc63c8cde5c1e7b62d4d"
+    },
+    "reports/campaign/monica7-longest-cold/attempt-0001/report.json.gz": {
+      "bytes": 290860,
+      "sha256": "14a3d81ee14184f7734b47be176eae1c90c7e2eb25418d14e2c4bc140e91d38c"
+    },
+    "reports/campaign/monica7-longest-cold/attempt-0001/report.md.gz": {
+      "bytes": 256041,
+      "sha256": "b024d28edbff9808e36e3c6b06e4837ed095e8b9dc0194eefa245c30849aabf6"
+    },
+    "reports/campaign/probe-cache-failure/attempt-0001/report.json.gz": {
+      "bytes": 248988,
+      "sha256": "969000eecc780499bf1c8212a5aa6cab92d68412e4aa03fbf49c3ea2a1dda2a7"
+    },
+    "reports/campaign/probe-cache-failure/attempt-0001/report.md.gz": {
+      "bytes": 225426,
+      "sha256": "7450cdd7fcdd0610d265977e01e36b748ef8d5bb434d0b38a6857aa6b13ae9f4"
+    },
+    "reports/campaign/probe-child-failure/attempt-0001/report.json.gz": {
+      "bytes": 248310,
+      "sha256": "23921bac37122ef1c9742a1f47465a4e6919f2b44fe4081afe1499bf60014dff"
+    },
+    "reports/campaign/probe-child-failure/attempt-0001/report.md.gz": {
+      "bytes": 224820,
+      "sha256": "f95c9393f3237918f1cf643bc6006bdffc7175a7231fcc9876755e1d6e303581"
+    },
+    "reports/campaign/probe-memory-1024/attempt-0001/report.json.gz": {
+      "bytes": 257190,
+      "sha256": "d863ac3a3b93b6331f51ce41a67c51eb45c44c358d344c952b91b85efa987a57"
+    },
+    "reports/campaign/probe-memory-1024/attempt-0001/report.md.gz": {
+      "bytes": 231175,
+      "sha256": "ac1b4bf3b6fa924d252ebabc357354baeab7e96063041c39e8cedef376c654a6"
+    },
+    "reports/campaign/probe-memory-128/attempt-0001/report.json.gz": {
+      "bytes": 257187,
+      "sha256": "e9d9d70497228d3e49c2aead51c9199fa7aab32bf74d6f7a46621f290cfca9bf"
+    },
+    "reports/campaign/probe-memory-128/attempt-0001/report.md.gz": {
+      "bytes": 231174,
+      "sha256": "70af052e404f33ea6230f3c0d1e95a55527bc2b8a4034e884a718d7518538165"
+    },
+    "reports/campaign/probe-network-denied/attempt-0001/report.json.gz": {
+      "bytes": 248940,
+      "sha256": "f3cb0bb9c8522ad76385a549b8da3964b2b60c72c6b462d2c679434b1a10e8e8"
+    },
+    "reports/campaign/probe-network-denied/attempt-0001/report.md.gz": {
+      "bytes": 225384,
+      "sha256": "954d081fb9c678b6f9679e0424c54db08d3268b123f7e67a5851e5bad9993e61"
+    },
+    "reports/campaign/probe-short-timeout/attempt-0001/report.json.gz": {
+      "bytes": 248310,
+      "sha256": "db99ad0c97356333b7a6d72c5f705a5719b52f95acebb965c9bcae0722c91ba5"
+    },
+    "reports/campaign/probe-short-timeout/attempt-0001/report.md.gz": {
+      "bytes": 224843,
+      "sha256": "92ddd2141d87c9d3fdcc7fa69b0ebae8a92e3cc4295c8b3a91ca12794da17382"
+    },
+    "reports/campaign/snipeit-longest-cold/attempt-0001/report.json.gz": {
+      "bytes": 231853,
+      "sha256": "339169076f13a6b0f4dc91c9c82f1cb831e5ec2fac2bf909629195f1a4064c52"
+    },
+    "reports/campaign/snipeit-longest-cold/attempt-0001/report.md.gz": {
+      "bytes": 203535,
+      "sha256": "f9d47e9f4116b12a74730e8eeedd515f787387745515fb35386461f4cd7f5f1e"
+    },
+    "reports/campaign/snipeit-nearest-cold/attempt-0001/report.json.gz": {
+      "bytes": 226893,
+      "sha256": "931e203e5661414190a9e4e12d2a1843b3b518aabb2d1116aca8e5e83d3d7c9d"
+    },
+    "reports/campaign/snipeit-nearest-cold/attempt-0001/report.md.gz": {
+      "bytes": 200087,
+      "sha256": "3e9af1ff71edddd57839b624db01c4762f745f9eaa1aaf7d422a09cbbe05419c"
+    },
+    "reports/campaign/snipeit-nearest-warm/attempt-0001/report.json.gz": {
+      "bytes": 216679,
+      "sha256": "253283993b991b2d36def56b4ed1340b2b0606417ae483262e632af04b23a13f"
+    },
+    "reports/campaign/snipeit-nearest-warm/attempt-0001/report.md.gz": {
+      "bytes": 192606,
+      "sha256": "b822854d6d3c024e232a4495b4ca63f7427d14b7b7da2dae8ebd0e16333df267"
+    },
+    "reports/diagnostics/default-policy-lychee/report.json.gz": {
+      "bytes": 249185,
+      "sha256": "ec1b9f90e6314999b028b45a8f8d3b1ec5036dc13ed236303dda4c790014506b"
+    },
+    "reports/diagnostics/default-policy-lychee/report.md.gz": {
+      "bytes": 225570,
+      "sha256": "abb1d24f222eea1afff01a389d0290706e18e5bd6a5d0aeb1d21dd309e404bbd"
+    },
+    "reports/diagnostics/old-wrapper-invoiceninja/report.json.gz": {
+      "bytes": 243645,
+      "sha256": "6112738f856e861f90e64c34a9ed084e8ccd091ff8a5c8f49255863fff8658f9"
+    },
+    "reports/diagnostics/old-wrapper-invoiceninja/report.md.gz": {
+      "bytes": 217364,
+      "sha256": "8a29c395db8ff24d3c535dd73fcaefa6562318910a98d025c4cc8e90132ff48c"
+    },
+    "reports/diagnostics/old-wrapper-lychee/report.json.gz": {
+      "bytes": 257190,
+      "sha256": "595723d8b60270821e6aa8f6c874c841eae459b577eccfe2dfba80f26f92f2e6"
+    },
+    "reports/diagnostics/old-wrapper-lychee/report.md.gz": {
+      "bytes": 231171,
+      "sha256": "b55a4ad30c8bca5c5206d2bd9ba4493fed81ecfcd771c294f53d21bda01ce605"
+    },
+    "summary.json": {
+      "bytes": 2404012,
+      "sha256": "782492ac0298b6f0f20cae3d0545792c414e44137f5b572afd9f1b575c7ce1e7"
+    },
+    "summary.md": {
+      "bytes": 6895,
+      "sha256": "3cc372df16ecfb0bbac749adc7573c655355eb795dcdabf5ac95f3069455adf1"
+    }
+  },
+  "plan_sha256": "ac58f758aa9ac8cf768dd00aea42915b205ebf78cf1fb6370dc90f08bcba0f16",
+  "privacy": "common Unix/Windows host paths and known private input/temp roots scanned in all published text and decompressed canonical artifacts; no report redaction; not a general secrets detector",
+  "publication_version": 1,
+  "published_report_count": 80,
+  "report_count": 80,
+  "summary_projection": "original summary fields retained; cleanup, provenance and invocation metadata allowlisted; private state paths excluded",
+  "unavailable_report_count": 0
+}

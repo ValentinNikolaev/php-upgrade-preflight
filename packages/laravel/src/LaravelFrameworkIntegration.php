@@ -16,6 +16,7 @@ use PhpUpgradePreflight\Core\Model\FrameworkStagePlan;
 use PhpUpgradePreflight\Core\Model\ProjectState;
 use PhpUpgradePreflight\Core\Model\UpgradeRequest;
 use PhpUpgradePreflight\Core\Source\SourceUsageCollector;
+use PhpUpgradePreflight\Core\Source\SourceUsageCacheKeyProvider;
 use PhpUpgradePreflight\Laravel\Catalog\LaravelRuleCatalog;
 use PhpUpgradePreflight\Laravel\Source\LaravelSourceUsageVisitor;
 
@@ -25,7 +26,7 @@ use PhpUpgradePreflight\Laravel\Source\LaravelSourceUsageVisitor;
  * Delegates detection, rules, transition assessment, and stage planning to
  * separate collaborators behind the interfaces detected by core.
  */
-final class LaravelFrameworkIntegration implements FrameworkIntegration, FrameworkTransitionProvider, FrameworkStageTargetProvider, PackageFamilyClassifier, SourceUsageVisitorProvider
+final class LaravelFrameworkIntegration implements FrameworkIntegration, FrameworkTransitionProvider, FrameworkStageTargetProvider, PackageFamilyClassifier, SourceUsageVisitorProvider, SourceUsageCacheKeyProvider
 {
     private LaravelPackageFamilyClassifier $packageFamilyClassifier;
     private LaravelFrameworkDetector $detector;
@@ -85,6 +86,14 @@ final class LaravelFrameworkIntegration implements FrameworkIntegration, Framewo
     public function sourceUsageVisitors(string $relativeFile): iterable
     {
         yield new LaravelSourceUsageVisitor($relativeFile);
+    }
+
+    public function sourceUsageCacheKey(): ?string
+    {
+        $integration = @hash_file('sha256', __FILE__);
+        $collector = @hash_file('sha256', __DIR__ . '/Source/LaravelSourceUsageVisitor.php');
+
+        return $integration === false || $collector === false ? null : $integration . ':' . $collector;
     }
 
     public function packageFamilies(string $packageName): array

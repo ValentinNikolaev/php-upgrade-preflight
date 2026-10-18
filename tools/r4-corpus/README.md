@@ -1,0 +1,116 @@
+# Opt-in R4 Docker harness
+
+This is explicitly invoked experimental evaluation tooling. Its PHP files participate in normal static analysis and lint; Docker experiments do not run under `composer check`. It never boots the target application. The coordinator owns corpus acquisition, campaigns, interpretation, and published results.
+
+The [staged PHP follow-up protocol](PERFORMANCE.md) and `performance.py` prepare
+review-gated cache-off controls, separate optional source profiles and bounded
+repeated comparisons. They do not execute automatically or modify frozen R4 data.
+
+Optimization comparisons may explicitly select `--analysis-mode=standard|full`,
+`--disable-source-cache`, or a dedicated `--source-cache-dir=PATH`. The cache must
+be separate from every project, tool, output and Composer-cache mount. It is
+retained for repeat measurements and must be managed as a private diagnostic:
+derived source symbols can be sensitive. The historical tool can accept `full`
+as its exhaustive baseline behavior; it rejects a requested `standard` mode or
+source cache it cannot implement. Omitted controls use the selected tool defaults.
+Existing frozen campaigns and their reports are not rewritten by these options.
+The collector uses a runtime-created private `facts/` child below the source-cache
+mount. A Windows-created mount root can be mode `0777`, UID 0, while the analyzer
+runs as UID 1000; using that root directly would correctly disable the private
+source cache. The child's owner and permissions survive repeated runtime use.
+
+The collector also measures existing analyzer phase boundaries and full-report
+rendering separately. Where the selected tool supports the compact summary, it
+renders that first and records summary bytes, lines and analysis-plus-summary
+time; this excludes bootstrap, cache preparation, file writing and container
+startup. `human_summary_ready_seconds=null` means no compact summary is supported,
+not a zero-duration result or measured user comprehension. Phase scopes are not
+pure parser/Composer profiles, and uninstrumented work remains unattributed.
+`heap_peak_through_analysis_bytes` and `heap_peak_through_summary_bytes` are
+cumulative analyzer-PHP heap peaks up to those boundaries, including bootstrap;
+they exclude Composer child memory. The existing shutdown peak also includes
+full diagnostic rendering and must not be presented as ordinary-summary memory.
+
+Build the measurement image from the existing development image:
+
+```powershell
+docker build -t php-upgrade-preflight-r4:8.3 tools/r4-corpus
+python -B tools/r4-corpus/run.py --app C:/corpus/app --output C:/results/new-attempt --target-major 13 --from-php 8.2.0 --target-php 8.3.0 --memory-limit 1024M --composer-memory-limit 1024M --cache C:/corpus-cache/dedicated --network bridge --scenario-timeout 45 --diagnostic-timeout 15 --overall-timeout 540 --repo I:/tool-checkout --image php-upgrade-preflight-r4:8.3
+```
+
+The host needs Python 3.9+ and Docker. The selected tool checkout needs its own installed `vendor/autoload.php`. Target, tool checkout, output and cache paths must be separate and non-nested; output must not exist. Do not share the dedicated cache with unrelated work. Cache may persist between attempts; a new empty cache represents a cold-cache attempt. The image runs as `app`, so bind mounts must permit that user to write output, cache, Composer home and scratch. Docker Desktop Windows bind mounts satisfy this in the tested environment; Linux users must provide compatible ownership/ACLs.
+
+`/target`, `/app` and `/harness` are read-only. The runner creates separate writable output, cache, initially empty Composer home, and task-owned scratch mounts. Network is explicitly `bridge` or `none`; `none` also sets Composer's offline environment flag. Composer compatible mode uses the existing product API with scripts/plugins disabled. It declares the same partial extension-presence assumptions as the earlier evaluation helper: bcmath, curl, exif, fileinfo, gd, imagick, mbstring, openssl, pdo, xml, zip. Unlisted extensions still depend on the analyzer runtime. The PHP collector limit (`--memory-limit`) and Composer child limit (`--composer-memory-limit`, default `1024M`) are independent, explicitly set, and recorded. Each container has a 2 GiB cgroup limit. Scenario limits are 1–3600 seconds, diagnostic limits 1–900, and the host container watchdog 1–86400. Host digest/provenance work and bounded Docker cleanup occur outside the container watchdog; an outer campaign deadline needs headroom.
+
+`--github-transport default|public-https` defaults to `default`, which keeps the Composer home empty and retains Composer's normal GitHub transport behavior. The opt-in `public-https` policy writes only `config.github-protocols=["https"]` and `config.use-github-api=false` in the isolated home's `config.json`. It sets `GIT_CONFIG_COUNT=1`, `GIT_CONFIG_KEY_0=url.https://github.com/.insteadOf` and `GIT_CONFIG_VALUE_0=git@github.com:` so SSH-style GitHub URLs use public HTTPS. It supplies no credentials and does not change advisory policy. Configuration is written directly, without an extra Composer configuration invocation. `request.github_transport` and `github_transport` record the policy, exact settings and home digests before/after policy setup; `composer_home_final` records state before cleanup. The collector separately confirms which transport policy and Git override reached its environment. The option changes the transport experiment and must be declared when comparing results. Composer documents these settings under [use-github-api](https://getcomposer.org/doc/06-config.md#use-github-api) and [github-protocols](https://getcomposer.org/doc/06-config.md#github-protocols).
+
+`run.json` is the attempt receipt, with status `completed`, `failed`, or `watchdog_timeout`, input digests and `immutable`, cleanup evidence, provenance, and measurements. Exit 0 means a completed canonical report and verified input immutability; a blocked/unknown canonical report can still be a completed harness attempt. Exit 1 means an incomplete/failed attempt; exit 2 means invalid invocation. Source hashes cover the complete host tree, including vendor and .git if present, empty directories, and symlink text without following links; shape counts include PHP file count/bytes. These hashes run outside analysis timing. Manifest and lock hashes are separate. Git HEAD/dirty state, package/vendor runtime digest, tool lock hash, harness file hashes and the resolved image ID identify executed inputs. Tool source hashes do not prove dependency trust or target runtime compatibility.
+
+`report.json` and `report.md` come from the same `UpgradeReport` returned by one `DefaultUpgradeAnalyzer` with Laravel integration. Each write must complete; collector evidence includes exact byte lengths and SHA-256 hashes. The host requires both nonempty matching artifacts, parseable canonical JSON with required resolution/staged/transition states matching the collector, successful finalization, container exit 0, immutable input, and verified container and scratch cleanup before declaring completion. Partial files remain failed-attempt evidence. Raw Composer arguments, output and host environment values are excluded from instrumentation. Bounded analyzer stderr is sanitized before publication; fatal records retain class/reason and allocation file/line, never a raw exception message. Product reports retain their normal sanitization.
+
+The memory measurements have different scopes:
+
+| Field | Meaning |
+| --- | --- |
+| `collector.php_heap_peak_bytes` | PHP allocator peak, with real allocation size (`memory_get_peak_usage(true)`) |
+| `collector.php_process_peak_rss_kib` | Analyzer PHP process high-water RSS from Linux `/proc/self/status` VmHWM |
+| `analyzer_resources.max_rss_kib` | GNU time command-envelope maximum individual process/descendant RSS; not an aggregate and not necessarily analyzer-only |
+| `composer.invocations[].resources.max_rss_kib` | Composer PHP PID's VmHWM at shutdown, scope `composer_php_process`; descendant RSS unavailable |
+| `container.container_memory_v1_peak_bytes` | Aggregate container v1 cgroup peak only when the controller's sibling limit matches 2 GiB; otherwise null/unavailable |
+
+`collector.analysis_seconds` measures just the analyzer call. `analyzer_resources.elapsed_seconds` includes collector bootstrap and rendering. `container_wall_seconds` includes container startup/finalization. Every Composer invocation has a separate start record, safe command category and applied probe. The direct PHP process writes monotonic elapsed time and its own peak RSS at shutdown. `started_count` and `timed_count` differ when termination prevents shutdown. Composer exit code and termination signal are unavailable in this measurement path and remain null; native process exit status still reaches Symfony unchanged. Interrupted timings remain null. Empty, truncated, invalid and nonfinite start receipts retain an invocation with `start_status=malformed` and unavailable fields, preserving other invocations. GNU time still measures the analyzer envelope, rounding elapsed seconds to hundredths; `0.00` is valid, whereas a missing value stays null.
+
+Resource records distinguish `termination_kind=exited|signalled|unknown` and nullable `termination_signal`. GNU time can print `%x=0` when its child was killed by a signal; a `Command terminated by signal N` record therefore clears `exit_code` and records signal N instead. Incomplete signal diagnostics leave termination unknown, and unterminated metric fields are ignored rather than interpreted as complete measurements. The wrapper and analyzer command use the C locale so signal diagnostics have the same format across hosts.
+
+The wrapper uses `exec php` with a measurement prepend file, so installed Symfony Process owns Composer's PHP PID directly. This avoids an instrumentation parent leaving Composer alive after per-PID timeout/stop signals. It adds no subprocess tree and preserves native Composer execution and exit behavior; it does not add a separate descendant supervisor. Tests reproduce the old GNU-time orphan with installed Symfony timeout, `stop(0)` and ordinary `stop`, then verify direct-PID cancellation, unavailable interrupted metrics and safe next-scenario execution. The host watchdog sends TERM, then KILL when necessary, and removes only its label-verified unique task container. It hashes target input after failures too and inspects persistent scratch only after verified container removal. `container.scratch_leftovers_before_container_exit` describes analyzer scratch, while `cleanup.scratch_before_host_cleanup` includes harness scaffolding. Scratch/home are removed after inspection; a cleanup failure retains the task temp path in the receipt. Output and cache are deliberately retained. Keep failed attempt records as evidence.
+
+Before creating scratch or performing snapshots, provenance or Docker creation, the host atomically persists `ownership.json` in the output directory (the campaign's `raw/ownership.json`). Version 1 records `container_name=preflight-r4-<task_token>`, a 32-hex `task_token` matching Docker label `preflight.r4.task`, the exact absolute OS-temp state path with that same basename, `host_pid`, lifecycle, creation-started/settled flags, and cleanup evidence. Atomic updates cover `prepared`, `creating`, `created`/`create_failed`, `exited`, `cleaning`, `cleaned`, and `unknown` boundaries. An outer controller must terminate and wait for the Python host before recovery, then run this command before inspecting a shared cache:
+
+```powershell
+python -B tools/r4-corpus/run.py recover --ownership C:/results/attempt/raw/ownership.json
+```
+
+Recovery returns 0 only after proving the owner host exited, inspecting the exact container name and matching label, removing the verified full container ID, positively verifying absence, and removing only the exact generated OS-temp state path without symlink/junction traversal. It persists `cleanup.container_removed=true` and `cleanup.host_scratch_removed=true`. It never kills a host PID or deletes resources by name prefix. A live/reused host PID, unavailable Docker state, ownership mismatch, unsafe path, or absent container with an unsettled create leaves nonzero/unknown cleanup and a retained path. An in-flight create can finish after its Python owner dies; absence alone at that boundary does not authorize cache inspection. Recovery is repeatable once positive evidence is available. Individual Docker operations have 30-second bounds; allow at least 120 seconds for recovery and retain the receipt/log on nonzero exit.
+
+Fault options are `--probe normal|timeout|child-failure|cache-failure`. Timeout and child-failure faults apply to scenario/diagnostic commands, leaving real Composer metadata probes usable. Inspect `composer.invocations[].probe_applied` and outcomes rather than assuming every requested fault was reached. Cache-failure selects a read-only target cache path; Composer may continue with a warning, so this probe does not promise a failed report. `container.cache_fault_requested` and `cache_path_writable` record that boundary.
+
+Run the host tests without Docker:
+
+```powershell
+python -B -m unittest discover -s tools/r4-corpus -p test_harness.py -v
+```
+
+Opt into offline Docker calibration and end-to-end projection checks:
+
+```powershell
+$env:R4_TEST_REPO='I:/tool-checkout'
+$env:R4_TEST_IMAGE='php-upgrade-preflight-r4:8.3'
+python -B -m unittest discover -s tools/r4-corpus -p test_harness.py -v
+```
+
+`--calibrate` runs a separate offline container before analysis. It creates synthetic manifests with Packagist disabled, executes real successful and failed Composer updates through the wrapper, then exercises GNU timeout TERM behavior as a basic control. It verifies three starts, two shutdown resource records, real command success/failure, signal exit 124 and immutable read-only input, prints its JSON result, and removes its dedicated container and scratch. Installed Symfony cancellation is tested separately; GNU timeout is not proof of Symfony's per-PID behavior. Opt-in tests also kill a real runner during setup, after create acceptance and during cleanup, then recover through the public CLI. Calibration does not execute target application code; its output is separate from measured analyzer invocations.
+
+## Publish portable evidence
+
+After the campaign is frozen and its controller has stopped, publish to a fresh directory from this checkout:
+
+```powershell
+python -B tools/r4-corpus/publish_evidence.py --campaign C:/study/frozen-campaign --output C:/publication/new-bundle
+python -B -m unittest discover -s tools/r4-corpus/tests -p 'test_*.py' -v
+```
+
+Use `--tools` when invoking from outside the checkout. Optional repeatable `--diagnostics LABEL=RAW_DIRECTORY` inputs remain unverified legacy extras excluded from campaign slots. The publisher reuses `summarize.summarize`, rejects validation/hash errors and active controller leases, and exports allowlisted provenance, dispositions, metrics CSV and Markdown. Included canonical report bytes are unchanged in deterministic gzip with original/compressed hashes and sizes; identical compression assumes the same zlib implementation. Malformed unsealed reports are omitted with explicit unavailable dispositions and original byte hashes/sizes; intact partial evidence stays available. A detected common host path or known private input/temp prefix blocks publication without rewriting reports. This path scan is not a general secrets detector. Existing output is refused; an interrupted write leaves `INCOMPLETE.txt` and must not be published.
+
+The bundle is a publisher-verified portable projection/attestation. Public file/gzip hashes and original hashes of included reports can be verified from the bundle. Private plan, receipt, invocation, cache-lineage and host-cleanup checks cannot be independently rerun because their metadata and private paths are excluded; omitted report hashes also remain attestations when their bytes are unavailable. Missing metrics remain null and per-invocation Composer RSS scope is retained. Canonical diagnostic counts include reused/cached entries; Composer starts and command categories are a separate process inventory.
+
+## Version 2 warm-cache seeding
+
+New campaign plans default to `campaign_version=2` and `cache_seed_policy=runtime-user-copy-v1`. Version 1 command derivation, host-copy behavior and summary verification remain available for frozen historical evidence; resume inherits the saved version. Never edit or retry sealed historical records to apply this repair, and never pool version 1 and version 2 measurements. The current portable publisher accepts the reviewed version 1 projection; version 2 adds seed/timing fields and needs a separately reviewed publication projection.
+
+Host copying can preserve every cache byte while changing Linux ownership on Docker Desktop bind mounts. Git then rejects copied VCS mirrors as dubious ownership, producing an operational unknown even when the cold counterpart worked. Version 2 creates an empty independent warm cache and mounts its verified cold predecessor and receipt-derived expected inventory read-only inside the same durably owned analysis container. `cache-seed.php` creates fresh entries as the runtime user, preserves file bytes and directory shape, checks each seeded entry's UID, and records its runtime UID/GID, cold receipt hash, expected-proof hash and source/destination inventories. The collector independently checks the seeded destination immediately before analysis. Hash equality establishes content integrity; the explicit UID checks establish the seeded entries' ownership. Target and cold mounts remain read-only; no Git trust exception, host credential change, extra capability or helper container is used.
+
+Seed/copy/integrity failures stop the entrypoint before analysis with exit 78 and a failed seed disposition. They do not fabricate a canonical dependency outcome. After verified container removal, the controller rechecks cold bytes and directories against the frozen cold receipt. Existing ownership/recovery handles interrupted seeding and verifies exact container removal before cache inspection. Every attempt retains its independent destination, including failures and retries.
+
+Preparation is explicit: version 2 `external_wall_seconds` includes host preflight through cleanup; `host_preparation_seconds` records source/cache checks and seed declaration. `cache_seed_seconds` records runtime copying and seed integrity/UID checks; `cache_seed_verification_seconds` records the collector gate. Both container preparation phases are included in container/external wall time and excluded from `analysis_seconds`. Missing measurements remain null. The container watchdog covers seeding and analysis together. Freeze the new tool/harness fingerprints for any future version 2 campaign; the repair itself establishes no post-repair application performance measurement.
+
+Run the synthetic host seed tests with `python -B -m unittest discover -s tools/r4-corpus/tests -p test_cache_seeding.py -v`. Set `R4_CACHE_TEST_IMAGE` to the existing pinned image ID to enable the isolated offline Git/copy/failure/recovery probes. These probes use network-none owned containers and synthetic mirrors; they do not execute an application or analyzer.

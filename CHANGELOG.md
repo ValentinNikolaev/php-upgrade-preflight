@@ -6,6 +6,9 @@ This project follows [Semantic Versioning](https://semver.org/). Report schema v
 
 ### Changed
 
+- **Unreleased default migration:** CLI, Artisan and the wizard show a bounded actionable summary; explicit `--format=json` and `--format=markdown` retain full reports. Scripts must request JSON. `--analysis-mode=standard` avoids redundant alternatives while retaining necessary dependency-expansion and real staged checks; `full` requests exhaustive execution. These intentional default changes require a future minor-release migration, not an ordinary v0.3.x patch; version and schema identities remain unchanged here.
+- Reuse successful parser-derived source facts in a private bounded local cache, rebuilding current evidence from exact input bytes. Default scans additionally discover bounded static root autoload paths, with linked omissions and unchanged safety caps; explicit source paths retain control.
+
 - Qualify schema `0.8` risk and effort through existing drivers and assumptions when Composer, input, source, adapter, or staged evidence is incomplete. Add an evidence-linked decision summary before Markdown transcripts, explicit heuristic scope, and enforced-versus-advisory budget labels without changing report shape or historical release artifacts.
 - Use PHP 8.5 for the default development container and refresh compatible Composer Semver, PHP-Parser, PHP-CS-Fixer, PHPStan, and PHPUnit 9.6 dependencies while retaining the PHP 8.0 runtime floor.
 - Require PHP-Parser 5.9 on the modern parser branch to scan PHP 8.6 partial function applications; retain the legacy 4.19 branch and explicit parse uncertainty for unsupported syntax.
@@ -13,12 +16,17 @@ This project follows [Semantic Versioning](https://semver.org/). Report schema v
 
 ### Added
 
+- A pinned ten-application Laravel evaluation with immutable report archives, bounded claim reviews, operational measurements and R3 engineering exercise materials. Participant benefit, source recall and successful application upgrades remain unverified.
 - Current PHP 8.5 consumer installation and boot cases for Symfony 8.1, Laravel/Illuminate 13, PHPUnit 13, and Pest 5 with its Laravel plugin, at normal and lowest dependency resolution.
 - An experimental PHP 8.6 unit/smoke runtime job and source-scanning regressions for PHP 8.4 property hooks, PHP 8.5 pipes, and PHP 8.6 partial function applications.
 - A dated [current compatibility inventory](docs/current-compatibility.md) with upstream sources and precise support boundaries.
 
 ### Fixed
 
+- Distinguish proven incompatible Composer edges from compatible requirements or locked-package notices in a failed dependency chain. Preserve advisory-policy rejections and unresolved causes instead of attributing them to an unsupported package constraint.
+- Keep material source-retention and discovery caps visible in the compact summary alongside missing-root and parse warnings, with recorded units and evidence references.
+- Keep blocker `locked_version` unknown when a solver relation names an unverified candidate, using the current attempt's lock as provenance and retaining explicit locked-package evidence without borrowing another version's requirements.
+- Anchor Composer blocker paths to the reported blocking relation and follow only unambiguous requirement ancestry. Keep unrelated or candidate-only diagnostics unclassified, and ignore diagnostic conflict ranges that exclude none of the requested dependency versions.
 - Preserve empty and numeric-key JSON objects in temporary Composer manifests and carried candidate states, so valid maps such as `require: {}` are not rewritten as schema-invalid lists.
 - Report unreadable classmap directories as ownership uncertainty and continue indexing other mappings instead of aborting the analysis.
 - Clear ambient `COMPOSER` for compatible scenario and diagnostic processes so a host manifest override cannot redirect Composer away from the temporary workspace or write its adjacent lockfile.

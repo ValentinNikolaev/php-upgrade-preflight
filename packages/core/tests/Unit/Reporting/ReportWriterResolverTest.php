@@ -18,6 +18,7 @@ use PhpUpgradePreflight\Core\Reporting\JsonReportWriter;
 use PhpUpgradePreflight\Core\Reporting\MarkdownReportWriter;
 use PhpUpgradePreflight\Core\Reporting\ReportWriter;
 use PhpUpgradePreflight\Core\Reporting\ReportWriterResolver;
+use PhpUpgradePreflight\Core\Reporting\SummaryReportWriter;
 use PHPUnit\Framework\TestCase;
 
 final class ReportWriterResolverTest extends TestCase
@@ -26,6 +27,7 @@ final class ReportWriterResolverTest extends TestCase
     {
         self::assertInstanceOf(ReportWriter::class, new JsonReportWriter());
         self::assertInstanceOf(ReportWriter::class, new MarkdownReportWriter());
+        self::assertInstanceOf(ReportWriter::class, new SummaryReportWriter());
     }
 
     public function testItResolvesMarkdownAndTreatsEveryOtherFormatAsCanonicalJson(): void
@@ -33,6 +35,7 @@ final class ReportWriterResolverTest extends TestCase
         $resolver = new ReportWriterResolver();
 
         self::assertInstanceOf(MarkdownReportWriter::class, $resolver->resolve(ReportFormat::MARKDOWN));
+        self::assertInstanceOf(SummaryReportWriter::class, $resolver->resolve(ReportFormat::SUMMARY));
         self::assertInstanceOf(JsonReportWriter::class, $resolver->resolve(ReportFormat::JSON));
         self::assertInstanceOf(JsonReportWriter::class, $resolver->resolve('anything-else'));
     }

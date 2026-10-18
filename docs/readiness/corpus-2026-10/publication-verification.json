@@ -1,0 +1,12 @@
+{
+  "scope": "Every published manifest entry checked; all80 decompressed reports byte-compared with retained originalJSON/Markdown. Original schema/projection evidence covers37final+3diagnosticpairs. Private plan/cache/cleanup remain publisher attestations, not independently reconstructed here.",
+  "published_files": 89,
+  "manifest_bound_files": 88,
+  "report_artifacts": 80,
+  "original_report_bytes": 396461890,
+  "gzip_report_bytes": 16897719,
+  "zlib_runtime": "1.3.1.zlib-ng",
+  "all_hashes_match": true,
+  "all_decompressed_originals_match": true,
+  "gzip_zero_mtime_and_no_filename": true
+}

@@ -42,14 +42,14 @@
         {
             "source": "wiki/Reading-the-Report.md",
             "destination": "Reading-the-Report.md",
-            "source_sha256": "3267389c1a56c1dd04bb6106b2cb08d7c7980dd693709b677d32ee8b82a9cbce",
-            "materialized_sha256": "3267389c1a56c1dd04bb6106b2cb08d7c7980dd693709b677d32ee8b82a9cbce"
+            "source_sha256": "66bfee9c743d12a9f1c8c9f318a6e4d73b22957bd5de78c01e7367e5810d53c1",
+            "materialized_sha256": "66bfee9c743d12a9f1c8c9f318a6e4d73b22957bd5de78c01e7367e5810d53c1"
         },
         {
             "source": "wiki/Report-Schema.md",
             "destination": "Report-Schema.md",
-            "source_sha256": "32390628a8c95ac9a4384b5399248f3a3107a27386c3459ebacae93ed5ac0c19",
-            "materialized_sha256": "63d8cc1465fb17881fada6f3c64ac6abcad2c3d8557b702a16f549d87ceb3abf"
+            "source_sha256": "32d616d64ad27c261239d96312277b359594a7dc3da9d229fa007ab53df1b0cc",
+            "materialized_sha256": "892cd7569cd5ca9ae9acd4dabe51f6315e41c6ea110a57f99880fb371cd42e8f"
         },
         {
             "source": "wiki/Determinism-and-Evidence.md",
@@ -150,8 +150,8 @@
         {
             "source": "wiki/Roadmap-and-Status.md",
             "destination": "Roadmap-and-Status.md",
-            "source_sha256": "70f235d9a289c0813e8c74ecc23892aec39e87f7e31e1480a492eec42cac6110",
-            "materialized_sha256": "399610c36172c209735d73b11e307c229f7f83873c7eea28107ee1afdc01ae27"
+            "source_sha256": "1b47bd2d63b21eb2300cb1dbbb4865635d2212b60ad120deb60a618bf5b63a63",
+            "materialized_sha256": "39196d5c4b33fe372501cc85cca78f14e3273cd50a32d72d51712f523804b76e"
         },
         {
             "source": "wiki/Troubleshooting-and-FAQ.md",
