@@ -12,7 +12,7 @@ final class PhpunitSmokeTest extends TestCase
     {
         $report = analyzeCurrentConsumer();
 
-        self::assertSame('8.5.11', $report->request()->targetPhp());
+        self::assertSame('8.5.12', $report->request()->targetPhp());
         self::assertSame('feasible_with_changes', $report->resolutionStatus());
         self::assertSame('2.0.0', $report->lockDiff()->packageChanges()[0]->toVersion());
         foreach ($report->scenarios() as $scenario) {

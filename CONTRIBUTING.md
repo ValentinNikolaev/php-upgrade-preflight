@@ -26,7 +26,7 @@ The development container uses PHP 8.5. Composer resolves dependencies against P
 
 Ordinary container CLI diagnostics go to stderr and exclude deprecation notices from legacy dependencies. Run `docker compose run --rm php php -d error_reporting=E_ALL vendor/bin/phpunit --filter 'PrivacyPhpRuntimeCompatibilityTest|testModernPhpSyntaxPreservesSourceReferences|testPhp86PlaceholdersDoNotShiftContextualArgumentPositions'` for the explicit runtime-diagnostic regressions. Their assertions remain active even when ordinary CLI reporting excludes deprecations.
 
-The real Laravel application fixture uses Laravel 13.35 or newer on PHP 8.3. The compatibility workflow checks both the original Laravel 13 minimum and the current Laravel and Illuminate release ranges. The root development constraint permits Illuminate 8–13; its PHP 8.0.30 platform selects the latest compatible Illuminate 8 patch. Historical upgrade fixtures, synthetic solver packages, and commit-pinned upstream evidence retain their original versions.
+The real Laravel application fixture uses Laravel 13.39 or newer on PHP 8.3. The compatibility workflow checks both the original Laravel 13 minimum and the current Laravel and Illuminate release ranges. The root development constraint permits Illuminate 8–13; its PHP 8.0.30 platform selects the latest compatible Illuminate 8 patch. Historical upgrade fixtures, synthetic solver packages, and commit-pinned upstream evidence retain their original versions.
 
 ## Run focused checks
 
@@ -45,7 +45,7 @@ composer lint
 
 `test:unit`, `test:integration`, and `test:smoke` are disjoint. `test:all` runs those deterministic suites in order, and `composer check` uses `test:all` together with manifest validation, static analysis, and formatting. These commands do not perform dependency installation, vulnerability queries, or live package-resolution checks.
 
-The GitHub `Compatibility smoke` workflow is the networked ecosystem gate. It creates clean temporary consumers, resolves both normal and lowest dependencies, and boots the package inside every supported Laravel host line. PHP 8.5 consumers also exercise current Symfony 8.1 dependencies, Laravel/Illuminate 13.35+, PHPUnit 13.4+, and Pest 5.3+ with its Laravel plugin. The separate experimental PHP 8.6 quality job runs unit and smoke tests without making prerelease success a release prerequisite. See [Current compatibility coverage](docs/current-compatibility.md) for reviewed versions and boundaries. Dependency vulnerability data is likewise refreshed only in the scheduled and release audit workflows.
+The GitHub `Compatibility smoke` workflow is the networked ecosystem gate. It creates clean temporary consumers, resolves both normal and lowest dependencies, and boots the package inside every supported Laravel host line. PHP 8.5 consumers also exercise current Symfony 8.1 dependencies, Laravel/Illuminate 13.39+, PHPUnit 13.4+, and Pest 5.3+ with its Laravel plugin. The separate experimental PHP 8.6 quality job runs unit and smoke tests without making prerelease success a release prerequisite. See [Current compatibility coverage](docs/current-compatibility.md) for reviewed versions and boundaries. Dependency vulnerability data is likewise refreshed only in the scheduled and release audit workflows.
 
 ## Coverage, mutation, and budgets
 

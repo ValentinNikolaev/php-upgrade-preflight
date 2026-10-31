@@ -27,7 +27,7 @@
   ],
   "require": {
     "php": "^8.3",
-    "laravel/framework": "^13.35",
+    "laravel/framework": "^13.39",
     "php-upgrade-preflight/laravel": "0.3.x-dev"
   },
   "autoload": {

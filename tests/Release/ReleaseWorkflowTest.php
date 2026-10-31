@@ -466,7 +466,7 @@ final class ReleaseWorkflowTest extends TestCase
             'laravel/framework:^11.0' => ['8.2'],
             'laravel/framework:^12.0' => ['8.2'],
             'laravel/framework:^13.0' => ['8.3'],
-            'laravel/framework:^13.35' => ['8.3', '8.5', '8.5'],
+            'laravel/framework:^13.39' => ['8.3', '8.5', '8.5'],
         ], $laravelHosts);
 
         $illuminateCases = array_values(array_filter(
@@ -474,7 +474,7 @@ final class ReleaseWorkflowTest extends TestCase
             static fn (array $case): bool => ($case['smoke'] ?? null) === 'illuminate'
         ));
         self::assertCount(2, $illuminateCases);
-        self::assertSame('illuminate/console:^13.35', $illuminateCases[0]['framework']);
+        self::assertSame('illuminate/console:^13.39', $illuminateCases[0]['framework']);
         self::assertSame('8.3', $illuminateCases[0]['php']);
         self::assertSame('8.5', $illuminateCases[1]['php']);
         self::assertStringContainsString('symfony/console:^8.1', $illuminateCases[1]['dependencies']);

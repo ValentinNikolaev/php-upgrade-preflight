@@ -6,6 +6,7 @@ This project follows [Semantic Versioning](https://semver.org/). Report schema v
 
 ### Changed
 
+- Refresh current compatibility checks for PHP 8.5.12 and Laravel / Illuminate 13.39, and development dependencies to Composer Semver 3.6.0 and PHPStan 2.3.4, retaining the PHP 8.0 package floor.
 - **Unreleased default migration:** CLI, Artisan and the wizard show a bounded actionable summary; explicit `--format=json` and `--format=markdown` retain full reports. Scripts must request JSON. `--analysis-mode=standard` avoids redundant alternatives while retaining necessary dependency-expansion and real staged checks; `full` requests exhaustive execution. These intentional default changes require a future minor-release migration, not an ordinary v0.3.x patch; version and schema identities remain unchanged here.
 - Reuse successful parser-derived source facts in a private bounded local cache, rebuilding current evidence from exact input bytes. Default scans additionally discover bounded static root autoload paths, with linked omissions and unchanged safety caps; explicit source paths retain control.
 
@@ -16,6 +17,7 @@ This project follows [Semantic Versioning](https://semver.org/). Report schema v
 
 ### Added
 
+- Exercise a successful restricted, offline upgrade through the real Laravel Artisan command in consumer smoke tests, checking JSON, solver outcomes and input immutability.
 - A pinned ten-application Laravel evaluation with immutable report archives, bounded claim reviews, operational measurements and R3 engineering exercise materials. Participant benefit, source recall and successful application upgrades remain unverified.
 - Current PHP 8.5 consumer installation and boot cases for Symfony 8.1, Laravel/Illuminate 13, PHPUnit 13, and Pest 5 with its Laravel plugin, at normal and lowest dependency resolution.
 - An experimental PHP 8.6 unit/smoke runtime job and source-scanning regressions for PHP 8.4 property hooks, PHP 8.5 pipes, and PHP 8.6 partial function applications.
@@ -23,6 +25,8 @@ This project follows [Semantic Versioning](https://semver.org/). Report schema v
 
 ### Fixed
 
+- Exclude Symfony YAML releases affected by CVE-2026-109413 from development dependency ranges and update the PHP 8.0-compatible lock to patched 5.4.54.
+- Allow Composer 2.11 candidate-lock metadata in the offline demo without requiring fingerprints from an older toolchain. Validate fingerprint components, selected attempts and state continuity, retain exact same-toolchain comparisons, and regenerate the paired demo reports from current behavior.
 - Distinguish proven incompatible Composer edges from compatible requirements or locked-package notices in a failed dependency chain. Preserve advisory-policy rejections and unresolved causes instead of attributing them to an unsupported package constraint.
 - Keep material source-retention and discovery caps visible in the compact summary alongside missing-root and parse warnings, with recorded units and evidence references.
 - Keep blocker `locked_version` unknown when a solver relation names an unverified candidate, using the current attempt's lock as provenance and retaining explicit locked-package evidence without borrowing another version's requirements.
