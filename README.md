@@ -7,6 +7,8 @@ PHP Upgrade Preflight checks a planned PHP upgrade before you change your projec
 
 v0.3 runs on PHP `^8.0`, from PHP 8.0 through PHP 8.x. The Laravel adapter gives upgrade guidance for Laravel 7 to 8, direct 7 to 9, and every upgrade from one major version to the next, from 8 to 9 through 12 to 13.
 
+Current compatibility checks exercise PHP 8.5.12 and Laravel 13.39.0, including real Artisan analysis and PHPUnit 13 / Pest 5 consumers. See the dated [compatibility inventory](docs/current-compatibility.md) for verification details and limits.
+
 If your project's root `composer.json` requires `laravel/framework`, the analyzer can also check dependencies one major version at a time along any path within Laravel 7–13 that skips no versions. It reports each step separately from the direct check for your final target.
 
 You can install the Laravel adapter alongside Laravel 8 on PHP 8.0, Laravel 9 on PHP 8.0.2, Laravel 10 on PHP 8.1, Laravel 11/12 on PHP 8.2, and Laravel 13 on PHP 8.3. The analyzer's PHP requirements are separate from those of the upgrade you're checking. When you run it outside the project, it can use Composer platform settings to model a newer target.

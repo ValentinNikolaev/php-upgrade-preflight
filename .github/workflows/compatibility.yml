@@ -74,13 +74,13 @@ jobs:
             slug: laravel13-current-php83
             php: '8.3'
             package: php-upgrade-preflight/laravel:@dev
-            framework: laravel/framework:^13.35
+            framework: laravel/framework:^13.39
             smoke: laravel
           - name: Illuminate 13 current / PHP 8.3
             slug: illuminate13-current-php83
             php: '8.3'
             package: php-upgrade-preflight/laravel:@dev
-            framework: illuminate/console:^13.35
+            framework: illuminate/console:^13.39
             smoke: illuminate
           - name: core current dependencies / PHP 8.5
             slug: core-current-php85
@@ -99,7 +99,7 @@ jobs:
             slug: laravel13-phpunit13-php85
             php: '8.5'
             package: php-upgrade-preflight/laravel:@dev
-            framework: laravel/framework:^13.35
+            framework: laravel/framework:^13.39
             dependencies: phpunit/phpunit:^13.4
             test_tool: phpunit
             smoke: laravel
@@ -107,7 +107,7 @@ jobs:
             slug: laravel13-pest5-php85
             php: '8.5'
             package: php-upgrade-preflight/laravel:@dev
-            framework: laravel/framework:^13.35
+            framework: laravel/framework:^13.39
             dependencies: pestphp/pest:^5.3 pestphp/pest-plugin-laravel:^5.0
             test_tool: pest
             smoke: laravel
@@ -115,7 +115,7 @@ jobs:
             slug: illuminate13-symfony81-php85
             php: '8.5'
             package: php-upgrade-preflight/laravel:@dev
-            framework: illuminate/console:^13.35
+            framework: illuminate/console:^13.39
             dependencies: symfony/console:^8.1 symfony/process:^8.1
             smoke: illuminate
     steps:
@@ -211,7 +211,7 @@ jobs:
             requirements+=("${FRAMEWORK}")
           fi
           if [[ "${SMOKE}" == 'illuminate' ]]; then
-            requirements+=('illuminate/container:^13.35' 'illuminate/support:^13.35')
+            requirements+=('illuminate/container:^13.39' 'illuminate/support:^13.39')
           fi
           if [[ -n "${DEPENDENCIES}" ]]; then
             read -r -a extra_requirements <<< "${DEPENDENCIES}"

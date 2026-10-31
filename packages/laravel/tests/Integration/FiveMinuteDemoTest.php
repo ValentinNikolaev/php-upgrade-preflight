@@ -153,18 +153,15 @@ final class FiveMinuteDemoTest extends TestCase
             $summaries
         );
 
-        $checkedIn = json_decode(
-            $this->read($this->demoRoot() . '/reports/laravel-10-to-13.json'),
-            true,
-            512,
-            JSON_THROW_ON_ERROR
-        );
-        self::assertIsArray($checkedIn);
-        self::assertSame(
-            $this->stageStateChain($checkedIn),
-            $this->stageStateChain($canonical),
-            'The checked-in demo report must use the current canonical candidate-state fingerprints.'
-        );
+        $generatedPath = tempnam(sys_get_temp_dir(), 'preflight-demo-current-');
+        self::assertIsString($generatedPath);
+        try {
+            file_put_contents($generatedPath, json_encode($canonical, JSON_THROW_ON_ERROR));
+            $process = $this->runSummarizer($generatedPath, FiveMinuteDemoAnalysis::canonicalJsonPath());
+            self::assertSame(0, $process->getExitCode(), $process->getOutput() . $process->getErrorOutput());
+        } finally {
+            unlink($generatedPath);
+        }
     }
 
     public function testCheckedInReportsValidateAndProjectTheSameKeyFindings(): void
@@ -249,6 +246,52 @@ final class FiveMinuteDemoTest extends TestCase
         self::assertStringContainsString('VerifyCsrfToken', $output);
     }
 
+    /** @dataProvider composerMetadataProvider */
+    public function testDemoSummarizerChecksCandidateMetadataAgainstItsComposerVersion(bool $sameComposer): void
+    {
+        $canonicalPath = FiveMinuteDemoAnalysis::canonicalJsonPath();
+        $report = json_decode($this->read($canonicalPath), true, 512, JSON_THROW_ON_ERROR);
+        if (!$sameComposer) {
+            $report['composer_execution']['composer_version'] = '2.99.0';
+        }
+        $output = $report['staged_resolution']['stages'][0]['output_state'];
+        $lock = hash('sha256', 'different Composer lock metadata');
+        $state = hash('sha256', json_encode([
+            'execution_policy' => $output['execution_policy_sha256'],
+            'lock' => $lock,
+            'manifest' => $output['manifest_sha256'],
+            'platform' => $output['platform_sha256'],
+        ], JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR));
+        $replacements = [$output['lock_sha256'] => $lock, $output['state_sha256'] => $state];
+        array_walk_recursive($report, static function (mixed &$value) use ($replacements): void {
+            if (is_string($value) && isset($replacements[$value])) {
+                $value = $replacements[$value];
+            }
+        });
+
+        $generatedPath = tempnam(sys_get_temp_dir(), 'preflight-demo-composer-');
+        self::assertIsString($generatedPath);
+        try {
+            file_put_contents($generatedPath, json_encode($report, JSON_THROW_ON_ERROR));
+            $process = $this->runSummarizer($generatedPath, $canonicalPath);
+            if ($sameComposer) {
+                self::assertNotSame(0, $process->getExitCode());
+                self::assertStringContainsString('differs from the checked-in canonical report', $process->getOutput() . $process->getErrorOutput());
+            } else {
+                self::assertSame(0, $process->getExitCode(), $process->getOutput() . $process->getErrorOutput());
+            }
+        } finally {
+            unlink($generatedPath);
+        }
+    }
+
+    /** @return iterable<string, array{bool}> */
+    public static function composerMetadataProvider(): iterable
+    {
+        yield 'same Composer must preserve fingerprints' => [true];
+        yield 'different Composer may change lock metadata' => [false];
+    }
+
     /**
      * The summarizer guards the recorded demo against reports that no longer match
      * the committed evidence. Passing the canonical report as both inputs cannot
@@ -261,6 +304,52 @@ final class FiveMinuteDemoTest extends TestCase
      */
     public static function summarizerRejectionProvider(): iterable
     {
+        yield 'coherently forged state hashes do not prove a valid chain' => [
+            'mutate' => static function (array $report): array {
+                $old = $report['staged_resolution']['stages'][0]['output_state']['state_sha256'];
+                array_walk_recursive($report, static function (mixed &$value) use ($old): void {
+                    if ($value === $old) {
+                        $value = str_repeat('0', 64);
+                    }
+                });
+
+                return $report;
+            },
+            'compareAgainstCanonical' => false,
+            'expected' => 'invalid candidate-state fingerprint',
+        ];
+
+        yield 'candidate chain breaks even when compared with itself' => [
+            'mutate' => static function (array $report): array {
+                $report['staged_resolution']['stages'][1]['input_state']['state_sha256'] = str_repeat('0', 64);
+
+                return $report;
+            },
+            'compareAgainstCanonical' => false,
+            'expected' => 'broken candidate-state chain',
+        ];
+
+        yield 'selected attempt disagrees with its stage output' => [
+            'mutate' => static function (array $report): array {
+                $report['staged_resolution']['stages'][0]['attempts'][2]['output_state']['state_sha256'] = str_repeat('0', 64);
+
+                return $report;
+            },
+            'compareAgainstCanonical' => false,
+            'expected' => 'invalid selected attempt state',
+        ];
+
+        yield 'package changes drift with a different Composer version' => [
+            'mutate' => static function (array $report): array {
+                $report['composer_execution']['composer_version'] = '2.99.0';
+                $report['staged_resolution']['stages'][0]['package_changes'][0]['to_version'] = '11.99.0';
+
+                return $report;
+            },
+            'compareAgainstCanonical' => true,
+            'expected' => 'differs from the checked-in canonical report',
+        ];
+
         yield 'stage resolution drifts from the canonical report' => [
             'mutate' => static function (array $report): array {
                 $report['staged_resolution']['stages'][1]['resolution_status'] = 'blocked';
@@ -372,26 +461,6 @@ final class FiveMinuteDemoTest extends TestCase
                 self::assertStringContainsString((string) ($occurrence['symbol'] ?? ''), $markdown);
             }
         }
-    }
-
-    /**
-     * @param array<string, mixed> $report
-     * @return list<array{id: string, input: string|null, output: string|null}>
-     */
-    private function stageStateChain(array $report): array
-    {
-        return array_map(
-            static fn (array $stage): array => [
-                'id' => (string) ($stage['id'] ?? ''),
-                'input' => isset($stage['input_state']['state_sha256'])
-                    ? (string) $stage['input_state']['state_sha256']
-                    : null,
-                'output' => isset($stage['output_state']['state_sha256'])
-                    ? (string) $stage['output_state']['state_sha256']
-                    : null,
-            ],
-            $report['staged_resolution']['stages'] ?? []
-        );
     }
 
     private function assertConformsToSchema(string $json): void

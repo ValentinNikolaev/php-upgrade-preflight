@@ -79,7 +79,7 @@
     "php-upgrade-preflight/test-adapter": "0.3.x-dev",
     "phpstan/phpstan": "^2.1",
     "phpunit/phpunit": "^9.6",
-    "symfony/yaml": "^5.4 || ^6.0 || ^7.0 || ^8.0"
+    "symfony/yaml": "^5.4.54 || ^6.4.45 || ^7.4.18 || ^8.1.6"
   },
   "autoload-dev": {
     "psr-4": {

@@ -19,7 +19,7 @@ function analyzeCurrentConsumer(): UpgradeReport
         $root . '/tests/fixtures/path-repository/project',
         [new UpgradeTarget('fixture/dependency', '^2.0')],
         '8.0.0',
-        '8.5.11',
+        '8.5.12',
         composerExecution: new ComposerExecutionConfiguration(mode: ComposerExecutionConfiguration::MODE_RESTRICTED)
     ));
 }
