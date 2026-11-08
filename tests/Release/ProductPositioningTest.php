@@ -44,9 +44,9 @@ final class ProductPositioningTest extends TestCase
         $readme = $this->read('README.md');
         self::assertStringContainsString('Project status: Public beta', $readme);
         self::assertStringContainsString('open source under the [MIT License](LICENSE)', $readme);
-        self::assertStringContainsString("Public beta doesn't mean the tool is ready for production use", $readme);
-        self::assertStringContainsString('Patch releases in v0.3.x keep the existing public contracts compatible', $readme);
-        self::assertStringContainsString('v0.3.5 is the latest published release', $readme);
+        self::assertStringContainsString('The tool is in public beta, with no claim of production readiness', $readme);
+        self::assertStringContainsString('Patch releases in v0.3.x preserve the public PHP API', $readme);
+        self::assertStringContainsString('The latest published release is v0.3.5', $readme);
         self::assertStringContainsString(
             'composer require php-upgrade-preflight/cli:^0.3 php-upgrade-preflight/laravel:^0.3',
             $readme
