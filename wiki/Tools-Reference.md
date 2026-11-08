@@ -265,7 +265,7 @@ php tools/materialize-release-wikis.php --check-published common php-upgrade-pre
 
 The tool accepts exactly `common`, `core`, `cli`, and `laravel`, with fixed repository
 and purpose values. Sources must resolve to regular Markdown files below `wiki/`.
-destinations are case-insensitively unique and cannot claim generated filenames.
+Destinations are case-insensitively unique and cannot claim generated filenames.
 Generation validates all four sets before writing, stages a complete known tree, and
 atomically replaces each validated `pages/` directory. It refuses unlisted files and
 symlinked output instead of deleting or following them.

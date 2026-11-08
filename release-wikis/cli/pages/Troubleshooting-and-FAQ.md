@@ -252,7 +252,7 @@ resolution.status blocked = Composer final-target evidence found blockers
 CI should first require exit code 0, then parse JSON:
 
 ```bash
-vendor/bin/upgrade-intel analyze --path=/work/app --target-php=8.2 --output=/work/reports/app.json
+vendor/bin/upgrade-intel analyze --path=/work/app --target-php=8.2 --format=json --output=/work/reports/app.json
 command_code=$?
 if [ "$command_code" -ne 0 ]; then exit "$command_code"; fi
 status="$(jq -r '.resolution.status' /work/reports/app.json)"
@@ -260,7 +260,7 @@ test "$status" = feasible -o "$status" = feasible_with_changes
 ```
 
 ```powershell
-vendor\bin\upgrade-intel.bat analyze --path=C:\work\app --target-php=8.2 --output=C:\work\reports\app.json
+vendor\bin\upgrade-intel.bat analyze --path=C:\work\app --target-php=8.2 --format=json --output=C:\work\reports\app.json
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 $status = (Get-Content -Raw C:\work\reports\app.json | ConvertFrom-Json).resolution.status
 if ($status -notin @('feasible', 'feasible_with_changes')) { exit 10 }
@@ -319,12 +319,12 @@ Stable path markers hide common absolute roots. Composer lock metadata, duration
 
 ```bash
 mkdir -p /work/reports
-vendor/bin/upgrade-intel analyze --path=/work/app --target-php=8.2 --output=/work/reports/app.json
+vendor/bin/upgrade-intel analyze --path=/work/app --target-php=8.2 --format=json --output=/work/reports/app.json
 ```
 
 ```powershell
 New-Item -ItemType Directory -Force C:\work\reports | Out-Null
-vendor\bin\upgrade-intel.bat analyze --path=C:\work\app --target-php=8.2 --output=C:\work\reports\app.json
+vendor\bin\upgrade-intel.bat analyze --path=C:\work\app --target-php=8.2 --format=json --output=C:\work\reports\app.json
 ```
 
 Avoid stdout redirection into the project because the shell creates the file before analyzer validation.

@@ -25,6 +25,8 @@ vendor/bin/upgrade-intel analyze --target-platform-profile=platform.json [option
 
 ## Complete option reference
 
+The options below describe the development checkout. These defaults are unreleased: `summary` output and `standard` Composer analysis. Published v0.3.5 defaults to JSON for `analyze` and Markdown for the wizard; its exhaustive probes correspond to the checkout's `full` mode. In scripts that parse reports, always pass `--format=json`.
+
 `CommandLineOptions::all()` is the single source for accepted option names, parse modes, defaults, and help text.
 
 | Option | Repeatable | Default | Meaning |
@@ -37,10 +39,12 @@ vendor/bin/upgrade-intel analyze --target-platform-profile=platform.json [option
 | `--with-extension=EXT[:VERSION]` | Yes | Empty | Assume an extension is present, optionally at a version |
 | `--without-extension=EXT` | Yes | Empty | Assume an extension is absent |
 | `--source=PATH` | Yes | Empty | Add a project-contained source path |
+| `--source-cache=PATH` | No | Off | Private source-facts cache outside the project; opt in explicitly |
 | `--framework=NAME` | Yes | Empty | Explicitly activate an installed adapter by name |
-| `--format=json\|markdown` | No | `json` | Report writer |
+| `--format=summary\|json\|markdown` | No | `summary` | Compact summary, canonical JSON, or full Markdown |
 | `--output=PATH` | No | Standard output | Write the rendered report to a validated destination |
 | `--save-report=PATH` | No | None | Preserve stdout and save the same rendered report to a validated destination |
+| `--analysis-mode=standard\|full` | No | `standard` | `standard` can stop after the exact target succeeds; `full` compares direct alternatives |
 | `--composer-mode=MODE` | No | `compatible` | `compatible` or `restricted` |
 | `--composer-executable=PATH` | No | `composer` | Composer command or executable path |
 | `--composer-version=RANGE` | No | `>=2.0.0 <3.0.0` | Expected Composer version constraint |

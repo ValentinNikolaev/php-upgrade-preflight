@@ -6,20 +6,20 @@
         {
             "source": "wiki/Home.md",
             "destination": "Home.md",
-            "source_sha256": "61b7048f1caa5fb99941b90498eb7fb6fd2e774337e35ce4b3c51908d02679dd",
-            "materialized_sha256": "c117928fc7ba9b6a4d9cfeb4dace92724f9541419ddb3f80d67324d02e0e422f"
+            "source_sha256": "93a7aa74abc7bc74d53767e6aa7bac44dcdbf534dcd77f122aa954f23b373d4c",
+            "materialized_sha256": "cdc02339092e3b28ca9a0bd7be277112ee1884c247dc605f689f51827f48cd5d"
         },
         {
             "source": "wiki/Getting-Started.md",
             "destination": "Getting-Started.md",
-            "source_sha256": "00f8558ef3c6b201aad3e56410093a541cd362fc914a4e8cf9bee77a92037f8a",
-            "materialized_sha256": "00f8558ef3c6b201aad3e56410093a541cd362fc914a4e8cf9bee77a92037f8a"
+            "source_sha256": "5ad7ae1d9c3196d0ac4d7f980d1b3b4e7f125f6384ef2052321ab3be8aad0332",
+            "materialized_sha256": "5ad7ae1d9c3196d0ac4d7f980d1b3b4e7f125f6384ef2052321ab3be8aad0332"
         },
         {
             "source": "wiki/Package-Map.md",
             "destination": "Package-Map.md",
-            "source_sha256": "7b7fafa9f9e48da1bc9878bee9043f08605dac08f04282ab05d63bc88781aa18",
-            "materialized_sha256": "7b7fafa9f9e48da1bc9878bee9043f08605dac08f04282ab05d63bc88781aa18"
+            "source_sha256": "77bbd105149aba2bbef48e82665f0eedfc9ebb539e254f0ec04bac44da5722e7",
+            "materialized_sha256": "77bbd105149aba2bbef48e82665f0eedfc9ebb539e254f0ec04bac44da5722e7"
         },
         {
             "source": "wiki/Class-and-Service-Index.md",
@@ -30,38 +30,38 @@
         {
             "source": "wiki/Architecture-Overview.md",
             "destination": "Architecture-Overview.md",
-            "source_sha256": "a9fc0f199b73f318a915e51efe53e6b78356545c021c57328d33ec823eb54370",
-            "materialized_sha256": "a9fc0f199b73f318a915e51efe53e6b78356545c021c57328d33ec823eb54370"
+            "source_sha256": "d20cdde8998a6b1333619982557ba054361825feb2c4c03c622ff490acb9937f",
+            "materialized_sha256": "d20cdde8998a6b1333619982557ba054361825feb2c4c03c622ff490acb9937f"
         },
         {
             "source": "wiki/Key-Concepts.md",
             "destination": "Key-Concepts.md",
-            "source_sha256": "2f3ad83b06e6bc7b184f9b4341079c9e9db81eeb3fec703edaa5e678f836b110",
-            "materialized_sha256": "2f3ad83b06e6bc7b184f9b4341079c9e9db81eeb3fec703edaa5e678f836b110"
+            "source_sha256": "f739080c1cb822aec5a6bc9e3ba1235da583212cd4c57b7e173c8146f7ff25a5",
+            "materialized_sha256": "f739080c1cb822aec5a6bc9e3ba1235da583212cd4c57b7e173c8146f7ff25a5"
         },
         {
             "source": "wiki/Reading-the-Report.md",
             "destination": "Reading-the-Report.md",
-            "source_sha256": "66bfee9c743d12a9f1c8c9f318a6e4d73b22957bd5de78c01e7367e5810d53c1",
-            "materialized_sha256": "66bfee9c743d12a9f1c8c9f318a6e4d73b22957bd5de78c01e7367e5810d53c1"
+            "source_sha256": "702a6e6266cf7168c56ff8b93c151ff38a7831acd5ab525048be1d149f565004",
+            "materialized_sha256": "702a6e6266cf7168c56ff8b93c151ff38a7831acd5ab525048be1d149f565004"
         },
         {
             "source": "wiki/Report-Schema.md",
             "destination": "Report-Schema.md",
-            "source_sha256": "32d616d64ad27c261239d96312277b359594a7dc3da9d229fa007ab53df1b0cc",
-            "materialized_sha256": "892cd7569cd5ca9ae9acd4dabe51f6315e41c6ea110a57f99880fb371cd42e8f"
+            "source_sha256": "86ffa0d518db4a745befa619f0fa39732b7662b3dd46f8f5517910462cf4eef8",
+            "materialized_sha256": "a163af9c8792d6d2bb189446f75a5cfae41dded93b7022dd2d184a75e44e8dcf"
         },
         {
             "source": "wiki/Determinism-and-Evidence.md",
             "destination": "Determinism-and-Evidence.md",
-            "source_sha256": "84b465248c66e4e5c8fc8e409e7edfb4ea9f97776bbeba4e58acb9d4eb0b6942",
-            "materialized_sha256": "84b465248c66e4e5c8fc8e409e7edfb4ea9f97776bbeba4e58acb9d4eb0b6942"
+            "source_sha256": "499ce245f0c355be09424c2d887da3b672da0ff52e12e30e4b24ff62e7a3c327",
+            "materialized_sha256": "499ce245f0c355be09424c2d887da3b672da0ff52e12e30e4b24ff62e7a3c327"
         },
         {
             "source": "wiki/Core-Package-Guide.md",
             "destination": "Core-Package-Guide.md",
-            "source_sha256": "4265040914632556f0a56a7c82ca7548b8070b31d4aaf5ca1a220b5bb350979e",
-            "materialized_sha256": "4265040914632556f0a56a7c82ca7548b8070b31d4aaf5ca1a220b5bb350979e"
+            "source_sha256": "61f0e2091566c557c1c5e62dd1f86655adc3dfcea87f68d71e1fdd6b6ecf1f98",
+            "materialized_sha256": "61f0e2091566c557c1c5e62dd1f86655adc3dfcea87f68d71e1fdd6b6ecf1f98"
         },
         {
             "source": "wiki/Core-Service-Reference.md",
@@ -72,20 +72,20 @@
         {
             "source": "wiki/Core-Analysis-Pipeline.md",
             "destination": "Core-Analysis-Pipeline.md",
-            "source_sha256": "88c50206e1b0204483cd9bbb75b446d4ab63cef73c3ef0b4ef42e103dd285326",
-            "materialized_sha256": "88c50206e1b0204483cd9bbb75b446d4ab63cef73c3ef0b4ef42e103dd285326"
+            "source_sha256": "13498ea49d42223d5110aa85b4260567d0e3e155048a45bc521725757a980e19",
+            "materialized_sha256": "13498ea49d42223d5110aa85b4260567d0e3e155048a45bc521725757a980e19"
         },
         {
             "source": "wiki/CLI-Reference.md",
             "destination": "CLI-Reference.md",
-            "source_sha256": "ffb62ea174b6d5384848df57360b96b69e313aa8ab742443f57439e72368da2c",
-            "materialized_sha256": "ffb62ea174b6d5384848df57360b96b69e313aa8ab742443f57439e72368da2c"
+            "source_sha256": "3d60cc0ef3c0812ec041a97d7115ba16fb11a3bfe96a26a03771a6711c6216a2",
+            "materialized_sha256": "3d60cc0ef3c0812ec041a97d7115ba16fb11a3bfe96a26a03771a6711c6216a2"
         },
         {
             "source": "wiki/CLI-Package-Internals.md",
             "destination": "CLI-Package-Internals.md",
-            "source_sha256": "0d18af676ff2cd7ef17e8563e18bc820eb56d12ba1213bac5fac1ad42ea4c69a",
-            "materialized_sha256": "0d18af676ff2cd7ef17e8563e18bc820eb56d12ba1213bac5fac1ad42ea4c69a"
+            "source_sha256": "54a601290300ca28b23524c4128354f35ac5c720b1d857709c136868c0f01fdf",
+            "materialized_sha256": "54a601290300ca28b23524c4128354f35ac5c720b1d857709c136868c0f01fdf"
         },
         {
             "source": "wiki/Laravel-Package-Internals.md",
@@ -96,38 +96,38 @@
         {
             "source": "wiki/Laravel-Adapter-Internals.md",
             "destination": "Laravel-Adapter-Internals.md",
-            "source_sha256": "d14f468b36df0e6335226ecf8ed1ee562e890cae780ee80fb40fbc2a18ee1983",
-            "materialized_sha256": "d14f468b36df0e6335226ecf8ed1ee562e890cae780ee80fb40fbc2a18ee1983"
+            "source_sha256": "af1e091749229a7cf4da5a9ecd19855d7a755f2a384a71f5b06f1463ee15d640",
+            "materialized_sha256": "af1e091749229a7cf4da5a9ecd19855d7a755f2a384a71f5b06f1463ee15d640"
         },
         {
             "source": "wiki/Artisan-Command.md",
             "destination": "Artisan-Command.md",
-            "source_sha256": "e14434fbefdcdc253f87d0f1eaa461d5d460a79040a89b9bd04fcba73c812b61",
-            "materialized_sha256": "e14434fbefdcdc253f87d0f1eaa461d5d460a79040a89b9bd04fcba73c812b61"
+            "source_sha256": "60ef4f87e4341aa03ed226b5a7b4ac8af9bbf63bba361d7919f997b46aa9b01b",
+            "materialized_sha256": "60ef4f87e4341aa03ed226b5a7b4ac8af9bbf63bba361d7919f997b46aa9b01b"
         },
         {
             "source": "wiki/Writing-a-Framework-Adapter.md",
             "destination": "Writing-a-Framework-Adapter.md",
-            "source_sha256": "b877c20644e71caec0d6314186c10824cf8d968374d924312d8c4d7ecadfc4f8",
-            "materialized_sha256": "b877c20644e71caec0d6314186c10824cf8d968374d924312d8c4d7ecadfc4f8"
+            "source_sha256": "cd407c26582334ff335def005a00f4a11a9cf1fe83caaefab374f46371063ab5",
+            "materialized_sha256": "cd407c26582334ff335def005a00f4a11a9cf1fe83caaefab374f46371063ab5"
         },
         {
             "source": "wiki/Test-Adapters.md",
             "destination": "Test-Adapters.md",
-            "source_sha256": "7b80a5e3990e59df1df77deaaf276603135cd901866d332fbf4c42567c5ac804",
-            "materialized_sha256": "7b80a5e3990e59df1df77deaaf276603135cd901866d332fbf4c42567c5ac804"
+            "source_sha256": "79f31cbddba479af04aa14e6df0b876ca7a5e0cb44b67cae2cbbdcfaff68e01e",
+            "materialized_sha256": "79f31cbddba479af04aa14e6df0b876ca7a5e0cb44b67cae2cbbdcfaff68e01e"
         },
         {
             "source": "wiki/Safety-and-Trust-Boundaries.md",
             "destination": "Safety-and-Trust-Boundaries.md",
-            "source_sha256": "ccba2628b71996b99e472d24e46f9dd349f6bb1902418cd3da2a53220231e658",
-            "materialized_sha256": "ccba2628b71996b99e472d24e46f9dd349f6bb1902418cd3da2a53220231e658"
+            "source_sha256": "29f732fc9fe5f6bbacea24c62e636c8be2b20ea93202eec03155bd96c6d01dd5",
+            "materialized_sha256": "29f732fc9fe5f6bbacea24c62e636c8be2b20ea93202eec03155bd96c6d01dd5"
         },
         {
             "source": "wiki/Tools-Reference.md",
             "destination": "Tools-Reference.md",
-            "source_sha256": "292ad1eeb4422796977728f97f732188970e63f4096dcfeaa9f39bc11cc002df",
-            "materialized_sha256": "292ad1eeb4422796977728f97f732188970e63f4096dcfeaa9f39bc11cc002df"
+            "source_sha256": "ab28015f04180fc795a70d8ba76584317f96b0b1217ef6f140c391d80c081ab2",
+            "materialized_sha256": "ab28015f04180fc795a70d8ba76584317f96b0b1217ef6f140c391d80c081ab2"
         },
         {
             "source": "wiki/Quality-and-Release-Tooling.md",
@@ -150,14 +150,14 @@
         {
             "source": "wiki/Roadmap-and-Status.md",
             "destination": "Roadmap-and-Status.md",
-            "source_sha256": "1b47bd2d63b21eb2300cb1dbbb4865635d2212b60ad120deb60a618bf5b63a63",
-            "materialized_sha256": "39196d5c4b33fe372501cc85cca78f14e3273cd50a32d72d51712f523804b76e"
+            "source_sha256": "b17d283402efd0b2fac8cd1e4612bea82aaf30487ba7e70b45eabd0e067d9308",
+            "materialized_sha256": "f83a1c39566c9b454ddcbeb12496a997c41273d4d4fe3f537fdecc59e0a4493c"
         },
         {
             "source": "wiki/Troubleshooting-and-FAQ.md",
             "destination": "Troubleshooting-and-FAQ.md",
-            "source_sha256": "f739dbb7739b440e4cc2e2b73245d00836a4bf8033354a959151ed5067cd8c3e",
-            "materialized_sha256": "f739dbb7739b440e4cc2e2b73245d00836a4bf8033354a959151ed5067cd8c3e"
+            "source_sha256": "2d67f3e2f47854890d58fc2314ed112d97a604a5a89006d36c73990f7d94d6eb",
+            "materialized_sha256": "2d67f3e2f47854890d58fc2314ed112d97a604a5a89006d36c73990f7d94d6eb"
         }
     ],
     "generated": {

@@ -17,7 +17,7 @@ This page follows a Laravel request through `packages/laravel`. It shows where d
 | Framework-shaped PHP inspection | `LaravelSourceUsageVisitor` |
 | Artisan registration | `UpgradePreflightServiceProvider` and `AnalyzeUpgradeCommand` |
 
-Each collaborator answers a different question. For example, changing detection alone does not change the catalog's rule definitions or the stage planner's requirements.
+These classes work independently: changing detection alone leaves the catalog's rule definitions and the stage planner's requirements unchanged.
 
 ## Two registration paths
 

@@ -103,7 +103,7 @@ It detects `legacy-vendor/framework`, returns no compatibility rules, proposes `
 
 It has no `FrameworkStageTargetProvider`, so Core skips staged analysis for it. Detection and transition guidance still work.
 
-This proves a useful compatibility rule: an older adapter still loads when Core gains an optional interface.
+This fixture checks that an older adapter still loads when Core gains an optional interface.
 
 ## Example third-party adapter skeleton
 

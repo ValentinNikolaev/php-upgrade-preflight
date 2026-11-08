@@ -248,19 +248,11 @@ UpgradeRequest
   -> UpgradeReport
 ```
 
-An error near the start changes what can be claimed later.
-
-For example, an unreadable lock file prevents an honest candidate lock comparison.
-
-It should not be replaced with guessed package changes.
+An error near the start limits later conclusions. If the lock file is unreadable, the analyzer cannot compare candidate locks reliably and must not guess package changes.
 
 ## Direct versus staged example
 
-Consider a Laravel 10 project targeting Laravel 13.
-
-Direct analysis asks Composer about the final requested state.
-
-Staged analysis asks about 10→11, then 11→12, then 12→13 when the adapter supplies a valid plan.
+Consider a Laravel 10 project targeting Laravel 13. Direct analysis asks Composer about the final requested state. Staged analysis asks about 10→11, then 11→12, then 12→13 when the adapter supplies a valid plan.
 
 These conclusions can differ:
 
@@ -271,28 +263,18 @@ These conclusions can differ:
 | `feasible` | `unknown` or skipped | Direct Composer evidence succeeded, but staged evidence was unavailable or unnecessary |
 | `unknown` | `blocked` | Direct execution lacked a reliable conclusion, while a stage produced a reproducible conflict |
 
-Never overwrite one status with another.
-
-The report keeps them separate so a reader can ask the right follow-up question.
+Never overwrite one status with another. The report keeps them separate so a reader can ask the right follow-up question.
 
 ## Constraint versus resolved version
 
-A Composer constraint is a request such as `^12.0`.
-
-A resolved version is a concrete candidate such as `12.4.2`.
-
-They are not interchangeable.
+A Composer constraint is a request such as `^12.0`. A resolved version is a concrete candidate such as `12.4.2`. They are not interchangeable.
 
 ```text
 root constraint change: laravel/framework -> ^12.0
 candidate package change: laravel/framework 11.46.0 -> 12.4.2
 ```
 
-The first describes temporary manifest intent.
-
-The second describes solver-produced lock evidence.
-
-When no candidate lock exists, the analyzer must not invent the second line.
+The first describes temporary manifest intent. The second describes solver-produced lock evidence. When no candidate lock exists, the analyzer must not invent the second line.
 
 ## Severity, confidence, and risk
 
@@ -304,9 +286,7 @@ These three values answer different questions.
 | Confidence | How directly does evidence support the finding? |
 | Risk | What aggregate planning level follows from the report's modeled drivers? |
 
-A high-severity, low-confidence finding deserves investigation.
-
-It does not automatically make every conclusion high confidence.
+A high-severity, low-confidence finding deserves investigation. It does not automatically make every conclusion high confidence.
 
 A low-severity finding can still be backed by high-confidence evidence.
 
@@ -322,9 +302,7 @@ Risk reasons should show which drivers affected the aggregate level.
 | E4 maintainer documentation | Adapter-maintained source material supports transition guidance |
 | E5 heuristic | A deterministic rule inferred planning advice from other facts |
 
-Evidence class is not severity.
-
-Follow the evidence ID to its summary, confidence, and structured context.
+Evidence class is not severity. Follow the evidence ID to its summary, confidence, and structured context.
 
 ## Uncertainty checklist
 
@@ -338,9 +316,7 @@ Before acting on a report, ask:
 6. Was a candidate lock available for the claimed package diff?
 7. Did workspace cleanup leave sensitive retained state?
 
-An uncertainty is actionable information about missing evidence.
-
-It is not documentation noise to delete from a management summary.
+Keep uncertainties in a management summary: they identify missing evidence that may need follow-up.
 
 ## Manager-readable summary vocabulary
 
@@ -352,4 +328,4 @@ Prefer precise phrases:
 - “The estimate assumes the recorded evidence” instead of “delivery will take this many hours.”
 - “The result is unknown because Composer timed out” instead of “Composer conflict.”
 
-This vocabulary keeps technical evidence and business decisions connected without overstating either.
+Name the observed result and its limits so the team can decide what to verify next.

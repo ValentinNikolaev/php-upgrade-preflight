@@ -357,7 +357,9 @@ This is review guidance, not a removed-symbol blocker: Laravel 13 retains the de
 
 The full effort object also lists component ranges and assumptions. Check those before using the estimate in a plan.
 
-Current reports place assessment limits in `risk.drivers` and range scope in `effort.assumptions`. A `low` level rates observed findings only; unknown/degraded Composer work, a failed baseline, unavailable metadata, source omissions, adapter failures or skipped stages can leave work unseen. The hour range is an uncalibrated planning heuristic for observed dependency, source and test work. Unobserved migration, deployment, runtime failures and business validation are excluded. Terminal input failure's `0-0` range means not estimated, not zero upgrade work. The historical demo excerpt above records its published output and has not been rewritten as a current report.
+Current reports place assessment limits in `risk.drivers` and range scope in `effort.assumptions`. A `low` level rates observed findings only; unknown/degraded Composer work, a failed baseline, unavailable metadata, source omissions, adapter failures or skipped stages can leave work unseen. The hour range is an uncalibrated planning heuristic for observed dependency, source and test work. Unobserved migration, deployment, runtime failures and business validation are excluded.
+
+The `0-0` range for a terminal input failure means not estimated, not zero upgrade work. The historical demo excerpt above records its published output and has not been rewritten as a current report.
 
 `tests[]` names purpose, nullable command, and required/recommended priority. Null command means validation is needed but the project command was not identified.
 

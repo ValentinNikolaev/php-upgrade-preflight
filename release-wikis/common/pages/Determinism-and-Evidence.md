@@ -70,9 +70,7 @@ Each namespace has its own sequence. The ledger skips an ID if it is already reg
 
 ## `add()` versus `addOnce()`
 
-Use `add()` when separate observations deserve separate evidence records.
-
-Use `addOnce()` when content-identical evidence in one namespace should be reused.
+Use `add()` when separate observations deserve separate evidence records. Use `addOnce()` when content-identical evidence in one namespace should be reused.
 
 `addOnce()` compares:
 
@@ -218,17 +216,13 @@ The absolute checkout location should not appear in a shareable report.
 | `[LOCAL_REPOSITORY]` | Local Composer repository reference |
 | `[ANALYZER_WORKSPACE]` | Temporary analyzer workspace |
 
-It recognizes path separator variants, escaped forms, and encoded forms.
-
-Longer matching paths are processed before shorter ones.
+It recognizes path separator variants, escaped forms, and encoded forms. Longer matching paths are processed before shorter ones.
 
 That order lets a specific path receive its own marker before its parent path is replaced.
 
 ## Canonical report sanitization
 
-`UpgradeReport::toArray()` builds the canonical array.
-
-It then calls `PathExposurePolicy::sanitizeCanonicalReport()`.
+`UpgradeReport::toArray()` builds the canonical array. It then calls `PathExposurePolicy::sanitizeCanonicalReport()`.
 
 Sanitization:
 
@@ -326,7 +320,7 @@ It encodes with:
 | Source file order | Controlled by scanner sorting |
 | Composer executable/version | Configured and version evidence recorded when available |
 | Repository metadata at a point in time | External and subject to change |
-| Network availability | External, with restricted mode able to remove it intentionally |
+| Network availability | External; restricted mode requests best-effort offline behavior without enforcing a network boundary |
 | Private repository credentials | External and redacted |
 | Host extension set | Not accepted as target truth unless represented by request/profile evidence |
 | Temporary path | Normalized in shareable output |

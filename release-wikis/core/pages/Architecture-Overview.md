@@ -143,6 +143,8 @@ The generic CLI discovers adapter classes from installed Composer manifests.
 
 ## Layer 6: direct Composer scenarios
 
+The development checkout defaults to `standard` analysis: it validates the baseline, tries the exact target, and runs the all-dependencies alternative for a failed package target. It omits minimal-change and optional ordering probes, recording those omissions as uncertainty without inferring outcomes. Select `--analysis-mode=full` for the exhaustive comparisons described below. Both modes retain framework staged analysis. This default change is unreleased.
+
 `ScenarioSelector` creates a bounded scenario matrix.
 
 The usual scenarios are:
@@ -154,11 +156,7 @@ The usual scenarios are:
 
 PHP plus package requests may add platform-only and staged-target diagnostic scenarios.
 
-`ComposerScenarioRunner` executes each selected scenario.
-
-It uses `TemporaryWorkspaceManager` and `ScenarioWorkspacePreparer`.
-
-Only the temporary workspace receives the changed Composer files.
+`ComposerScenarioRunner` executes each selected scenario. It uses `TemporaryWorkspaceManager` and `ScenarioWorkspacePreparer`. Only the temporary workspace receives the changed Composer files.
 
 Each scenario returns a `ScenarioResult`.
 
@@ -176,25 +174,15 @@ A result can contain:
 
 ## External-process boundary
 
-Composer is an external process.
+Composer is an external process. Its environment, version, repositories, cache, credentials, and network availability can affect results. The report records relevant execution configuration and uncertainty.
 
-Its environment, version, repositories, cache, credentials, and network availability can affect results.
-
-The report records relevant execution configuration and uncertainty.
-
-Compatible mode uses normal Composer access with non-interactive/no-audit settings.
-
-Restricted mode creates analyzer-owned Composer state and disables normal credential, proxy, prompt, and network paths where supported.
-
-Restricted mode does not isolate the process at the operating-system level.
+Compatible mode uses normal Composer access with non-interactive/no-audit settings. Restricted mode creates analyzer-owned Composer state, clears controlled credential, proxy, and prompt settings, and requests best-effort offline behavior. Restricted mode does not isolate the process at the operating-system level.
 
 ## Layer 7: direct interpretation
 
 `LockDiffBuilder` compares the baseline lock with the selected successful candidate.
 
-`BlockerGrouper` converts reliable solver evidence into structured blockers.
-
-`ComposerBlockerParser` helps extract package and constraint relations from Composer text.
+`BlockerGrouper` converts reliable solver evidence into structured blockers. `ComposerBlockerParser` helps extract package and constraint relations from Composer text.
 
 `AbandonedPackageDetector` adds lock-metadata abandonment evidence.
 
@@ -209,9 +197,7 @@ The direct resolution can be:
 
 ## Candidate selection
 
-The analyzer considers successful target-feasibility scenarios with readable candidate locks.
-
-It first prefers fewer package changes.
+In `full` mode, the analyzer compares successful target-feasibility scenarios with readable candidate locks and prefers fewer package changes. The unreleased `standard` default can stop after a successful exact-target attempt; it does not promise the smallest-change lock.
 
 For equal change counts, strategy rank is:
 
@@ -219,43 +205,23 @@ For equal change counts, strategy rank is:
 2. minimal changes
 3. with all dependencies.
 
-Original scenario order is the final tie-breaker.
-
-This candidate drives the direct lock diff.
+Original scenario order is the final tie-breaker. This candidate drives the direct lock diff.
 
 ## Layer 8: staged analysis
 
 Staged analysis is separate from direct resolution.
 
-`StagedUpgradeOrchestrator` asks active `FrameworkStageTargetProvider` integrations for plans.
+`StagedUpgradeOrchestrator` asks active `FrameworkStageTargetProvider` integrations for plans. `StagePlanResolver` validates and selects a usable provider plan. `StageAttemptPlanner` creates bounded attempts. `StageExecutor` runs them. `StageBlockerRegistry` tracks conflict lifecycle.
 
-`StagePlanResolver` validates and selects a usable provider plan.
-
-`StageAttemptPlanner` creates bounded attempts.
-
-`StageExecutor` runs them.
-
-`StageBlockerRegistry` tracks conflict lifecycle.
-
-The selected candidate state of one successful stage becomes input to the next stage.
-
-Staged dependency candidates do not rewrite application source.
+The selected candidate state of one successful stage becomes input to the next stage. Staged dependency candidates do not rewrite application source.
 
 ## Layer 9: source analysis
 
-`SourceUsageScanner` parses selected PHP files using `nikic/php-parser`.
-
-Core visitors collect common declarations and usages.
-
-Adapters may add visitors through `SourceUsageVisitorProvider`.
+`SourceUsageScanner` parses selected PHP files using `nikic/php-parser`. Core visitors collect common declarations and usages. Adapters may add visitors through `SourceUsageVisitorProvider`.
 
 The scanner first records what it sees. A source usage becomes actionable impact only after correlation with ownership, package changes, or framework findings.
 
-`AutoloadOwnershipIndexBuilder` uses root and locked-package autoload metadata.
-
-`SourceImpactBuilder` correlates inventory with ownership, package changes, and framework findings.
-
-This reduces false attribution caused by matching a symbol name alone.
+`AutoloadOwnershipIndexBuilder` uses root and locked-package autoload metadata. `SourceImpactBuilder` correlates inventory with ownership, package changes, and framework findings. This reduces false attribution caused by matching a symbol name alone.
 
 ## Layer 10: framework guidance
 
@@ -284,11 +250,7 @@ Risk is a deterministic planning summary, not a probability. Effort is a range w
 
 ## Layer 12: report assembly
 
-`ReportAssembler` is the single normal construction point for `UpgradeReport`.
-
-`ReportSectionBuilder` creates normalized derived sections.
-
-The report constructor validates evidence references and other invariants.
+`ReportAssembler` is the single normal construction point for `UpgradeReport`. `ReportSectionBuilder` creates normalized derived sections. The report constructor validates evidence references and other invariants.
 
 JSON carries the canonical report. Markdown renders the same report for people. Neither writer reruns analysis.
 
@@ -304,19 +266,9 @@ JSON carries the canonical report. Markdown renders the same report for people. 
 
 ## Failure containment
 
-Not every failure ends the process.
+Core can continue after some failures. It skips a broken optional adapter manifest with a diagnostic. If an adapter rule throws, Core records evidence-backed uncertainty and runs the remaining rules. A failing stage provider can leave staged analysis unavailable, and a PHP parse failure becomes source uncertainty.
 
-A broken optional adapter manifest is skipped and diagnosed.
-
-A throwing adapter rule becomes evidence-backed uncertainty while remaining rules continue.
-
-A failing stage provider can be contained as unavailable staged analysis.
-
-A PHP parse failure becomes source uncertainty.
-
-An invalid command invocation exits before analysis.
-
-An unreadable project input produces a terminal input-failure report when possible.
+An invalid command invocation exits before analysis. If project input is unreadable, Core produces a terminal input-failure report when possible.
 
 ## Architectural invariants
 

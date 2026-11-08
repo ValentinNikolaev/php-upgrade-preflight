@@ -1,6 +1,6 @@
 # Getting Started
 
-This guide takes you from installation to a report your team can use. PHP Upgrade Preflight examines an upgrade. It does not change the application for you.
+Install PHP Upgrade Preflight, run an analysis, and read the report to plan your upgrade. The analyzer leaves the application unchanged.
 
 > **Current release line:** v0.3.x. The latest published release recorded by the repository is v0.3.5. It produces canonical JSON schema 0.8 and requires PHP `^8.0` on the machine that runs the analyzer.
 
@@ -112,7 +112,7 @@ vendor\bin\upgrade-intel.bat wizard
 
 It shows available project evidence, asks whether to model PHP, packages, or both, and requires an explicit Composer analysis mode. For package targets, the default reads only `composer.json`. You may instead request a local-cache-only metadata check or configured project repositories. The latter can use network access and credentials. A package that is explicitly absent or has no matching discovered version must be corrected. Offline, timeout, and metadata failures are shown as unverified rather than falsely labeled nonexistent.
 
-The default report format is readable Markdown. The wizard always keeps the report on stdout and can also save the same bytes to a validated path outside the project. It shows the equivalent flag-based `analyze` command before confirmation. Use that explicit command in CI or any redirected/non-TTY session. Enter `cancel`, `quit`, or `q` to stop before analysis.
+Published v0.3.5 defaults to Markdown in the wizard. The development checkout defaults to a compact `summary`; this change is unreleased. Select JSON explicitly for automated consumers. The wizard always keeps the report on stdout and can also save the same bytes to a validated path outside the project. It shows the equivalent flag-based `analyze` command before confirmation. Use that explicit command in CI or any redirected/non-TTY session. Enter `cancel`, `quit`, or `q` to stop before analysis.
 
 ## Run a first PHP-only analysis
 
