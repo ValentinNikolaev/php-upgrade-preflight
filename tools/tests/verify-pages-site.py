@@ -175,7 +175,7 @@ def repository_facts(repo_root: Path) -> dict[str, str]:
 
     readme = (repo_root / "README.md").read_text(encoding="utf-8")
     legacy = re.search(
-        r"Releases up to and including (v\d+\.\d+\.\d+).*?"
+        r"Releases (?:up to and including|through) (v\d+\.\d+\.\d+).*?"
         r"PolyForm Noncommercial(?: License)? 1\.0\.0",
         readme,
         flags=re.DOTALL,
