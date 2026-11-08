@@ -1,6 +1,6 @@
 # Package Map
 
-This repository contains five Composer packages. Three ship the analyzer and its entry points. Two exercise adapter compatibility in tests. The split tells you where to make a change.
+Three of this repository's five Composer packages ship the analyzer and its entry points; the other two test adapter compatibility. Use this map to find the package that owns a behavior.
 
 ## At a glance
 

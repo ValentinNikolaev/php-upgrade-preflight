@@ -76,6 +76,8 @@ Keep output outside the application. The parent directory must already exist and
 
 ## Options
 
+The options below describe the development checkout. These defaults are unreleased: `summary` output and `standard` Composer analysis. Published v0.3.5 defaults to JSON for `analyze` and Markdown for the wizard; its exhaustive probes correspond to the checkout's `full` mode. In scripts that parse reports, always pass `--format=json`.
+
 | Option | Repeatable | Default | Meaning |
 | --- | ---: | --- | --- |
 | `--path=PATH` | No | Laravel base path | Project directory to analyze |
@@ -86,8 +88,10 @@ Keep output outside the application. The parent directory must already exist and
 | `--with-extension=EXT[:VERSION]` | Yes | None | Model an extension as present |
 | `--without-extension=EXT` | Yes | None | Model an extension as absent |
 | `--source=PATH` | Yes | Adapter/default paths | Additional source inside the project |
-| `--format=json\|markdown` | No | `json` | Report format |
+| `--source-cache=PATH` | No | Off | Private source-facts cache outside the project; opt in explicitly |
+| `--format=summary\|json\|markdown` | No | `summary` | Compact summary, canonical JSON, or full Markdown |
 | `--output=PATH` | No | stdout | Report file outside the project |
+| `--analysis-mode=standard\|full` | No | `standard` | `standard` can stop after the exact target succeeds; `full` compares direct alternatives |
 | `--composer-mode=compatible\|restricted` | No | `compatible` | Composer execution policy |
 | `--composer-executable=PATH` | No | `composer` | Composer selection |
 | `--composer-version=RANGE` | No | `>=2.0.0 <3.0.0` | Expected Composer version |
@@ -166,7 +170,7 @@ php artisan upgrade:analyze \
   --target-php=8.3 \
   --with-extension=ext-curl:8.3.0 \
   --without-extension=ext-xdebug \
-  --output=../upgrade-reports/laravel-12.json
+  --format=json --output=../upgrade-reports/laravel-12.json
 ```
 
 Target profile:
@@ -176,7 +180,7 @@ php artisan upgrade:analyze \
   --target=laravel/framework:^12.0 \
   --target-platform-profile=../platform/php-83-production.json \
   --composer-mode=compatible \
-  --output=../upgrade-reports/laravel-12.json
+  --format=json --output=../upgrade-reports/laravel-12.json
 ```
 
 PowerShell:
@@ -186,7 +190,7 @@ php artisan upgrade:analyze `
   --target=laravel/framework:^12.0 `
   --target-platform-profile=..\platform\php-83-production.json `
   --composer-mode=compatible `
-  --output=..\upgrade-reports\laravel-12.json
+  --format=json --output=..\upgrade-reports\laravel-12.json
 ```
 
 A partial profile leaves unlisted values host-dependent. A complete profile treats unlisted supported safely simulated classes as absent and requires Composer 2.2+. Executable-bound Composer platform packages remain `toolchain_bound`.
@@ -239,7 +243,7 @@ The Artisan command returns:
 After code 0, read the JSON:
 
 ```powershell
-php artisan upgrade:analyze --target=laravel/framework:^11.0 --target-php=8.2 --output=..\upgrade-reports\report.json
+php artisan upgrade:analyze --target=laravel/framework:^11.0 --target-php=8.2 --format=json --output=..\upgrade-reports\report.json
 if ($LASTEXITCODE -ne 0) { throw 'Analyzer did not produce a report.' }
 $report = Get-Content -Raw ..\upgrade-reports\report.json | ConvertFrom-Json
 $report.resolution.status
@@ -264,7 +268,7 @@ php artisan upgrade:analyze \
   --composer-mode=compatible \
   --composer-timeout=600 \
   --composer-diagnostic-timeout=90 \
-  --output=../upgrade-reports/private-app.json
+  --format=json --output=../upgrade-reports/private-app.json
 ```
 
 Use compatible mode only with scoped credentials appropriate for the repositories Composer may contact. The exact Composer executable path and environment values are not serialized, but captured output still needs review before sharing.

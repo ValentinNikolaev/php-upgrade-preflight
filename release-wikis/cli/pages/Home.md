@@ -32,6 +32,8 @@ vendor\bin\upgrade-intel.bat --help
 
 ## Complete option table
 
+The options below describe the development checkout. These defaults are unreleased: `summary` output and `standard` Composer analysis. Published v0.3.5 defaults to JSON for `analyze` and Markdown for the wizard; its exhaustive probes correspond to the checkout's `full` mode. In scripts that parse reports, always pass `--format=json`.
+
 | Option | Repeatable | Default | Meaning |
 | --- | ---: | --- | --- |
 | `--path=PATH` | No | Current directory | Project directory to analyze |
@@ -42,10 +44,12 @@ vendor\bin\upgrade-intel.bat --help
 | `--with-extension=EXT[:VERSION]` | Yes | None | Model an extension as present, optionally at an exact version |
 | `--without-extension=EXT` | Yes | None | Model an extension as absent |
 | `--source=PATH` | Yes | Adapter/default paths | Additional file or directory inside the project |
+| `--source-cache=PATH` | No | Off | Private source-facts cache outside the project; opt in explicitly |
 | `--framework=NAME` | Yes | Auto-detection | Explicit installed framework adapter |
-| `--format=json\|markdown` | No | `json` | Report writer |
+| `--format=summary\|json\|markdown` | No | `summary` | Compact summary, canonical JSON, or full Markdown |
 | `--output=PATH` | No | stdout | Report file outside the project |
 | `--save-report=PATH` | No | None | Keep the report on stdout and save the identical rendered bytes outside the project |
+| `--analysis-mode=standard\|full` | No | `standard` | `standard` can stop after the exact target succeeds; `full` compares direct alternatives |
 | `--composer-mode=compatible\|restricted` | No | `compatible` | Composer state and network policy |
 | `--composer-executable=PATH` | No | `composer` | Composer command or executable selection |
 | `--composer-version=RANGE` | No | `>=2.0.0 <3.0.0` | Accepted Composer version constraint |
@@ -274,7 +278,7 @@ Both values must contain only digits. The allowed ranges are 1–3600 and 1–90
 Without `--output`, the report is written to stdout. Diagnostics and human progress are written only to stderr:
 
 ```bash
-vendor/bin/upgrade-intel analyze --path=/work/app --target-php=8.2 > /tmp/report.json
+vendor/bin/upgrade-intel analyze --path=/work/app --target-php=8.2 --format=json > /tmp/report.json
 ```
 
 Shell redirection happens before the analyzer validates a destination. Do not redirect stdout into the analyzed project.
@@ -282,7 +286,7 @@ Shell redirection happens before the analyzer validates a destination. Do not re
 For an atomic, validated copy while preserving the stdout report, use `--save-report`:
 
 ```bash
-vendor/bin/upgrade-intel analyze --path=/work/app --target-php=8.2 --save-report=/work/reports/app.json
+vendor/bin/upgrade-intel analyze --path=/work/app --target-php=8.2 --format=json --save-report=/work/reports/app.json
 ```
 
 The saved file contains the same rendered bytes emitted to stdout. The destination is validated before analysis and written with the same project-boundary checks as `--output`. `--output` and `--save-report` cannot be combined.
@@ -293,12 +297,12 @@ If you only need a file, `--output` checks that it sits outside the project, is 
 
 ```bash
 mkdir -p /work/reports
-vendor/bin/upgrade-intel analyze --path=/work/app --target-php=8.2 --output=/work/reports/app.json
+vendor/bin/upgrade-intel analyze --path=/work/app --target-php=8.2 --format=json --output=/work/reports/app.json
 ```
 
 ```powershell
 New-Item -ItemType Directory -Force C:\work\reports | Out-Null
-vendor\bin\upgrade-intel.bat analyze --path=C:\work\app --target-php=8.2 --output=C:\work\reports\app.json
+vendor\bin\upgrade-intel.bat analyze --path=C:\work\app --target-php=8.2 --format=json --output=C:\work\reports\app.json
 ```
 
 On success with `--output`, stdout contains a short “Wrote report” message rather than report JSON.

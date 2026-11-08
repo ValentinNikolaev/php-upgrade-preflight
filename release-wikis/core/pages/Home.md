@@ -312,51 +312,34 @@ A report field normally touches:
 - Markdown writer and snapshots when human-visible
 - documentation.
 
-Do not patch only a snapshot.
-
-Do not derive a second truth in Markdown.
+Update the model and its consumers as well as the snapshot. Markdown must project the same report rather than derive its own conclusions.
 
 ## Adding a Composer scenario
 
-Start in `ScenarioSelector`.
-
-Decide whether it determines target feasibility.
-
-Define its exact target set and dependency flags.
-
-Ensure execution-key deduplication remains correct.
-
-Teach workspace preparation only if the scenario requires new temporary input behavior.
-
-Add classifier, blocker, and report tests for new outcomes.
-
-Check analysis budgets.
+- Start in `ScenarioSelector`.
+- Decide whether it determines target feasibility.
+- Define its exact target set and dependency flags.
+- Ensure execution-key deduplication remains correct.
+- Teach workspace preparation only if the scenario requires new temporary input behavior.
+- Add classifier, blocker, and report tests for new outcomes.
+- Check analysis budgets.
 
 ## Adding a source usage type
 
-Add or extend an AST visitor.
-
-Represent the usage in `SourceUsage` vocabulary.
-
-Keep file paths project-relative.
-
-Add scanner tests with valid and invalid PHP examples.
-
-If actionable, update ownership/impact correlation separately.
-
-Do not make every new inventory item a finding.
+- Add or extend an AST visitor.
+- Represent the usage in `SourceUsage` vocabulary.
+- Keep file paths project-relative.
+- Add scanner tests with valid and invalid PHP examples.
+- If actionable, update ownership/impact correlation separately.
+- Do not make every new inventory item a finding.
 
 ## Adding an adapter capability
 
-Prefer a new optional interface when old adapters can remain useful without it.
-
-Contain third-party failures.
-
-Add a current test-adapter implementation.
-
-Verify `legacy-test-adapter` still loads.
-
-Document manifest and construction requirements.
+- Prefer a new optional interface when old adapters can remain useful without it.
+- Contain third-party failures.
+- Add a current test-adapter implementation.
+- Verify `legacy-test-adapter` still loads.
+- Document manifest and construction requirements.
 
 See [[Test Adapters|Test-Adapters]].
 

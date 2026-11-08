@@ -54,17 +54,17 @@ The output parent must exist and be writable. The destination must not be the pr
 Avoid this:
 
 ```bash
-vendor/bin/upgrade-intel analyze --path=/work/app --target-php=8.2 > /work/app/report.json
+vendor/bin/upgrade-intel analyze --path=/work/app --target-php=8.2 --format=json > /work/app/report.json
 ```
 
 The shell can create `/work/app/report.json` before the analyzer can reject that location. Use an external output path:
 
 ```bash
 mkdir -p /work/reports
-vendor/bin/upgrade-intel analyze --path=/work/app --target-php=8.2 --output=/work/reports/app.json
+vendor/bin/upgrade-intel analyze --path=/work/app --target-php=8.2 --format=json --output=/work/reports/app.json
 ```
 
-Use `--save-report=/work/reports/app.json` when the canonical report must also remain on stdout. It performs the same pre-analysis destination validation and writes the identical rendered bytes. It cannot be combined with `--output`.
+Use `--format=json` with `--save-report=/work/reports/app.json` when the canonical report must also remain on stdout. It performs the same pre-analysis destination validation and writes the identical rendered bytes. It cannot be combined with `--output`.
 
 Stdout carries the report, apart from the file-only `--output` acknowledgement. Diagnostics and terminal progress use stderr. Progress appears only when stderr is attached to a terminal. Redirecting it keeps the report pipe clean. A failed progress reporter cannot change analysis.
 

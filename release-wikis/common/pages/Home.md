@@ -12,9 +12,11 @@ It answers practical questions such as:
 - Can a multi-major Laravel path be solved one adjacent stage at a time?
 - Which conclusions are proven, which are inferred, and which remain unknown?
 
-The project stays as input. The analyzer copies its Composer manifests into temporary workspaces, runs Composer there with scripts and plugins disabled, parses PHP source, applies active adapter rules, and writes an evidence-backed report.
+The analyzer leaves the project unchanged. It copies Composer manifests into temporary workspaces, runs Composer there with scripts and plugins disabled, parses PHP source, applies active adapter rules, and reports the evidence.
 
 > **Public beta:** the current published line is v0.3.x. The latest release recorded in the repository is v0.3.5, and its canonical report schema is 0.8.
+
+The development checkout has unreleased `summary` output and `standard` Composer-analysis defaults. Published v0.3.5 uses JSON for `analyze` and Markdown for the wizard. Pass `--format=json` when a script needs the canonical report; use `--analysis-mode=full` in the checkout for exhaustive probes.
 
 ## What problem it solves
 

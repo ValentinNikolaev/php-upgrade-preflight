@@ -1,6 +1,6 @@
 # Core Analysis Pipeline
 
-Follow a request through `php-upgrade-preflight/core` here. The sequence helps you find the service behind a surprising result and see where an adapter or other change belongs.
+Follow a request through `php-upgrade-preflight/core` to find the service behind a surprising result or decide where a change belongs.
 
 ## The central contract
 
@@ -63,6 +63,8 @@ Paths in failure messages pass through `PathExposurePolicy` before entering a sh
 
 ## Scenario selection
 
+The development checkout defaults to `standard` analysis: it validates the baseline, tries the exact target, and runs the all-dependencies alternative for a failed package target. It omits minimal-change and optional ordering probes, recording those omissions as uncertainty without inferring outcomes. Select `--analysis-mode=full` for the exhaustive comparisons described below. Both modes retain framework staged analysis. This default change is unreleased.
+
 For a package target, `ScenarioSelector` starts with these scenarios:
 
 | Scenario | Purpose | Target feasibility? |
@@ -112,7 +114,7 @@ Restricted mode gives Composer less access to host configuration and network sta
 
 ## Selecting candidate evidence
 
-Several scenarios may succeed with candidate locks. `DefaultUpgradeAnalyzer` selects the candidate with the fewest package changes. Ties prefer the exact-target strategy, then minimal-changes, then with-all-dependencies, with original scenario order as the final tie-breaker.
+In `full` mode, several scenarios may succeed with candidate locks. `DefaultUpgradeAnalyzer` selects the candidate with the fewest package changes. Ties prefer the exact-target strategy, then minimal-changes, then with-all-dependencies, with original scenario order as the final tie-breaker.
 
 That candidate supplies the direct `LockDiff`. If no successful target-feasibility scenario has a readable lock, the diff is empty. Core cannot infer candidate package versions from solver text.
 

@@ -260,11 +260,7 @@ A safe first release can implement only the base integration:
 4. Yield one evidence-backed compatibility rule.
 5. Advertise the integration class in Composer metadata.
 
-Do not add staged solving until exact adjacent targets and PHP requirements are maintained.
-
-Do not add custom source vocabulary until it supports a real rule.
-
-That way, the report can show which capabilities the adapter actually supplies.
+Add staged solving only when exact adjacent targets and PHP requirements are maintained, and custom source vocabulary only when it supports a real rule. The report can then show which capabilities the adapter supplies.
 
 ### Expected activation behavior
 
@@ -291,33 +287,20 @@ Automatic detection must never require booting the target framework.
 
 ## Evidence design checklist
 
-Create evidence at the point where you observe the fact.
-
-Use E2 for Composer package metadata.
-
-Use E3 for AST-derived project source.
-
-Use E4 for maintained framework documentation encoded in the adapter.
-
-Use E5 only for a clearly described heuristic.
-
-Keep severity separate from confidence.
-
-Use structured context fields for package, constraint, file, line, transition, and source URL data.
-
-Reference every evidence ID from a finding, guidance item, hop, stage, plan item, or explicit uncertainty.
+- Create evidence at the point where you observe the fact.
+- Use E2 for Composer package metadata.
+- Use E3 for AST-derived project source.
+- Use E4 for maintained framework documentation encoded in the adapter.
+- Use E5 only for a clearly described heuristic.
+- Keep severity separate from confidence.
+- Use structured context fields for package, constraint, file, line, transition, and source URL data.
+- Reference every evidence ID from a finding, guidance item, hop, stage, plan item, or explicit uncertainty.
 
 The final report rejects references to missing IDs and evidence with no report claim.
 
 ## Compatibility evolution
 
-New adapter capabilities should normally be optional Core interfaces.
-
-The repository proves this with two fixture packages.
-
-`test-adapter` implements current transition, staging, package-family, and source-rule behavior.
-
-`legacy-test-adapter` implements only the older base and transition contracts.
+New adapter capabilities should normally be optional Core interfaces. The repository tests this with two fixture packages. `test-adapter` implements current transition, staging, package-family, and source-rule behavior. `legacy-test-adapter` implements only the older base and transition contracts.
 
 When adding a capability, test both fixtures:
 
